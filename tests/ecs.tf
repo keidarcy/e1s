@@ -2,9 +2,9 @@ locals {
   name                                  = "e1s"
   cidr_block                            = "10.0.0.0/16"
   availability_zones                    = ["us-east-1a", "us-east-1c", "us-east-1d"]
-  cluster_count                         = 10
-  service_count                         = 10
-  task_count                            = 5
+  cluster_count                         = 2
+  service_count                         = 3
+  task_count                            = 2
   container_name                        = "nginx"
   container_port                        = "80"
   container_definitions_with_fluent_bit = <<EOL

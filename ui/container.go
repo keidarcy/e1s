@@ -147,6 +147,9 @@ func (v *ContainerView) tableParam() (title string, headers []string, dataBuilde
 
 // SSH into selected container
 func (v *ContainerView) ssh(containerName string) {
+	if v.app.readonly {
+		return
+	}
 	bin, err := exec.LookPath(awsCli)
 	if err != nil {
 		logger.Printf("aws binary not found, error: %v\n", err)

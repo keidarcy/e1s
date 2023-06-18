@@ -46,7 +46,7 @@ type App struct {
 }
 
 func init() {
-	flag.BoolVar(&readonly, "readonly", true, "Enable readonly mode")
+	flag.BoolVar(&readonly, "readonly", false, "Enable readonly mode")
 }
 
 func newApp() *App {
