@@ -1,0 +1,31 @@
+before:
+  hooks:
+    - go mod download
+builds:
+  - binary: e1s
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    env:
+      - CGO_ENABLED=0
+
+release:
+  prerelease: auto
+
+universal_binaries:
+  - replace: true
+
+brews:
+  - name: e1s
+    homepage: https://github.com/keidarcy/e1s
+    description: e1s is a terminal application to simply browsing and manage AWS ECS resources, with a focus on Fargate. Inspired by k9s.
+    tap:
+      owner: keidarcy
+      name: homebrew-tap
+
+checksum:
+  name_template: '{{ .ProjectName }}_{{ .Version }}_checksums.txt'
