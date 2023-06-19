@@ -2,14 +2,7 @@
 
 `e1s` is a terminal application to easily browsing and manage AWS ECS resources 🐱, with a focus on [Fargate](https://aws.amazon.com/fargate). Inspired by [k9s](https://github.com/derailed/k9s).
 
-![e1s](./docs/e1s.png)
-
-<details>
-  <summary>demo</summary>
-
-  ![e1s-demo](./docs/e1s-demo.gif)
-</details>
-
+![e1s](./docs/e1s.gif)
 
 ## Installation
 
