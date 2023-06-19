@@ -9,13 +9,15 @@
 
 ## Usage
 
-To run this example you need to execute:
+To run this example you need to execute.
 
 ```bash
 $ terraform init
 $ terraform plan
 $ terraform apply
 ```
+
+__THIS WILL BE CHARGED TO YOUR AWS ACCOUNT__
 
 ### Cleanup
 

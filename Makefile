@@ -17,6 +17,12 @@ tag:
 	git tag -a v$(VERSION) -m "Release v$(VERSION)"
 	git push origin v$(VERSION)
 
+plan:
+	cd tests && terraform plan -var="cluster_count=10" -var="service_count=10" -var="task_count=10"
+
+apply:
+	cd tests && terraform apply -var="cluster_count=10" -var="service_count=10" -var="task_count=10"
+
 .PHONY: \
 	dep \
 	install \

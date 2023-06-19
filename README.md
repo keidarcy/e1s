@@ -5,7 +5,7 @@
 ![e1s](./docs/e1s.png)
 
 <details>
-  <summary>Demo</summary>
+  <summary>demo</summary>
 
   ![e1s-demo](./docs/e1s-demo.gif)
 </details>
@@ -43,13 +43,18 @@ brew install keidarcy/tap/e1s
   - [x] Task definition(choose revision of current task definition family)
   - [x] Force new deployment
   - [ ] Task definition(choose task definition family and revision)
-- [ ] Edit autoscaling 
+- [ ] Edit autoscaling
 - [ ] Edit task definition
 - [ ] Execute any command in container
 
 ### SSH into container ([ECS Exec](https://docs.aws.amazon.com/AmazonECS/latest/userguide/ecs-exec.html))
 
-![ssh](./docs/ssh.png)
+<details>
+  <summary>ssh demo</summary>
+
+  ![ssh-demo](./docs/ssh-demo.gif)
+</details>
+
 
 If you experience any issue with ssh, please check [documents](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-exec.html#ecs-exec-enabling) and [aws-ecs-exec-checker](https://github.com/aws-containers/amazon-ecs-exec-checker).
 
@@ -60,9 +65,9 @@ Use `ctrl` + `d` to end ssh session.
 ### Edit service([Docs](https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_UpdateService.html))
 
 <details>
-  <summary>Demo</summary>
+  <summary>edit service demo</summary>
 
-  ![service-update-demo](./docs/service-update-demo.gif)
+  ![edit-service-demo](./docs/edit-service-demo.gif)
 </details>
 
 - Desired count: Desired count of service
@@ -117,6 +122,9 @@ $ AWS_PROFILE=my-profile e1s -readonly
 ```bash
 tail -f /tmp/e1s_debug.log
 ```
+
+## Note
+**e1s reads your ~/.aws/config file, but it does not store or send your access and secret key anywhere. The access and secret key is used only to securely connect to AWS API via AWS SDK.**
 
 ## Feature Requests & Bug Reports
 
