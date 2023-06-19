@@ -22,6 +22,53 @@ e1s is available on Linux, macOS and Windows platforms.
 brew install keidarcy/tap/e1s
 ```
 
+## Features
+
+### Basic
+
+- [x] Read only mode
+- [x] Describe clusters
+- [x] Describe services
+- [x] Describe tasks
+- [x] Describe containers
+- [x] Describe task definitions
+- [x] Describe service autoscaling
+- [x] Describe Metrics
+  - [x] CPUUtilization
+  - [x] MemoryUtilization
+- [x] Open selected resource in browser(support new UI(v2))
+- [x] SSH into container
+- [x] Edit service
+  - [x] Desired count
+  - [x] Task definition(choose revision of current task definition family)
+  - [x] Force new deployment
+  - [ ] Task definition(choose task definition family and revision)
+- [ ] Edit autoscaling 
+- [ ] Edit task definition
+- [ ] Execute any command in container
+
+### SSH into container ([ECS Exec](https://docs.aws.amazon.com/AmazonECS/latest/userguide/ecs-exec.html))
+
+![ssh](./docs/ssh.png)
+
+If you experience any issue with ssh, please check [documents](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-exec.html#ecs-exec-enabling) and [aws-ecs-exec-checker](https://github.com/aws-containers/amazon-ecs-exec-checker).
+
+Use `ctrl` + `d` to end ssh session.
+
+> tips: check [task role policy](https://github.com/keidarcy/e1s/blob/master/tests/ecs.tf#L157-L168)
+
+### Edit service([Docs](https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_UpdateService.html))
+
+<details>
+  <summary>Demo</summary>
+
+  ![service-update-demo](./docs/service-update-demo.gif)
+</details>
+
+- Desired count: Desired count of service
+- Task definition: Task definition of service(change revision of current task definition family)
+- Force new deployment: Force new deployment of service
+
 ## Usage
 
 ### Run `e1s`
@@ -56,13 +103,14 @@ $ AWS_PROFILE=my-profile e1s -readonly
 | `Esc` | Go to previous view |
 | `d` | Describe selected resource |
 | `t` | Describe task definition |
-| `r` | List task definition revisions |
 | `w` | Describe service events |
 | `a` | Describe service auto scaling |
 | `m` | Describe service metrics(CPUUtilization/MemoryUtilization) |
-| `e` | Update service in modal |
-| `b` | Open selected resource in AWS web console(only support new UI(v2)) |
+| `r` | List task definition revisions |
+| `e` | Edit service in modal |
+| `b` | Open selected resource in AWS web console |
 | `ctrl` + `c` | Quit |
+| `ctrl` + `d` | Exit from container |
 
 ### Logs
 
@@ -70,50 +118,10 @@ $ AWS_PROFILE=my-profile e1s -readonly
 tail -f /tmp/e1s_debug.log
 ```
 
-## Features
-
-### Basic
-
-- [x] List/Describe clusters
-- [x] List/Describe services
-- [x] List/Describe tasks
-- [x] List/Describe containers
-- [x] List/Describe task definitions
-- [x] Open selected resource in browser
-- [x] SSH into container
-- [x] Update service
-  - [x] Desired count
-  - [x] Task definition(choose revision of current task definition family)
-  - [x] Force new deployment
-  - [ ] Task definition(choose task definition family and revision)
-- [x] Describe service autoscaling
-- [x] Metrics
-  - [x] CPUUtilization
-  - [x] MemoryUtilization
-- [x] Read only mode
-
-### SSH into container ([ECS Exec](https://docs.aws.amazon.com/AmazonECS/latest/userguide/ecs-exec.html))
-
-If you experience any issue with SSH, please check [documents](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-exec.html#ecs-exec-enabling) and [aws-ecs-exec-checker](https://github.com/aws-containers/amazon-ecs-exec-checker).
-
-![ssh](./docs/ssh.png)
-
-- tips: check [task role policy](https://github.com/keidarcy/e1s/blob/master/tests/ecs.tf#L157-L168)
-
-### Update service([Docs](https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_UpdateService.html))
-
-- Desired count: Update desired count of service
-- Task definition: Update task definition of service(change revision of current task definition family)
-- Force new deployment: Force new deployment of service
-
-<details>
-  <summary>Demo</summary>
-
-  ![service-update-demo](./docs/service-update-demo.gif)
-</details>
-
 ## Feature Requests & Bug Reports
 
 If you have any feature requests or bug reports, please submit them through GitHub [Issues](https://github.com/keidarcy/e1s/issues).
 
 ## License
+
+MIT
