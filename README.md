@@ -1,8 +1,12 @@
-# e1s: ECS In Terminal
+# E1S - Easily Manage AWS ECS Resources in Terminal 🐱✨
 
-`e1s` is a terminal application to easily browsing and manage AWS ECS resources 🐱, with a focus on [Fargate](https://aws.amazon.com/fargate). Inspired by [k9s](https://github.com/derailed/k9s).
+`e1s` is a terminal application to easily browsing and manage AWS ECS resources, with a focus on [Fargate](https://aws.amazon.com/fargate). Inspired by [k9s](https://github.com/derailed/k9s).
 
 ![e1s-demo](./docs/e1s-demo.gif)
+
+## Note
+
+e1s reads your ~/.aws/config file, but it does not store or send your access and secret key anywhere. The access and secret key is used only to securely connect to AWS API via AWS SDK.
 
 ## Installation
 
@@ -115,9 +119,6 @@ $ AWS_PROFILE=my-profile e1s -readonly
 ```bash
 tail -f /tmp/e1s_debug.log
 ```
-
-## Note
-**e1s reads your ~/.aws/config file, but it does not store or send your access and secret key anywhere. The access and secret key is used only to securely connect to AWS API via AWS SDK.**
 
 ## Feature Requests & Bug Reports
 
