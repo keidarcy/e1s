@@ -33,11 +33,11 @@ func styledForm() *tview.Form {
 }
 
 func (v *View) errorModal(text string) {
-	v.flashModal(fmt.Sprintf(" [red::b]%s ", text), 3)
+	v.flashModal(fmt.Sprintf("[red::b]%s ", text), 3)
 }
 
 func (v *View) successModal(text string) {
-	v.flashModal(fmt.Sprintf(" [green::b]%s ", text), 3)
+	v.flashModal(fmt.Sprintf("[green::b]%s ", text), 3)
 }
 
 // show a flash modal in a given time duration

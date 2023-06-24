@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -242,14 +243,14 @@ func (v *View) serviceUpdateForm() (*tview.Form, string) {
 			DesiredCount:       aws.Int32(int32(desiredInt)),
 			ForceNewDeployment: force,
 		}
-		err = v.app.Store.UpdateService(input)
+		s, err := v.app.Store.UpdateService(input)
 
 		if err != nil {
 			v.closeModal()
 			go v.errorModal(err.Error())
 		} else {
 			v.closeModal()
-			go v.successModal("SUCCESS!")
+			go v.successModal(fmt.Sprintf("SUCCESS 🚀\nDesiredCount: %d\nTaskDefinition: %s\n", s.DesiredCount, *s.TaskDefinition))
 		}
 	})
 	return f, title

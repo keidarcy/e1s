@@ -49,13 +49,13 @@ func (store *Store) ListServices(clusterName *string) ([]types.Service, error) {
 
 // Equivalent to
 // aws ecs update-service --cluster ${cluster} --service ${service} --desired-count ${count} --force-new-deployment
-func (store *Store) UpdateService(input *ecs.UpdateServiceInput) error {
+func (store *Store) UpdateService(input *ecs.UpdateServiceInput) (*types.Service, error) {
 	logger.Printf("cluster: %s, service: %s, desiredCount: %d, taskDef: %s, force: %t\n", *input.Cluster, *input.Service, *input.DesiredCount, *input.TaskDefinition, input.ForceNewDeployment)
-	_, err := store.ecs.UpdateService(context.Background(), input)
+	updateOutput, err := store.ecs.UpdateService(context.Background(), input)
 
 	if err != nil {
 		logger.Printf("aws failed to update service, err: %v\n", err)
-		return err
+		return nil, err
 	}
-	return nil
+	return updateOutput.Service, nil
 }
