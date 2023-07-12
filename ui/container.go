@@ -4,9 +4,12 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"os/signal"
 	"strings"
+	"syscall"
 
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
+	"github.com/gdamore/tcell/v2"
 	"github.com/keidarcy/e1s/util"
 	"github.com/rivo/tview"
 )
@@ -85,6 +88,18 @@ func (v *ContainerView) tableHandler() {
 		containerName := v.table.GetCell(row, column).Text
 		v.ssh(containerName)
 	})
+
+	v.table.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		key := event.Rune()
+
+		// simulate selected action(ssh)
+		if key == lKey || key == lKey-upperLowerDiff {
+			selected := v.getCurrentSelection()
+			containerName := *selected.container.Name
+			v.ssh(containerName)
+		}
+		return event
+	})
 }
 
 // Generate info pages params
@@ -147,6 +162,9 @@ func (v *ContainerView) tableParam() (title string, headers []string, dataBuilde
 
 // SSH into selected container
 func (v *ContainerView) ssh(containerName string) {
+	// catch ctrl+C & SIGTERM
+	interrupt := make(chan os.Signal, 1)
+	signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM)
 	if v.app.readonly {
 		return
 	}
@@ -177,7 +195,8 @@ func (v *ContainerView) ssh(containerName string) {
 		// ignore the stderr from ssh server
 		_, err = cmd.Stdout.Write([]byte(fmt.Sprintf(sshBannerFmt, *v.app.cluster.ClusterName, *v.app.service.ServiceName, util.ArnToName(v.app.task.TaskArn), containerName)))
 		err = cmd.Run()
-		// v.back()
+		// return signal
+		signal.Stop(interrupt)
+		close(interrupt)
 	})
-
 }

@@ -103,6 +103,10 @@ func (v *View) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 			v.switchToAutoScaling()
 		} else if key == eKey || key == eKey-upperLowerDiff {
 			v.switchUpdateServiceModal()
+		} else if key == hKey || key == hKey-upperLowerDiff {
+			v.handleDone(0)
+		} else if key == lKey || key == lKey-upperLowerDiff {
+			v.handleSelected(0, 0)
 		}
 	}
 	return event

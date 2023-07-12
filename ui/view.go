@@ -36,15 +36,17 @@ const (
 )
 
 const (
-	bKey = 'b'
-	eKey = 'e'
-	dKey = 'd'
-	tKey = 't'
-	rKey = 'r'
-	wKey = 'w'
-	fKey = 'f'
-	mKey = 'm'
 	aKey = 'a'
+	bKey = 'b'
+	dKey = 'd'
+	eKey = 'e'
+	fKey = 'f'
+	hKey = 'h'
+	lKey = 'l'
+	mKey = 'm'
+	rKey = 'r'
+	tKey = 't'
+	wKey = 'w'
 
 	upperLowerDiff = rune(32)
 )
