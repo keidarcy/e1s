@@ -101,13 +101,13 @@ $ AWS_PROFILE=my-profile e1s -readonly
 | --- | --- |
 | `↓`, `j` | Select next item |
 | `↑`, `k` | Select previous item |
-| `Enter` | Enter current resource/SSH |
-| `Esc` | Go to previous view |
+| `Enter`, `l` | Enter current resource/SSH |
+| `Esc`, `h` | Go to previous view |
 | `d` | Describe selected resource |
 | `t` | Describe task definition |
 | `w` | Describe service events |
-| `a` | Describe service auto scaling |
-| `m` | Describe service metrics(CPUUtilization/MemoryUtilization) |
+| `a` | Show service auto scaling |
+| `m` | Show service metrics(CPUUtilization/MemoryUtilization) |
 | `r` | List task definition revisions |
 | `e` | Edit service in modal |
 | `b` | Open selected resource in AWS web console |

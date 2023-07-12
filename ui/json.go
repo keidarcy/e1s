@@ -91,6 +91,7 @@ func (v *View) switchToMetrics() {
 	v.showJsonPages(entity, "metrics")
 }
 
+// Deprecated
 // Switch to auto scaling get by applicationautoscaling
 func (v *View) switchToAutoScaling() {
 	selected := v.getCurrentSelection()

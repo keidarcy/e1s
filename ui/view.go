@@ -26,8 +26,8 @@ const (
 	describeTaskDefinition          = "Describe task definition"
 	describeTaskDefinitionRevisions = "Describe task definition revisions"
 	describeServiceEvents           = "Describe service events"
-	describeAutoScaling             = "Describe auto scaling"
-	describeMetrics                 = "Describe metrics"
+	showAutoScaling                 = "Describe auto scaling"
+	showMetrics                     = "Describe metrics"
 
 	updateService    = "Update Service"
 	openInBrowser    = "Open in browser"
@@ -195,7 +195,6 @@ func (v *View) back() {
 func (v *View) closeModal() {
 	if v.app.cluster == nil {
 		v.app.Stop()
-		fmt.Println("e1s stopped")
 		return
 	}
 	toPage := v.kind.getAppPageName(v.getClusterArn())

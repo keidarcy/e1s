@@ -1,11 +1,6 @@
 package ui
 
 import (
-	"fmt"
-	"strconv"
-
-	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/service/ecs"
 	"github.com/gdamore/tcell/v2"
 	"github.com/keidarcy/e1s/util"
 	"github.com/rivo/tview"
@@ -100,9 +95,11 @@ func (v *View) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 		} else if key == mKey || key == mKey-upperLowerDiff {
 			v.switchToMetrics()
 		} else if key == aKey || key == aKey-upperLowerDiff {
-			v.switchToAutoScaling()
+			v.showAutoScaling()
+			// } else if key == 'i' {
+			// 	v.switchToAutoScaling()
 		} else if key == eKey || key == eKey-upperLowerDiff {
-			v.switchUpdateServiceModal()
+			v.showUpdateServiceModal()
 		} else if key == hKey || key == hKey-upperLowerDiff {
 			v.handleDone(0)
 		} else if key == lKey || key == lKey-upperLowerDiff {
@@ -166,96 +163,4 @@ func (v *View) openInBrowser() {
 	if err != nil {
 		logger.Printf("failed open url %s\n", url)
 	}
-}
-
-// Show update service modal and handle submit event
-func (v *View) switchUpdateServiceModal() {
-	if v.kind != ServicePage {
-		return
-	}
-	form, title := v.serviceUpdateForm()
-	v.app.Pages.AddPage(title, modal(form, 100, 15), true, true)
-}
-
-// Get service update form
-func (v *View) serviceUpdateForm() (*tview.Form, string) {
-	selected := v.getCurrentSelection()
-	name := *selected.service.ServiceName
-
-	readonly := ""
-	if v.app.readonly {
-		readonly = "[-:-:-](readonly) "
-	}
-
-	title := " Update [purple::b]" + name + " " + readonly
-	family := v.getTaskDefinitionFamily()
-
-	// get data for form
-	taskDefinitions, err := v.app.Store.ListTaskDefinition(&family)
-	if err != nil {
-		v.closeModal()
-	}
-	revisions := []string{}
-	for _, td := range taskDefinitions {
-		def := td
-		family, revision := getTaskDefinitionInfo(&def)
-		revisions = append(revisions, family+":"+revision)
-	}
-	f := styledForm()
-
-	// handle ESC key close modal
-	f.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		if event.Key() == tcell.KeyESC {
-			v.closeModal()
-		}
-		return event
-	})
-
-	// build form title, input fields
-	f.SetTitle(title).SetTitleAlign(tview.AlignLeft)
-	forceLabel := "Force new deployment"
-	desiredLabel := "Desired tasks"
-	taskDefLabel := "Task definition revision"
-	f.AddCheckbox(forceLabel, false, nil)
-	f.AddInputField(desiredLabel, strconv.Itoa(int(selected.service.DesiredCount)), 10, nil, nil)
-	f.AddDropDown(taskDefLabel, revisions, 30, nil)
-
-	// handle form close
-	f.AddButton("Cancel", func() {
-		v.closeModal()
-	})
-
-	// readonly mode has no submit button
-	if v.app.readonly {
-		return f, title
-	}
-
-	// handle form submit
-	f.AddButton("Update", func() {
-		desired := f.GetFormItemByLabel(desiredLabel).(*tview.InputField).GetText()
-		desiredInt, err := strconv.Atoi(desired)
-		if err != nil {
-			return
-		}
-
-		_, revision := f.GetFormItemByLabel(taskDefLabel).(*tview.DropDown).GetCurrentOption()
-		force := f.GetFormItemByLabel(forceLabel).(*tview.Checkbox).IsChecked()
-		input := &ecs.UpdateServiceInput{
-			Service:            aws.String(name),
-			Cluster:            v.app.cluster.ClusterName,
-			TaskDefinition:     aws.String(revision),
-			DesiredCount:       aws.Int32(int32(desiredInt)),
-			ForceNewDeployment: force,
-		}
-		s, err := v.app.Store.UpdateService(input)
-
-		if err != nil {
-			v.closeModal()
-			go v.errorModal(err.Error())
-		} else {
-			v.closeModal()
-			go v.successModal(fmt.Sprintf("SUCCESS 🚀\nDesiredCount: %d\nTaskDefinition: %s\n", s.DesiredCount, *s.TaskDefinition))
-		}
-	})
-	return f, title
 }

@@ -9,17 +9,19 @@ import (
 )
 
 // modal to show in the middle of screen for any usage
-func modal(p tview.Primitive, width, height int) tview.Primitive {
-	return tview.NewFlex().
+func (v *View) modal(p tview.Primitive, width, height int) tview.Primitive {
+	m := tview.NewFlex().
 		AddItem(nil, 0, 1, false).
 		AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
 			AddItem(nil, 0, 1, false).
 			AddItem(p, height, 1, true).
 			AddItem(nil, 0, 1, false), width, 1, true).
 		AddItem(nil, 0, 1, false)
+
+	return m
 }
 
-func styledForm() *tview.Form {
+func (v *View) styledForm(title string) *tview.Form {
 	f := tview.NewForm()
 	// f.SetItemPadding(0)
 	f.SetButtonsAlign(tview.AlignCenter).
@@ -29,6 +31,17 @@ func styledForm() *tview.Form {
 		SetFieldBackgroundColor(tcell.ColorDarkCyan).
 		SetFieldTextColor(tcell.ColorOrange).
 		SetBorder(true)
+
+	// build form title, input fields
+	f.SetTitle(title).SetTitleAlign(tview.AlignLeft)
+
+	// handle ESC key close modal
+	f.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		if event.Key() == tcell.KeyESC {
+			v.closeModal()
+		}
+		return event
+	})
 	return f
 }
 
@@ -44,7 +57,7 @@ func (v *View) successModal(text string) {
 func (v *View) flashModal(text string, duration int) {
 	t := tview.NewTextView().SetDynamicColors(true).SetText(text)
 	t.SetBorder(true)
-	v.app.Pages.AddPage(text, modal(t, 100, 10), true, true)
+	v.app.Pages.AddPage(text, v.modal(t, 100, 10), true, true)
 	t.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		v.closeModal()
 		return event

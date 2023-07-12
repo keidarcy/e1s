@@ -21,8 +21,8 @@ func newServiceView(services []types.Service, app *App) *ServiceView {
 		{key: string(wKey), description: describeServiceEvents},
 		{key: string(tKey), description: describeTaskDefinition},
 		{key: string(rKey), description: describeTaskDefinitionRevisions},
-		{key: string(mKey), description: describeMetrics},
-		{key: string(aKey), description: describeAutoScaling},
+		{key: string(mKey), description: showMetrics},
+		{key: string(aKey), description: showAutoScaling},
 		{key: string(eKey), description: updateService},
 	}...)
 	return &ServiceView{
