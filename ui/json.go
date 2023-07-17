@@ -73,6 +73,7 @@ func (v *View) switchToServiceEvents() {
 	v.showJsonPages(selected, "events")
 }
 
+// Deprecated
 // Switch to Metrics get by cloudwatch
 func (v *View) switchToMetrics() {
 	selected := v.getCurrentSelection()

@@ -80,31 +80,42 @@ func (v *View) handleSelected(row, column int) {
 
 // Handle keyboard input
 func (v *View) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
-	if event.Key() == tcell.KeyRune {
-		key := event.Rune()
-		if key == bKey || key == bKey-upperLowerDiff {
-			v.openInBrowser()
-		} else if key == dKey || key == dKey-upperLowerDiff {
-			v.switchToResourceJson()
-		} else if key == tKey || key == tKey-upperLowerDiff {
-			v.switchToTaskDefinition()
-		} else if key == rKey || key == rKey-upperLowerDiff {
-			v.switchToTaskDefinitionRevisions()
-		} else if key == wKey || key == wKey-upperLowerDiff {
-			v.switchToServiceEvents()
-		} else if key == mKey || key == mKey-upperLowerDiff {
-			v.switchToMetrics()
-		} else if key == aKey || key == aKey-upperLowerDiff {
-			v.showAutoScaling()
-			// } else if key == 'i' {
-			// 	v.switchToAutoScaling()
-		} else if key == eKey || key == eKey-upperLowerDiff {
-			v.showUpdateServiceModal()
-		} else if key == hKey || key == hKey-upperLowerDiff {
+	if event.Key() != tcell.KeyRune {
+		switch event.Key() {
+		case tcell.KeyLeft:
+			// Handle left arrow key
 			v.handleDone(0)
-		} else if key == lKey || key == lKey-upperLowerDiff {
+		case tcell.KeyRight:
+			// Handle right arrow key
 			v.handleSelected(0, 0)
 		}
+		return event
+	}
+
+	key := event.Rune()
+	switch key {
+	case bKey, bKey - upperLowerDiff:
+		v.openInBrowser()
+	case dKey, dKey - upperLowerDiff:
+		v.switchToResourceJson()
+	case tKey, tKey - upperLowerDiff:
+		v.switchToTaskDefinition()
+	case rKey, rKey - upperLowerDiff:
+		v.switchToTaskDefinitionRevisions()
+	case wKey, wKey - upperLowerDiff:
+		v.switchToServiceEvents()
+	case mKey, mKey - upperLowerDiff:
+		v.showMetrics()
+	case aKey, aKey - upperLowerDiff:
+		v.showAutoScaling()
+	//  case 'i' {
+	// 	v.switchToAutoScaling()
+	case eKey, eKey - upperLowerDiff:
+		v.showUpdateServiceModal()
+	case hKey, hKey - upperLowerDiff:
+		v.handleDone(0)
+	case lKey, lKey - upperLowerDiff:
+		v.handleSelected(0, 0)
 	}
 	return event
 }

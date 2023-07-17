@@ -68,3 +68,37 @@ func TestArnToURL(t *testing.T) {
 		})
 	}
 }
+
+func TextBuildMeterText(t *testing.T) {
+	testCases := []struct {
+		name  string
+		input float64
+		want  string
+	}{
+		{
+			name:  "value=2.123",
+			input: 2.123,
+			want:  "█▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒",
+		},
+		{
+			name:  "value=12.123",
+			input: 12.123,
+			want:  "██▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒",
+		},
+		{
+			name:  "value=2.123",
+			input: 52.123,
+			want:  "██████████▒▒▒▒▒▒▒▒▒▒",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			result := BuildMeterText(tc.input)
+			if result != tc.want {
+				t.Errorf("input: %v, want: %v, results %v\n", tc.input, tc.want, result)
+			}
+		})
+	}
+
+}

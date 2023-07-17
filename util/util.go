@@ -147,3 +147,21 @@ func OpenURL(url string) error {
 	}
 	return nil
 }
+
+func BuildMeterText(f float64) string {
+	const yesBlock = "█"
+	const noBlock = "▒"
+	i := int(f)
+
+	yesNum := i / 5
+	if yesNum == 0 {
+		yesNum++
+	}
+	noNum := 20 - yesNum
+	meterVal := strings.Join([]string{
+		strings.Repeat(yesBlock, yesNum),
+		strings.Repeat(noBlock, noNum),
+	}, "")
+
+	return meterVal + " " + fmt.Sprintf("%.2f", f) + "%"
+}

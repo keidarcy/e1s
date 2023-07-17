@@ -26,8 +26,8 @@ const (
 	describeTaskDefinition          = "Describe task definition"
 	describeTaskDefinitionRevisions = "Describe task definition revisions"
 	describeServiceEvents           = "Describe service events"
-	showAutoScaling                 = "Describe auto scaling"
-	showMetrics                     = "Describe metrics"
+	showAutoScaling                 = "Show auto scaling"
+	showMetrics                     = "Show metrics"
 
 	updateService    = "Update Service"
 	openInBrowser    = "Open in browser"
@@ -210,7 +210,8 @@ func (v *View) addFooterItems() {
 
 	// keep middle space
 	keysLabel := tview.NewTextView().
-		SetText(footerKeyFmt)
+		// SetText(footerKeyFmt)
+		SetText("")
 	keysLabel.SetDynamicColors(true).SetTextAlign(tview.AlignCenter)
 	v.footer.footer.
 		AddItem(keysLabel, 0, 1, false)

@@ -18,6 +18,14 @@ func (v *View) modal(p tview.Primitive, width, height int) tview.Primitive {
 			AddItem(nil, 0, 1, false), width, 1, true).
 		AddItem(nil, 0, 1, false)
 
+	// handle ESC key close modal
+	m.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		if event.Key() == tcell.KeyESC {
+			v.closeModal()
+		}
+		return event
+	})
+
 	return m
 }
 
@@ -35,13 +43,6 @@ func (v *View) styledForm(title string) *tview.Form {
 	// build form title, input fields
 	f.SetTitle(title).SetTitleAlign(tview.AlignLeft)
 
-	// handle ESC key close modal
-	f.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		if event.Key() == tcell.KeyESC {
-			v.closeModal()
-		}
-		return event
-	})
 	return f
 }
 

@@ -45,12 +45,12 @@ func (store *Store) GetMetrics(cluster, service *string) (*MetricsData, error) {
 //					--namespace AWS/ECS \
 //					--metric-name CPUUtilization \
 //					--statistics Average \
-//					--start-time "$(date -u -v -5M +'%Y-%m-%dT%H:%M:%SZ')" \
+//					--start-time "$(date -u -v -30M +'%Y-%m-%dT%H:%M:%SZ')" \
 //					--end-time "$(date -u +'%Y-%m-%dT%H:%M:%SZ')" \
-//					--period 60 \
-//					--dimensions Name=ClusterName,Value={clusterName} Name=ServiceName,Value={serviceName}
+//					--period 1800 \
+//					--dimensions Name=ClusterName,Value=${clusterName} Name=ServiceName,Value=${serviceName}
 //
-// Get last 5 minute, granularity 60s CPUUtilization
+// Get last 30 minute, granularity 1800 seconds CPUUtilization
 func (store *Store) getCPU(cluster, service *string) ([]types.Datapoint, error) {
 	statisticsInput := store.getStatisticsInput(cluster, service)
 	statisticsInput.MetricName = aws.String(CPU)
@@ -70,12 +70,12 @@ func (store *Store) getCPU(cluster, service *string) ([]types.Datapoint, error) 
 //					--namespace AWS/ECS \
 //					--metric-name MemoryUtilization \
 //					--statistics Average \
-//					--start-time "$(date -u -v -5M +'%Y-%m-%dT%H:%M:%SZ')" \
+//					--start-time "$(date -u -v -30M +'%Y-%m-%dT%H:%M:%SZ')" \
 //					--end-time "$(date -u +'%Y-%m-%dT%H:%M:%SZ')" \
-//					--period 60 \
-//					--dimensions Name=ClusterName,Value={clusterName} Name=ServiceName,Value={serviceName}
+//					--period 1800 \
+//					--dimensions Name=ClusterName,Value=${clusterName} Name=ServiceName,Value=${serviceName}
 //
-// Get last 5 minute, granularity 60s MemoryUtilization
+// Get last 30 minute, granularity 1800 seconds CPUUtilization
 func (store *Store) getMemory(cluster, service *string) ([]types.Datapoint, error) {
 	statisticsInput := store.getStatisticsInput(cluster, service)
 	statisticsInput.MetricName = aws.String(Memory)
@@ -92,10 +92,12 @@ func (store *Store) getMemory(cluster, service *string) ([]types.Datapoint, erro
 func (store *Store) getStatisticsInput(cluster, service *string) *cloudwatch.GetMetricStatisticsInput {
 	store.getCloudWatchClient()
 
+	// period := 30
+	// granularity := 1800
 	statistic := []types.Statistic{types.StatisticAverage}
-	fiveMinutesAgo := time.Now().Add(-5 * time.Minute)
+	halfHourAgo := time.Now().Add(-30 * time.Minute)
 	now := time.Now()
-	period := int32(60)
+	period := int32(1800)
 	dimensions := []types.Dimension{
 		{
 			Name:  aws.String("ClusterName"),
@@ -110,7 +112,7 @@ func (store *Store) getStatisticsInput(cluster, service *string) *cloudwatch.Get
 		MetricName: aws.String("CPUUtilization"),
 		Namespace:  aws.String("AWS/ECS"),
 		Statistics: statistic,
-		StartTime:  aws.Time(fiveMinutesAgo),
+		StartTime:  aws.Time(halfHourAgo),
 		EndTime:    aws.Time(now),
 		Period:     aws.Int32(period),
 		Dimensions: dimensions,

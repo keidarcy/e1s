@@ -90,13 +90,27 @@ func (v *ContainerView) tableHandler() {
 	})
 
 	v.table.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		key := event.Rune()
-
 		// simulate selected action(ssh)
-		if key == lKey || key == lKey-upperLowerDiff {
+		sshHandler := func() {
 			selected := v.getCurrentSelection()
 			containerName := *selected.container.Name
 			v.ssh(containerName)
+		}
+
+		// handle right arrow key
+		if event.Key() == tcell.KeyRight {
+			sshHandler()
+			return event
+		}
+
+		// handle l key
+		key := event.Rune()
+		switch key {
+		case lKey, lKey - upperLowerDiff:
+
+			sshHandler()
+		case hKey, hKey - upperLowerDiff:
+			v.handleDone(0)
 		}
 		return event
 	})
