@@ -30,9 +30,10 @@ brew install keidarcy/tap/e1s
 - [x] Describe containers
 - [x] Describe task definitions
 - [x] Describe service autoscaling
-- [x] Describe Metrics
+- [x] Show Metrics
   - [x] CPUUtilization
   - [x] MemoryUtilization
+- [x] Show autoscaling
 - [x] Open selected resource in browser(support new UI(v2))
 - [x] SSH into container
 - [x] Edit service
@@ -40,7 +41,6 @@ brew install keidarcy/tap/e1s
   - [x] Task definition(choose revision of current task definition family)
   - [x] Force new deployment
   - [ ] Task definition(choose task definition family and revision)
-- [ ] Edit autoscaling
 - [ ] Edit task definition
 - [ ] Execute any command in container
 
@@ -99,10 +99,10 @@ $ AWS_PROFILE=my-profile e1s -readonly
 
 | Key | Description |
 | --- | --- |
-| `↓`, `j` | Select next item |
-| `↑`, `k` | Select previous item |
-| `Enter`, `l` | Enter current resource/SSH |
-| `Esc`, `h` | Go to previous view |
+| `j`, `↓` | Select next item |
+| `k`, `↑` | Select previous item |
+| `l`, `Enter`, `←` | Enter current resource/SSH |
+| `h`, `Esc`, `→` | Go to previous view |
 | `d` | Describe selected resource |
 | `t` | Describe task definition |
 | `w` | Describe service events |
