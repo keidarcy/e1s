@@ -19,6 +19,7 @@ func newTaskView(tasks []types.Task, app *App) *TaskView {
 	keys := append(basicKeyInputs, []KeyInput{
 		{key: string(tKey), description: describeTaskDefinition},
 		{key: string(rKey), description: describeTaskDefinitionRevisions},
+		{key: string(eKey), description: editTaskDefinition},
 	}...)
 	return &TaskView{
 		View:  *newView(app, TaskPage, keys),

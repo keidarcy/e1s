@@ -12,7 +12,7 @@ import (
 )
 
 // Show update service modal and handle submit event
-func (v *View) showUpdateServiceModal() {
+func (v *View) showEditServiceModal() {
 	if v.kind != ServicePage {
 		return
 	}

@@ -29,10 +29,11 @@ const (
 	showAutoScaling                 = "Show auto scaling target and policy"
 	showMetrics                     = "Show metrics"
 
-	updateService    = "Update Service"
-	openInBrowser    = "Open in browser"
-	sshContainer     = "SSH container"
-	toggleFullScreen = "Toggle full screen"
+	editService        = "Edit Service"
+	editTaskDefinition = "Edit Task Definition(WIP)"
+	openInBrowser      = "Open in browser"
+	sshContainer       = "SSH container"
+	toggleFullScreen   = "Toggle full screen"
 )
 
 const (

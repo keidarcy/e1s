@@ -1,6 +1,11 @@
 package ui
 
 import (
+	"encoding/json"
+	"os"
+	"os/exec"
+	"strings"
+
 	"github.com/gdamore/tcell/v2"
 	"github.com/keidarcy/e1s/util"
 	"github.com/rivo/tview"
@@ -108,10 +113,9 @@ func (v *View) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 		v.showMetrics()
 	case aKey, aKey - upperLowerDiff:
 		v.showAutoScaling()
-	//  case 'i' {
-	// 	v.switchToAutoScaling()
 	case eKey, eKey - upperLowerDiff:
-		v.showUpdateServiceModal()
+		v.showEditServiceModal()
+		v.editTaskDefinition()
 	case hKey, hKey - upperLowerDiff:
 		v.handleDone(0)
 	case lKey, lKey - upperLowerDiff:
@@ -174,4 +178,73 @@ func (v *View) openInBrowser() {
 	if err != nil {
 		logger.Printf("failed open url %s\n", url)
 	}
+}
+
+func (v *View) editTaskDefinition() {
+	const errMsg = "Error when editing task definition"
+	if v.kind != TaskPage {
+		return
+	}
+
+	// get td detail
+	selected := v.getCurrentSelection()
+	taskDefinition := *selected.task.TaskDefinitionArn
+	td, err := v.app.Store.DescribeTaskDefinition(&taskDefinition)
+	if err != nil {
+		v.errorModal(errMsg)
+		return
+	}
+	names := strings.Split(selected.entityName, "/")
+
+	// create tmp file open and defer close it
+	tmpfile, err := os.CreateTemp("", names[len(names)-1])
+	if err != nil {
+		logger.Println("Error creating temporary file:", err)
+		v.errorModal(errMsg)
+		return
+	}
+	defer os.Remove(tmpfile.Name())
+	defer tmpfile.Close()
+
+	jsonData, _ := json.MarshalIndent(td, "", "  ")
+	if _, err := tmpfile.Write(jsonData); err != nil {
+		logger.Println("Error writing to temporary file:", err)
+		v.errorModal(errMsg)
+		return
+	}
+
+	// Open the vi editor to allow the user to modify the JSON data.
+	bin := os.Getenv("EDITOR")
+	if bin == "" {
+		// if $EDITOR is empty use vi as default
+		bin = "vi"
+	}
+
+	v.app.Suspend(func() {
+		cmd := exec.Command(bin, tmpfile.Name())
+		cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, os.Stderr
+
+		if err := cmd.Run(); err != nil {
+			logger.Println("Error opening editor:", err)
+			v.errorModal(errMsg)
+			return
+		}
+
+		file, err := os.ReadFile(tmpfile.Name())
+		if err != nil {
+			logger.Println("Error reading temporary file:", err)
+			v.errorModal(errMsg)
+			return
+		}
+		logger.Println(string(file))
+
+		if err := json.Unmarshal(file, &taskDefinition); err != nil {
+			logger.Println("Error unmarshaling JSON:", err)
+			v.errorModal(errMsg)
+			return
+		}
+
+		logger.Println("Modified JSON Data:")
+		logger.Println(taskDefinition)
+	})
 }
