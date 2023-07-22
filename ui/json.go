@@ -39,7 +39,7 @@ func (v *View) switchToTaskDefinition() {
 
 // Switch to selected task definition revision list JSON page
 func (v *View) switchToTaskDefinitionRevisions() {
-	family := v.getTaskDefinitionFamily()
+	family, _ := v.getTaskDefinitionDetail()
 
 	revisions, err := v.app.Store.ListTaskDefinition(&family)
 	if err != nil {
@@ -50,7 +50,7 @@ func (v *View) switchToTaskDefinitionRevisions() {
 }
 
 // Get td family
-func (v *View) getTaskDefinitionFamily() string {
+func (v *View) getTaskDefinitionDetail() (string, string) {
 	selected := v.getCurrentSelection()
 	taskDefinition := ""
 	if v.kind == ServicePage {
@@ -58,10 +58,10 @@ func (v *View) getTaskDefinitionFamily() string {
 	} else if v.kind == TaskPage {
 		taskDefinition = *selected.task.TaskDefinitionArn
 	} else {
-		return ""
+		return "", ""
 	}
 	familyRevision := strings.Split(util.ArnToName(&taskDefinition), ":")
-	return familyRevision[0]
+	return familyRevision[0], familyRevision[1]
 }
 
 // Switch to selected service events JSON page

@@ -52,6 +52,7 @@ func (store *Store) ListTaskDefinition(name *string) (TaskDefinitionRevision, er
 
 type FullTaskDefinition = map[string][]string
 
+// Deprecated
 // List all task definition family with revisions for service update form(not support yet)
 func (store *Store) ListFullTaskDefinition() (FullTaskDefinition, error) {
 	listFamily, err := store.ecs.ListTaskDefinitionFamilies(context.Background(), &ecs.ListTaskDefinitionFamiliesInput{
@@ -71,4 +72,18 @@ func (store *Store) ListFullTaskDefinition() (FullTaskDefinition, error) {
 		results[family] = taskDefinition
 	}
 	return results, nil
+}
+
+// Equivalent to
+// aws ecs list-task-definition-families
+func (store *Store) ListTaskDefinitionFamilies() ([]string, error) {
+	familiesOutput, err := store.ecs.ListTaskDefinitionFamilies(context.Background(), &ecs.ListTaskDefinitionFamiliesInput{
+		Status: types.TaskDefinitionFamilyStatusActive,
+	})
+	if err != nil {
+		logger.Printf("aws failed to list task definition families, error: %v\n", err)
+		return nil, err
+	}
+
+	return familiesOutput.Families, nil
 }

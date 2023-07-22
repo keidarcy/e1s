@@ -3,6 +3,7 @@ package ui
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/ecs"
@@ -34,6 +35,8 @@ func (v *View) showAutoScaling() {
 	v.app.Pages.AddPage(title, v.modal(content, 100, 25), true, true)
 }
 
+const placeholder = " (form placeholder) "
+
 // Show service metrics modal(Memory/CPU)
 func (v *View) showMetrics() {
 	if v.kind != ServicePage {
@@ -58,7 +61,7 @@ func (v *View) serviceAutoScalingContent() (*tview.Form, string) {
 	readonly := "[-:-:-](readonly) "
 	title := " Auto scaling [purple::b](" + name + ")" + readonly
 	f := v.styledForm(title)
-	f.AddInputField("Service ", name, len(name)+1, nil, nil)
+	f.AddInputField("Service ", name+placeholder, len(name)+len(placeholder)+1, nil, nil)
 
 	serviceArn := selected.service.ServiceArn
 
@@ -102,6 +105,8 @@ func (v *View) serviceAutoScalingContent() (*tview.Form, string) {
 
 // Get service update form
 func (v *View) serviceUpdateContent() (*tview.Form, string) {
+	const latest = "(LATEST)"
+
 	selected := v.getCurrentSelection()
 	name := *selected.service.ServiceName
 
@@ -111,27 +116,69 @@ func (v *View) serviceUpdateContent() (*tview.Form, string) {
 	}
 
 	title := " Update [purple::b]" + name + " " + readonly
-	family := v.getTaskDefinitionFamily()
+	currentFamily, currentRevision := v.getTaskDefinitionDetail()
 
 	// get data for form
-	taskDefinitions, err := v.app.Store.ListTaskDefinition(&family)
+	families, err := v.app.Store.ListTaskDefinitionFamilies()
 	if err != nil {
+		v.errorModal("aws api error!")
 		v.closeModal()
 	}
-	revisions := []string{}
-	for _, td := range taskDefinitions {
-		def := td
-		family, revision := getTaskDefinitionInfo(&def)
-		revisions = append(revisions, family+":"+revision)
-	}
-	f := v.styledForm(title)
 
+	f := v.styledForm(title)
 	forceLabel := "Force new deployment"
 	desiredLabel := "Desired tasks"
-	taskDefLabel := "Task definition revision"
+	familyLabel := "Task definition family"
+	revisionLabel := "Task definition revision"
+
 	f.AddCheckbox(forceLabel, false, nil)
-	f.AddInputField(desiredLabel, strconv.Itoa(int(selected.service.DesiredCount)), 10, nil, nil)
-	f.AddDropDown(taskDefLabel, revisions, 30, nil)
+	f.AddInputField(desiredLabel, strconv.Itoa(int(selected.service.DesiredCount)), 50, nil, nil)
+
+	revisionDrop := tview.NewDropDown().
+		SetLabel(revisionLabel).
+		SetFieldWidth(50)
+
+	currentFamilyIndex := 0
+	for i, f := range families {
+		if currentFamily == f {
+			currentFamilyIndex = i
+		}
+	}
+
+	familyDrop := tview.NewDropDown().
+		SetLabel(familyLabel).
+		SetOptions(families, func(text string, index int) {
+			// when family option change, change revision drop down value
+			taskDefinitions, err := v.app.Store.ListTaskDefinition(&text)
+			if err != nil {
+				v.errorModal("aws api error!")
+				v.closeModal()
+			}
+			revisions := []string{}
+			for i, td := range taskDefinitions {
+				def := td
+				_, revision := getTaskDefinitionInfo(&def)
+				if i == 0 {
+					revision += latest
+				}
+				revisions = append(revisions, revision)
+			}
+			revisionDrop.SetOptions(revisions, func(text string, index int) {})
+
+			currentRevisionIndex := 0
+			for i, r := range revisions {
+				if currentRevision == r {
+					currentRevisionIndex = i
+				}
+			}
+
+			revisionDrop.SetCurrentOption(currentRevisionIndex)
+		}).
+		SetCurrentOption(currentFamilyIndex).
+		SetFieldWidth(50)
+
+	f.AddFormItem(familyDrop)
+	f.AddFormItem(revisionDrop)
 
 	// handle form close
 	f.AddButton("Cancel", func() {
@@ -145,18 +192,26 @@ func (v *View) serviceUpdateContent() (*tview.Form, string) {
 
 	// handle form submit
 	f.AddButton("Update", func() {
+		// get desired count
 		desired := f.GetFormItemByLabel(desiredLabel).(*tview.InputField).GetText()
 		desiredInt, err := strconv.Atoi(desired)
 		if err != nil {
 			return
 		}
 
-		_, revision := f.GetFormItemByLabel(taskDefLabel).(*tview.DropDown).GetCurrentOption()
+		// get task definition with revision
+		_, selectedFamily := f.GetFormItemByLabel(familyLabel).(*tview.DropDown).GetCurrentOption()
+		_, selectedRevision := f.GetFormItemByLabel(revisionLabel).(*tview.DropDown).GetCurrentOption()
+		// if is latest cut suffix
+		selectedRevision, _ = strings.CutSuffix(selectedRevision, latest)
+		taskDefinitionWithRevision := selectedFamily + ":" + selectedRevision
+
+		// get force deploy bool
 		force := f.GetFormItemByLabel(forceLabel).(*tview.Checkbox).IsChecked()
 		input := &ecs.UpdateServiceInput{
 			Service:            aws.String(name),
 			Cluster:            v.app.cluster.ClusterName,
-			TaskDefinition:     aws.String(revision),
+			TaskDefinition:     aws.String(taskDefinitionWithRevision),
 			DesiredCount:       aws.Int32(int32(desiredInt)),
 			ForceNewDeployment: force,
 		}
@@ -186,7 +241,7 @@ func (v *View) serviceMetricsContent() (*tview.Form, string) {
 	title := " Metrics [purple::b](" + service + ")"
 
 	f := v.styledForm(title)
-	f.AddInputField("Service ", service, len(service)+1, nil, nil)
+	f.AddInputField("Service ", service+placeholder, len(service)+len(placeholder)+1, nil, nil)
 
 	metrics, err := v.app.Store.GetMetrics(cluster, &service)
 

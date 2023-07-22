@@ -33,14 +33,13 @@ brew install keidarcy/tap/e1s
 - [x] Show Metrics
   - [x] CPUUtilization
   - [x] MemoryUtilization
-- [x] Show autoscaling
+- [x] Show autoscaling target and policy
 - [x] Open selected resource in browser(support new UI(v2))
 - [x] SSH into container
 - [x] Edit service
   - [x] Desired count
-  - [x] Task definition(choose revision of current task definition family)
   - [x] Force new deployment
-  - [ ] Task definition(choose task definition family and revision)
+  - [x] Task definition(choose task definition family and revision)
 - [ ] Edit task definition
 - [ ] Execute any command in container
 
@@ -101,8 +100,8 @@ $ AWS_PROFILE=my-profile e1s -readonly
 | --- | --- |
 | `j`, `↓` | Select next item |
 | `k`, `↑` | Select previous item |
-| `l`, `Enter`, `←` | Enter current resource/SSH |
-| `h`, `Esc`, `→` | Go to previous view |
+| `l`, `←`, `Enter` | Enter current resource/SSH |
+| `h`, `→`, `Esc` | Go to previous view |
 | `d` | Describe selected resource |
 | `t` | Describe task definition |
 | `w` | Describe service events |
@@ -123,6 +122,12 @@ tail -f /tmp/e1s_debug.log
 ## Feature Requests & Bug Reports
 
 If you have any feature requests or bug reports, please submit them through GitHub [Issues](https://github.com/keidarcy/e1s/issues).
+
+## Thanks
+
+- [tview](https://github.com/rivo/tview)
+- [k9s](https://github.com/derailed/k9s)
+- [ecsview](https://github.com/swartzrock/ecsview)
 
 ## License
 
