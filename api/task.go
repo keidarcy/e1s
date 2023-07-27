@@ -54,9 +54,13 @@ func (store *Store) ListTasks(clusterName, serviceName *string) ([]types.Task, e
 }
 
 // aws ecs register-task-definition --family ${{family}} --...
-func (store *Store) RegisterTaskDefinition(family string) {
-	listTasksOutput, err := store.ecs.RegisterTaskDefinition(context.Background(), &ecs.RegisterTaskDefinitionInput{
-		Family: &family,
-	})
-	logger.Println(listTasksOutput, err)
+// return registered task definition revision
+func (store *Store) RegisterTaskDefinition(input *ecs.RegisterTaskDefinitionInput) (string, int32, error) {
+	registeredTdOutput, err := store.ecs.RegisterTaskDefinition(context.Background(), input)
+	if err != nil {
+		return "", 0, err
+	}
+	family := *registeredTdOutput.TaskDefinition.Family
+	revision := registeredTdOutput.TaskDefinition.Revision
+	return family, revision, nil
 }

@@ -11,6 +11,9 @@ import (
 	"github.com/rivo/tview"
 )
 
+// any form need at least one field
+const placeholder = " (form placeholder) "
+
 // Show update service modal and handle submit event
 func (v *View) showEditServiceModal() {
 	if v.kind != ServicePage {
@@ -35,7 +38,17 @@ func (v *View) showAutoScaling() {
 	v.app.Pages.AddPage(title, v.modal(content, 100, 25), true, true)
 }
 
-const placeholder = " (form placeholder) "
+// Show task definition register confirm modal
+func (v *View) showTaskDefinitionConfirm(fn func()) {
+	if v.kind != TaskPage {
+		return
+	}
+	content, title := v.taskDefinitionRegisterContent(fn)
+	if content == nil {
+		return
+	}
+	v.app.Pages.AddPage(title, v.modal(content, 100, 10), true, true)
+}
 
 // Show service metrics modal(Memory/CPU)
 func (v *View) showMetrics() {
@@ -47,6 +60,33 @@ func (v *View) showMetrics() {
 		return
 	}
 	v.app.Pages.AddPage(title, v.modal(content, 100, 15), true, true)
+}
+
+// Get task definition register content
+func (v *View) taskDefinitionRegisterContent(fn func()) (*tview.Form, string) {
+	if v.kind != TaskPage {
+		return nil, ""
+	}
+
+	readonly := "[-:-:-](readonly) "
+	title := " Register edited [purple::b]task definition?" + readonly
+	f := v.styledForm(title)
+
+	// handle form close
+	f.AddButton("Cancel", func() {
+		v.closeModal()
+	})
+
+	// readonly mode has no submit button
+	if v.app.readonly {
+		return f, title
+	}
+
+	// handle form submit
+	f.AddButton("Register", func() {
+		fn()
+	})
+	return f, title
 }
 
 // Get service auto scaling form

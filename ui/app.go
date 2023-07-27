@@ -2,6 +2,7 @@ package ui
 
 import (
 	"flag"
+	"fmt"
 
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
 	"github.com/gdamore/tcell/v2"
@@ -19,6 +20,7 @@ const (
 var (
 	logger   = util.Logger
 	readonly = false
+	version  = false
 )
 
 // Entity contains ECS resources to show
@@ -47,6 +49,7 @@ type App struct {
 
 func init() {
 	flag.BoolVar(&readonly, "readonly", false, "Enable readonly mode")
+	flag.BoolVar(&version, "version", false, "Print e1s version")
 }
 
 func newApp() *App {
@@ -67,6 +70,10 @@ func newApp() *App {
 // Entry point of the app
 func Show() error {
 	flag.Parse()
+	if version {
+		fmt.Println("v" + util.AppVersion)
+		return nil
+	}
 	app := newApp()
 	app.initStyles()
 

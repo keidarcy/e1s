@@ -1,11 +1,14 @@
 package ui
 
 import (
+	"bytes"
 	"encoding/json"
+	"fmt"
 	"os"
 	"os/exec"
 	"strings"
 
+	"github.com/aws/aws-sdk-go-v2/service/ecs"
 	"github.com/gdamore/tcell/v2"
 	"github.com/keidarcy/e1s/util"
 	"github.com/rivo/tview"
@@ -206,8 +209,14 @@ func (v *View) editTaskDefinition() {
 	defer os.Remove(tmpfile.Name())
 	defer tmpfile.Close()
 
-	jsonData, _ := json.MarshalIndent(td, "", "  ")
-	if _, err := tmpfile.Write(jsonData); err != nil {
+	originalTD, err := json.MarshalIndent(td, "", "  ")
+	if err != nil {
+		logger.Println("Error reading temporary file:", err)
+		v.errorModal(errMsg)
+		return
+	}
+
+	if _, err := tmpfile.Write(originalTD); err != nil {
 		logger.Println("Error writing to temporary file:", err)
 		v.errorModal(errMsg)
 		return
@@ -230,21 +239,43 @@ func (v *View) editTaskDefinition() {
 			return
 		}
 
-		file, err := os.ReadFile(tmpfile.Name())
+		editedTD, err := os.ReadFile(tmpfile.Name())
 		if err != nil {
 			logger.Println("Error reading temporary file:", err)
 			v.errorModal(errMsg)
 			return
 		}
-		logger.Println(string(file))
 
-		if err := json.Unmarshal(file, &taskDefinition); err != nil {
+		// remove edited empty line
+		if editedTD[len(editedTD)-1] == '\n' {
+			originalTD = append(originalTD, '\n')
+		}
+
+		// if no change do nothing
+		if bytes.Equal(originalTD, editedTD) {
+			v.flashModal(" no change", 2)
+			return
+		}
+
+		var updatedTd ecs.RegisterTaskDefinitionInput
+		if err := json.Unmarshal(editedTD, &updatedTd); err != nil {
 			logger.Println("Error unmarshaling JSON:", err)
 			v.errorModal(errMsg)
 			return
 		}
 
-		logger.Println("Modified JSON Data:")
-		logger.Println(taskDefinition)
+		register := func() {
+			family, revision, err := v.app.Store.RegisterTaskDefinition(&updatedTd)
+
+			if err != nil {
+				logger.Println("Error opening editor:", err)
+				v.errorModal(errMsg)
+				return
+			}
+			v.successModal(fmt.Sprintf("SUCCESS 🚀\nTaskDefinition Family: %s\nRevision: %d\n", family, revision))
+		}
+
+		v.showTaskDefinitionConfirm(register)
+
 	})
 }

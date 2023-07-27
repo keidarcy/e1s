@@ -30,10 +30,10 @@ const (
 	showMetrics                     = "Show metrics"
 
 	editService        = "Edit Service"
-	editTaskDefinition = "Edit Task Definition(WIP)"
+	editTaskDefinition = "Edit Task Definition"
 	openInBrowser      = "Open in browser"
 	sshContainer       = "SSH container"
-	toggleFullScreen   = "Toggle full screen"
+	toggleFullScreen   = "JSON Toggle full screen"
 )
 
 const (

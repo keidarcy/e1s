@@ -22,24 +22,35 @@ const (
 	clusterURLFmt = clusterFmt + regionFmt
 	serviceURLFmt = clusterFmt + serviceFmt + regionFmt
 	taskURLFmt    = clusterFmt + serviceFmt + taskFmt + regionFmt
-	AppName       = "e1s"
-	AppVersion    = "1.0.2"
+
+	versionFilename = "app-version"
+	AppName         = "e1s"
 )
 
 var (
-	Logger *log.Logger
+	Logger     *log.Logger
+	AppVersion string
 )
 
 func init() {
+	// init basic logger
 	logPath := fmt.Sprintf("/tmp/%s-debug.log", AppName)
 	logFile, err := os.OpenFile(logPath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		fmt.Printf("failed to open log file path: %s, err: %v\n", logPath, err)
 		os.Exit(1)
 	}
-	// defer logFile.Close()
 
+	// defer logFile.Close()
 	Logger = log.New(logFile, "", log.LstdFlags)
+
+	// read app-version
+	content, err := os.ReadFile(versionFilename)
+	if err != nil {
+		AppVersion = "N/A"
+	}
+
+	AppVersion = string(content)
 }
 
 func ArnToName(arn *string) string {
