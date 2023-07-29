@@ -11,8 +11,12 @@ import (
 	"github.com/rivo/tview"
 )
 
-// any form need at least one field
-const placeholder = " (form placeholder) "
+const (
+	// any form need at least one field
+	placeholder = " (form placeholder) "
+	// readonly label for form
+	readonlyLabel = " [-:-:-] (readonly) "
+)
 
 // Show update service modal and handle submit event
 func (v *View) showEditServiceModal() {
@@ -68,7 +72,11 @@ func (v *View) taskDefinitionRegisterContent(fn func()) (*tview.Form, string) {
 		return nil, ""
 	}
 
-	readonly := "[-:-:-](readonly) "
+	readonly := ""
+	if v.app.readonly {
+		readonly = readonlyLabel
+	}
+
 	title := " Register edited [purple::b]task definition?" + readonly
 	f := v.styledForm(title)
 
@@ -98,8 +106,7 @@ func (v *View) serviceAutoScalingContent() (*tview.Form, string) {
 	selected := v.getCurrentSelection()
 	name := *selected.service.ServiceName
 
-	readonly := "[-:-:-](readonly) "
-	title := " Auto scaling [purple::b](" + name + ")" + readonly
+	title := " Auto scaling [purple::b](" + name + ")" + readonlyLabel
 	f := v.styledForm(title)
 	f.AddInputField("Service ", name+placeholder, len(name)+len(placeholder)+1, nil, nil)
 
@@ -152,10 +159,10 @@ func (v *View) serviceUpdateContent() (*tview.Form, string) {
 
 	readonly := ""
 	if v.app.readonly {
-		readonly = "[-:-:-](readonly) "
+		readonly = readonlyLabel
 	}
 
-	title := " Update [purple::b]" + name + " " + readonly
+	title := " Update [purple::b]" + name + readonly
 	currentFamily, currentRevision := v.getTaskDefinitionDetail()
 
 	// get data for form
@@ -278,7 +285,7 @@ func (v *View) serviceMetricsContent() (*tview.Form, string) {
 	cluster := v.app.cluster.ClusterName
 	service := *selected.service.ServiceName
 
-	title := " Metrics [purple::b](" + service + ")"
+	title := " Metrics [purple::b](" + service + ")" + readonlyLabel
 
 	f := v.styledForm(title)
 	f.AddInputField("Service ", service+placeholder, len(service)+len(placeholder)+1, nil, nil)
