@@ -40,7 +40,7 @@ brew install keidarcy/tap/e1s
   - [x] Desired count
   - [x] Force new deployment
   - [x] Task definition(choose task definition family and revision)
-- [ ] Edit task definition
+- [x] Register new task definition
 - [ ] Execute any command in container
 
 ### SSH into container ([ECS Exec](https://docs.aws.amazon.com/AmazonECS/latest/userguide/ecs-exec.html))
@@ -108,7 +108,7 @@ $ AWS_PROFILE=my-profile e1s -readonly
 | `a` | Show service auto scaling |
 | `m` | Show service metrics(CPUUtilization/MemoryUtilization) |
 | `r` | List task definition revisions |
-| `e` | Edit service in modal |
+| `e` | Edit resource |
 | `b` | Open selected resource in AWS web console |
 | `ctrl` + `c` | Quit |
 | `ctrl` + `d` | Exit from container |
