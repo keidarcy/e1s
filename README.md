@@ -39,9 +39,9 @@ brew install keidarcy/tap/e1s
 - [x] Edit service
   - [x] Desired count
   - [x] Force new deployment
-  - [x] Task definition(choose task definition family and revision)
+  - [x] Task definition family
+  - [x] Task definition revision
 - [x] Register new task definition
-- [ ] Execute any command in container
 
 ### SSH into container ([ECS Exec](https://docs.aws.amazon.com/AmazonECS/latest/userguide/ecs-exec.html))
 
@@ -66,9 +66,18 @@ Use `ctrl` + `d` to end ssh session.
   ![edit-service-demo](./docs/edit-service-demo.gif)
 </details>
 
-- Desired count: Desired count of service
-- Task definition: Task definition of service(change revision of current task definition family)
-- Force new deployment: Force new deployment of service
+- Force new deployment
+- Desired tasks
+- Task definition family
+- Task definition revision
+
+### Register task definition([Docs](https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_RegisterTaskDefinition.html))
+
+<details>
+  <summary>Register task definition</summary>
+
+  ![register-task-definition-demo](./docs/register-task-definition-demo.gif)
+</details>
 
 ## Usage
 
@@ -92,6 +101,12 @@ read only mode
 
 ```bash
 $ AWS_PROFILE=my-profile e1s -readonly
+```
+
+current e1s version
+
+```bash
+$ e1s -version
 ```
 
 ### Key Bindings
