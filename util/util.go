@@ -23,13 +23,12 @@ const (
 	serviceURLFmt = clusterFmt + serviceFmt + regionFmt
 	taskURLFmt    = clusterFmt + serviceFmt + taskFmt + regionFmt
 
-	versionFilename = "app-version"
-	AppName         = "e1s"
+	AppVersion = "1.0.5"
+	AppName    = "e1s"
 )
 
 var (
-	Logger     *log.Logger
-	AppVersion string
+	Logger *log.Logger
 )
 
 func init() {
@@ -43,14 +42,6 @@ func init() {
 
 	// defer logFile.Close()
 	Logger = log.New(logFile, "", log.LstdFlags)
-
-	// read app-version
-	content, err := os.ReadFile(versionFilename)
-	if err != nil {
-		AppVersion = "N/A"
-	}
-
-	AppVersion = string(content)
 }
 
 func ArnToName(arn *string) string {
