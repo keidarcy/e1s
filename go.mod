@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/aws/aws-sdk-go-v2 v1.21.0
 	github.com/aws/aws-sdk-go-v2/config v1.18.37
-	github.com/aws/aws-sdk-go-v2/service/applicationautoscaling v1.22.2
+	github.com/aws/aws-sdk-go-v2/service/applicationautoscaling v1.22.5
 	github.com/aws/aws-sdk-go-v2/service/cloudwatch v1.26.4
 	github.com/aws/aws-sdk-go-v2/service/ecs v1.29.2
 	github.com/gdamore/tcell/v2 v2.6.0
