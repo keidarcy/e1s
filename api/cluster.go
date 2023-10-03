@@ -39,10 +39,13 @@ func NewStore() *Store {
 // aws ecs list-clusters
 // aws ecs describe-clusters --clusters ${clusters}
 func (store *Store) ListClusters() ([]types.Cluster, error) {
-	clustersOutput, err := store.ecs.ListClusters(context.Background(), &ecs.ListClustersInput{})
+	limit := int32(100)
+	clustersOutput, err := store.ecs.ListClusters(context.Background(), &ecs.ListClustersInput{
+		MaxResults: &limit,
+	})
 
 	if err != nil {
-		logger.Printf("aws failed to list clusters, err: %v\n", err)
+		logger.Printf("e1s - aws failed to list clusters, err: %v\n", err)
 		return []types.Cluster{}, err
 	}
 
@@ -58,15 +61,26 @@ func (store *Store) ListClusters() ([]types.Cluster, error) {
 		Include:  include,
 	}
 
+	results := []types.Cluster{}
+
 	describeClusterOutput, err := store.ecs.DescribeClusters(context.Background(), describeInput)
 	if err != nil {
-		logger.Printf("aws failed to describe clusters, err: %v\n", err)
+		logger.Printf("e1s - aws failed to describe clusters, err: %v\n", err)
 		return []types.Cluster{}, err
 	}
 
-	sort.Slice(describeClusterOutput.Clusters, func(i, j int) bool {
-		return describeClusterOutput.Clusters[i].RunningTasksCount > describeClusterOutput.Clusters[j].RunningTasksCount
+	results = append(results, describeClusterOutput.Clusters...)
+
+	// sort by running task count, name ascending
+	sort.Slice(results, func(i, j int) bool {
+		if results[i].RunningTasksCount > results[j].RunningTasksCount {
+			return true
+		} else if results[i].RunningTasksCount < results[j].RunningTasksCount {
+			return false
+		} else {
+			return *results[i].ClusterName < *results[j].ClusterName
+		}
 	})
 
-	return describeClusterOutput.Clusters, nil
+	return results, nil
 }

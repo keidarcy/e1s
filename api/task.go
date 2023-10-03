@@ -12,12 +12,14 @@ import (
 // aws ecs list-tasks --cluster ${cluster} --service ${service}
 // aws ecs describe-tasks --cluster ${cluster} --tasks ${taskID}
 func (store *Store) ListTasks(clusterName, serviceName *string) ([]types.Task, error) {
+	limit := int32(100)
 	listTasksOutput, err := store.ecs.ListTasks(context.Background(), &ecs.ListTasksInput{
 		Cluster:     clusterName,
 		ServiceName: serviceName,
+		MaxResults:  &limit,
 	})
 	if err != nil {
-		logger.Printf("aws failed to list tasks, err: %v\n", err)
+		logger.Printf("e1s - aws failed to list tasks, err: %v\n", err)
 		return []types.Task{}, err
 	}
 	if len(listTasksOutput.TaskArns) == 0 {
@@ -28,29 +30,34 @@ func (store *Store) ListTasks(clusterName, serviceName *string) ([]types.Task, e
 		types.TaskFieldTags,
 	}
 
+	resultTasks := []types.Task{}
+
 	describeTasksOutput, err := store.ecs.DescribeTasks(context.Background(), &ecs.DescribeTasksInput{
 		Cluster: clusterName,
 		Tasks:   listTasksOutput.TaskArns,
 		Include: include,
 	})
+
 	if err != nil {
-		logger.Printf("aws failed to describe tasks, error: %v\n", err)
+		logger.Printf("e1s - aws failed to describe tasks, error: %v\n", err)
 		return []types.Task{}, err
 	}
 
+	resultTasks = append(resultTasks, describeTasksOutput.Tasks...)
+
 	// sort tasks by task name
-	sort.Slice(describeTasksOutput.Tasks, func(i, j int) bool {
-		return *describeTasksOutput.Tasks[i].TaskArn > *describeTasksOutput.Tasks[j].TaskArn
+	sort.Slice(resultTasks, func(i, j int) bool {
+		return *resultTasks[i].TaskArn > *resultTasks[j].TaskArn
 	})
 
 	// sort containers by health status
-	for _, t := range describeTasksOutput.Tasks {
+	for _, t := range resultTasks {
 		sort.Slice(t.Containers, func(i, j int) bool {
 			return t.Containers[i].HealthStatus < t.Containers[j].HealthStatus
 		})
 	}
 
-	return describeTasksOutput.Tasks, nil
+	return resultTasks, nil
 }
 
 // aws ecs register-task-definition --family ${{family}} --...

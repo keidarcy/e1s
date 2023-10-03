@@ -57,7 +57,7 @@ func (store *Store) getCPU(cluster, service *string) ([]types.Datapoint, error) 
 	metricOutput, err := store.cloudWatch.GetMetricStatistics(context.TODO(), statisticsInput)
 
 	if err != nil {
-		logger.Printf("aws failed to %s, cluster: \"%s\", service: \"%s\", err: %v\n", CPU, *cluster, *service, err)
+		logger.Printf("e1s - aws failed to %s, cluster: \"%s\", service: \"%s\", err: %v\n", CPU, *cluster, *service, err)
 		return nil, err
 	}
 
@@ -82,7 +82,7 @@ func (store *Store) getMemory(cluster, service *string) ([]types.Datapoint, erro
 	metricOutput, err := store.cloudWatch.GetMetricStatistics(context.TODO(), statisticsInput)
 
 	if err != nil {
-		logger.Printf("aws failed to %s, cluster: \"%s\", service: \"%s\", err: %v\n", Memory, *cluster, *service, err)
+		logger.Printf("e1s - aws failed to %s, cluster: \"%s\", service: \"%s\", err: %v\n", Memory, *cluster, *service, err)
 		return nil, err
 	}
 
