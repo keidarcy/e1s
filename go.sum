@@ -1,4 +1,3 @@
-github.com/aws/aws-sdk-go-v2 v1.21.1/go.mod h1:ErQhvNuEMhJjweavOYhxVkn2RUx7kQXVATHrjKtxIpM=
 github.com/aws/aws-sdk-go-v2 v1.21.2/go.mod h1:ErQhvNuEMhJjweavOYhxVkn2RUx7kQXVATHrjKtxIpM=
 github.com/aws/aws-sdk-go-v2 v1.22.1 h1:sjnni/AuoTXxHitsIdT0FwmqUuNUuHtufcVDErVFT9U=
 github.com/aws/aws-sdk-go-v2 v1.22.1/go.mod h1:Kd0OJtkW3Q0M0lUWGszapWjEvrXDzRW+D21JNsroB+c=
@@ -8,11 +7,9 @@ github.com/aws/aws-sdk-go-v2/credentials v1.15.1 h1:hmf6lAm9hk7uLCfapZn/jL05lm6U
 github.com/aws/aws-sdk-go-v2/credentials v1.15.1/go.mod h1:QTcHga3ZbQOneJuxmGBOCxiClxmp+TlvmjFexAnJ790=
 github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.14.2 h1:gIeH4+o1MN/caGBWjoGQTUTIu94xD6fI5B2+TcwBf70=
 github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.14.2/go.mod h1:wLyMIo/zPOhQhPXTddpfdkSleyigtFi8iMnC+2m/SK4=
-github.com/aws/aws-sdk-go-v2/internal/configsources v1.1.42/go.mod h1:oDfgXoBBmj+kXnqxDDnIDnC56QBosglKp8ftRCTxR+0=
 github.com/aws/aws-sdk-go-v2/internal/configsources v1.1.43/go.mod h1:auo+PiyLl0n1l8A0e8RIeR8tOzYPfZZH/JNlrJ8igTQ=
 github.com/aws/aws-sdk-go-v2/internal/configsources v1.2.1 h1:fi1ga6WysOyYb5PAf3Exd6B5GiSNpnZim4h1rhlBqx0=
 github.com/aws/aws-sdk-go-v2/internal/configsources v1.2.1/go.mod h1:V5CY8wNurvPUibTi9mwqUqpiFZ5LnioKWIFUDtIzdI8=
-github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.4.36/go.mod h1:rwr4WnmFi3RJO0M4dxbJtgi9BPLMpVBMX1nUte5ha9U=
 github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.4.37/go.mod h1:Qe+2KtKml+FEsQF/DHmDV+xjtche/hwoF75EG4UlHW8=
 github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.5.1 h1:ZpaV/j48RlPc4AmOZuPv22pJliXjXq8/reL63YzyFnw=
 github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.5.1/go.mod h1:R8aXraabD2e3qv1csxM14/X9WF4wFMIY0kH4YEtYD5M=
@@ -20,8 +17,8 @@ github.com/aws/aws-sdk-go-v2/internal/ini v1.5.0 h1:DqOQvIfmGkXZUVJnl9VRk0AnxyS5
 github.com/aws/aws-sdk-go-v2/internal/ini v1.5.0/go.mod h1:VV/Kbw9Mg1GWJOT9WK+oTL3cWZiXtapnNvDSRqTZLsg=
 github.com/aws/aws-sdk-go-v2/service/applicationautoscaling v1.22.7 h1:JYjtMtd/tCxQcYzRUrrmkLHN7rH+u+bEGzl9+YMVORM=
 github.com/aws/aws-sdk-go-v2/service/applicationautoscaling v1.22.7/go.mod h1:47V/zdp5xFYAU/0F5X4j12ITfF9Yx6cj/DPKtnSW/D0=
-github.com/aws/aws-sdk-go-v2/service/cloudwatch v1.27.8 h1:pdUFDCmsKlwEwVJyq/k3xLBtS/sym3dhBMTCIEDaN40=
-github.com/aws/aws-sdk-go-v2/service/cloudwatch v1.27.8/go.mod h1:EwMPL+Fu95r6yS2UQY99lRR1rDjgCbcPQpy1aQ3fuxE=
+github.com/aws/aws-sdk-go-v2/service/cloudwatch v1.30.0 h1:2ObDktnNOsFBXSjiBtSRmiGXAMAtmg28XcIGvygZM+4=
+github.com/aws/aws-sdk-go-v2/service/cloudwatch v1.30.0/go.mod h1:G6amy3RheFTRhVYWAaurKAxWTlzo9sxxU6TTvG+AVmA=
 github.com/aws/aws-sdk-go-v2/service/ecs v1.30.4 h1:j0VhL2v86gbsOKLQ1EDMhS2Lb0TROVIep7eFobc2Qq0=
 github.com/aws/aws-sdk-go-v2/service/ecs v1.30.4/go.mod h1:1pSCxO2RQKwIg2ibxUcSmg9jbIZtfrXrVU72nY2jF3g=
 github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.10.1 h1:2OXw3ppu1XsB6rqKEMV4tnecTjIY3PRV2U6IP6KPJQo=
