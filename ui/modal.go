@@ -39,7 +39,7 @@ func (v *View) showAutoScaling() {
 	if content == nil {
 		return
 	}
-	v.app.Pages.AddPage(title, v.modal(content, 100, 25), true, true)
+	v.app.Pages.AddPage(title, v.modal(content, 100, 35), true, true)
 }
 
 // Show task definition register confirm modal
@@ -125,6 +125,26 @@ func (v *View) serviceAutoScalingContent() (*tview.Form, string) {
 		return f, title
 	}
 
+	autoscalingTypeLabel := "Autoscaling Type"
+
+	if len(autoScaling.Actions) > 0 {
+		f.AddTextView(autoscalingTypeLabel, "Scheduled Scaling", 50, 1, true, false)
+		for _, action := range autoScaling.Actions {
+			scheduledActionNameLabel := "Action name"
+			scheduleLabel := "Schedule"
+			timezoneLabel := "Timezone"
+			minCountLabel := "Minimum number of tasks"
+			maxCountLabel := "Maximum number of tasks"
+			// lineLabel := "------"
+			f.AddTextView(scheduledActionNameLabel, string(*action.ScheduledActionName), 50, 1, true, false)
+			f.AddTextView(scheduleLabel, string(*action.Schedule), 50, 1, true, false)
+			f.AddTextView(timezoneLabel, string(*action.Timezone), 50, 1, true, false)
+			f.AddTextView(minCountLabel, strconv.Itoa(int(*action.ScalableTargetAction.MinCapacity)), 50, 1, true, false)
+			f.AddTextView(maxCountLabel, strconv.Itoa(int(*action.ScalableTargetAction.MaxCapacity)), 50, 1, true, false)
+			// f.AddTextView(lineLabel, "", 50, 1, true, false)
+		}
+	}
+
 	if len(autoScaling.Targets) == 1 {
 		minCountLabel := "Minimum number of tasks"
 		maxCountLabel := "Maximum number of tasks"
@@ -133,12 +153,15 @@ func (v *View) serviceAutoScalingContent() (*tview.Form, string) {
 	}
 
 	if len(autoScaling.Policies) == 1 {
+		policyTypeLabel := "Policy type"
 		policyNameLabel := "Policy name"
 		metricNameLabel := "ECS service metric"
 		targetValueLabel := "Target value"
 		scaleOutPeriodLabel := "Scale-out cooldown period"
 		scaleInPeriodLabel := "Scale-in cooldown period"
 		noScaleInLabel := "Turn off scale-in"
+		f.AddTextView(autoscalingTypeLabel, "Target tracking scaling policies", 50, 1, true, false)
+		f.AddTextView(policyTypeLabel, string(autoScaling.Policies[0].PolicyType), 50, 1, true, false)
 		f.AddTextView(policyNameLabel, *autoScaling.Policies[0].PolicyName, 20, 1, true, false)
 		f.AddTextView(metricNameLabel, string(autoScaling.Policies[0].TargetTrackingScalingPolicyConfiguration.PredefinedMetricSpecification.PredefinedMetricType), 50, 1, true, false)
 		f.AddTextView(targetValueLabel, strconv.Itoa(int(*autoScaling.Policies[0].TargetTrackingScalingPolicyConfiguration.TargetValue)), 50, 1, true, false)
