@@ -39,7 +39,7 @@ func (v *View) showAutoScaling() {
 	if content == nil {
 		return
 	}
-	v.app.Pages.AddPage(title, v.modal(content, 100, 25), true, true)
+	v.app.Pages.AddPage(title, v.modal(content, 100, 35), true, true)
 }
 
 // Show task definition register confirm modal
@@ -98,6 +98,10 @@ func (v *View) taskDefinitionRegisterContent(fn func()) (*tview.Form, string) {
 }
 
 // Get service auto scaling form
+// Show all three type autoscaling https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-auto-scaling.html
+// 1. Target tracking scaling policies
+// 2. Step scaling policies
+// 3. Scheduled Scaling
 func (v *View) serviceAutoScalingContent() (*tview.Form, string) {
 	if v.kind != ServicePage {
 		return nil, ""
@@ -118,33 +122,74 @@ func (v *View) serviceAutoScalingContent() (*tview.Form, string) {
 	}
 
 	serviceFullName := util.ArnToFullName(serviceArn)
-	autoScaling, err := v.app.Store.GetAutoScaling(&serviceFullName)
+	autoscaling, err := v.app.Store.GetAutoscaling(&serviceFullName)
 	// empty auto scaling or empty
-	if err != nil || (len(autoScaling.Targets) == 0 && len(autoScaling.Policies) == 0 && len(autoScaling.Activities) == 0) {
+	if err != nil || (len(autoscaling.Targets) == 0 && len(autoscaling.Policies) == 0 && len(autoscaling.Activities) == 0) {
 		f.AddTextView("No valid auto scaling configuration", "", 10, 1, false, false)
 		return f, title
 	}
 
-	if len(autoScaling.Targets) == 1 {
-		minCountLabel := "Minimum number of tasks"
-		maxCountLabel := "Maximum number of tasks"
-		f.AddTextView(minCountLabel, strconv.Itoa(int(*autoScaling.Targets[0].MinCapacity)), 50, 1, true, false)
-		f.AddTextView(maxCountLabel, strconv.Itoa(int(*autoScaling.Targets[0].MaxCapacity)), 50, 1, true, false)
+	autoscalingTypeLabel := "Autoscaling Type"
+	minCountLabel := "Minimum number of tasks"
+	maxCountLabel := "Maximum number of tasks"
+
+	if len(autoscaling.Actions) > 0 {
+		// autoscaling type: Scheduled Scaling
+		f.AddTextView(autoscalingTypeLabel, "Scheduled Scaling", 50, 1, true, false)
+		for _, action := range autoscaling.Actions {
+			scheduledActionNameLabel := "Action name"
+			scheduleLabel := "Schedule"
+			timezoneLabel := "Timezone"
+			// lineLabel := "------"
+			f.AddTextView(scheduledActionNameLabel, string(*action.ScheduledActionName), 50, 1, true, false)
+			f.AddTextView(scheduleLabel, string(*action.Schedule), 50, 1, true, false)
+			f.AddTextView(timezoneLabel, string(*action.Timezone), 50, 1, true, false)
+			f.AddTextView(minCountLabel, strconv.Itoa(int(*action.ScalableTargetAction.MinCapacity)), 50, 1, true, false)
+			f.AddTextView(maxCountLabel, strconv.Itoa(int(*action.ScalableTargetAction.MaxCapacity)), 50, 1, true, false)
+			// f.AddTextView(lineLabel, "", 50, 1, true, false)
+		}
 	}
 
-	if len(autoScaling.Policies) == 1 {
+	if len(autoscaling.Policies) == 1 {
+		f.AddTextView(autoscalingTypeLabel, "Target tracking scaling policies", 50, 1, true, false)
+
+		// autoscaling type: Target tracking scaling policies
+		if len(autoscaling.Targets) == 1 {
+			f.AddTextView(minCountLabel, strconv.Itoa(int(*autoscaling.Targets[0].MinCapacity)), 50, 1, true, false)
+			f.AddTextView(maxCountLabel, strconv.Itoa(int(*autoscaling.Targets[0].MaxCapacity)), 50, 1, true, false)
+		}
+
 		policyNameLabel := "Policy name"
 		metricNameLabel := "ECS service metric"
 		targetValueLabel := "Target value"
 		scaleOutPeriodLabel := "Scale-out cooldown period"
 		scaleInPeriodLabel := "Scale-in cooldown period"
 		noScaleInLabel := "Turn off scale-in"
-		f.AddTextView(policyNameLabel, *autoScaling.Policies[0].PolicyName, 20, 1, true, false)
-		f.AddTextView(metricNameLabel, string(autoScaling.Policies[0].TargetTrackingScalingPolicyConfiguration.PredefinedMetricSpecification.PredefinedMetricType), 50, 1, true, false)
-		f.AddTextView(targetValueLabel, strconv.Itoa(int(*autoScaling.Policies[0].TargetTrackingScalingPolicyConfiguration.TargetValue)), 50, 1, true, false)
-		f.AddTextView(scaleOutPeriodLabel, strconv.Itoa(int(*autoScaling.Policies[0].TargetTrackingScalingPolicyConfiguration.ScaleOutCooldown)), 50, 1, true, false)
-		f.AddTextView(scaleInPeriodLabel, strconv.Itoa(int(*autoScaling.Policies[0].TargetTrackingScalingPolicyConfiguration.ScaleInCooldown)), 50, 1, true, false)
-		f.AddTextView(noScaleInLabel, strconv.FormatBool(*autoScaling.Policies[0].TargetTrackingScalingPolicyConfiguration.DisableScaleIn), 50, 1, true, false)
+		f.AddTextView(policyNameLabel, *autoscaling.Policies[0].PolicyName, 20, 1, true, false)
+		f.AddTextView(metricNameLabel, string(autoscaling.Policies[0].TargetTrackingScalingPolicyConfiguration.PredefinedMetricSpecification.PredefinedMetricType), 50, 1, true, false)
+		f.AddTextView(targetValueLabel, strconv.Itoa(int(*autoscaling.Policies[0].TargetTrackingScalingPolicyConfiguration.TargetValue)), 50, 1, true, false)
+		f.AddTextView(scaleOutPeriodLabel, strconv.Itoa(int(*autoscaling.Policies[0].TargetTrackingScalingPolicyConfiguration.ScaleOutCooldown)), 50, 1, true, false)
+		f.AddTextView(scaleInPeriodLabel, strconv.Itoa(int(*autoscaling.Policies[0].TargetTrackingScalingPolicyConfiguration.ScaleInCooldown)), 50, 1, true, false)
+		f.AddTextView(noScaleInLabel, strconv.FormatBool(*autoscaling.Policies[0].TargetTrackingScalingPolicyConfiguration.DisableScaleIn), 50, 1, true, false)
+	}
+
+	if len(autoscaling.Policies) > 1 {
+		f.AddTextView(autoscalingTypeLabel, "Step scaling policies", 50, 1, true, false)
+
+		if len(autoscaling.Targets) == 1 {
+			f.AddTextView(minCountLabel, strconv.Itoa(int(*autoscaling.Targets[0].MinCapacity)), 50, 1, true, false)
+			f.AddTextView(maxCountLabel, strconv.Itoa(int(*autoscaling.Targets[0].MaxCapacity)), 50, 1, true, false)
+		}
+
+		for _, policy := range autoscaling.Policies {
+			policyNameLabel := "Policy name"
+			f.AddTextView(policyNameLabel, *policy.PolicyName, 20, 1, true, false)
+			for _, alarms := range policy.Alarms {
+				alarmLabel := "Alarm name"
+				f.AddTextView(alarmLabel, *alarms.AlarmName, 20, 1, true, false)
+			}
+		}
+
 	}
 
 	return f, title

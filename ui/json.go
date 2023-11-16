@@ -93,6 +93,7 @@ func (v *View) switchToMetrics() {
 }
 
 // Deprecated
+// not called anywhere
 // Switch to auto scaling get by applicationautoscaling
 func (v *View) switchToAutoScaling() {
 	selected := v.getCurrentSelection()
@@ -106,7 +107,7 @@ func (v *View) switchToAutoScaling() {
 	}
 
 	serviceFullName := util.ArnToFullName(serviceArn)
-	autoScaling, err := v.app.Store.GetAutoScaling(&serviceFullName)
+	autoScaling, err := v.app.Store.GetAutoscaling(&serviceFullName)
 
 	if err != nil {
 		return
