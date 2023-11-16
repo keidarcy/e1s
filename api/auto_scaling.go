@@ -15,7 +15,7 @@ type AutoScalingData struct {
 	Actions    []types.ScheduledAction
 }
 
-func (store *Store) GetAutoScaling(serviceArn *string) (*AutoScalingData, error) {
+func (store *Store) GetAutoscaling(serviceArn *string) (*AutoScalingData, error) {
 	targets, err := store.describeScalableTargets(serviceArn)
 
 	if err != nil {
