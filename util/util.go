@@ -167,15 +167,3 @@ func BuildMeterText(f float64) string {
 
 	return meterVal + " " + fmt.Sprintf("%.2f", f) + "%"
 }
-
-func GetResourceIdByArn(arn *string) *string {
-	// Splitting the ARN by ":"
-	parts := strings.Split(*arn, ":")
-	if len(parts) < 6 {
-		fmt.Println("Invalid ARN format")
-		return nil
-	}
-
-	// Extracting the service part
-	return &parts[5]
-}
