@@ -7,7 +7,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/config v1.25.11
 	github.com/aws/aws-sdk-go-v2/service/applicationautoscaling v1.24.0
 	github.com/aws/aws-sdk-go-v2/service/cloudwatch v1.27.8
-	github.com/aws/aws-sdk-go-v2/service/ecs v1.32.0
+	github.com/aws/aws-sdk-go-v2/service/ecs v1.35.2
 	github.com/gdamore/tcell/v2 v2.6.0
 	github.com/rivo/tview v0.0.0-20230525073430-4a1f85bb2219
 )
