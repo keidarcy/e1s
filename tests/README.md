@@ -6,6 +6,7 @@
   - Security group for access to the example service
   - Task role for SSH access to the containers
   - Task definition using FluentBit sidecar container definition
+- ECS on EC2 cluster(experimental)
 
 ## Usage
 
@@ -14,6 +15,7 @@ To run this example you need to execute.
 ```bash
 $ terraform init
 $ terraform plan
+# $ terraform plan -var 'cluster_count=1' -var 'service_count=1' -var 'task_count=1'
 $ terraform apply
 ```
 

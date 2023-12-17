@@ -70,9 +70,6 @@ resource "aws_ecs_cluster" "main" {
     name  = "containerInsights"
     value = "disabled"
   }
-  lifecycle {
-    ignore_changes = [setting]
-  }
 }
 
 resource "aws_ecs_cluster_capacity_providers" "main" {
@@ -95,7 +92,6 @@ resource "aws_ecs_cluster_capacity_providers" "main" {
 resource "aws_ecs_service" "main" {
   count                  = local.service_count
   name                   = "${local.name}-service-${count.index}"
-  depends_on             = [aws_lb_listener_rule.main]
   cluster                = aws_ecs_cluster.main[0].name
   launch_type            = "FARGATE"
   desired_count          = count.index == 0 ? local.task_count : 0
@@ -114,6 +110,7 @@ resource "aws_ecs_service" "main" {
     enable   = true
     rollback = true
   }
+  depends_on = [aws_lb_listener_rule.main]
 }
 
 resource "aws_ecs_task_definition" "main" {
