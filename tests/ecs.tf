@@ -68,7 +68,7 @@ resource "aws_ecs_cluster" "main" {
   name  = "${local.name}-cluster-${count.index}"
   setting {
     name  = "containerInsights"
-    value = "enabled"
+    value = "disabled"
   }
   lifecycle {
     ignore_changes = [setting]

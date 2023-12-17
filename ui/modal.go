@@ -30,8 +30,10 @@ func (v *View) showEditServiceModal() {
 	v.app.Pages.AddPage(title, v.modal(content, 100, 15), true, true)
 }
 
+// Deprecated
+// Autoscaling is too complex to show in a form
 // Show service auto scaling modal
-func (v *View) showAutoScaling() {
+func (v *View) showAutoScalingModal() {
 	if v.kind != ServicePage {
 		return
 	}
@@ -55,7 +57,7 @@ func (v *View) showTaskDefinitionConfirm(fn func()) {
 }
 
 // Show service metrics modal(Memory/CPU)
-func (v *View) showMetrics() {
+func (v *View) showMetricsModal() {
 	if v.kind != ServicePage {
 		return
 	}
@@ -97,6 +99,8 @@ func (v *View) taskDefinitionRegisterContent(fn func()) (*tview.Form, string) {
 	return f, title
 }
 
+// Deprecated
+// Autoscaling is too complex to show in a form
 // Get service auto scaling form
 // Show all three type autoscaling https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-auto-scaling.html
 // 1. Target tracking scaling policies

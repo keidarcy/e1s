@@ -11,8 +11,8 @@ import (
 type AutoScalingData struct {
 	Targets    []types.ScalableTarget
 	Policies   []types.ScalingPolicy
-	Activities []types.ScalingActivity
 	Actions    []types.ScheduledAction
+	Activities []types.ScalingActivity
 }
 
 func (store *Store) GetAutoscaling(serviceArn *string) (*AutoScalingData, error) {
@@ -43,8 +43,8 @@ func (store *Store) GetAutoscaling(serviceArn *string) (*AutoScalingData, error)
 	return &AutoScalingData{
 		Targets:    targets,
 		Policies:   policies,
-		Activities: activities,
 		Actions:    actions,
+		Activities: activities,
 	}, nil
 
 }
