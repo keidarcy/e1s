@@ -18,7 +18,7 @@ func (v *View) switchToResourceJson() {
 }
 
 // Switch to selected task definition JSON page
-func (v *View) switchToTaskDefinition() {
+func (v *View) switchToTaskDefinitionJson() {
 	selected := v.getCurrentSelection()
 	taskDefinition := ""
 	if v.kind == ServicePage {
@@ -38,7 +38,7 @@ func (v *View) switchToTaskDefinition() {
 }
 
 // Switch to selected task definition revision list JSON page
-func (v *View) switchToTaskDefinitionRevisions() {
+func (v *View) switchToTaskDefinitionRevisionsJson() {
 	family, _ := v.getTaskDefinitionDetail()
 
 	revisions, err := v.app.Store.ListTaskDefinition(&family)
@@ -65,7 +65,7 @@ func (v *View) getTaskDefinitionDetail() (string, string) {
 }
 
 // Switch to selected service events JSON page
-func (v *View) switchToServiceEvents() {
+func (v *View) switchToServiceEventsJson() {
 	selected := v.getCurrentSelection()
 	if v.kind != ServicePage {
 		return
@@ -95,7 +95,7 @@ func (v *View) switchToMetrics() {
 // Deprecated
 // not called anywhere
 // Switch to auto scaling get by applicationautoscaling
-func (v *View) switchToAutoScaling() {
+func (v *View) switchToAutoScalingJson() {
 	selected := v.getCurrentSelection()
 	if v.kind != ServicePage {
 		return
