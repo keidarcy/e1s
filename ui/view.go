@@ -26,7 +26,7 @@ const (
 	describeTaskDefinition          = "Describe task definition"
 	describeTaskDefinitionRevisions = "Describe task definition revisions"
 	describeServiceEvents           = "Describe service events"
-	showAutoScaling                 = "Show auto scaling target and policy"
+	showAutoScaling                 = "Describe autoscaling targets, policies, actions, activities"
 	showMetrics                     = "Show metrics"
 
 	editService        = "Edit Service"
