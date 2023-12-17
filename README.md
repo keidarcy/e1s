@@ -138,6 +138,11 @@ tail -f /tmp/e1s_debug.log
 
 If you have any feature requests or bug reports, please submit them through GitHub [Issues](https://github.com/keidarcy/e1s/issues).
 
+## Publish new version
+
+- Bump version
+- `make tag`
+
 ## Thanks
 
 - [tview](https://github.com/rivo/tview)
