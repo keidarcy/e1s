@@ -9,7 +9,6 @@ import (
 	"syscall"
 
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
-	"github.com/gdamore/tcell/v2"
 	"github.com/keidarcy/e1s/util"
 	"github.com/rivo/tview"
 )
@@ -84,36 +83,36 @@ func (v *ContainerView) tableHandler() {
 		v.table.GetCell(row+1, 0).SetReference(Entity{container: &c, entityName: *c.ContainerArn})
 	}
 
-	v.table.SetSelectedFunc(func(row int, column int) {
-		containerName := v.table.GetCell(row, column).Text
-		v.ssh(containerName)
-	})
+	// v.table.SetSelectedFunc(func(row int, column int) {
+	// 	containerName := v.table.GetCell(row, column).Text
+	// 	v.ssh(containerName)
+	// })
 
-	v.table.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		// simulate selected action(ssh)
-		sshHandler := func() {
-			selected := v.getCurrentSelection()
-			containerName := *selected.container.Name
-			v.ssh(containerName)
-		}
+	// v.table.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+	// 	// simulate selected action(ssh)
+	// 	sshHandler := func() {
+	// 		selected := v.getCurrentSelection()
+	// 		containerName := *selected.container.Name
+	// 		v.ssh(containerName)
+	// 	}
 
-		// handle right arrow key
-		if event.Key() == tcell.KeyRight {
-			sshHandler()
-			return event
-		}
+	// 	// handle right arrow key
+	// 	if event.Key() == tcell.KeyRight {
+	// 		sshHandler()
+	// 		return event
+	// 	}
 
-		// handle l key
-		key := event.Rune()
-		switch key {
-		case lKey, lKey - upperLowerDiff:
+	// 	// handle l key
+	// 	key := event.Rune()
+	// 	switch key {
+	// 	case lKey, lKey - upperLowerDiff:
 
-			sshHandler()
-		case hKey, hKey - upperLowerDiff:
-			v.handleDone(0)
-		}
-		return event
-	})
+	// 		sshHandler()
+	// 	case hKey, hKey - upperLowerDiff:
+	// 		v.handleDone(0)
+	// 	}
+	// 	return event
+	// })
 }
 
 // Generate info pages params
@@ -175,7 +174,7 @@ func (v *ContainerView) tableParam() (title string, headers []string, dataBuilde
 }
 
 // SSH into selected container
-func (v *ContainerView) ssh(containerName string) {
+func (v *View) ssh(containerName string) {
 	// catch ctrl+C & SIGTERM
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM)

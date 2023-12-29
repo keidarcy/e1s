@@ -169,10 +169,21 @@ func (v *View) handleAppPageSwitch(resourceName string, isJson bool) error {
 	if isJson {
 		kind = v.kind
 	}
+	v.showKindPage(kind)
+	return nil
+}
 
-	switch kind {
+// Reload current resource
+func (v *View) reloadResource() error {
+	v.successModal("Reloaded ✅")
+	go v.showKindPage(v.kind)
+	return nil
+}
+
+func (v *View) showKindPage(k Kind) error {
+	switch k {
 	case ClusterPage:
-		v.app.showClustersPage()
+		return v.app.showClustersPage()
 	case ServicePage:
 		return v.app.showServicesPage()
 	case TaskPage:

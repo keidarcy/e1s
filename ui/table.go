@@ -79,6 +79,10 @@ func (v *View) handleSelectionChanged(row, column int) {
 
 // Handle selected event for table when press Enter
 func (v *View) handleSelected(row, column int) {
+	if v.kind == ContainerPage {
+		containerName := v.table.GetCell(row, column).Text
+		v.ssh(containerName)
+	}
 	err := v.handleAppPageSwitch(v.app.entityName, false)
 	if err != nil {
 		logger.Printf("page change failed, error: %v\n", err)
@@ -101,6 +105,7 @@ func (v *View) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 	}
 
 	key := event.Rune()
+	logger.Println(key)
 	switch key {
 	case bKey, bKey - upperLowerDiff:
 		v.openInBrowser()
@@ -109,7 +114,8 @@ func (v *View) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 	case tKey, tKey - upperLowerDiff:
 		v.switchToTaskDefinitionJson()
 	case rKey, rKey - upperLowerDiff:
-		v.switchToTaskDefinitionRevisionsJson()
+		v.reloadResource()
+	// 	v.switchToTaskDefinitionRevisionsJson()
 	case wKey, wKey - upperLowerDiff:
 		v.switchToServiceEventsJson()
 	case mKey, mKey - upperLowerDiff:
