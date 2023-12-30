@@ -4,9 +4,9 @@
 
 ![e1s-demo](./docs/e1s-demo.gif)
 
-## Note
+## AWS credentials and configuration
 
-e1s reads your ~/.aws/config file, but it does not store or send your access and secret key anywhere. The access and secret key is used only to securely connect to AWS API via AWS SDK.
+`e1s` uses the default [aws-cli configuration](https://github.com/aws/aws-cli/blob/develop/README.rst#configuration). It does not store or send your access and secret key anywhere. The access and secret key are used only to securely connect to AWS API via AWS SDK. Both profile and region are overridable via the `AWS_PROFILE` and `AWS_REGION`.
 
 ## Installation
 
