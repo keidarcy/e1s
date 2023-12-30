@@ -158,8 +158,11 @@ func (v *View) showJsonPages(entity Entity, which string) {
 		// tableJson press f open in full screen
 		if event.Key() == tcell.KeyRune {
 			key := event.Rune()
-			if key == fKey || key == fKey-upperLowerDiff {
+			switch key {
+			case fKey, fKey - upperLowerDiff:
 				v.app.Pages.AddPage(jsonPageName, fullScreenJson, true, true)
+			case bKey, bKey - upperLowerDiff:
+				v.openInBrowser()
 			}
 		}
 		return event
