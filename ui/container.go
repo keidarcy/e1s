@@ -17,7 +17,7 @@ import (
 const (
 	shell        = "/bin/sh"
 	awsCli       = "aws"
-	sshBannerFmt = "\033[1;31m\033[46m <<ECS-SSH>>: \033[0m Cluster: \"%s\" | Service: \"%s\" | Task: \"%s\" | Container: \"%s\""
+	sshBannerFmt = "\033[1;31m<<ECS-EXEC-SSH>>\033[0m: \n#######################################\n\033[1;32mCluster\033[0m: \"%s\" \n\033[1;32mService\033[0m: \"%s\" \n\033[1;32mTask\033[0m: \"%s\" \n\033[1;32mContainer\033[0m: \"%s\"\n#######################################\n"
 )
 
 type ContainerView struct {

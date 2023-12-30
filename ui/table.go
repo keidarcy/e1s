@@ -81,7 +81,7 @@ func (v *View) handleSelectionChanged(row, column int) {
 func (v *View) handleSelected(row, column int) {
 	err := v.handleAppPageSwitch(v.app.entityName, false)
 	if err != nil {
-		logger.Printf("e1s -page change failed, error: %v\n", err)
+		logger.Printf("e1s - page change failed, error: %v\n", err)
 		v.back()
 	}
 }
@@ -256,7 +256,7 @@ func (v *View) editTaskDefinition() {
 
 		// if no change do nothing
 		if bytes.Equal(originalTD, editedTD) {
-			v.flashModal(" no change", 2, 20, 10)
+			v.flashModal(" Task definition has no change.", 2, 50, 3)
 			return
 		}
 
@@ -275,7 +275,7 @@ func (v *View) editTaskDefinition() {
 				v.errorModal(errMsg, 2, 110, 10)
 				return
 			}
-			v.successModal(fmt.Sprintf("SUCCESS 🚀\nTaskDefinition Family: %s\nRevision: %d\n", family, revision), 5, 110, 10)
+			v.successModal(fmt.Sprintf("SUCCESS 🚀\nTaskDefinition Family: %s\nRevision: %d\n", family, revision), 5, 110, 5)
 		}
 
 		v.showTaskDefinitionConfirm(register)

@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	if _, err := ui.Show(); err != nil {
+	if err := ui.Show(); err != nil {
 		util.Logger.Printf("e1s - failed to start, error: %v\n", err)
 		fmt.Println("e1s failed to start, please check your aws cli credential.")
 		os.Exit(1)
