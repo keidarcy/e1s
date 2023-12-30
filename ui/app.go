@@ -68,23 +68,23 @@ func newApp() *App {
 }
 
 // Entry point of the app
-func Show() error {
+func Show() (*tview.Application, error) {
 	flag.Parse()
 	if version {
 		fmt.Println("v" + util.AppVersion)
-		return nil
+		return nil, nil
 	}
 	app := newApp()
 	app.initStyles()
 
 	if err := app.showClustersPage(); err != nil {
-		return err
+		return app.Application, err
 	}
 
 	if err := app.Application.SetRoot(app.Pages, true).Run(); err != nil {
-		return err
+		return app.Application, err
 	}
-	return nil
+	return app.Application, nil
 }
 
 // Init basic tview styles

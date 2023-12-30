@@ -19,7 +19,6 @@ const (
 	clusterTasksFmt       = "[blue]%d pending[-] | [green]%d running"
 	serviceTasksFmt       = "%d/%d tasks running"
 	footerKeyFmt          = "[::b][↓,j/↑,k][::-] Down/Up [::b][Enter/Esc][::-] Enter/Back [::b][ctrl-c[][::-] Quit"
-	initErrorFmt          = "There is no valid clusters in [red::b]%s[-:-:-]. Please check your aws config. Press any key to exit."
 	colorJSONFmt          = `%s"[steelblue::b]%s[-:-:-]": %s`
 
 	describe                        = "Describe"
@@ -31,6 +30,7 @@ const (
 
 	editService        = "Edit Service"
 	editTaskDefinition = "Edit Task Definition"
+	reloadResource     = "Reload Resources"
 	openInBrowser      = "Open in browser"
 	sshContainer       = "SSH container"
 	toggleFullScreen   = "JSON Toggle full screen"
@@ -46,6 +46,7 @@ const (
 	lKey = 'l'
 	mKey = 'm'
 	rKey = 'r'
+	vKey = 'v'
 	tKey = 't'
 	wKey = 'w'
 
@@ -53,6 +54,7 @@ const (
 )
 
 var basicKeyInputs = []KeyInput{
+	{key: string(rKey), description: reloadResource},
 	{key: string(bKey), description: openInBrowser},
 	{key: string(fKey), description: toggleFullScreen},
 	{key: string(dKey), description: describe},
@@ -175,7 +177,7 @@ func (v *View) handleAppPageSwitch(resourceName string, isJson bool) error {
 
 // Reload current resource
 func (v *View) reloadResource() error {
-	v.successModal("Reloaded ✅")
+	v.successModal("Reloaded ✅", 1, 20, 5)
 	go v.showKindPage(v.kind)
 	return nil
 }

@@ -79,13 +79,9 @@ func (v *View) handleSelectionChanged(row, column int) {
 
 // Handle selected event for table when press Enter
 func (v *View) handleSelected(row, column int) {
-	if v.kind == ContainerPage {
-		containerName := v.table.GetCell(row, column).Text
-		v.ssh(containerName)
-	}
 	err := v.handleAppPageSwitch(v.app.entityName, false)
 	if err != nil {
-		logger.Printf("page change failed, error: %v\n", err)
+		logger.Printf("e1s -page change failed, error: %v\n", err)
 		v.back()
 	}
 }
@@ -105,7 +101,6 @@ func (v *View) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 	}
 
 	key := event.Rune()
-	logger.Println(key)
 	switch key {
 	case bKey, bKey - upperLowerDiff:
 		v.openInBrowser()
@@ -115,7 +110,8 @@ func (v *View) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 		v.switchToTaskDefinitionJson()
 	case rKey, rKey - upperLowerDiff:
 		v.reloadResource()
-	// 	v.switchToTaskDefinitionRevisionsJson()
+	case vKey, vKey - upperLowerDiff:
+		v.switchToTaskDefinitionRevisionsJson()
 	case wKey, wKey - upperLowerDiff:
 		v.switchToServiceEventsJson()
 	case mKey, mKey - upperLowerDiff:
@@ -186,7 +182,7 @@ func (v *View) openInBrowser() {
 	logger.Printf("open url: %s\n", url)
 	err := util.OpenURL(url)
 	if err != nil {
-		logger.Printf("failed open url %s\n", url)
+		logger.Printf("e1s - failed open url %s\n", url)
 	}
 }
 
@@ -201,7 +197,7 @@ func (v *View) editTaskDefinition() {
 	taskDefinition := *selected.task.TaskDefinitionArn
 	td, err := v.app.Store.DescribeTaskDefinition(&taskDefinition)
 	if err != nil {
-		v.errorModal(errMsg)
+		v.errorModal(errMsg, 2, 110, 10)
 		return
 	}
 	names := strings.Split(selected.entityName, "/")
@@ -210,7 +206,7 @@ func (v *View) editTaskDefinition() {
 	tmpfile, err := os.CreateTemp("", names[len(names)-1])
 	if err != nil {
 		logger.Println("Error creating temporary file:", err)
-		v.errorModal(errMsg)
+		v.errorModal(errMsg, 2, 110, 10)
 		return
 	}
 	defer os.Remove(tmpfile.Name())
@@ -219,13 +215,13 @@ func (v *View) editTaskDefinition() {
 	originalTD, err := json.MarshalIndent(td, "", "  ")
 	if err != nil {
 		logger.Println("Error reading temporary file:", err)
-		v.errorModal(errMsg)
+		v.errorModal(errMsg, 2, 110, 10)
 		return
 	}
 
 	if _, err := tmpfile.Write(originalTD); err != nil {
 		logger.Println("Error writing to temporary file:", err)
-		v.errorModal(errMsg)
+		v.errorModal(errMsg, 2, 110, 10)
 		return
 	}
 
@@ -242,14 +238,14 @@ func (v *View) editTaskDefinition() {
 
 		if err := cmd.Run(); err != nil {
 			logger.Println("Error opening editor:", err)
-			v.errorModal(errMsg)
+			v.errorModal(errMsg, 2, 110, 10)
 			return
 		}
 
 		editedTD, err := os.ReadFile(tmpfile.Name())
 		if err != nil {
 			logger.Println("Error reading temporary file:", err)
-			v.errorModal(errMsg)
+			v.errorModal(errMsg, 2, 110, 10)
 			return
 		}
 
@@ -260,14 +256,14 @@ func (v *View) editTaskDefinition() {
 
 		// if no change do nothing
 		if bytes.Equal(originalTD, editedTD) {
-			v.flashModal(" no change", 2)
+			v.flashModal(" no change", 2, 20, 10)
 			return
 		}
 
 		var updatedTd ecs.RegisterTaskDefinitionInput
 		if err := json.Unmarshal(editedTD, &updatedTd); err != nil {
 			logger.Println("Error unmarshaling JSON:", err)
-			v.errorModal(errMsg)
+			v.errorModal(errMsg, 2, 110, 10)
 			return
 		}
 
@@ -276,10 +272,10 @@ func (v *View) editTaskDefinition() {
 
 			if err != nil {
 				logger.Println("Error opening editor:", err)
-				v.errorModal(errMsg)
+				v.errorModal(errMsg, 2, 110, 10)
 				return
 			}
-			v.successModal(fmt.Sprintf("SUCCESS 🚀\nTaskDefinition Family: %s\nRevision: %d\n", family, revision))
+			v.successModal(fmt.Sprintf("SUCCESS 🚀\nTaskDefinition Family: %s\nRevision: %d\n", family, revision), 5, 110, 10)
 		}
 
 		v.showTaskDefinitionConfirm(register)

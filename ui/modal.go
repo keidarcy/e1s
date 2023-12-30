@@ -217,7 +217,7 @@ func (v *View) serviceUpdateContent() (*tview.Form, string) {
 	// get data for form
 	families, err := v.app.Store.ListTaskDefinitionFamilies()
 	if err != nil {
-		v.errorModal("aws api error!")
+		v.errorModal("aws api error!", 2, 20, 10)
 		v.closeModal()
 	}
 
@@ -247,7 +247,7 @@ func (v *View) serviceUpdateContent() (*tview.Form, string) {
 			// when family option change, change revision drop down value
 			taskDefinitions, err := v.app.Store.ListTaskDefinition(&text)
 			if err != nil {
-				v.errorModal("aws api error!")
+				v.errorModal("aws api error!", 2, 20, 10)
 				v.closeModal()
 			}
 			revisions := []string{}
@@ -315,10 +315,12 @@ func (v *View) serviceUpdateContent() (*tview.Form, string) {
 
 		if err != nil {
 			v.closeModal()
-			go v.errorModal(err.Error())
+			go v.errorModal(err.Error(), 5, 100, 10)
+			v.reloadResource()
 		} else {
 			v.closeModal()
-			go v.successModal(fmt.Sprintf("SUCCESS 🚀\nDesiredCount: %d\nTaskDefinition: %s\n", s.DesiredCount, *s.TaskDefinition))
+			go v.successModal(fmt.Sprintf("SUCCESS 🚀\nDesiredCount: %d\nTaskDefinition: %s\n", s.DesiredCount, *s.TaskDefinition), 5, 110, 5)
+			v.reloadResource()
 		}
 	})
 	return f, title

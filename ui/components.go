@@ -47,20 +47,20 @@ func (v *View) styledForm(title string) *tview.Form {
 }
 
 // Call this function need a new goroutine
-func (v *View) errorModal(text string) {
-	v.flashModal(fmt.Sprintf("[red::b]%s ", text), 3)
+func (v *View) errorModal(text string, duration, width, height int) {
+	v.flashModal(fmt.Sprintf("[red::b]%s ", text), duration, width, height)
 }
 
 // Call this function need a new goroutine
-func (v *View) successModal(text string) {
-	v.flashModal(fmt.Sprintf("[green::b]%s ", text), 3)
+func (v *View) successModal(text string, duration, width, height int) {
+	v.flashModal(fmt.Sprintf("[green::b]%s ", text), duration, width, height)
 }
 
 // show a flash modal in a given time duration
-func (v *View) flashModal(text string, duration int) {
+func (v *View) flashModal(text string, duration, width, height int) {
 	t := tview.NewTextView().SetDynamicColors(true).SetText(text)
 	t.SetBorder(true)
-	v.app.Pages.AddPage(text, v.modal(t, 105, 10), true, true)
+	v.app.Pages.AddPage(text, v.modal(t, width, height), true, true)
 	t.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		v.closeModal()
 		return event

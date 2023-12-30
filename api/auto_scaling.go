@@ -121,7 +121,7 @@ func (store *Store) describeScheduledAction(serviceArn *string) ([]types.Schedul
 	actionsOutput, err := store.autoScaling.DescribeScheduledActions(context.Background(), actionsInput)
 
 	if err != nil {
-		logger.Printf("aws failed to auto scaling scheduled actions serviceArn: \"%s\", err: %v\n", *serviceArn, err)
+		logger.Printf("e1s - aws failed to auto scaling scheduled actions serviceArn: \"%s\", err: %v\n", *serviceArn, err)
 		return nil, err
 	}
 
