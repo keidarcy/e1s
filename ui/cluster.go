@@ -2,6 +2,7 @@ package ui
 
 import (
 	"fmt"
+	"os"
 	"strconv"
 	"strings"
 
@@ -25,14 +26,17 @@ func newClusterView(clusters []types.Cluster, app *App) *ClusterView {
 func (app *App) showClustersPage() error {
 	clusters, err := app.Store.ListClusters()
 	if err != nil {
-		logger.Printf("show clusters failed, error: %v\n", err)
+		logger.Printf("e1s - show clusters failed, error: %v\n", err)
 		return err
 	}
 
 	view := newClusterView(clusters, app)
+
 	if len(clusters) == 0 {
-		go view.flashModal(fmt.Sprintf(initErrorFmt, app.Region), 10)
+		fmt.Printf("There is no valid clusters in \033[31m%s\033[0m. Please check you ecs cluster via `AWS_REGION=%s aws ecs list-clusters`.\n", app.Region, app.Region)
+		os.Exit(0)
 	}
+
 	page := buildAppPage(view)
 	view.addAppPage(page)
 	return nil

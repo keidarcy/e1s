@@ -17,7 +17,7 @@ import (
 const (
 	shell        = "/bin/sh"
 	awsCli       = "aws"
-	sshBannerFmt = "\033[1;31m\033[46m <<ECS-SSH>>: \033[0m Cluster: \"%s\" | Service: \"%s\" | Task: \"%s\" | Container: \"%s\""
+	sshBannerFmt = "\033[1;31m<<ECS-EXEC-SSH>>\033[0m: \n#######################################\n\033[1;32mCluster\033[0m: \"%s\" \n\033[1;32mService\033[0m: \"%s\" \n\033[1;32mTask\033[0m: \"%s\" \n\033[1;32mContainer\033[0m: \"%s\"\n#######################################\n"
 )
 
 type ContainerView struct {
@@ -89,31 +89,39 @@ func (v *ContainerView) tableHandler() {
 		v.ssh(containerName)
 	})
 
-	v.table.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		// simulate selected action(ssh)
-		sshHandler := func() {
-			selected := v.getCurrentSelection()
-			containerName := *selected.container.Name
-			v.ssh(containerName)
-		}
+	v.table.SetInputCapture(v.handleInputCapture)
+}
 
-		// handle right arrow key
-		if event.Key() == tcell.KeyRight {
-			sshHandler()
-			return event
-		}
+// Container page specific input handler
+func (v *ContainerView) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
+	// simulate selected action(ssh)
+	sshHandler := func() {
+		selected := v.getCurrentSelection()
+		containerName := *selected.container.Name
+		v.ssh(containerName)
+	}
 
-		// handle l key
-		key := event.Rune()
-		switch key {
-		case lKey, lKey - upperLowerDiff:
-
-			sshHandler()
-		case hKey, hKey - upperLowerDiff:
-			v.handleDone(0)
-		}
+	// handle right arrow key
+	if event.Key() == tcell.KeyRight {
+		sshHandler()
 		return event
-	})
+	}
+
+	// handle l key
+	key := event.Rune()
+	switch key {
+	case rKey, rKey - upperLowerDiff:
+		v.reloadResource()
+	case lKey, lKey - upperLowerDiff:
+		sshHandler()
+	case hKey, hKey - upperLowerDiff:
+		v.handleDone(0)
+	case bKey, bKey - upperLowerDiff:
+		v.openInBrowser()
+	case dKey, dKey - upperLowerDiff:
+		v.switchToResourceJson()
+	}
+	return event
 }
 
 // Generate info pages params
@@ -184,7 +192,7 @@ func (v *ContainerView) ssh(containerName string) {
 	}
 	bin, err := exec.LookPath(awsCli)
 	if err != nil {
-		logger.Printf("aws binary not found, error: %v\n", err)
+		logger.Printf("e1s - aws cli binary not found, error: %v\n", err)
 		v.back()
 	}
 	arg := []string{

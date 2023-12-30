@@ -26,7 +26,7 @@ type Store struct {
 func NewStore() *Store {
 	cfg, err := config.LoadDefaultConfig(context.Background(), config.WithRegion(os.Getenv("AWS_REGION")))
 	if err != nil {
-		logger.Printf("unable to load SDK config, error: %v\n", err)
+		logger.Printf("e1s - aws unable to load SDK config, error: %v\n", err)
 	}
 	ecsClient := ecs.NewFromConfig(cfg)
 	return &Store{

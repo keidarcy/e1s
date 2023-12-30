@@ -117,12 +117,14 @@ $ e1s -version
 | `k`, `↑` | Select previous item |
 | `l`, `←`, `Enter` | Enter current resource/SSH |
 | `h`, `→`, `Esc` | Go to previous view |
-| `d` | Describe selected resource |
+| `d` | Describe selected resource(show json) |
 | `t` | Describe task definition |
 | `w` | Describe service events |
 | `a` | Show service auto scaling |
 | `m` | Show service metrics(CPUUtilization/MemoryUtilization) |
-| `r` | List task definition revisions |
+| `r` | Reload resources |
+| `v` | List task definition revisions |
+| `f` | Toggle full screen |
 | `e` | Edit resource |
 | `b` | Open selected resource in AWS web console |
 | `ctrl` + `c` | Quit |

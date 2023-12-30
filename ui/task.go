@@ -31,7 +31,7 @@ func (app *App) showTasksPages() error {
 	tasks, err := app.Store.ListTasks(app.cluster.ClusterName, app.service.ServiceName)
 
 	if err != nil {
-		logger.Printf("show tasks pages failed, error: %v\n", err)
+		logger.Printf("e1s - show tasks pages failed, error: %v\n", err)
 		return err
 	}
 

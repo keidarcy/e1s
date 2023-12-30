@@ -34,7 +34,7 @@ func newServiceView(services []types.Service, app *App) *ServiceView {
 func (app *App) showServicesPage() error {
 	services, err := app.Store.ListServices(app.cluster.ClusterName)
 	if err != nil {
-		logger.Printf("show services page failed, error: %v\n", err)
+		logger.Printf("e1s - show services page failed, error: %v\n", err)
 		return err
 	}
 
