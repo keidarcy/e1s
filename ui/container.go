@@ -96,7 +96,10 @@ func (v *ContainerView) tableHandler() {
 func (v *ContainerView) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 	// simulate selected action(ssh)
 	sshHandler := func() {
-		selected := v.getCurrentSelection()
+		selected, err := v.getCurrentSelection()
+		if err != nil {
+			return
+		}
 		containerName := *selected.container.Name
 		v.ssh(containerName)
 	}

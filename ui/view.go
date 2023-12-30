@@ -141,14 +141,20 @@ func buildAppPage(v DataView) *tview.Flex {
 }
 
 // Get current table selection and return as entity
-func (v *View) getCurrentSelection() Entity {
+func (v *View) getCurrentSelection() (Entity, error) {
 	row, _ := v.table.GetSelection()
 	if row == 0 {
 		row++
 	}
 	cell := v.table.GetCell(row, 0)
-	entity := cell.GetReference().(Entity)
-	return entity
+	// entity := cell.GetReference().(Entity)
+	switch entity := cell.GetReference().(type) {
+	case Entity:
+		return entity, nil
+	default:
+		logger.Printf("e1s - unexpected error: %v (%T)", entity, entity)
+		return Entity{}, fmt.Errorf("unexpected error: %v (%T)", entity, entity)
+	}
 }
 
 // Add new page to app.Pages

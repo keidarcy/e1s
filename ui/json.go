@@ -13,13 +13,19 @@ import (
 
 // Switch to selected resource JSON page
 func (v *View) switchToResourceJson() {
-	selected := v.getCurrentSelection()
+	selected, err := v.getCurrentSelection()
+	if err != nil {
+		return
+	}
 	v.showJsonPages(selected, "describe")
 }
 
 // Switch to selected task definition JSON page
 func (v *View) switchToTaskDefinitionJson() {
-	selected := v.getCurrentSelection()
+	selected, err := v.getCurrentSelection()
+	if err != nil {
+		return
+	}
 	taskDefinition := ""
 	if v.kind == ServicePage {
 		taskDefinition = *selected.service.TaskDefinition
@@ -51,7 +57,10 @@ func (v *View) switchToTaskDefinitionRevisionsJson() {
 
 // Get td family
 func (v *View) getTaskDefinitionDetail() (string, string) {
-	selected := v.getCurrentSelection()
+	selected, err := v.getCurrentSelection()
+	if err != nil {
+		return "", ""
+	}
 	taskDefinition := ""
 	if v.kind == ServicePage {
 		taskDefinition = *selected.service.TaskDefinition
@@ -66,7 +75,10 @@ func (v *View) getTaskDefinitionDetail() (string, string) {
 
 // Switch to selected service events JSON page
 func (v *View) switchToServiceEventsJson() {
-	selected := v.getCurrentSelection()
+	selected, err := v.getCurrentSelection()
+	if err != nil {
+		return
+	}
 	if v.kind != ServicePage {
 		return
 	}
@@ -76,7 +88,10 @@ func (v *View) switchToServiceEventsJson() {
 // Deprecated
 // Switch to Metrics get by cloudwatch
 func (v *View) switchToMetrics() {
-	selected := v.getCurrentSelection()
+	selected, err := v.getCurrentSelection()
+	if err != nil {
+		return
+	}
 	if v.kind != ServicePage {
 		return
 	}
@@ -96,7 +111,10 @@ func (v *View) switchToMetrics() {
 // not called anywhere
 // Switch to auto scaling get by applicationautoscaling
 func (v *View) switchToAutoScalingJson() {
-	selected := v.getCurrentSelection()
+	selected, err := v.getCurrentSelection()
+	if err != nil {
+		return
+	}
 	if v.kind != ServicePage {
 		return
 	}

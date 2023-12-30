@@ -73,7 +73,10 @@ func (v *View) handleTableEvents() {
 // Detail page will switch
 func (v *View) handleSelectionChanged(row, column int) {
 	v.changeSelectedValues()
-	selected := v.getCurrentSelection()
+	selected, err := v.getCurrentSelection()
+	if err != nil {
+		return
+	}
 	v.infoPages.SwitchToPage(selected.entityName)
 }
 
@@ -140,7 +143,10 @@ func (v *View) handleDone(key tcell.Key) {
 
 // Handle common values changing for selected event for table when pressed Enter
 func (v *View) changeSelectedValues() {
-	selected := v.getCurrentSelection()
+	selected, err := v.getCurrentSelection()
+	if err != nil {
+		return
+	}
 	if v.kind == ClusterPage {
 		v.app.cluster = selected.cluster
 		v.app.entityName = *selected.cluster.ClusterArn
@@ -160,7 +166,10 @@ func (v *View) changeSelectedValues() {
 
 // Open selected resource in browser only support cluster and service
 func (v *View) openInBrowser() {
-	selected := v.getCurrentSelection()
+	selected, err := v.getCurrentSelection()
+	if err != nil {
+		return
+	}
 	arn := ""
 	taskService := ""
 	switch v.kind {
@@ -180,7 +189,7 @@ func (v *View) openInBrowser() {
 		return
 	}
 	logger.Printf("open url: %s\n", url)
-	err := util.OpenURL(url)
+	err = util.OpenURL(url)
 	if err != nil {
 		logger.Printf("e1s - failed open url %s\n", url)
 	}
@@ -193,7 +202,10 @@ func (v *View) editTaskDefinition() {
 	}
 
 	// get td detail
-	selected := v.getCurrentSelection()
+	selected, err := v.getCurrentSelection()
+	if err != nil {
+		return
+	}
 	taskDefinition := *selected.task.TaskDefinitionArn
 	td, err := v.app.Store.DescribeTaskDefinition(&taskDefinition)
 	if err != nil {

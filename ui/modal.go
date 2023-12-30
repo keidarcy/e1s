@@ -111,7 +111,10 @@ func (v *View) serviceAutoScalingContent() (*tview.Form, string) {
 		return nil, ""
 	}
 
-	selected := v.getCurrentSelection()
+	selected, err := v.getCurrentSelection()
+	if err != nil {
+		return nil, ""
+	}
 	name := *selected.service.ServiceName
 
 	title := " Auto scaling [purple::b](" + name + ")" + readonlyLabel
@@ -203,7 +206,10 @@ func (v *View) serviceAutoScalingContent() (*tview.Form, string) {
 func (v *View) serviceUpdateContent() (*tview.Form, string) {
 	const latest = "(LATEST)"
 
-	selected := v.getCurrentSelection()
+	selected, err := v.getCurrentSelection()
+	if err != nil {
+		return nil, ""
+	}
 	name := *selected.service.ServiceName
 
 	readonly := ""
@@ -332,7 +338,10 @@ func (v *View) serviceMetricsContent() (*tview.Form, string) {
 		return nil, ""
 	}
 
-	selected := v.getCurrentSelection()
+	selected, err := v.getCurrentSelection()
+	if err != nil {
+		return nil, ""
+	}
 	cluster := v.app.cluster.ClusterName
 	service := *selected.service.ServiceName
 
