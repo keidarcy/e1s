@@ -116,7 +116,7 @@ func (v *View) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 	case vKey, vKey - upperLowerDiff:
 		v.switchToTaskDefinitionRevisionsJson()
 	case wKey, wKey - upperLowerDiff:
-		v.switchToServiceEventsJson()
+		v.switchToServiceEventsList()
 	case mKey, mKey - upperLowerDiff:
 		v.showMetricsModal()
 	case aKey, aKey - upperLowerDiff:
