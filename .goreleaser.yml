@@ -16,6 +16,14 @@ builds:
 release:
   prerelease: auto
 
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^ci:'
+      - '^test:'
+
 universal_binaries:
   - replace: true
 
