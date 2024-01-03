@@ -3,6 +3,7 @@ package ui
 import (
 	"fmt"
 
+	"github.com/gdamore/tcell/v2"
 	"github.com/keidarcy/e1s/util"
 	"github.com/rivo/tview"
 )
@@ -10,7 +11,7 @@ import (
 const (
 	titleFmt              = "[aqua::b]%s[aqua::-]([purple::b]%d[aqua::-]) "
 	nsTitleFmt            = " [aqua::-]<[purple::b]%s[aqua::-]>" + titleFmt
-	jsonTitleFmt          = " [blue]%s([purple::b]%s[blue:-:-]) "
+	contentTitleFmt       = " [blue]%s([purple::b]%s[blue:-:-]) "
 	infoTitleFmt          = " [blue]info([purple::b]%s[blue:-:-]) "
 	footerSelectedItemFmt = " [black:aqua:b] <%s> [-:-:-] "
 	footerItemFmt         = " [black:grey:] <%s> [-:-:-] "
@@ -244,4 +245,47 @@ func (v *View) addFooterItems() {
 	appLabel := fmt.Sprintf("[black:blue:bi] %s:%s ", util.AppName, util.AppVersion)
 	t := tview.NewTextView().SetTextAlign(L).SetDynamicColors(true).SetText(appLabel)
 	v.footer.footer.AddItem(t, 15, 1, false)
+}
+
+func (v *View) handleContentPageSwitch(entity Entity, which string, contentString string) {
+	contentTitle := fmt.Sprintf(contentTitleFmt, which, entity.entityName)
+	contentPageName := v.kind.getContentPageName(entity.entityName + "." + which)
+
+	contentTextItem := getContentTextItem(contentString, contentTitle)
+
+	// press f toggle json
+	contentTextItem.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		fullScreenContent := getContentTextItem(contentString, contentTitle)
+
+		// full screen json press ESC close full screen json and back to table
+		fullScreenContent.SetDoneFunc(func(key tcell.Key) {
+			v.handleFullScreenContentDone(key)
+			v.handleTableContentDone(key)
+		})
+
+		// full screen json press f close full screen json
+		fullScreenContent.SetInputCapture(v.handleFullScreenContentInput)
+
+		// contentTextComponent press f open in full screen
+		if event.Key() == tcell.KeyRune {
+			key := event.Rune()
+			switch key {
+			case fKey, fKey - upperLowerDiff:
+				v.app.Pages.AddPage(contentPageName, fullScreenContent, true, true)
+			case bKey, bKey - upperLowerDiff:
+				v.openInBrowser()
+			}
+		}
+		return event
+	})
+
+	contentTextItem.SetDoneFunc(v.handleTableContentDone)
+
+	v.tablePages.AddPage(contentPageName, contentTextItem, true, true)
+}
+
+func getContentTextItem(contentStr string, title string) *tview.TextView {
+	contentText := tview.NewTextView().SetDynamicColors(true).SetText(contentStr)
+	contentText.SetBorder(true).SetTitle(title).SetBorderPadding(0, 0, 1, 1)
+	return contentText
 }

@@ -84,7 +84,7 @@ func (v *ServiceView) footerBuilder() *tview.Flex {
 func (v *ServiceView) tableHandler() {
 	for row, service := range v.services {
 		s := service
-		// Events are too long show in seperate view
+		// Events are too long show in separate view
 		events := s.Events
 		s.Events = []types.ServiceEvent{}
 		v.table.GetCell(row+1, 0).SetReference(Entity{service: &s, events: events, entityName: *s.ServiceArn})

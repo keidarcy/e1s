@@ -84,7 +84,7 @@ func (k Kind) getTablePageName(name string) string {
 	return pageName + ".table"
 }
 
-func (k Kind) getJsonPageName(name string) string {
+func (k Kind) getContentPageName(name string) string {
 	pageName := k.getAppPageName(name)
 	return pageName + ".json"
 }

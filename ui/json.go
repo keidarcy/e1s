@@ -8,7 +8,6 @@ import (
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/keidarcy/e1s/util"
-	"github.com/rivo/tview"
 )
 
 // Switch to selected resource JSON page
@@ -74,7 +73,7 @@ func (v *View) getTaskDefinitionDetail() (string, string) {
 }
 
 // Switch to selected service events JSON page
-func (v *View) switchToServiceEventsJson() {
+func (v *View) switchToServiceEventsList() {
 	selected, err := v.getCurrentSelection()
 	if err != nil {
 		return
@@ -82,7 +81,7 @@ func (v *View) switchToServiceEventsJson() {
 	if v.kind != ServicePage {
 		return
 	}
-	v.showJsonPages(selected, "events")
+	v.showListPages(selected, "events")
 }
 
 // Deprecated
@@ -136,44 +135,11 @@ func (v *View) switchToAutoScalingJson() {
 
 // Show new page from JSON content in table area and handle done event to go back
 func (v *View) showJsonPages(entity Entity, which string) {
-	title := fmt.Sprintf(jsonTitleFmt, which, entity.entityName)
-	jsonString := v.getJsonString(entity, which)
-	jsonPageName := v.kind.getJsonPageName(entity.entityName + "." + which)
-
-	tableJson := jsonTextView(jsonString, title)
-
-	// press f toggle json
-	tableJson.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		fullScreenJson := jsonTextView(jsonString, title)
-
-		// full screen json press ESC close full screen json and back to table
-		fullScreenJson.SetDoneFunc(func(key tcell.Key) {
-			v.handleFullScreenJsonDone(key)
-			v.handleTableJsonDone(key)
-		})
-
-		// full screen json press f close full screen json
-		fullScreenJson.SetInputCapture(v.handleFullScreenJsonInput)
-
-		// tableJson press f open in full screen
-		if event.Key() == tcell.KeyRune {
-			key := event.Rune()
-			switch key {
-			case fKey, fKey - upperLowerDiff:
-				v.app.Pages.AddPage(jsonPageName, fullScreenJson, true, true)
-			case bKey, bKey - upperLowerDiff:
-				v.openInBrowser()
-			}
-		}
-		return event
-	})
-
-	tableJson.SetDoneFunc(v.handleTableJsonDone)
-
-	v.tablePages.AddPage(jsonPageName, tableJson, true, true)
+	contentString := v.getJsonString(entity, which)
+	v.handleContentPageSwitch(entity, which, contentString)
 }
 
-func (v *View) handleFullScreenJsonInput(event *tcell.EventKey) *tcell.EventKey {
+func (v *View) handleFullScreenContentInput(event *tcell.EventKey) *tcell.EventKey {
 	if event.Key() == tcell.KeyRune {
 		key := event.Rune()
 		if key == fKey || key == fKey-upperLowerDiff {
@@ -184,12 +150,12 @@ func (v *View) handleFullScreenJsonInput(event *tcell.EventKey) *tcell.EventKey 
 	return event
 }
 
-func (v *View) handleTableJsonDone(key tcell.Key) {
+func (v *View) handleTableContentDone(key tcell.Key) {
 	pageName := v.kind.getTablePageName(v.getClusterArn())
 	v.tablePages.SwitchToPage(pageName)
 }
 
-func (v *View) handleFullScreenJsonDone(key tcell.Key) {
+func (v *View) handleFullScreenContentDone(key tcell.Key) {
 	pageName := v.kind.getAppPageName(v.getClusterArn())
 	v.app.Pages.SwitchToPage(pageName)
 }
@@ -255,10 +221,4 @@ func colorizeJSON(raw []byte) string {
 	}
 
 	return strings.Join(buff, "\n")
-}
-
-func jsonTextView(jsonData string, title string) *tview.TextView {
-	jsonText := tview.NewTextView().SetDynamicColors(true).SetText(jsonData)
-	jsonText.SetBorder(true).SetTitle(title).SetBorderPadding(0, 0, 1, 1)
-	return jsonText
 }
