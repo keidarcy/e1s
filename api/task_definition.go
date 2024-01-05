@@ -15,13 +15,13 @@ const (
 
 // Equivalent to
 // aws ecs describe-task-definition --task-definition ${taskDefinition}
-func (store *Store) DescribeTaskDefinition(name *string) (types.TaskDefinition, error) {
+func (store *Store) DescribeTaskDefinition(tdArn *string) (types.TaskDefinition, error) {
 
 	include := []types.TaskDefinitionField{
 		types.TaskDefinitionFieldTags,
 	}
 	taskDefinition, err := store.ecs.DescribeTaskDefinition(context.Background(), &ecs.DescribeTaskDefinitionInput{
-		TaskDefinition: name,
+		TaskDefinition: tdArn,
 		Include:        include,
 	})
 	if err != nil {

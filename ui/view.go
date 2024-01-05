@@ -28,13 +28,14 @@ const (
 	describeServiceEvents           = "Describe service events"
 	showAutoScaling                 = "Describe autoscaling targets, policies, actions, activities"
 	showMetrics                     = "Show metrics"
+	showLogs                        = "Show logs"
 
 	editService        = "Edit Service"
 	editTaskDefinition = "Edit Task Definition"
 	reloadResource     = "Reload Resources"
 	openInBrowser      = "Open in browser"
 	sshContainer       = "SSH container"
-	toggleFullScreen   = "JSON Toggle full screen"
+	toggleFullScreen   = "Content Toggle full screen"
 )
 
 const (
@@ -46,16 +47,16 @@ const (
 	hKey = 'h'
 	lKey = 'l'
 	mKey = 'm'
+	oKey = 'o'
 	rKey = 'r'
-	vKey = 'v'
 	tKey = 't'
+	vKey = 'v'
 	wKey = 'w'
 
 	upperLowerDiff = rune(32)
 )
 
 var basicKeyInputs = []KeyInput{
-	{key: string(rKey), description: reloadResource},
 	{key: string(bKey), description: openInBrowser},
 	{key: string(fKey), description: toggleFullScreen},
 	{key: string(dKey), description: describe},
@@ -274,6 +275,8 @@ func (v *View) handleContentPageSwitch(entity Entity, which string, contentStrin
 				v.app.Pages.AddPage(contentPageName, fullScreenContent, true, true)
 			case bKey, bKey - upperLowerDiff:
 				v.openInBrowser()
+			case rKey, rKey - upperLowerDiff:
+				v.reloadResource()
 			}
 		}
 		return event

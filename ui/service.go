@@ -20,10 +20,11 @@ func newServiceView(services []types.Service, app *App) *ServiceView {
 	keys := append(basicKeyInputs, []KeyInput{
 		{key: string(wKey), description: describeServiceEvents},
 		{key: string(tKey), description: describeTaskDefinition},
-		{key: string(rKey), description: describeTaskDefinitionRevisions},
+		{key: string(vKey), description: describeTaskDefinitionRevisions},
 		{key: string(mKey), description: showMetrics},
 		{key: string(aKey), description: showAutoScaling},
 		{key: string(eKey), description: editService},
+		{key: string(oKey), description: showLogs},
 	}...)
 	return &ServiceView{
 		View:     *newView(app, ServicePage, keys),

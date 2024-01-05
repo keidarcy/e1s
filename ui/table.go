@@ -105,23 +105,13 @@ func (v *View) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 
 	key := event.Rune()
 	switch key {
+	case aKey, aKey - upperLowerDiff:
+		v.switchToAutoScalingJson()
+		// v.showAutoScalingModal()
 	case bKey, bKey - upperLowerDiff:
 		v.openInBrowser()
 	case dKey, dKey - upperLowerDiff:
 		v.switchToResourceJson()
-	case tKey, tKey - upperLowerDiff:
-		v.switchToTaskDefinitionJson()
-	case rKey, rKey - upperLowerDiff:
-		v.reloadResource()
-	case vKey, vKey - upperLowerDiff:
-		v.switchToTaskDefinitionRevisionsJson()
-	case wKey, wKey - upperLowerDiff:
-		v.switchToServiceEventsList()
-	case mKey, mKey - upperLowerDiff:
-		v.showMetricsModal()
-	case aKey, aKey - upperLowerDiff:
-		v.switchToAutoScalingJson()
-		// v.showAutoScalingModal()
 	case eKey, eKey - upperLowerDiff:
 		v.showEditServiceModal()
 		v.editTaskDefinition()
@@ -129,6 +119,18 @@ func (v *View) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 		v.handleDone(0)
 	case lKey, lKey - upperLowerDiff:
 		v.handleSelected(0, 0)
+	case mKey, mKey - upperLowerDiff:
+		v.showMetricsModal()
+	case oKey, oKey - upperLowerDiff:
+		v.switchToLogsList()
+	case rKey, rKey - upperLowerDiff:
+		v.reloadResource()
+	case tKey, tKey - upperLowerDiff:
+		v.switchToTaskDefinitionJson()
+	case vKey, vKey - upperLowerDiff:
+		v.switchToTaskDefinitionRevisionsJson()
+	case wKey, wKey - upperLowerDiff:
+		v.switchToServiceEventsList()
 	}
 	return event
 }
