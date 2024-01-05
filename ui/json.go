@@ -44,6 +44,9 @@ func (v *View) switchToTaskDefinitionJson() {
 
 // Switch to selected task definition revision list JSON page
 func (v *View) switchToTaskDefinitionRevisionsJson() {
+	if v.kind == ClusterPage {
+		return
+	}
 	family, _ := v.getTaskDefinitionDetail()
 
 	revisions, err := v.app.Store.ListTaskDefinition(&family)
@@ -82,6 +85,18 @@ func (v *View) switchToServiceEventsList() {
 		return
 	}
 	v.showListPages(selected, "events")
+}
+
+// Switch to selected service events JSON page
+func (v *View) switchToLogsList() {
+	selected, err := v.getCurrentSelection()
+	if err != nil {
+		return
+	}
+	if v.kind == ClusterPage {
+		return
+	}
+	v.showListPages(selected, "logs")
 }
 
 // Deprecated

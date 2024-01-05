@@ -2,38 +2,11 @@ package api
 
 import (
 	"context"
-	"os"
 	"sort"
 
-	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/config"
-	"github.com/aws/aws-sdk-go-v2/service/applicationautoscaling"
-	"github.com/aws/aws-sdk-go-v2/service/cloudwatch"
 	"github.com/aws/aws-sdk-go-v2/service/ecs"
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
-	"github.com/keidarcy/e1s/util"
 )
-
-var logger = util.Logger
-
-type Store struct {
-	*aws.Config
-	ecs         *ecs.Client
-	cloudWatch  *cloudwatch.Client
-	autoScaling *applicationautoscaling.Client
-}
-
-func NewStore() *Store {
-	cfg, err := config.LoadDefaultConfig(context.Background(), config.WithRegion(os.Getenv("AWS_REGION")))
-	if err != nil {
-		logger.Printf("e1s - aws unable to load SDK config, error: %v\n", err)
-	}
-	ecsClient := ecs.NewFromConfig(cfg)
-	return &Store{
-		Config: &cfg,
-		ecs:    ecsClient,
-	}
-}
 
 // Equivalent to
 // aws ecs list-clusters

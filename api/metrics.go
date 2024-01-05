@@ -54,7 +54,7 @@ func (store *Store) GetMetrics(cluster, service *string) (*MetricsData, error) {
 func (store *Store) getCPU(cluster, service *string) ([]types.Datapoint, error) {
 	statisticsInput := store.getStatisticsInput(cluster, service)
 	statisticsInput.MetricName = aws.String(CPU)
-	metricOutput, err := store.cloudWatch.GetMetricStatistics(context.TODO(), statisticsInput)
+	metricOutput, err := store.cloudwatch.GetMetricStatistics(context.TODO(), statisticsInput)
 
 	if err != nil {
 		logger.Printf("e1s - aws failed to %s, cluster: \"%s\", service: \"%s\", err: %v\n", CPU, *cluster, *service, err)
@@ -79,7 +79,7 @@ func (store *Store) getCPU(cluster, service *string) ([]types.Datapoint, error) 
 func (store *Store) getMemory(cluster, service *string) ([]types.Datapoint, error) {
 	statisticsInput := store.getStatisticsInput(cluster, service)
 	statisticsInput.MetricName = aws.String(Memory)
-	metricOutput, err := store.cloudWatch.GetMetricStatistics(context.TODO(), statisticsInput)
+	metricOutput, err := store.cloudwatch.GetMetricStatistics(context.TODO(), statisticsInput)
 
 	if err != nil {
 		logger.Printf("e1s - aws failed to %s, cluster: \"%s\", service: \"%s\", err: %v\n", Memory, *cluster, *service, err)
@@ -90,7 +90,7 @@ func (store *Store) getMemory(cluster, service *string) ([]types.Datapoint, erro
 }
 
 func (store *Store) getStatisticsInput(cluster, service *string) *cloudwatch.GetMetricStatisticsInput {
-	store.getCloudWatchClient()
+	store.getCloudwatchClient()
 
 	// period := 30
 	// granularity := 1800
@@ -116,11 +116,5 @@ func (store *Store) getStatisticsInput(cluster, service *string) *cloudwatch.Get
 		EndTime:    aws.Time(now),
 		Period:     aws.Int32(period),
 		Dimensions: dimensions,
-	}
-}
-
-func (store *Store) getCloudWatchClient() {
-	if store.cloudWatch == nil {
-		store.cloudWatch = cloudwatch.NewFromConfig(*store.Config)
 	}
 }

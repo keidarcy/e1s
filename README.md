@@ -34,6 +34,7 @@ brew install keidarcy/tap/e1s
   - [x] CPUUtilization
   - [x] MemoryUtilization
 - [x] Show autoscaling target and policy
+- [x] Show log events(only support log driver: awslogs)
 - [x] Open selected resource in browser(support new UI(v2))
 - [x] SSH into container
 - [x] Edit service
@@ -123,6 +124,7 @@ $ e1s -version
 | `a` | Show service auto scaling |
 | `m` | Show service metrics(CPUUtilization/MemoryUtilization) |
 | `r` | Reload resources |
+| `o` | Show log events |
 | `v` | List task definition revisions |
 | `f` | Toggle full screen |
 | `e` | Edit resource |
