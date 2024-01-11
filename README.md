@@ -116,15 +116,15 @@ $ e1s -version
 | --- | --- |
 | `j`, `↓` | Select next item |
 | `k`, `↑` | Select previous item |
-| `l`, `←`, `Enter` | Enter current resource/SSH |
-| `h`, `→`, `Esc` | Go to previous view |
+| `→`, `Enter` | Enter current resource/SSH |
+| `←`, `Esc` | Go to previous view |
 | `d` | Describe selected resource(show json) |
 | `t` | Describe task definition |
 | `w` | Describe service events |
 | `a` | Show service auto scaling |
 | `m` | Show service metrics(CPUUtilization/MemoryUtilization) |
 | `r` | Reload resources |
-| `o` | Show log events(Only support awslogs logDriver) |
+| `l` | Show log events(Only support awslogs logDriver) |
 | `v` | List task definition revisions |
 | `f` | Toggle full screen |
 | `e` | Edit resource |

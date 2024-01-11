@@ -39,27 +39,26 @@ const (
 )
 
 const (
-	aKey = 'a'
-	bKey = 'b'
-	dKey = 'd'
-	eKey = 'e'
-	fKey = 'f'
-	hKey = 'h'
-	lKey = 'l'
-	mKey = 'm'
-	oKey = 'o'
-	rKey = 'r'
-	tKey = 't'
-	vKey = 'v'
-	wKey = 'w'
+	aKey  = 'a'
+	bKey  = 'b'
+	dKey  = 'd'
+	eKey  = 'e'
+	fKey  = 'f'
+	lKey  = 'l'
+	mKey  = 'm'
+	tKey  = 't'
+	vKey  = 'v'
+	wKey  = 'w'
+	ctrlR = "ctrl-r"
 
 	upperLowerDiff = rune(32)
 )
 
 var basicKeyInputs = []KeyInput{
 	{key: string(bKey), description: openInBrowser},
-	{key: string(fKey), description: toggleFullScreen},
 	{key: string(dKey), description: describe},
+	{key: ctrlR, description: reloadResource},
+	{key: string(fKey), description: toggleFullScreen},
 }
 
 // Keyboard key and description
@@ -268,16 +267,13 @@ func (v *View) handleContentPageSwitch(entity Entity, which string, contentStrin
 		fullScreenContent.SetInputCapture(v.handleFullScreenContentInput)
 
 		// contentTextComponent press f open in full screen
-		if event.Key() == tcell.KeyRune {
-			key := event.Rune()
-			switch key {
-			case fKey, fKey - upperLowerDiff:
-				v.app.Pages.AddPage(contentPageName, fullScreenContent, true, true)
-			case bKey, bKey - upperLowerDiff:
-				v.openInBrowser()
-			case rKey, rKey - upperLowerDiff:
-				v.reloadResource()
-			}
+		switch event.Rune() {
+		case fKey, fKey - upperLowerDiff:
+			v.app.Pages.AddPage(contentPageName, fullScreenContent, true, true)
+		case bKey, bKey - upperLowerDiff:
+			v.openInBrowser()
+			// case rKey, rKey - upperLowerDiff:
+			// 	v.reloadResource()
 		}
 		return event
 	})

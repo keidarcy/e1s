@@ -89,9 +89,10 @@ func (v *ContainerView) tableHandler() {
 		v.ssh(containerName)
 	})
 
-	v.table.SetInputCapture(v.handleInputCapture)
+	// v.table.SetInputCapture(v.handleInputCapture)
 }
 
+// deprecated
 // Container page specific input handler
 func (v *ContainerView) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 	// simulate selected action(ssh)
@@ -104,26 +105,22 @@ func (v *ContainerView) handleInputCapture(event *tcell.EventKey) *tcell.EventKe
 		v.ssh(containerName)
 	}
 
-	// handle right arrow key
-	if event.Key() == tcell.KeyRight {
-		sshHandler()
-		return event
-	}
-
-	// handle l key
-	key := event.Rune()
-	switch key {
-	case rKey, rKey - upperLowerDiff:
-		v.reloadResource()
+	switch event.Rune() {
 	case lKey, lKey - upperLowerDiff:
 		sshHandler()
-	case hKey, hKey - upperLowerDiff:
-		v.handleDone(0)
+	// case hKey, hKey - upperLowerDiff:
+	// 	v.handleDone(0)
 	case bKey, bKey - upperLowerDiff:
 		v.openInBrowser()
 	case dKey, dKey - upperLowerDiff:
 		v.switchToResourceJson()
 	}
+
+	switch event.Key() {
+	case tcell.KeyRight:
+		sshHandler()
+	}
+
 	return event
 }
 
@@ -186,7 +183,7 @@ func (v *ContainerView) tableParam() (title string, headers []string, dataBuilde
 }
 
 // SSH into selected container
-func (v *ContainerView) ssh(containerName string) {
+func (v *View) ssh(containerName string) {
 	// catch ctrl+C & SIGTERM
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM)

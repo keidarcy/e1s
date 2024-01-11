@@ -24,7 +24,7 @@ func newServiceView(services []types.Service, app *App) *ServiceView {
 		{key: string(mKey), description: showMetrics},
 		{key: string(aKey), description: showAutoScaling},
 		{key: string(eKey), description: editService},
-		{key: string(oKey), description: showLogs},
+		{key: string(lKey), description: showLogs},
 	}...)
 	return &ServiceView{
 		View:     *newView(app, ServicePage, keys),
