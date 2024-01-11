@@ -99,6 +99,9 @@ func (v *View) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 		case tcell.KeyRight:
 			// Handle right arrow key
 			v.handleSelected(0, 0)
+		case tcell.KeyCtrlR:
+			// Handle <ctrl> + r
+			v.reloadResource()
 		}
 		return event
 	}
@@ -123,8 +126,6 @@ func (v *View) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 		v.showMetricsModal()
 	case oKey, oKey - upperLowerDiff:
 		v.switchToLogsList()
-	case rKey, rKey - upperLowerDiff:
-		v.reloadResource()
 	case tKey, tKey - upperLowerDiff:
 		v.switchToTaskDefinitionJson()
 	case vKey, vKey - upperLowerDiff:
