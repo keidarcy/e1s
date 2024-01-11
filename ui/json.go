@@ -89,11 +89,11 @@ func (v *View) switchToServiceEventsList() {
 
 // Switch to selected service events JSON page
 func (v *View) switchToLogsList() {
-	selected, err := v.getCurrentSelection()
-	if err != nil {
+	if v.kind == ClusterPage || v.kind == ContainerPage {
 		return
 	}
-	if v.kind == ClusterPage {
+	selected, err := v.getCurrentSelection()
+	if err != nil {
 		return
 	}
 	v.showListPages(selected, "logs")
@@ -155,12 +155,10 @@ func (v *View) showJsonPages(entity Entity, which string) {
 }
 
 func (v *View) handleFullScreenContentInput(event *tcell.EventKey) *tcell.EventKey {
-	if event.Key() == tcell.KeyRune {
-		key := event.Rune()
-		if key == fKey || key == fKey-upperLowerDiff {
-			pageName := v.kind.getAppPageName(v.getClusterArn())
-			v.app.Pages.SwitchToPage(pageName)
-		}
+	key := event.Rune()
+	if key == fKey || key == fKey-upperLowerDiff {
+		pageName := v.kind.getAppPageName(v.getClusterArn())
+		v.app.Pages.SwitchToPage(pageName)
 	}
 	return event
 }

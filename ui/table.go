@@ -82,6 +82,14 @@ func (v *View) handleSelectionChanged(row, column int) {
 
 // Handle selected event for table when press Enter
 func (v *View) handleSelected(row, column int) {
+	if v.kind == ContainerPage {
+		selected, err := v.getCurrentSelection()
+		if err != nil {
+			return
+		}
+		containerName := *selected.container.Name
+		v.ssh(containerName)
+	}
 	err := v.handleAppPageSwitch(v.app.entityName, false)
 	if err != nil {
 		logger.Printf("e1s - page change failed, error: %v\n", err)
@@ -91,20 +99,8 @@ func (v *View) handleSelected(row, column int) {
 
 // Handle keyboard input
 func (v *View) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
-	if event.Key() != tcell.KeyRune {
-		switch event.Key() {
-		case tcell.KeyLeft:
-			// Handle left arrow key
-			v.handleDone(0)
-		case tcell.KeyRight:
-			// Handle right arrow key
-			v.handleSelected(0, 0)
-		}
-		return event
-	}
-
-	key := event.Rune()
-	switch key {
+	// If it's single keystroke, event.Rune() is ascii code
+	switch event.Rune() {
 	case aKey, aKey - upperLowerDiff:
 		v.switchToAutoScalingJson()
 		// v.showAutoScalingModal()
@@ -115,22 +111,29 @@ func (v *View) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 	case eKey, eKey - upperLowerDiff:
 		v.showEditServiceModal()
 		v.editTaskDefinition()
-	case hKey, hKey - upperLowerDiff:
-		v.handleDone(0)
 	case lKey, lKey - upperLowerDiff:
-		v.handleSelected(0, 0)
+		v.switchToLogsList()
 	case mKey, mKey - upperLowerDiff:
 		v.showMetricsModal()
-	case oKey, oKey - upperLowerDiff:
-		v.switchToLogsList()
-	case rKey, rKey - upperLowerDiff:
-		v.reloadResource()
 	case tKey, tKey - upperLowerDiff:
 		v.switchToTaskDefinitionJson()
 	case vKey, vKey - upperLowerDiff:
 		v.switchToTaskDefinitionRevisionsJson()
 	case wKey, wKey - upperLowerDiff:
 		v.switchToServiceEventsList()
+	}
+
+	// If it's composite keystroke, event.Key() is ctrl-char ascii code
+	switch event.Key() {
+	case tcell.KeyLeft:
+		// Handle left arrow key
+		v.handleDone(0)
+	case tcell.KeyRight:
+		// Handle right arrow key
+		v.handleSelected(0, 0)
+	case tcell.KeyCtrlR:
+		// Handle <ctrl> + r
+		v.reloadResource()
 	}
 	return event
 }

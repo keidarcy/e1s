@@ -20,7 +20,7 @@ func newTaskView(tasks []types.Task, app *App) *TaskView {
 		{key: string(tKey), description: describeTaskDefinition},
 		{key: string(vKey), description: describeTaskDefinitionRevisions},
 		{key: string(eKey), description: editTaskDefinition},
-		{key: string(oKey), description: showLogs},
+		{key: string(lKey), description: showLogs},
 	}...)
 	return &TaskView{
 		View:  *newView(app, TaskPage, keys),
