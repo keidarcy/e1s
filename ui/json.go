@@ -155,10 +155,15 @@ func (v *View) showJsonPages(entity Entity, which string) {
 }
 
 func (v *View) handleFullScreenContentInput(event *tcell.EventKey) *tcell.EventKey {
-	key := event.Rune()
-	if key == fKey || key == fKey-upperLowerDiff {
+	switch event.Rune() {
+	case fKey, fKey - upperLowerDiff:
 		pageName := v.kind.getAppPageName(v.getClusterArn())
 		v.app.Pages.SwitchToPage(pageName)
+	}
+
+	switch event.Key() {
+	case tcell.KeyCtrlR:
+		v.reloadResource()
 	}
 	return event
 }

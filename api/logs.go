@@ -36,6 +36,7 @@ func (store *Store) GetLogs(tdArn *string) ([]cloudwatchlogsTypes.OutputLogEvent
 	}
 
 	logs := []cloudwatchlogsTypes.OutputLogEvent{}
+	logGroupNames := make(map[string]bool)
 	for _, c := range td.ContainerDefinitions {
 		if c.LogConfiguration.LogDriver != types.LogDriverAwslogs {
 			continue
@@ -44,6 +45,13 @@ func (store *Store) GetLogs(tdArn *string) ([]cloudwatchlogsTypes.OutputLogEvent
 		if groupName == "" {
 			continue
 		}
+
+		// avoid the same log group for different containers
+		if _, ok := logGroupNames[groupName]; ok {
+			continue
+		}
+		logGroupNames[groupName] = true
+
 		describeLogStreamsInput := &cloudwatchlogs.DescribeLogStreamsInput{
 			LogGroupName: &groupName,
 			Limit:        aws.Int32(1),

@@ -2,6 +2,11 @@ package ui
 
 import (
 	"fmt"
+	"os"
+	"os/exec"
+	"os/signal"
+	"strings"
+	"syscall"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/keidarcy/e1s/util"
@@ -36,6 +41,10 @@ const (
 	openInBrowser      = "Open in browser"
 	sshContainer       = "SSH container"
 	toggleFullScreen   = "Content Toggle full screen"
+
+	shell        = "/bin/sh"
+	awsCli       = "aws"
+	sshBannerFmt = "\033[1;31m<<ECS-EXEC-SSH>>\033[0m: \n#######################################\n\033[1;32mCluster\033[0m: \"%s\" \n\033[1;32mService\033[0m: \"%s\" \n\033[1;32mTask\033[0m: \"%s\" \n\033[1;32mContainer\033[0m: \"%s\"\n#######################################\n"
 )
 
 const (
@@ -272,8 +281,11 @@ func (v *View) handleContentPageSwitch(entity Entity, which string, contentStrin
 			v.app.Pages.AddPage(contentPageName, fullScreenContent, true, true)
 		case bKey, bKey - upperLowerDiff:
 			v.openInBrowser()
-			// case rKey, rKey - upperLowerDiff:
-			// 	v.reloadResource()
+		}
+
+		switch event.Key() {
+		case tcell.KeyCtrlR:
+			v.reloadResource()
 		}
 		return event
 	})
@@ -287,4 +299,50 @@ func getContentTextItem(contentStr string, title string) *tview.TextView {
 	contentText := tview.NewTextView().SetDynamicColors(true).SetText(contentStr)
 	contentText.SetBorder(true).SetTitle(title).SetBorderPadding(0, 0, 1, 1)
 	return contentText
+}
+
+// SSH into selected container
+func (v *View) ssh(containerName string) {
+	if v.kind != ContainerPage {
+		return
+	}
+	if v.app.readonly {
+		return
+	}
+
+	// catch ctrl+C & SIGTERM
+	interrupt := make(chan os.Signal, 1)
+	signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM)
+
+	bin, err := exec.LookPath(awsCli)
+	if err != nil {
+		logger.Printf("e1s - aws cli binary not found, error: %v\n", err)
+		v.back()
+	}
+	arg := []string{
+		"ecs",
+		"execute-command",
+		"--cluster",
+		*v.app.cluster.ClusterName,
+		"--task",
+		*v.app.task.TaskArn,
+		"--container",
+		containerName,
+		"--interactive",
+		"--command",
+		shell,
+	}
+
+	logger.Printf("%s %s\n", awsCli, strings.Join(arg, " "))
+
+	v.app.Suspend(func() {
+		cmd := exec.Command(bin, arg...)
+		cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, os.Stderr
+		// ignore the stderr from ssh server
+		_, err = cmd.Stdout.Write([]byte(fmt.Sprintf(sshBannerFmt, *v.app.cluster.ClusterName, *v.app.service.ServiceName, util.ArnToName(v.app.task.TaskArn), containerName)))
+		err = cmd.Run()
+		// return signal
+		signal.Stop(interrupt)
+		close(interrupt)
+	})
 }

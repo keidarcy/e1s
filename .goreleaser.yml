@@ -22,6 +22,7 @@ changelog:
     exclude:
       - '^docs:'
       - '^ci:'
+      - '^chore:'
       - '^test:'
 
 universal_binaries:
