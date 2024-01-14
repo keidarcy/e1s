@@ -47,6 +47,10 @@ func (v *ClusterView) infoBuilder() *tview.Pages {
 	for _, c := range v.clusters {
 		items := v.infoPagesParam(c)
 		infoFlex := v.buildInfoFlex(*c.ClusterName, items, v.keys)
+		infoJsonFlex := v.buildInfoFlex(*c.ClusterName, items, []KeyInput{
+			{key: "hello", description: "world"},
+		})
+		v.infoPages.AddPage(*c.ClusterArn+"json", infoJsonFlex, true, false)
 		v.infoPages.AddPage(*c.ClusterArn, infoFlex, true, true)
 	}
 	// prevent empty clusters

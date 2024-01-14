@@ -153,6 +153,7 @@ func (v *View) switchToAutoScalingJson() {
 func (v *View) showJsonPages(entity Entity, which string) {
 	contentString := v.getJsonString(entity, which)
 	v.handleContentPageSwitch(entity, which, contentString)
+	v.handleInfoPageSwitch(entity, which)
 }
 
 func (v *View) handleFullScreenContentInput(event *tcell.EventKey) *tcell.EventKey {
@@ -173,6 +174,9 @@ func (v *View) handleTableContentDone(key tcell.Key) {
 	v.secondaryKind = v.kind
 	pageName := v.kind.getTablePageName(v.getClusterArn())
 	v.tablePages.SwitchToPage(pageName)
+
+	selected, _ := v.getCurrentSelection()
+	v.infoPages.SwitchToPage(*selected.cluster.ClusterArn)
 }
 
 func (v *View) handleFullScreenContentDone(key tcell.Key) {

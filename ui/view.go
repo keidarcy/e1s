@@ -301,6 +301,10 @@ func (v *View) handleContentPageSwitch(entity Entity, which string, contentStrin
 	v.tablePages.AddPage(contentPageName, contentTextItem, true, true)
 }
 
+func (v *View) handleInfoPageSwitch(entity Entity, which string) {
+	v.infoPages.SwitchToPage(*entity.cluster.ClusterArn + "json")
+}
+
 func getContentTextItem(contentStr string, title string) *tview.TextView {
 	contentText := tview.NewTextView().SetDynamicColors(true).SetText(contentStr)
 	contentText.SetBorder(true).SetTitle(title).SetBorderPadding(0, 0, 1, 1)
