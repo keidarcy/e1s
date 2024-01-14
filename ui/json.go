@@ -96,6 +96,7 @@ func (v *View) switchToLogsList() {
 	if err != nil {
 		return
 	}
+	v.secondaryKind = LogsPage
 	v.showListPages(selected, "logs")
 }
 
@@ -169,6 +170,7 @@ func (v *View) handleFullScreenContentInput(event *tcell.EventKey) *tcell.EventK
 }
 
 func (v *View) handleTableContentDone(key tcell.Key) {
+	v.secondaryKind = v.kind
 	pageName := v.kind.getTablePageName(v.getClusterArn())
 	v.tablePages.SwitchToPage(pageName)
 }
