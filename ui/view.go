@@ -84,13 +84,14 @@ type InfoItem struct {
 
 // Base struct of different views
 type View struct {
-	app        *App
-	table      *tview.Table
-	infoPages  *tview.Pages
-	tablePages *tview.Pages
-	kind       Kind
-	keys       []KeyInput
-	footer     *Footer
+	app           *App
+	table         *tview.Table
+	infoPages     *tview.Pages
+	tablePages    *tview.Pages
+	kind          Kind
+	secondaryKind Kind
+	keys          []KeyInput
+	footer        *Footer
 }
 
 func newView(app *App, kind Kind, keys []KeyInput) *View {
@@ -199,6 +200,11 @@ func (v *View) reloadResource() error {
 }
 
 func (v *View) showKindPage(k Kind) error {
+	switch v.secondaryKind {
+	case LogsPage:
+		v.switchToLogsList()
+		return nil
+	}
 	switch k {
 	case ClusterPage:
 		return v.app.showClustersPage()

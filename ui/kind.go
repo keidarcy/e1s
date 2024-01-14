@@ -11,6 +11,7 @@ const (
 	TaskDefinitionPage
 	TaskDefinitionRevisionsPage
 	ServiceEventsPage
+	LogsPage
 )
 
 func (k Kind) String() string {
@@ -31,6 +32,8 @@ func (k Kind) String() string {
 		return "taskDefinitionRevisions"
 	case ServiceEventsPage:
 		return "serviceEvents"
+	case LogsPage:
+		return "logs"
 	default:
 		return "unknownKind"
 	}
