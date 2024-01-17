@@ -42,6 +42,7 @@ const (
 	sshContainer       = "SSH container"
 	toggleFullScreen   = "Content Toggle full screen"
 
+	// shell        = "/bin/sh -c \"if [ -x /bin/bash ]; then exec /bin/bash; else exec /bin/sh; fi\""
 	shell        = "/bin/sh"
 	awsCli       = "aws"
 	sshBannerFmt = "\033[1;31m<<ECS-EXEC-SSH>>\033[0m: \n#######################################\n\033[1;32mCluster\033[0m: \"%s\" \n\033[1;32mService\033[0m: \"%s\" \n\033[1;32mTask\033[0m: \"%s\" \n\033[1;32mContainer\033[0m: \"%s\"\n#######################################\n"

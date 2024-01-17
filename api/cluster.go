@@ -29,20 +29,40 @@ func (store *Store) ListClusters() ([]types.Cluster, error) {
 		types.ClusterFieldStatistics,
 		types.ClusterFieldTags,
 	}
-	describeInput := &ecs.DescribeClustersInput{
-		Clusters: clustersOutput.ClusterArns,
-		Include:  include,
-	}
+	// describeInput := &ecs.DescribeClustersInput{
+	// 	Clusters: clustersOutput.ClusterArns,
+	// 	Include:  include,
+	// }
 
+	// results := []types.Cluster{}
+
+	// describeClusterOutput, err := store.ecs.DescribeClusters(context.Background(), describeInput)
+	// if err != nil {
+	// 	logger.Printf("e1s - aws failed to describe clusters, err: %v\n", err)
+	// 	return []types.Cluster{}, err
+	// }
+
+	// results = append(results, describeClusterOutput.Clusters...)
+
+	// describe each cluster to accept Deny specific cluster policy
+	//  {
+	//         "Effect": "Deny",
+	//         "Action": "ecs:DescribeClusters",
+	//         "Resource": "arn:aws:ecs:*:*:cluster/<specific cluster>"
+	//  }
 	results := []types.Cluster{}
-
-	describeClusterOutput, err := store.ecs.DescribeClusters(context.Background(), describeInput)
-	if err != nil {
-		logger.Printf("e1s - aws failed to describe clusters, err: %v\n", err)
-		return []types.Cluster{}, err
+	for _, clusterArn := range clustersOutput.ClusterArns {
+		describeInput := &ecs.DescribeClustersInput{
+			Clusters: []string{clusterArn},
+			Include:  include,
+		}
+		describeClusterOutput, err := store.ecs.DescribeClusters(context.Background(), describeInput)
+		if err != nil {
+			logger.Printf("e1s - aws failed to describe clusters, err: %v\n", err)
+			continue
+		}
+		results = append(results, describeClusterOutput.Clusters...)
 	}
-
-	results = append(results, describeClusterOutput.Clusters...)
 
 	// sort by running task count, name ascending
 	sort.Slice(results, func(i, j int) bool {
