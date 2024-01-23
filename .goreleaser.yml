@@ -24,6 +24,8 @@ changelog:
       - '^ci:'
       - '^chore:'
       - '^test:'
+      - '^bump:'
+      - '^Merge pull request'
 
 universal_binaries:
   - replace: true
