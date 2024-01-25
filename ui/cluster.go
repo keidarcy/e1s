@@ -18,7 +18,9 @@ type ClusterView struct {
 
 func newClusterView(clusters []types.Cluster, app *App) *ClusterView {
 	return &ClusterView{
-		View:     *newView(app, ClusterPage, basicKeyInputs),
+		View: *newView(app, ClusterPage, basicKeyInputs, secondaryPageKeyMap{
+			JsonPage: jsonPageKeys,
+		}),
 		clusters: clusters,
 	}
 }
@@ -45,13 +47,11 @@ func (app *App) showClustersPage() error {
 // Build info pages for cluster page
 func (v *ClusterView) infoBuilder() *tview.Pages {
 	for _, c := range v.clusters {
+		title := *c.ClusterName
+		entityName := *c.ClusterArn
 		items := v.infoPagesParam(c)
-		infoFlex := v.buildInfoFlex(*c.ClusterName, items, v.keys)
-		infoJsonFlex := v.buildInfoFlex(*c.ClusterName, items, []KeyInput{
-			{key: "hello", description: "world"},
-		})
-		v.infoPages.AddPage(*c.ClusterArn+"json", infoJsonFlex, true, false)
-		v.infoPages.AddPage(*c.ClusterArn, infoFlex, true, true)
+
+		v.buildInfoPages(items, title, entityName)
 	}
 	// prevent empty clusters
 	if len(v.clusters) > 0 && v.clusters[0].ClusterArn != nil {

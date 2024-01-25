@@ -11,7 +11,7 @@ const (
 	TaskDefinitionPage
 	TaskDefinitionRevisionsPage
 	ServiceEventsPage
-	LogsPage
+	LogPage
 )
 
 func (k Kind) String() string {
@@ -32,7 +32,7 @@ func (k Kind) String() string {
 		return "taskDefinitionRevisions"
 	case ServiceEventsPage:
 		return "serviceEvents"
-	case LogsPage:
+	case LogPage:
 		return "logs"
 	default:
 		return "unknownKind"
@@ -90,4 +90,19 @@ func (k Kind) getTablePageName(name string) string {
 func (k Kind) getContentPageName(name string) string {
 	pageName := k.getAppPageName(name)
 	return pageName + ".json"
+}
+
+type secondaryPageKeyMap = map[Kind][]KeyInput
+
+var jsonPageKeys = []KeyInput{
+	{key: string(fKey), description: toggleFullScreen},
+	{key: string(bKey), description: openInBrowser},
+	{key: back, description: backToPrevious},
+}
+
+var logPageKeys = []KeyInput{
+	{key: string(fKey), description: toggleFullScreen},
+	{key: string(bKey), description: openInBrowser},
+	{key: ctrlR, description: reloadResource},
+	{key: back, description: backToPrevious},
 }

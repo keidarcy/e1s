@@ -41,6 +41,7 @@ const (
 	openInBrowser      = "Open in browser"
 	sshContainer       = "SSH container"
 	toggleFullScreen   = "Content Toggle full screen"
+	backToPrevious     = "back"
 
 	shell        = "/bin/sh"
 	awsCli       = "aws"
@@ -59,6 +60,7 @@ const (
 	vKey  = 'v'
 	wKey  = 'w'
 	ctrlR = "ctrl-r"
+	back  = "esc"
 
 	upperLowerDiff = rune(32)
 )
@@ -67,7 +69,6 @@ var basicKeyInputs = []KeyInput{
 	{key: string(bKey), description: openInBrowser},
 	{key: string(dKey), description: describe},
 	{key: ctrlR, description: reloadResource},
-	{key: string(fKey), description: toggleFullScreen},
 }
 
 // Keyboard key and description
@@ -92,9 +93,10 @@ type View struct {
 	secondaryKind Kind
 	keys          []KeyInput
 	footer        *Footer
+	pageKeyMap    secondaryPageKeyMap
 }
 
-func newView(app *App, kind Kind, keys []KeyInput) *View {
+func newView(app *App, kind Kind, keys []KeyInput, pageKeys secondaryPageKeyMap) *View {
 	return &View{
 		app:        app,
 		infoPages:  tview.NewPages(),
@@ -103,6 +105,7 @@ func newView(app *App, kind Kind, keys []KeyInput) *View {
 		keys:       keys,
 		kind:       kind,
 		footer:     newFooter(),
+		pageKeyMap: pageKeys,
 	}
 }
 
@@ -201,7 +204,7 @@ func (v *View) reloadResource() error {
 
 func (v *View) showKindPage(k Kind) error {
 	switch v.secondaryKind {
-	case LogsPage:
+	case LogPage:
 		v.switchToLogsList()
 		return nil
 	}
@@ -301,8 +304,8 @@ func (v *View) handleContentPageSwitch(entity Entity, which string, contentStrin
 	v.tablePages.AddPage(contentPageName, contentTextItem, true, true)
 }
 
-func (v *View) handleInfoPageSwitch(entity Entity, which string) {
-	v.infoPages.SwitchToPage(*entity.cluster.ClusterArn + "json")
+func (v *View) handleInfoPageSwitch(entity Entity, kind Kind) {
+	v.infoPages.SwitchToPage(fmt.Sprintf("%s.%s", entity.entityName, kind))
 }
 
 func getContentTextItem(contentStr string, title string) *tview.TextView {
@@ -355,4 +358,14 @@ func (v *View) ssh(containerName string) {
 		signal.Stop(interrupt)
 		close(interrupt)
 	})
+}
+
+func (v *View) buildInfoPages(items []InfoItem, title, entityName string) {
+	infoFlex := v.buildInfoFlex(title, items, v.keys)
+	v.infoPages.AddPage(entityName, infoFlex, true, true)
+
+	for p, k := range v.pageKeyMap {
+		infoJsonFlex := v.buildInfoFlex(title, items, k)
+		v.infoPages.AddPage(fmt.Sprintf("%s.%s", entityName, p), infoJsonFlex, true, false)
+	}
 }

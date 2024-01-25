@@ -9,7 +9,11 @@ import (
 )
 
 func TestGetJsonData(t *testing.T) {
-	view := newView(newApp(), ClusterPage, []KeyInput{})
+	view := newView(newApp(), ClusterPage, []KeyInput{}, secondaryPageKeyMap{
+		JsonPage: []KeyInput{
+			{key: string(fKey), description: toggleFullScreen},
+		},
+	})
 	type input struct {
 		entity Entity
 		which  string

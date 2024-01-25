@@ -23,7 +23,10 @@ func newTaskView(tasks []types.Task, app *App) *TaskView {
 		{key: string(lKey), description: showLogs},
 	}...)
 	return &TaskView{
-		View:  *newView(app, TaskPage, keys),
+		View: *newView(app, TaskPage, keys, secondaryPageKeyMap{
+			JsonPage: jsonPageKeys,
+			LogPage:  logPageKeys,
+		}),
 		tasks: tasks,
 	}
 }
@@ -50,9 +53,11 @@ func (app *App) showTasksPages() error {
 // Build info pages for task page
 func (v *TaskView) infoBuilder() *tview.Pages {
 	for _, t := range v.tasks {
+		title := util.ArnToName(t.TaskArn)
+		entityName := *t.TaskArn
 		items := v.infoPagesParam(t)
-		infoFlex := v.buildInfoFlex(util.ArnToName(t.TaskArn), items, v.keys)
-		v.infoPages.AddPage(*t.TaskArn, infoFlex, true, true)
+
+		v.buildInfoPages(items, title, entityName)
 	}
 	// prevent empty tasks
 	if len(v.tasks) > 0 && v.tasks[0].TaskArn != nil {
