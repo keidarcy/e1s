@@ -27,7 +27,10 @@ func newServiceView(services []types.Service, app *App) *ServiceView {
 		{key: string(lKey), description: showLogs},
 	}...)
 	return &ServiceView{
-		View:     *newView(app, ServicePage, keys),
+		View: *newView(app, ServicePage, keys, secondaryPageKeyMap{
+			JsonPage: jsonPageKeys,
+			LogPage:  logPageKeys,
+		}),
 		services: services,
 	}
 }
@@ -53,9 +56,11 @@ func (app *App) showServicesPage() error {
 // Build info pages for service page
 func (v *ServiceView) infoBuilder() *tview.Pages {
 	for _, s := range v.services {
+		title := *s.ServiceName
+		entityName := *s.ServiceArn
 		items := v.infoPagesParam(s)
-		infoFlex := v.buildInfoFlex(*s.ServiceName, items, v.keys)
-		v.infoPages.AddPage(*s.ServiceArn, infoFlex, true, true)
+
+		v.buildInfoPages(items, title, entityName)
 	}
 	// prevent empty services
 	if len(v.services) > 0 && v.services[0].ServiceArn != nil {

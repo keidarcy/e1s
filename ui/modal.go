@@ -218,7 +218,7 @@ func (v *View) serviceUpdateContent() (*tview.Form, string) {
 	}
 
 	title := " Update [purple::b]" + name + readonly
-	currentFamily, currentRevision := v.getTaskDefinitionDetail()
+	currentFamily, currentRevision, _ := v.getTaskDefinitionDetail()
 
 	// get data for form
 	families, err := v.app.Store.ListTaskDefinitionFamilies()

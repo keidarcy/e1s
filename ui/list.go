@@ -16,6 +16,7 @@ const (
 func (v *View) showListPages(entity Entity, which string) {
 	contentString := v.getListString(entity, which)
 	v.handleContentPageSwitch(entity, which, contentString)
+	v.handleInfoPageSwitch(entity, LogPage)
 }
 
 // Based on current entity return list string as content
@@ -54,4 +55,29 @@ func (v *View) getListString(entity Entity, which string) string {
 	}
 
 	return contentString
+}
+
+// Switch to selected service events JSON page
+func (v *View) switchToServiceEventsList() {
+	selected, err := v.getCurrentSelection()
+	if err != nil {
+		return
+	}
+	if v.kind != ServicePage {
+		return
+	}
+	v.showListPages(selected, "events")
+}
+
+// Switch to selected service events JSON page
+func (v *View) switchToLogsList() {
+	if v.kind == ClusterPage || v.kind == ContainerPage {
+		return
+	}
+	selected, err := v.getCurrentSelection()
+	if err != nil {
+		return
+	}
+	v.secondaryKind = LogPage
+	v.showListPages(selected, "logs")
 }

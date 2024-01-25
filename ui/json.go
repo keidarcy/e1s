@@ -26,10 +26,13 @@ func (v *View) switchToTaskDefinitionJson() {
 		return
 	}
 	taskDefinition := ""
+	entityName := ""
 	if v.kind == ServicePage {
 		taskDefinition = *selected.service.TaskDefinition
+		entityName = *selected.service.ServiceArn
 	} else if v.kind == TaskPage {
 		taskDefinition = *selected.task.TaskDefinitionArn
+		entityName = *selected.task.TaskArn
 	} else {
 		return
 	}
@@ -38,7 +41,7 @@ func (v *View) switchToTaskDefinitionJson() {
 	if err != nil {
 		return
 	}
-	entity := Entity{taskDefinition: &td, entityName: *td.TaskDefinitionArn}
+	entity := Entity{taskDefinition: &td, entityName: entityName}
 	v.showJsonPages(entity, "task definition")
 }
 
@@ -47,57 +50,35 @@ func (v *View) switchToTaskDefinitionRevisionsJson() {
 	if v.kind == ClusterPage {
 		return
 	}
-	family, _ := v.getTaskDefinitionDetail()
+	family, _, entityName := v.getTaskDefinitionDetail()
 
 	revisions, err := v.app.Store.ListTaskDefinition(&family)
 	if err != nil {
 		return
 	}
-	entity := Entity{taskDefinitionRevisions: revisions, entityName: family}
+	entity := Entity{taskDefinitionRevisions: revisions, entityName: entityName}
 	v.showJsonPages(entity, "revisions")
 }
 
 // Get td family
-func (v *View) getTaskDefinitionDetail() (string, string) {
+func (v *View) getTaskDefinitionDetail() (string, string, string) {
 	selected, err := v.getCurrentSelection()
 	if err != nil {
-		return "", ""
+		return "", "", ""
 	}
 	taskDefinition := ""
+	entityName := ""
 	if v.kind == ServicePage {
 		taskDefinition = *selected.service.TaskDefinition
+		entityName = *selected.service.ServiceArn
 	} else if v.kind == TaskPage {
 		taskDefinition = *selected.task.TaskDefinitionArn
+		entityName = *selected.task.TaskArn
 	} else {
-		return "", ""
+		return "", "", ""
 	}
 	familyRevision := strings.Split(util.ArnToName(&taskDefinition), ":")
-	return familyRevision[0], familyRevision[1]
-}
-
-// Switch to selected service events JSON page
-func (v *View) switchToServiceEventsList() {
-	selected, err := v.getCurrentSelection()
-	if err != nil {
-		return
-	}
-	if v.kind != ServicePage {
-		return
-	}
-	v.showListPages(selected, "events")
-}
-
-// Switch to selected service events JSON page
-func (v *View) switchToLogsList() {
-	if v.kind == ClusterPage || v.kind == ContainerPage {
-		return
-	}
-	selected, err := v.getCurrentSelection()
-	if err != nil {
-		return
-	}
-	v.secondaryKind = LogsPage
-	v.showListPages(selected, "logs")
+	return familyRevision[0], familyRevision[1], entityName
 }
 
 // Deprecated
@@ -153,6 +134,7 @@ func (v *View) switchToAutoScalingJson() {
 func (v *View) showJsonPages(entity Entity, which string) {
 	contentString := v.getJsonString(entity, which)
 	v.handleContentPageSwitch(entity, which, contentString)
+	v.handleInfoPageSwitch(entity, JsonPage)
 }
 
 func (v *View) handleFullScreenContentInput(event *tcell.EventKey) *tcell.EventKey {
@@ -173,6 +155,12 @@ func (v *View) handleTableContentDone(key tcell.Key) {
 	v.secondaryKind = v.kind
 	pageName := v.kind.getTablePageName(v.getClusterArn())
 	v.tablePages.SwitchToPage(pageName)
+
+	selected, err := v.getCurrentSelection()
+	if err != nil {
+		v.back()
+	}
+	v.infoPages.SwitchToPage(selected.entityName)
 }
 
 func (v *View) handleFullScreenContentDone(key tcell.Key) {

@@ -20,7 +20,9 @@ func newContainerView(containers []types.Container, app *App) *ContainerView {
 		{key: "Enter", description: sshContainer},
 	}...)
 	return &ContainerView{
-		View:       *newView(app, ContainerPage, keys),
+		View: *newView(app, ContainerPage, keys, secondaryPageKeyMap{
+			JsonPage: jsonPageKeys,
+		}),
 		containers: containers,
 	}
 }
@@ -39,9 +41,11 @@ func (app *App) showContainersPage() error {
 // Build info pages for container page
 func (v *ContainerView) infoBuilder() *tview.Pages {
 	for _, c := range v.containers {
+		title := util.ArnToName(c.ContainerArn)
+		entityName := *c.ContainerArn
 		items := v.infoPagesParam(c)
-		infoFlex := v.buildInfoFlex(util.ArnToName(c.ContainerArn), items, v.keys)
-		v.infoPages.AddPage(*c.ContainerArn, infoFlex, true, true)
+
+		v.buildInfoPages(items, title, entityName)
 	}
 	// prevent empty containers
 	if len(v.containers) > 0 && v.containers[0].ContainerArn != nil {
