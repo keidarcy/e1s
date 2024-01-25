@@ -11,7 +11,8 @@ import (
 func main() {
 	if err := ui.Show(); err != nil {
 		util.Logger.Printf("e1s - failed to start, error: %v\n", err)
-		fmt.Println("e1s failed to start, please check your aws cli credential.")
+		fmt.Println("e1s failed to start, please check your aws cli credential or permission.")
+		fmt.Println(err)
 		os.Exit(1)
 	}
 }
