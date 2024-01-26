@@ -97,12 +97,12 @@ type secondaryPageKeyMap = map[Kind][]KeyInput
 var jsonPageKeys = []KeyInput{
 	{key: string(fKey), description: toggleFullScreen},
 	{key: string(bKey), description: openInBrowser},
-	{key: back, description: backToPrevious},
+	{key: ctrlZ, description: backToPrevious},
 }
 
 var logPageKeys = []KeyInput{
 	{key: string(fKey), description: toggleFullScreen},
 	{key: string(bKey), description: openInBrowser},
 	{key: ctrlR, description: reloadResource},
-	{key: back, description: backToPrevious},
+	{key: ctrlZ, description: backToPrevious},
 }

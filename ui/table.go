@@ -125,15 +125,17 @@ func (v *View) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 
 	// If it's composite keystroke, event.Key() is ctrl-char ascii code
 	switch event.Key() {
+	// Handle left arrow key
 	case tcell.KeyLeft:
-		// Handle left arrow key
 		v.handleDone(0)
+	// Handle right arrow key
 	case tcell.KeyRight:
-		// Handle right arrow key
 		v.handleSelected(0, 0)
+	// Handle <ctrl> + r
 	case tcell.KeyCtrlR:
-		// Handle <ctrl> + r
 		v.reloadResource()
+	case tcell.KeyCtrlZ:
+		v.handleDone(0)
 	}
 	return event
 }
