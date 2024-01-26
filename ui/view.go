@@ -41,7 +41,7 @@ const (
 	openInBrowser      = "Open in browser"
 	sshContainer       = "SSH container"
 	toggleFullScreen   = "Content Toggle full screen"
-	backToPrevious     = "back"
+	backToPrevious     = "Back"
 
 	// shell        = "/bin/sh -c \"if [ -x /bin/bash ]; then exec /bin/bash; else exec /bin/sh; fi\""
 	shell        = "/bin/sh"
@@ -61,7 +61,7 @@ const (
 	vKey  = 'v'
 	wKey  = 'w'
 	ctrlR = "ctrl-r"
-	back  = "esc"
+	ctrlZ = "ctrl-z"
 
 	upperLowerDiff = rune(32)
 )
@@ -266,6 +266,7 @@ func (v *View) addFooterItems() {
 	v.footer.footer.AddItem(t, 15, 1, false)
 }
 
+// Content page builder
 func (v *View) handleContentPageSwitch(entity Entity, which string, contentString string) {
 	contentTitle := fmt.Sprintf(contentTitleFmt, which, entity.entityName)
 	contentPageName := v.kind.getContentPageName(entity.entityName + "." + which)
@@ -296,6 +297,8 @@ func (v *View) handleContentPageSwitch(entity Entity, which string, contentStrin
 		switch event.Key() {
 		case tcell.KeyCtrlR:
 			v.reloadResource()
+		case tcell.KeyCtrlZ:
+			v.handleTableContentDone(0)
 		}
 		return event
 	})

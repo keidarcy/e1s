@@ -20,7 +20,10 @@ func (v *View) modal(p tview.Primitive, width, height int) tview.Primitive {
 
 	// handle ESC key close modal
 	m.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		if event.Key() == tcell.KeyESC {
+		switch event.Key() {
+		case tcell.KeyESC:
+			v.closeModal()
+		case tcell.KeyCtrlZ:
 			v.closeModal()
 		}
 		return event
