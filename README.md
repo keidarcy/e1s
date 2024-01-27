@@ -24,17 +24,19 @@ brew install keidarcy/tap/e1s
 ### Basic
 
 - [x] Read only mode
+- [x] Reload resources
 - [x] Describe clusters
 - [x] Describe services
 - [x] Describe tasks
 - [x] Describe containers
 - [x] Describe task definitions
 - [x] Describe service autoscaling
+- [x] Show cloudwatch logs(Only support awslogs logDriver)
+  - [x] Realtime log streaming(Only support one log group)
 - [x] Show Metrics
   - [x] CPUUtilization
   - [x] MemoryUtilization
 - [x] Show autoscaling target and policy
-- [x] Show log events(Only support awslogs logDriver)
 - [x] Open selected resource in browser(Support new UI(v2))
 - [x] SSH into container
 - [x] Edit service
@@ -114,23 +116,24 @@ $ e1s -version
 
 | Key | Description |
 | --- | --- |
-| `j`, `↓` | Select next item |
-| `k`, `↑` | Select previous item |
+| `↓`, `j`  | Select next item |
+| `↑`, `k`  | Select previous item |
 | `→`, `Enter` | Enter current resource/SSH |
-| `←`, `Esc` | Go to previous view |
+| `←`, `Esc`, `ctrl` + `z` | Go to previous view |
 | `d` | Describe selected resource(show json) |
 | `t` | Describe task definition |
 | `w` | Describe service events |
 | `a` | Show service auto scaling |
 | `m` | Show service metrics(CPUUtilization/MemoryUtilization) |
-| `r` | Reload resources |
-| `l` | Show log events(Only support awslogs logDriver) |
+| `l` | Show cloudwatch logs(Only support awslogs logDriver) |
+| `r` | Realtime log streaming(Only support one log group) |
 | `v` | List task definition revisions |
 | `f` | Toggle full screen |
 | `e` | Edit resource |
 | `b` | Open selected resource in AWS web console |
 | `ctrl` + `c` | Quit |
 | `ctrl` + `d` | Exit from container |
+| `ctrl` + `r` | Reload resources |
 
 ### Logs
 
