@@ -41,12 +41,14 @@ const (
 	openInBrowser      = "Open in browser"
 	sshContainer       = "SSH container"
 	toggleFullScreen   = "Content Toggle full screen"
+	realtimeLog        = "Cloudwatch realtime logs(only support one log group)"
 	backToPrevious     = "Back"
 
 	// shell        = "/bin/sh -c \"if [ -x /bin/bash ]; then exec /bin/bash; else exec /bin/sh; fi\""
-	shell        = "/bin/sh"
-	awsCli       = "aws"
-	sshBannerFmt = "\033[1;31m<<ECS-EXEC-SSH>>\033[0m: \n#######################################\n\033[1;32mCluster\033[0m: \"%s\" \n\033[1;32mService\033[0m: \"%s\" \n\033[1;32mTask\033[0m: \"%s\" \n\033[1;32mContainer\033[0m: \"%s\"\n#######################################\n"
+	shell          = "/bin/sh"
+	awsCli         = "aws"
+	sshBannerFmt   = "\033[1;31m<<E1S-ECS-EXEC>>\033[0m: \n#######################################\n\033[1;32mCluster\033[0m: \"%s\" \n\033[1;32mService\033[0m: \"%s\" \n\033[1;32mTask\033[0m: \"%s\" \n\033[1;32mContainer\033[0m: \"%s\"\n#######################################\n"
+	realtimeLogFmt = "\033[1;31m<<E1S-LOGS-TAIL>>\033[0m: \n#######################################\n\033[1;32mCluster\033[0m: \"%s\" \n\033[1;32mService\033[0m: \"%s\" \n\033[1;32mLogGroup\033[0m: \"%s\"\n#######################################\n"
 )
 
 const (
@@ -57,6 +59,7 @@ const (
 	fKey  = 'f'
 	lKey  = 'l'
 	mKey  = 'm'
+	rKey  = 'r'
 	tKey  = 't'
 	vKey  = 'v'
 	wKey  = 'w'
@@ -292,6 +295,11 @@ func (v *View) handleContentPageSwitch(entity Entity, which string, contentStrin
 			v.app.Pages.AddPage(contentPageName, fullScreenContent, true, true)
 		case bKey, bKey - upperLowerDiff:
 			v.openInBrowser()
+		case rKey, rKey - upperLowerDiff:
+			if v.secondaryKind == LogPage {
+				v.realtimeAwsLog(entity)
+			}
+
 		}
 
 		switch event.Key() {

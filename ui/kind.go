@@ -103,6 +103,7 @@ var jsonPageKeys = []KeyInput{
 var logPageKeys = []KeyInput{
 	{key: string(fKey), description: toggleFullScreen},
 	{key: string(bKey), description: openInBrowser},
+	{key: string(rKey), description: realtimeLog},
 	{key: ctrlR, description: reloadResource},
 	{key: ctrlZ, description: backToPrevious},
 }
