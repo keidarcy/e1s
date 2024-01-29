@@ -54,12 +54,15 @@ brew install keidarcy/tap/e1s
   ![ssh-demo](./docs/ssh-demo.gif)
 </details>
 
+Use `ctrl` + `d` to exit ssh session.
 
-If you experience any issue with ssh, please check [documents](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-exec.html#ecs-exec-enabling) and [aws-ecs-exec-checker](https://github.com/aws-containers/amazon-ecs-exec-checker).
+#### Troubleshooting
 
-Use `ctrl` + `d` to end ssh session.
+*The execute command failed because execute command...* - check [service execute command](https://github.com/keidarcy/e1s/blob/c9587a0bd89eacc08a1fd392523f518309e2437f/tests/ecs.tf#L102), [task role policy](https://github.com/keidarcy/e1s/blob/c9587a0bd89eacc08a1fd392523f518309e2437f/tests/ecs.tf#L157-L168)
 
-> tips: check [task role policy](https://github.com/keidarcy/e1s/blob/master/tests/ecs.tf#L157-L168)
+*Session Manager plugin not found* - [document](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-troubleshooting.html#plugin-not-found)
+
+If you experience any other issues with ssh, please check [documents](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-exec.html#ecs-exec-enabling) and use a tool like [aws-ecs-exec-checker](https://github.com/aws-containers/amazon-ecs-exec-checker).
 
 ### Edit service([Docs](https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_UpdateService.html))
 
