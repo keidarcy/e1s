@@ -19,15 +19,26 @@ func (store *Store) ListServices(clusterName *string) ([]types.Service, error) {
 		MaxResults: &limit,
 	}
 
-	listServicesOutput, err := store.ecs.ListServices(context.Background(), params)
+	serviceARNs := []string{}
 
-	if err != nil {
-		logger.Printf("e1s - aws failed to list services, err: %v\n", err)
-		return []types.Service{}, err
-	}
+	for {
+		listServicesOutput, err := store.ecs.ListServices(context.Background(), params)
+		if err != nil {
+			logger.Printf("e1s - aws failed to list services, err: %v\n", err)
+			return []types.Service{}, err
+		}
 
-	if len(listServicesOutput.ServiceArns) == 0 {
-		return nil, nil
+		if len(listServicesOutput.ServiceArns) == 0 {
+			return nil, nil
+		}
+
+		serviceARNs = append(serviceARNs, listServicesOutput.ServiceArns...)
+
+		if listServicesOutput.NextToken != nil {
+			params.NextToken = listServicesOutput.NextToken
+		} else {
+			break
+		}
 	}
 
 	include := []types.ServiceField{
@@ -38,9 +49,9 @@ func (store *Store) ListServices(clusterName *string) ([]types.Service, error) {
 
 	// You may specify up to 10 services to describe
 	// If over 10, loop and slice by 10
-	for i := 0; i <= len(listServicesOutput.ServiceArns)/10; i++ {
+	for i := 0; i <= len(serviceARNs)/10; i++ {
 		describeServicesOutput, err := store.ecs.DescribeServices(context.Background(), &ecs.DescribeServicesInput{
-			Services: listServicesOutput.ServiceArns[i*10 : int(math.Min(float64((i+1)*10), float64(len(listServicesOutput.ServiceArns))))],
+			Services: serviceARNs[i*10 : int(math.Min(float64((i+1)*10), float64(len(serviceARNs))))],
 			Cluster:  clusterName,
 			Include:  include,
 		})
@@ -70,7 +81,6 @@ func (store *Store) ListServices(clusterName *string) ([]types.Service, error) {
 func (store *Store) UpdateService(input *ecs.UpdateServiceInput) (*types.Service, error) {
 	logger.Printf("cluster: %s, service: %s, desiredCount: %d, taskDef: %s, force: %t\n", *input.Cluster, *input.Service, *input.DesiredCount, *input.TaskDefinition, input.ForceNewDeployment)
 	updateOutput, err := store.ecs.UpdateService(context.Background(), input)
-
 	if err != nil {
 		logger.Printf("e1s - aws failed to update service, err: %v\n", err)
 		return nil, err
