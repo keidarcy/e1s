@@ -141,7 +141,7 @@ $ e1s -version
 ### Logs
 
 ```bash
-tail -f /tmp/e1s_debug.log
+tail -f /tmp/e1s-debug.log
 ```
 
 ## Feature Requests & Bug Reports
