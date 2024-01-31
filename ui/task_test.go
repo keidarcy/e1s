@@ -31,7 +31,7 @@ func getTaskViews() []TaskView {
 	task2 := newTask()
 	task2.TaskArn = aws.String(taskArn2)
 
-	app := newApp()
+	app, _ := newApp()
 	app.cluster = &types.Cluster{
 		ClusterName: aws.String(clusterName1),
 	}

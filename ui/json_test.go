@@ -9,7 +9,8 @@ import (
 )
 
 func TestGetJsonData(t *testing.T) {
-	view := newView(newApp(), ClusterPage, []KeyInput{}, secondaryPageKeyMap{
+	app, _ := newApp()
+	view := newView(app, ClusterPage, []KeyInput{}, secondaryPageKeyMap{
 		JsonPage: []KeyInput{
 			{key: string(fKey), description: toggleFullScreen},
 		},
