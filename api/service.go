@@ -19,14 +19,30 @@ func (store *Store) ListServices(clusterName *string) ([]types.Service, error) {
 		MaxResults: &limit,
 	}
 
-	listServicesOutput, err := store.ecs.ListServices(context.Background(), params)
-	if err != nil {
-		logger.Printf("e1s - aws failed to list services, err: %v\n", err)
-		return []types.Service{}, err
-	}
+	serviceARNs := []string{}
 
-	if len(listServicesOutput.ServiceArns) == 0 {
-		return nil, nil
+	for {
+		listServicesOutput, err := store.ecs.ListServices(context.Background(), params)
+		if err != nil {
+			logger.Printf("e1s - aws failed to list services, err: %v\n", err)
+			// If first run failed return err
+			if len(serviceARNs) == 0 {
+				return []types.Service{}, err
+			}
+			continue
+		}
+
+		if len(listServicesOutput.ServiceArns) == 0 {
+			return nil, nil
+		}
+
+		serviceARNs = append(serviceARNs, listServicesOutput.ServiceArns...)
+
+		if listServicesOutput.NextToken != nil {
+			params.NextToken = listServicesOutput.NextToken
+		} else {
+			break
+		}
 	}
 
 	include := []types.ServiceField{
@@ -39,7 +55,7 @@ func (store *Store) ListServices(clusterName *string) ([]types.Service, error) {
 	// If there are > 10 services in the cluster, loop and slice by 10
 	// to describe them in batches of <= 10.
 	batchSize := 10
-	serviceCount := len(listServicesOutput.ServiceArns)
+	serviceCount := len(serviceARNs)
 	loopCount := serviceCount / batchSize
 
 	// If the number of services is divisible by batchSize, it's necessary to loop one less
@@ -51,7 +67,7 @@ func (store *Store) ListServices(clusterName *string) ([]types.Service, error) {
 	}
 
 	for i := 0; i <= loopCount; i++ {
-		services := listServicesOutput.ServiceArns[i*batchSize : int(math.Min(float64((i+1)*batchSize), float64(serviceCount)))]
+		services := serviceARNs[i*batchSize : int(math.Min(float64((i+1)*batchSize), float64(serviceCount)))]
 
 		describeServicesOutput, err := store.ecs.DescribeServices(context.Background(), &ecs.DescribeServicesInput{
 			Services: services,
