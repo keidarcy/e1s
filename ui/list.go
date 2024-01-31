@@ -42,12 +42,14 @@ func (v *View) getListString(entity Entity, which string) string {
 	case "logs":
 		var logs []types.OutputLogEvent
 		var err error
-
+		var tdArn *string
 		if entity.service != nil {
-			logs, err = v.app.Store.GetLogs(entity.service.TaskDefinition)
+			tdArn = entity.service.TaskDefinition
 		} else if entity.task != nil {
-			logs, err = v.app.Store.GetLogs(entity.task.TaskDefinitionArn)
+			tdArn = entity.task.TaskDefinitionArn
 		}
+
+		logs, err = v.app.Store.GetLogs(tdArn)
 
 		if err != nil {
 			contentString += "[red::]No valid contents[-:-:-]"

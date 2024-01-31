@@ -38,6 +38,9 @@ func (store *Store) GetLogs(tdArn *string) ([]cloudwatchlogsTypes.OutputLogEvent
 	logs := []cloudwatchlogsTypes.OutputLogEvent{}
 	logGroupNames := make(map[string]bool)
 	for _, c := range td.ContainerDefinitions {
+		if c.LogConfiguration == nil {
+			continue
+		}
 		if c.LogConfiguration.LogDriver != types.LogDriverAwslogs {
 			continue
 		}
