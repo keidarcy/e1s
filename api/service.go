@@ -25,7 +25,11 @@ func (store *Store) ListServices(clusterName *string) ([]types.Service, error) {
 		listServicesOutput, err := store.ecs.ListServices(context.Background(), params)
 		if err != nil {
 			logger.Printf("e1s - aws failed to list services, err: %v\n", err)
-			return []types.Service{}, err
+			// If first run failed return err
+			if len(serviceARNs) == 0 {
+				return []types.Service{}, err
+			}
+			continue
 		}
 
 		if len(listServicesOutput.ServiceArns) == 0 {
