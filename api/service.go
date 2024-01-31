@@ -20,7 +20,6 @@ func (store *Store) ListServices(clusterName *string) ([]types.Service, error) {
 	}
 
 	listServicesOutput, err := store.ecs.ListServices(context.Background(), params)
-
 	if err != nil {
 		logger.Printf("e1s - aws failed to list services, err: %v\n", err)
 		return []types.Service{}, err
@@ -36,17 +35,36 @@ func (store *Store) ListServices(clusterName *string) ([]types.Service, error) {
 
 	results := []types.Service{}
 
-	// You may specify up to 10 services to describe
-	// If over 10, loop and slice by 10
-	for i := 0; i <= len(listServicesOutput.ServiceArns)/10; i++ {
+	// You may specify up to 10 services to describe.
+	// If there are > 10 services in the cluster, loop and slice by 10
+	// to describe them in batches of <= 10.
+	batchSize := 10
+	serviceCount := len(listServicesOutput.ServiceArns)
+	loopCount := serviceCount / batchSize
+
+	// If the number of services is divisible by batchSize, it's necessary to loop one less
+	// time to describe all services in batches of batchSize.
+	// Otherwise, we'll attempt to describe an empty slice of services, which results in a
+	// HTTP 400: InvalidParameterException: Services cannot be empty.
+	if serviceCount%batchSize == 0 {
+		loopCount = loopCount - 1
+	}
+
+	for i := 0; i <= loopCount; i++ {
+		services := listServicesOutput.ServiceArns[i*batchSize : int(math.Min(float64((i+1)*batchSize), float64(serviceCount)))]
+
 		describeServicesOutput, err := store.ecs.DescribeServices(context.Background(), &ecs.DescribeServicesInput{
-			Services: listServicesOutput.ServiceArns[i*10 : int(math.Min(float64((i+1)*10), float64(len(listServicesOutput.ServiceArns))))],
+			Services: services,
 			Cluster:  clusterName,
 			Include:  include,
 		})
 		if err != nil {
-			logger.Printf("e1s - aws failed to describe services, err: %v\n", err)
-			return []types.Service{}, err
+			logger.Printf("e1s - aws failed to describe services in i:%d times loop, err: %v\n", i, err)
+			// If first run failed return err
+			if len(results) == 0 {
+				return []types.Service{}, err
+			}
+			continue
 		}
 		results = append(results, describeServicesOutput.Services...)
 	}
@@ -70,7 +88,6 @@ func (store *Store) ListServices(clusterName *string) ([]types.Service, error) {
 func (store *Store) UpdateService(input *ecs.UpdateServiceInput) (*types.Service, error) {
 	logger.Printf("cluster: %s, service: %s, desiredCount: %d, taskDef: %s, force: %t\n", *input.Cluster, *input.Service, *input.DesiredCount, *input.TaskDefinition, input.ForceNewDeployment)
 	updateOutput, err := store.ecs.UpdateService(context.Background(), input)
-
 	if err != nil {
 		logger.Printf("e1s - aws failed to update service, err: %v\n", err)
 		return nil, err
