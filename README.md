@@ -2,7 +2,7 @@
 
 `e1s` is a terminal application to easily browsing and manage AWS ECS resources, with a focus on [Fargate](https://aws.amazon.com/fargate). Inspired by [k9s](https://github.com/derailed/k9s).
 
-![e1s-demo](./docs/e1s-demo.gif)
+![e1s-demo](./docs/e1s-top-demo.gif)
 
 ## AWS credentials and configuration
 
@@ -17,6 +17,10 @@ e1s is available on Linux, macOS and Windows platforms.
 
 ```bash
 brew install keidarcy/tap/e1s
+```
+
+```bash
+brew upgrade keidarcy/tap/e1s # upgrade
 ```
 
 ## Features
@@ -51,7 +55,7 @@ brew install keidarcy/tap/e1s
 <details>
   <summary>ssh demo</summary>
 
-  ![ssh-demo](./docs/ssh-demo.gif)
+  ![ssh-demo](./docs/e1s-ssh-demo.gif)
 </details>
 
 Use `ctrl` + `d` to exit ssh session.
