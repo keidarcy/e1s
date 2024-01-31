@@ -73,7 +73,7 @@ If you experience any other issues with ssh, please check [documents](https://do
 <details>
   <summary>edit service demo</summary>
 
-  ![edit-service-demo](./docs/edit-service-demo.gif)
+  ![edit-service-demo](./docs/e1s-edit-service-demo.gif)
 </details>
 
 - Force new deployment
@@ -86,7 +86,7 @@ If you experience any other issues with ssh, please check [documents](https://do
 <details>
   <summary>Register task definition</summary>
 
-  ![register-task-definition-demo](./docs/register-task-definition-demo.gif)
+  ![register-task-definition-demo](./docs/e1s-register-task-definition-demo.gif)
 </details>
 
 ## Usage
