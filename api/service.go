@@ -47,17 +47,36 @@ func (store *Store) ListServices(clusterName *string) ([]types.Service, error) {
 
 	results := []types.Service{}
 
-	// You may specify up to 10 services to describe
-	// If over 10, loop and slice by 10
-	for i := 0; i <= len(serviceARNs)/10; i++ {
+	// You may specify up to 10 services to describe.
+	// If there are > 10 services in the cluster, loop and slice by 10
+	// to describe them in batches of <= 10.
+	batchSize := 10
+	serviceCount := len(serviceARNs)
+	loopCount := serviceCount / batchSize
+
+	// If the number of services is divisible by batchSize, it's necessary to loop one less
+	// time to describe all services in batches of batchSize.
+	// Otherwise, we'll attempt to describe an empty slice of services, which results in a
+	// HTTP 400: InvalidParameterException: Services cannot be empty.
+	if serviceCount%batchSize == 0 {
+		loopCount = loopCount - 1
+	}
+
+	for i := 0; i <= loopCount; i++ {
+		services := serviceARNs[i*batchSize : int(math.Min(float64((i+1)*batchSize), float64(serviceCount)))]
+
 		describeServicesOutput, err := store.ecs.DescribeServices(context.Background(), &ecs.DescribeServicesInput{
-			Services: serviceARNs[i*10 : int(math.Min(float64((i+1)*10), float64(len(serviceARNs))))],
+			Services: services,
 			Cluster:  clusterName,
 			Include:  include,
 		})
 		if err != nil {
-			logger.Printf("e1s - aws failed to describe services, err: %v\n", err)
-			return []types.Service{}, err
+			logger.Printf("e1s - aws failed to describe services in i:%d times loop, err: %v\n", i, err)
+			// If first run failed return err
+			if len(results) == 0 {
+				return []types.Service{}, err
+			}
+			continue
 		}
 		results = append(results, describeServicesOutput.Services...)
 	}
