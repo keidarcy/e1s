@@ -23,16 +23,17 @@ type Store struct {
 	autoScaling    *applicationautoscaling.Client
 }
 
-func NewStore() *Store {
+func NewStore() (*Store, error) {
 	cfg, err := config.LoadDefaultConfig(context.Background(), config.WithRegion(os.Getenv("AWS_REGION")))
 	if err != nil {
 		logger.Printf("e1s - aws unable to load SDK config, error: %v\n", err)
+		return nil, err
 	}
 	ecsClient := ecs.NewFromConfig(cfg)
 	return &Store{
 		Config: &cfg,
 		ecs:    ecsClient,
-	}
+	}, nil
 }
 
 func (store *Store) getCloudwatchClient() {
