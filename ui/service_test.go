@@ -25,7 +25,7 @@ func getServiceViews() []ServiceView {
 	}
 	service2.ServiceName = aws.String(serviceName2)
 
-	app := newApp()
+	app, _ := newApp()
 	app.cluster = &types.Cluster{
 		ClusterName: aws.String(clusterName1),
 	}

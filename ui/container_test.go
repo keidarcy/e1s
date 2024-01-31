@@ -23,7 +23,7 @@ func getContainerViews() []ContainerView {
 	container2 := newContainer()
 	container2.Name = aws.String(containerName2)
 
-	app := newApp()
+	app, _ := newApp()
 	app.cluster = &types.Cluster{
 		ClusterName: aws.String(clusterName1),
 	}

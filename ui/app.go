@@ -52,8 +52,11 @@ func init() {
 	flag.BoolVar(&version, "version", false, "Print e1s version")
 }
 
-func newApp() *App {
-	store := api.NewStore()
+func newApp() (*App, error) {
+	store, err := api.NewStore()
+	if err != nil {
+		return nil, err
+	}
 	region := store.Config.Region
 	if len(region) == 0 {
 		region = "unknown"
@@ -64,7 +67,7 @@ func newApp() *App {
 		Store:       store,
 		Region:      region,
 		readonly:    readonly,
-	}
+	}, nil
 }
 
 // Entry point of the app
@@ -74,7 +77,12 @@ func Show() error {
 		fmt.Println("v" + util.AppVersion)
 		return nil
 	}
-	app := newApp()
+	app, err := newApp()
+
+	if err != nil {
+		return err
+	}
+
 	app.initStyles()
 
 	if err := app.showClustersPage(); err != nil {
