@@ -59,8 +59,12 @@ func (store *Store) ListServices(clusterName *string) ([]types.Service, error) {
 			Include:  include,
 		})
 		if err != nil {
-			logger.Printf("e1s - aws failed to describe services, err: %v\n", err)
-			return []types.Service{}, err
+			logger.Printf("e1s - aws failed to describe services in i:%d times loop, err: %v\n", i, err)
+			// If first run failed return err
+			if len(results) == 0 {
+				return []types.Service{}, err
+			}
+			continue
 		}
 		results = append(results, describeServicesOutput.Services...)
 	}
