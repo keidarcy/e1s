@@ -33,7 +33,7 @@ var (
 
 func init() {
 	// init basic logger
-	logPath := fmt.Sprintf("%s/%s-debug.log", os.TempDir(),AppName)
+	logPath := filepath.Join(os.TempDir(), fmt.Sprintf("%s-debug.log", AppName))
 	logFile, err := os.OpenFile(logPath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		fmt.Printf("failed to open log file path: %s, err: %v\n", logPath, err)
