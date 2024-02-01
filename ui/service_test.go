@@ -25,7 +25,7 @@ func getServiceViews() []ServiceView {
 	}
 	service2.ServiceName = aws.String(serviceName2)
 
-	app, _ := newApp()
+	app, _ := newApp(false)
 	app.cluster = &types.Cluster{
 		ClusterName: aws.String(clusterName1),
 	}
@@ -33,11 +33,9 @@ func getServiceViews() []ServiceView {
 	serviceView2 := newServiceView([]types.Service{service2}, app)
 
 	return []ServiceView{*serviceView1, *serviceView2}
-
 }
 
 func TestServicePageParams(t *testing.T) {
-
 	serviceViews := getServiceViews()
 
 	testCases := []struct {

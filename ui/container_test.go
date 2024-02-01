@@ -15,7 +15,6 @@ var (
 func getContainerViews() []ContainerView {
 	newContainer := func() types.Container {
 		return types.Container{}
-
 	}
 	container1 := newContainer()
 	container1.Name = aws.String(containerName1)
@@ -23,7 +22,7 @@ func getContainerViews() []ContainerView {
 	container2 := newContainer()
 	container2.Name = aws.String(containerName2)
 
-	app, _ := newApp()
+	app, _ := newApp(false)
 	app.cluster = &types.Cluster{
 		ClusterName: aws.String(clusterName1),
 	}
@@ -37,11 +36,9 @@ func getContainerViews() []ContainerView {
 	ContainerView2 := newContainerView([]types.Container{container2}, app)
 
 	return []ContainerView{*ContainerView1, *ContainerView2}
-
 }
 
 func TestContainerPageParams(t *testing.T) {
-
 	containerViews := getContainerViews()
 
 	testCases := []struct {

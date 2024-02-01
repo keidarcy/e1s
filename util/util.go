@@ -27,21 +27,17 @@ const (
 	AppName    = "e1s"
 )
 
-var (
-	Logger *log.Logger
-)
-
-func init() {
-	// init basic logger
-	logPath := fmt.Sprintf("/tmp/%s-debug.log", AppName)
-	logFile, err := os.OpenFile(logPath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+// GetLogger returns a *log.Logger configured to write to the specified file path.
+// It also returns the log file *os.File  itself, such that callers can close the
+// file if/when needed.
+func GetLogger(path string) (*log.Logger, *os.File) {
+	logFile, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
-		fmt.Printf("failed to open log file path: %s, err: %v\n", logPath, err)
+		fmt.Printf("failed to open log file path: %s, err: %v\n", path, err)
 		os.Exit(1)
 	}
 
-	// defer logFile.Close()
-	Logger = log.New(logFile, "", log.LstdFlags)
+	return log.New(logFile, "", log.LstdFlags), logFile
 }
 
 func ArnToName(arn *string) string {
@@ -86,7 +82,6 @@ func ShowInt(p *int32) string {
 		return EmptyText
 	}
 	return strconv.Itoa(int(*p))
-
 }
 
 func ShowGreenGrey(s *string, greenStr string) string {
@@ -96,7 +91,6 @@ func ShowGreenGrey(s *string, greenStr string) string {
 
 	if strings.ToLower(*s) == greenStr {
 		return fmt.Sprintf(greenFmt, strings.ToLower(*s))
-
 	}
 	return fmt.Sprintf(greyFmt, strings.ToLower(*s))
 }

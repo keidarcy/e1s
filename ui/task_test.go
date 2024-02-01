@@ -23,7 +23,6 @@ func getTaskViews() []TaskView {
 			PullStartedAt: &now,
 			PullStoppedAt: &now,
 		}
-
 	}
 	task1 := newTask()
 	task1.TaskArn = aws.String(taskArn1)
@@ -31,7 +30,7 @@ func getTaskViews() []TaskView {
 	task2 := newTask()
 	task2.TaskArn = aws.String(taskArn2)
 
-	app, _ := newApp()
+	app, _ := newApp(false)
 	app.cluster = &types.Cluster{
 		ClusterName: aws.String(clusterName1),
 	}
@@ -42,11 +41,9 @@ func getTaskViews() []TaskView {
 	TaskView2 := newTaskView([]types.Task{task2}, app)
 
 	return []TaskView{*TaskView1, *TaskView2}
-
 }
 
 func TestTaskPageParams(t *testing.T) {
-
 	taskViews := getTaskViews()
 
 	testCases := []struct {

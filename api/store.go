@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"log"
 	"os"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -10,10 +11,9 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/cloudwatch"
 	"github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs"
 	"github.com/aws/aws-sdk-go-v2/service/ecs"
-	"github.com/keidarcy/e1s/util"
 )
 
-var logger = util.Logger
+var logger *log.Logger
 
 type Store struct {
 	*aws.Config
@@ -21,9 +21,11 @@ type Store struct {
 	cloudwatch     *cloudwatch.Client
 	cloudwatchlogs *cloudwatchlogs.Client
 	autoScaling    *applicationautoscaling.Client
+	logger         *log.Logger
 }
 
-func NewStore() (*Store, error) {
+func NewStore(logr *log.Logger) (*Store, error) {
+	logger = logr
 	cfg, err := config.LoadDefaultConfig(context.Background(), config.WithRegion(os.Getenv("AWS_REGION")))
 	if err != nil {
 		logger.Printf("e1s - aws unable to load SDK config, error: %v\n", err)

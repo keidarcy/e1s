@@ -1,13 +1,11 @@
 package ui
 
 import (
-	"flag"
-	"fmt"
+	"log"
 
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
 	"github.com/gdamore/tcell/v2"
 	"github.com/keidarcy/e1s/api"
-	"github.com/keidarcy/e1s/util"
 	"github.com/rivo/tview"
 )
 
@@ -17,11 +15,7 @@ const (
 	R = tview.AlignRight
 )
 
-var (
-	logger   = util.Logger
-	readonly = false
-	version  = false
-)
+var logger *log.Logger
 
 // Entity contains ECS resources to show
 type Entity struct {
@@ -47,13 +41,8 @@ type App struct {
 	readonly bool
 }
 
-func init() {
-	flag.BoolVar(&readonly, "readonly", false, "Enable readonly mode")
-	flag.BoolVar(&version, "version", false, "Print e1s version")
-}
-
-func newApp() (*App, error) {
-	store, err := api.NewStore()
+func newApp(readOnly bool) (*App, error) {
+	store, err := api.NewStore(logger)
 	if err != nil {
 		return nil, err
 	}
@@ -66,19 +55,14 @@ func newApp() (*App, error) {
 		Pages:       tview.NewPages(),
 		Store:       store,
 		Region:      region,
-		readonly:    readonly,
+		readonly:    readOnly,
 	}, nil
 }
 
 // Entry point of the app
-func Show() error {
-	flag.Parse()
-	if version {
-		fmt.Println("v" + util.AppVersion)
-		return nil
-	}
-	app, err := newApp()
-
+func Show(readOnly bool, logr *log.Logger) error {
+	logger = logr
+	app, err := newApp(readOnly)
 	if err != nil {
 		return err
 	}
