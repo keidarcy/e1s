@@ -7,6 +7,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/service/ecs"
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
+	"golang.org/x/sync/errgroup"
 )
 
 // Equivalent to
@@ -45,12 +46,6 @@ func (store *Store) ListServices(clusterName *string) ([]types.Service, error) {
 		}
 	}
 
-	include := []types.ServiceField{
-		types.ServiceFieldTags,
-	}
-
-	results := []types.Service{}
-
 	// You may specify up to 10 services to describe.
 	// If there are > 10 services in the cluster, loop and slice by 10
 	// to describe them in batches of <= 10.
@@ -66,23 +61,37 @@ func (store *Store) ListServices(clusterName *string) ([]types.Service, error) {
 		loopCount = loopCount - 1
 	}
 
-	for i := 0; i <= loopCount; i++ {
-		services := serviceARNs[i*batchSize : int(math.Min(float64((i+1)*batchSize), float64(serviceCount)))]
+	results := []types.Service{}
+	g := new(errgroup.Group)
 
-		describeServicesOutput, err := store.ecs.DescribeServices(context.Background(), &ecs.DescribeServicesInput{
-			Services: services,
-			Cluster:  clusterName,
-			Include:  include,
-		})
-		if err != nil {
-			logger.Printf("e1s - aws failed to describe services in i:%d times loop, err: %v\n", i, err)
-			// If first run failed return err
-			if len(results) == 0 {
-				return []types.Service{}, err
+	for i := 0; i <= loopCount; i++ {
+		i := i
+
+		g.Go(func() error {
+			services := serviceARNs[i*batchSize : int(math.Min(float64((i+1)*batchSize), float64(serviceCount)))]
+
+			describeServicesOutput, err := store.ecs.DescribeServices(context.Background(), &ecs.DescribeServicesInput{
+				Services: services,
+				Cluster:  clusterName,
+				Include: []types.ServiceField{
+					types.ServiceFieldTags,
+				},
+			})
+			if err != nil {
+				logger.Printf("e1s - aws failed to describe services in i:%d times loop, err: %v\n", i, err)
+
+				return err
 			}
-			continue
-		}
-		results = append(results, describeServicesOutput.Services...)
+
+			results = append(results, describeServicesOutput.Services...)
+
+			return nil
+		})
+	}
+
+	err := g.Wait()
+	if err != nil {
+		return []types.Service{}, err
 	}
 
 	// sort by desire count, name ascending
