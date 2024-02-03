@@ -1,5 +1,5 @@
 <p align="center">
-      <img src="./docs/e1s-label.png" alt="e1s" width="640" height="320" >
+      <img src="./assets/e1s-label.png" alt="e1s" width="640" height="320" >
 </p>
 
 
@@ -7,7 +7,7 @@
 
 `e1s` is a terminal application to easily browse and manage AWS ECS resources, with a focus on [Fargate](https://aws.amazon.com/fargate). Inspired by [k9s](https://github.com/derailed/k9s).
 
-![e1s-demo](./docs/e1s-top-demo.gif)
+![e1s-demo](./assets/e1s-top-demo.gif)
 
 ## AWS credentials and configuration
 
@@ -60,7 +60,7 @@ brew upgrade keidarcy/tap/e1s # upgrade
 <details>
   <summary>ssh demo</summary>
 
-  ![ssh-demo](./docs/e1s-ssh-demo.gif)
+  ![ssh-demo](./assets/e1s-ssh-demo.gif)
 </details>
 
 Use `ctrl` + `d` to exit ssh session.
@@ -78,7 +78,7 @@ If you experience any other issues with ssh, please check [documents](https://do
 <details>
   <summary>edit service demo</summary>
 
-  ![edit-service-demo](./docs/e1s-edit-service-demo.gif)
+  ![edit-service-demo](./assets/e1s-edit-service-demo.gif)
 </details>
 
 - Force new deployment
@@ -91,7 +91,7 @@ If you experience any other issues with ssh, please check [documents](https://do
 <details>
   <summary>Register task definition</summary>
 
-  ![register-task-definition-demo](./docs/e1s-register-task-definition-demo.gif)
+  ![register-task-definition-demo](./assets/e1s-register-task-definition-demo.gif)
 </details>
 
 ## Usage
