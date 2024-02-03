@@ -1,6 +1,11 @@
-# E1S - Easily Manage AWS ECS Resources in Terminal 🐱✨
+<p align="center">
+      <img src="./docs/e1s-label.png" alt="e1s" width="640" height="320" >
+</p>
 
-`e1s` is a terminal application to easily browsing and manage AWS ECS resources, with a focus on [Fargate](https://aws.amazon.com/fargate). Inspired by [k9s](https://github.com/derailed/k9s).
+
+# E1S - Easily Manage AWS ECS Resources in Terminal 🐱
+
+`e1s` is a terminal application to easily browse and manage AWS ECS resources, with a focus on [Fargate](https://aws.amazon.com/fargate). Inspired by [k9s](https://github.com/derailed/k9s).
 
 ![e1s-demo](./docs/e1s-top-demo.gif)
 
