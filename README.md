@@ -1,5 +1,5 @@
 <p align="center">
-      <img src="./assets/e1s-label.png" alt="e1s" width="640" height="320" >
+      <img src="./assets/e1s-label.png" alt="e1s" width="300" height="150" >
 </p>
 
 
