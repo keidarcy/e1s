@@ -15,17 +15,15 @@
 
 ## Installation
 
-e1s is available on Linux, macOS and Windows platforms.
+`e1s` is available on Linux, macOS and Windows platforms.
 
 - Binaries for Linux, Windows and Mac are available in the [release](https://github.com/keidarcy/e1s/releases) page.
 - Via Homebrew for maxOS or Linux
 
 ```bash
 brew install keidarcy/tap/e1s
-```
-
-```bash
-brew upgrade keidarcy/tap/e1s # upgrade
+# upgrade
+# brew upgrade keidarcy/tap/e1s 
 ```
 
 ## Features
@@ -57,6 +55,8 @@ brew upgrade keidarcy/tap/e1s # upgrade
 
 ### SSH into container ([ECS Exec](https://docs.aws.amazon.com/AmazonECS/latest/userguide/ecs-exec.html))
 
+Use [aws-ecs-exec-checker](https://github.com/aws-containers/amazon-ecs-exec-checker) to check for the pre-requisites to use ECS exec.
+
 <details>
   <summary>ssh demo</summary>
 
@@ -69,9 +69,7 @@ Use `ctrl` + `d` to exit ssh session.
 
 *The execute command failed because execute command...* - check [service execute command](https://github.com/keidarcy/e1s/blob/c9587a0bd89eacc08a1fd392523f518309e2437f/tests/ecs.tf#L102), [task role policy](https://github.com/keidarcy/e1s/blob/c9587a0bd89eacc08a1fd392523f518309e2437f/tests/ecs.tf#L157-L168)
 
-*Session Manager plugin not found* - [document](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-troubleshooting.html#plugin-not-found)
-
-If you experience any other issues with ssh, please check [documents](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-exec.html#ecs-exec-enabling) and use a tool like [aws-ecs-exec-checker](https://github.com/aws-containers/amazon-ecs-exec-checker).
+*Session Manager plugin not found* - [document](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-troubleshooting.html#plugin-not-found).
 
 ### Edit service([Docs](https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_UpdateService.html))
 
@@ -112,13 +110,13 @@ Using my-profile profile
 $ AWS_PROFILE=my-profile e1s
 ```
 
-read only mode
+Using read only mode
 
 ```bash
 $ AWS_PROFILE=my-profile e1s -readonly
 ```
 
-current e1s version
+Check `e1s` version
 
 ```bash
 $ e1s -version
