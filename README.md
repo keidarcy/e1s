@@ -1,8 +1,13 @@
-# E1S - Easily Manage AWS ECS Resources in Terminal 🐱✨
+<p align="center">
+      <img src="./assets/e1s-label.png" alt="e1s" width="300" height="150" >
+</p>
 
-`e1s` is a terminal application to easily browsing and manage AWS ECS resources, with a focus on [Fargate](https://aws.amazon.com/fargate). Inspired by [k9s](https://github.com/derailed/k9s).
 
-![e1s-demo](./docs/e1s-top-demo.gif)
+# E1S - Easily Manage AWS ECS Resources in Terminal 🐱
+
+`e1s` is a terminal application to easily browse and manage AWS ECS resources, with a focus on [Fargate](https://aws.amazon.com/fargate). Inspired by [k9s](https://github.com/derailed/k9s).
+
+![e1s-demo](./assets/e1s-top-demo.gif)
 
 ## AWS credentials and configuration
 
@@ -10,17 +15,15 @@
 
 ## Installation
 
-e1s is available on Linux, macOS and Windows platforms.
+`e1s` is available on Linux, macOS and Windows platforms.
 
 - Binaries for Linux, Windows and Mac are available in the [release](https://github.com/keidarcy/e1s/releases) page.
 - Via Homebrew for maxOS or Linux
 
 ```bash
 brew install keidarcy/tap/e1s
-```
-
-```bash
-brew upgrade keidarcy/tap/e1s # upgrade
+# upgrade
+# brew upgrade keidarcy/tap/e1s 
 ```
 
 ## Features
@@ -52,10 +55,12 @@ brew upgrade keidarcy/tap/e1s # upgrade
 
 ### SSH into container ([ECS Exec](https://docs.aws.amazon.com/AmazonECS/latest/userguide/ecs-exec.html))
 
+Use [aws-ecs-exec-checker](https://github.com/aws-containers/amazon-ecs-exec-checker) to check for the pre-requisites to use ECS exec.
+
 <details>
   <summary>ssh demo</summary>
 
-  ![ssh-demo](./docs/e1s-ssh-demo.gif)
+  ![ssh-demo](./assets/e1s-ssh-demo.gif)
 </details>
 
 Use `ctrl` + `d` to exit ssh session.
@@ -64,16 +69,14 @@ Use `ctrl` + `d` to exit ssh session.
 
 *The execute command failed because execute command...* - check [service execute command](https://github.com/keidarcy/e1s/blob/c9587a0bd89eacc08a1fd392523f518309e2437f/tests/ecs.tf#L102), [task role policy](https://github.com/keidarcy/e1s/blob/c9587a0bd89eacc08a1fd392523f518309e2437f/tests/ecs.tf#L157-L168)
 
-*Session Manager plugin not found* - [document](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-troubleshooting.html#plugin-not-found)
-
-If you experience any other issues with ssh, please check [documents](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-exec.html#ecs-exec-enabling) and use a tool like [aws-ecs-exec-checker](https://github.com/aws-containers/amazon-ecs-exec-checker).
+*Session Manager plugin not found* - [document](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-troubleshooting.html#plugin-not-found).
 
 ### Edit service([Docs](https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_UpdateService.html))
 
 <details>
   <summary>edit service demo</summary>
 
-  ![edit-service-demo](./docs/e1s-edit-service-demo.gif)
+  ![edit-service-demo](./assets/e1s-edit-service-demo.gif)
 </details>
 
 - Force new deployment
@@ -86,7 +89,7 @@ If you experience any other issues with ssh, please check [documents](https://do
 <details>
   <summary>Register task definition</summary>
 
-  ![register-task-definition-demo](./docs/e1s-register-task-definition-demo.gif)
+  ![register-task-definition-demo](./assets/e1s-register-task-definition-demo.gif)
 </details>
 
 ## Usage
@@ -107,23 +110,20 @@ Using my-profile profile, us-east-1 region
 $ AWS_PROFILE=my-profile AWS_REGION=us-east-1 e1s
 ```
 
+
 | Option | Description | Default |
 | --- | --- | --- |
 | `-readonly` | Enable readonly mode | false |
 | `-version` | Show e1s version | false |
 | `-log-file-path` | The e1s debug log file path | $TMPDIR/e1s-debug.log |
 
-read only mode
+
+Using read only mode and custom log path
 
 ```bash
-$ AWS_PROFILE=my-profile e1s -readonly
+$ e1s -readonly -log-file-path /tmp/e1s.log
 ```
 
-current e1s version
-
-```bash
-$ e1s -version
-```
 
 ### Key Bindings
 

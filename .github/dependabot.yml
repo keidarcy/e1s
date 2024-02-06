@@ -5,6 +5,9 @@ updates:
     directory: '/'
     schedule:
       interval: 'weekly'
+    ignore:
+      - dependency-name: 'tview'
+      - dependency-name: 'tcell/v2'
 
   # Maintain dependencies for GitHub Actions
   - package-ecosystem: 'github-actions'
