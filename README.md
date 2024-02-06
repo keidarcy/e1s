@@ -96,6 +96,13 @@ Use `ctrl` + `d` to exit ssh session.
 
 ### Run `e1s`
 
+
+| Option | Description | Default |
+| --- | --- | --- |
+| `-readonly` | Enable readonly mode | false |
+| `-version` | Show e1s version | false |
+| `-log-file-path` | The e1s debug log file path | $TMPDIR/e1s-debug.log |
+
 Make sure you have the AWS CLI installed and properly configured with the necessary permissions to access your ECS resources.
 
 Using default profile
@@ -110,20 +117,11 @@ Using my-profile profile, us-east-1 region
 $ AWS_PROFILE=my-profile AWS_REGION=us-east-1 e1s
 ```
 
-
-| Option | Description | Default |
-| --- | --- | --- |
-| `-readonly` | Enable readonly mode | false |
-| `-version` | Show e1s version | false |
-| `-log-file-path` | The e1s debug log file path | $TMPDIR/e1s-debug.log |
-
-
 Using read only mode and custom log path
 
 ```bash
 $ e1s -readonly -log-file-path /tmp/e1s.log
 ```
-
 
 ### Key Bindings
 
