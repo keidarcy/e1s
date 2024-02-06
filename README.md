@@ -101,11 +101,17 @@ Using default profile
 $ e1s
 ```
 
-Using my-profile profile
+Using my-profile profile, us-east-1 region
 
 ```bash
-$ AWS_PROFILE=my-profile e1s
+$ AWS_PROFILE=my-profile AWS_REGION=us-east-1 e1s
 ```
+
+| Option | Description | Default |
+| --- | --- | --- |
+| `-readonly` | Enable readonly mode | false |
+| `-version` | Show e1s version | false |
+| `-log-file-path` | The e1s debug log file path | $TMPDIR/e1s-debug.log |
 
 read only mode
 
@@ -145,7 +151,7 @@ $ e1s -version
 ### Logs
 
 ```bash
-tail -f /tmp/e1s-debug.log
+tail -f $TMPDIR/e1s-debug.log
 ```
 
 ## Feature Requests & Bug Reports
