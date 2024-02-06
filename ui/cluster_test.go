@@ -28,12 +28,11 @@ func getClusterViews() []ClusterView {
 	cluster2 := types.Cluster{}
 	cluster2.ClusterName = aws.String(clusterName2)
 
-	app, _ := newApp()
+	app, _ := newApp(false)
 	clusterView1 := newClusterView([]types.Cluster{cluster1}, app)
 	clusterView2 := newClusterView([]types.Cluster{cluster2}, app)
 
 	return []ClusterView{*clusterView1, *clusterView2}
-
 }
 
 func TestClusterPageParams(t *testing.T) {
