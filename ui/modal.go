@@ -75,7 +75,7 @@ func (v *View) taskDefinitionRegisterContent(fn func()) (*tview.Form, string) {
 	}
 
 	readonly := ""
-	if v.app.readonly {
+	if v.app.ReadOnly {
 		readonly = readonlyLabel
 	}
 
@@ -88,7 +88,7 @@ func (v *View) taskDefinitionRegisterContent(fn func()) (*tview.Form, string) {
 	})
 
 	// readonly mode has no submit button
-	if v.app.readonly {
+	if v.app.ReadOnly {
 		return f, title
 	}
 
@@ -212,12 +212,12 @@ func (v *View) serviceUpdateContent() (*tview.Form, string) {
 	}
 	name := *selected.service.ServiceName
 
-	readonly := ""
-	if v.app.readonly {
-		readonly = readonlyLabel
+	readOnly := ""
+	if v.app.ReadOnly {
+		readOnly = readonlyLabel
 	}
 
-	title := " Update [purple::b]" + name + readonly
+	title := " Update [purple::b]" + name + readOnly
 	currentFamily, currentRevision, _ := v.getTaskDefinitionDetail()
 
 	// get data for form
@@ -288,7 +288,7 @@ func (v *View) serviceUpdateContent() (*tview.Form, string) {
 	})
 
 	// readonly mode has no submit button
-	if v.app.readonly {
+	if v.app.ReadOnly {
 		return f, title
 	}
 

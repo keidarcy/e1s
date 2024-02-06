@@ -195,18 +195,18 @@ func (v *View) handleAppPageSwitch(resourceName string, isJson bool) error {
 	if isJson {
 		kind = v.kind
 	}
-	v.showKindPage(kind, false)
+	v.showKindPage(kind)
 	return nil
 }
 
 // Reload current resource
 func (v *View) reloadResource() error {
 	v.successModal("Reloaded ✅", 1, 20, 5)
-	go v.showKindPage(v.kind, true)
+	go v.showKindPage(v.kind)
 	return nil
 }
 
-func (v *View) showKindPage(k Kind, refreshData bool) error {
+func (v *View) showKindPage(k Kind) error {
 	switch v.secondaryKind {
 	case LogPage:
 		v.switchToLogsList()
@@ -216,7 +216,7 @@ func (v *View) showKindPage(k Kind, refreshData bool) error {
 	case ClusterPage:
 		return v.app.showClustersPage()
 	case ServicePage:
-		return v.app.showServicesPage(refreshData)
+		return v.app.showServicesPage()
 	case TaskPage:
 		return v.app.showTasksPages()
 	case ContainerPage:
@@ -230,6 +230,8 @@ func (v *View) showKindPage(k Kind, refreshData bool) error {
 // Go back page based on current kind
 func (v *View) back() {
 	toPage := v.kind.prevKind().getAppPageName(v.getClusterArn())
+	// TODO: figure out what's this
+	v.kind = v.kind.prevKind()
 	v.app.Pages.SwitchToPage(toPage)
 }
 
@@ -330,7 +332,7 @@ func (v *View) ssh(containerName string) {
 	if v.kind != ContainerPage {
 		return
 	}
-	if v.app.readonly {
+	if v.app.ReadOnly {
 		return
 	}
 

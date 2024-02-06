@@ -35,13 +35,16 @@ func newServiceView(services []types.Service, app *App) *ServiceView {
 	}
 }
 
-func (app *App) showServicesPage(refreshData bool) error {
-	pageName := ServicePage.getAppPageName(*app.cluster.ClusterArn)
-	if app.Pages.HasPage(pageName) && !refreshData {
-		app.Pages.SwitchToPage(pageName)
-
-		return nil
-	}
+func (app *App) showServicesPage() error {
+	// pageName := ServicePage.getAppPageName(*app.cluster.ClusterArn)
+	// if app.Pages.HasPage(pageName) {
+	// 	app.Pages.SwitchToPage(pageName)
+	// 	return nil
+	// }
+	// if app.Reload {
+	// 	app.
+	// 	return nil
+	// }
 
 	services, err := app.Store.ListServices(app.cluster.ClusterName)
 	if err != nil {
