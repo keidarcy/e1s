@@ -25,7 +25,13 @@ func newClusterView(clusters []types.Cluster, app *App) *ClusterView {
 	}
 }
 
-func (app *App) showClustersPage() error {
+func (app *App) showClustersPage(reload bool) error {
+	pageName := ContainerPage.getAppPageName("")
+	if app.Pages.HasPage(pageName) && app.StaleData && !reload {
+		app.Pages.SwitchToPage(pageName)
+		return nil
+	}
+
 	clusters, err := app.Store.ListClusters()
 	if err != nil {
 		logger.Printf("e1s - show clusters failed, error: %v\n", err)
@@ -41,6 +47,7 @@ func (app *App) showClustersPage() error {
 
 	page := buildAppPage(view)
 	view.addAppPage(page)
+	logger.Println("new cluster page")
 	return nil
 }
 

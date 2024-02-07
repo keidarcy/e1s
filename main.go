@@ -11,9 +11,9 @@ import (
 )
 
 var (
-	version  = false
-	readOnly = false
-	reload   = true
+	version   = false
+	readOnly  = false
+	staleData = false
 )
 
 func main() {
@@ -22,7 +22,7 @@ func main() {
 	flag.BoolVar(&version, "version", false, "Print e1s version")
 	flag.BoolVar(&readOnly, "readonly", false, "Enable readonly mode")
 	logFilePath := flag.String("log-file-path", defaultLogFilePath, "The e1s debug log file path")
-	flag.BoolVar(&reload, "reload", true, "Reload data in each move(only update status when hit ctrl + r)")
+	flag.BoolVar(&staleData, "stale-data", false, "Only fetch data in the first run(only update status when hit ctrl + r)")
 	flag.Parse()
 
 	if version {
@@ -34,9 +34,9 @@ func main() {
 	defer logFile.Close()
 
 	option := ui.Option{
-		Reload:   reload,
-		ReadOnly: readOnly,
-		Logger:   logger,
+		StaleData: staleData,
+		ReadOnly:  readOnly,
+		Logger:    logger,
 	}
 
 	if err := ui.Show(option); err != nil {

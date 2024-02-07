@@ -27,7 +27,13 @@ func newContainerView(containers []types.Container, app *App) *ContainerView {
 	}
 }
 
-func (app *App) showContainersPage() error {
+func (app *App) showContainersPage(reload bool) error {
+	pageName := ContainerPage.getAppPageName(*app.cluster.ClusterArn)
+	if app.Pages.HasPage(pageName) && app.StaleData && !reload {
+		app.Pages.SwitchToPage(pageName)
+		return nil
+	}
+
 	// no containers exists do nothing
 	if len(app.task.Containers) == 0 {
 		return nil
@@ -35,6 +41,7 @@ func (app *App) showContainersPage() error {
 	view := newContainerView(app.task.Containers, app)
 	page := buildAppPage(view)
 	view.addAppPage(page)
+	logger.Println("new container page")
 	return nil
 }
 

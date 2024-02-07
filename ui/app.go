@@ -35,7 +35,7 @@ type Option struct {
 	// Read only mode indicator
 	ReadOnly bool
 	// Reload resources in each move
-	Reload bool
+	StaleData bool
 	// Basic logger
 	Logger *log.Logger
 }
@@ -77,7 +77,7 @@ func Show(option Option) error {
 
 	app.initStyles()
 
-	if err := app.showClustersPage(); err != nil {
+	if err := app.showClustersPage(false); err != nil {
 		return err
 	}
 
