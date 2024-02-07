@@ -17,7 +17,7 @@ var (
 )
 
 func main() {
-	defaultLogFilePath := filepath.Join(os.TempDir(), fmt.Sprintf("%s.log", util.AppName))
+	defaultLogFilePath := filepath.Join(os.Getenv("HOME"), fmt.Sprintf(".%s.log", util.AppName))
 
 	flag.BoolVar(&version, "version", false, "Print e1s version")
 	flag.BoolVar(&readOnly, "readonly", false, "Enable readonly mode")

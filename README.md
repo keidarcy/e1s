@@ -150,7 +150,7 @@ $ e1s -readonly -log-file-path /tmp/e1s.log -stale-data false
 ### Logs
 
 ```bash
-tail -f "${TMPDIR}e1s.log"
+tail -f "${HOME}/.e1s.log"
 ```
 
 ## Feature Requests & Bug Reports
