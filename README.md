@@ -102,7 +102,7 @@ Use `ctrl` + `d` to exit ssh session.
 | `-readonly` | Enable readonly mode | false |
 | `-version` | Show e1s version | false |
 | `-log-file-path` | The e1s debug log file path | ${TMPDIR}e1s.log |
-| `-reload` | Reload data in each move | true |
+| `-stale-data` | Only fetch data in the first run(update status when hit ctrl + r) | false |
 
 Make sure you have the AWS CLI installed and properly configured with the necessary permissions to access your ECS resources.
 
