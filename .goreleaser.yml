@@ -12,6 +12,15 @@ builds:
       - arm64
     env:
       - CGO_ENABLED=0
+    mod_timestamp: '{{ .CommitTimestamp }}'
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w
+      - -X main.version={{.Version}}
+      - -X main.commit={{.Commit}}
+      - -X main.date={{ .CommitDate }}
+      - -X main.builtBy=goreleaser
 
 release:
   prerelease: auto
