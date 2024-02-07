@@ -121,7 +121,7 @@ $ AWS_PROFILE=my-profile AWS_REGION=us-east-1 e1s
 Using read only mode, custom log path, use stale data
 
 ```bash
-$ e1s -readonly -log-file-path /tmp/e1s.log -stale-data false
+$ e1s -readonly -log-file-path /tmp/e1s.log -stale-data
 ```
 
 ### Key Bindings
