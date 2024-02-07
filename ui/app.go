@@ -31,18 +31,27 @@ type Entity struct {
 	entityName              string
 }
 
+type Option struct {
+	// Read only mode indicator
+	ReadOnly bool
+	// Reload resources in each move
+	StaleData bool
+	// Basic logger
+	Logger *log.Logger
+}
+
 // tview App
 type App struct {
 	*tview.Application
 	*tview.Pages
 	*api.Store
-	Region string
+	// Option from cli args
+	Option
 	Entity
-	readonly bool
 }
 
-func newApp(readOnly bool) (*App, error) {
-	store, err := api.NewStore(logger)
+func newApp(option Option) (*App, error) {
+	store, err := api.NewStore(option.Logger)
 	if err != nil {
 		return nil, err
 	}
@@ -54,22 +63,21 @@ func newApp(readOnly bool) (*App, error) {
 		Application: tview.NewApplication(),
 		Pages:       tview.NewPages(),
 		Store:       store,
-		Region:      region,
-		readonly:    readOnly,
+		Option:      option,
 	}, nil
 }
 
 // Entry point of the app
-func Show(readOnly bool, logr *log.Logger) error {
-	logger = logr
-	app, err := newApp(readOnly)
+func Show(option Option) error {
+	logger = option.Logger
+	app, err := newApp(option)
 	if err != nil {
 		return err
 	}
 
 	app.initStyles()
 
-	if err := app.showClustersPage(); err != nil {
+	if err := app.showClustersPage(false); err != nil {
 		return err
 	}
 

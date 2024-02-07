@@ -35,7 +35,13 @@ func newServiceView(services []types.Service, app *App) *ServiceView {
 	}
 }
 
-func (app *App) showServicesPage() error {
+func (app *App) showServicesPage(reload bool) error {
+	pageName := ServicePage.getAppPageName(*app.cluster.ClusterArn)
+	if app.Pages.HasPage(pageName) && app.StaleData && !reload {
+		app.Pages.SwitchToPage(pageName)
+		return nil
+	}
+
 	services, err := app.Store.ListServices(app.cluster.ClusterName)
 	if err != nil {
 		logger.Printf("e1s - show services page failed, error: %v\n", err)

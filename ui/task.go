@@ -31,7 +31,13 @@ func newTaskView(tasks []types.Task, app *App) *TaskView {
 	}
 }
 
-func (app *App) showTasksPages() error {
+func (app *App) showTasksPages(reload bool) error {
+	pageName := TaskPage.getAppPageName(*app.cluster.ClusterArn)
+	if app.Pages.HasPage(pageName) && app.StaleData && !reload {
+		app.Pages.SwitchToPage(pageName)
+		return nil
+	}
+
 	tasks, err := app.Store.ListTasks(app.cluster.ClusterName, app.service.ServiceName)
 
 	if err != nil {

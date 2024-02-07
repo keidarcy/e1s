@@ -23,7 +23,7 @@
 ```bash
 brew install keidarcy/tap/e1s
 # upgrade
-# brew upgrade keidarcy/tap/e1s 
+# brew upgrade keidarcy/tap/e1s
 ```
 
 ## Features
@@ -101,7 +101,8 @@ Use `ctrl` + `d` to exit ssh session.
 | --- | --- | --- |
 | `-readonly` | Enable readonly mode | false |
 | `-version` | Show e1s version | false |
-| `-log-file-path` | The e1s debug log file path | $TMPDIR/e1s-debug.log |
+| `-log-file-path` | The e1s debug log file path | ${TMPDIR}e1s.log |
+| `-stale-data` | Only fetch data in the first run(update status when hit ctrl + r) | false |
 
 Make sure you have the AWS CLI installed and properly configured with the necessary permissions to access your ECS resources.
 
@@ -117,10 +118,10 @@ Using my-profile profile, us-east-1 region
 $ AWS_PROFILE=my-profile AWS_REGION=us-east-1 e1s
 ```
 
-Using read only mode and custom log path
+Using read only mode, custom log path, use stale data
 
 ```bash
-$ e1s -readonly -log-file-path /tmp/e1s.log
+$ e1s -readonly -log-file-path /tmp/e1s.log -stale-data false
 ```
 
 ### Key Bindings
@@ -149,7 +150,7 @@ $ e1s -readonly -log-file-path /tmp/e1s.log
 ### Logs
 
 ```bash
-tail -f $TMPDIR/e1s-debug.log
+tail -f "${TMPDIR}e1s.log"
 ```
 
 ## Feature Requests & Bug Reports
