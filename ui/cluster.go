@@ -47,7 +47,6 @@ func (app *App) showClustersPage(reload bool) error {
 
 	page := buildAppPage(view)
 	view.addAppPage(page)
-	logger.Println("new cluster page")
 	return nil
 }
 

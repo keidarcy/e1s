@@ -53,7 +53,6 @@ func (app *App) showTasksPages(reload bool) error {
 	view := newTaskView(tasks, app)
 	page := buildAppPage(view)
 	view.addAppPage(page)
-	logger.Println("new task page")
 	return nil
 }
 

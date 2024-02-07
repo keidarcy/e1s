@@ -56,7 +56,6 @@ func (app *App) showServicesPage(reload bool) error {
 	view := newServiceView(services, app)
 	page := buildAppPage(view)
 	view.addAppPage(page)
-	logger.Println("new service page")
 	return nil
 }
 

@@ -41,7 +41,6 @@ func (app *App) showContainersPage(reload bool) error {
 	view := newContainerView(app.task.Containers, app)
 	page := buildAppPage(view)
 	view.addAppPage(page)
-	logger.Println("new container page")
 	return nil
 }
 
