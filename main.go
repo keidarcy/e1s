@@ -11,21 +11,21 @@ import (
 )
 
 var (
-	version   = false
-	readOnly  = false
-	staleData = false
+	showVersion = false
+	readOnly    = false
+	staleData   = false
 )
 
 func main() {
-	defaultLogFilePath := filepath.Join(os.Getenv("HOME"), fmt.Sprintf(".%s.log", util.AppName))
+	defaultLogFilePath := filepath.Join(os.TempDir(), fmt.Sprintf("%s.log", util.AppName))
 
-	flag.BoolVar(&version, "version", false, "Print e1s version")
+	flag.BoolVar(&showVersion, "version", false, "Print e1s version")
 	flag.BoolVar(&readOnly, "readonly", false, "Enable readonly mode")
 	logFilePath := flag.String("log-file-path", defaultLogFilePath, "The e1s debug log file path")
 	flag.BoolVar(&staleData, "stale-data", false, "Only fetch data in the first run(update status when hit ctrl + r)")
 	flag.Parse()
 
-	if version {
+	if showVersion {
 		fmt.Println("v" + util.AppVersion)
 		os.Exit(0)
 	}
