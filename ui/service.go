@@ -44,7 +44,7 @@ func (app *App) showServicesPage(reload bool) error {
 
 	services, err := app.Store.ListServices(app.cluster.ClusterName)
 	if err != nil {
-		logger.Printf("e1s - show services page failed, error: %v\n", err)
+		logger.Warnf("Failed to show services page, error: %v", err)
 		return err
 	}
 

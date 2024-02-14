@@ -31,7 +31,7 @@ func (store *Store) GetLogs(tdArn *string) ([]cloudwatchlogsTypes.OutputLogEvent
 	td, err := store.DescribeTaskDefinition(tdArn)
 
 	if err != nil {
-		logger.Printf("e1s - aws failed to describe task definition, err: %v\n", err)
+		logger.Warnf("Failed to run aws api to describe task definition, err: %v", err)
 		return nil, err
 	}
 
@@ -63,7 +63,7 @@ func (store *Store) GetLogs(tdArn *string) ([]cloudwatchlogsTypes.OutputLogEvent
 		}
 		describeLogStreamsOutput, err := store.cloudwatchlogs.DescribeLogStreams(context.Background(), describeLogStreamsInput)
 		if err != nil {
-			logger.Printf("e1s - aws failed to describe log stream, err: %v\n", err)
+			logger.Warnf("Failed to run aws api to describe log stream, err: %v", err)
 			continue
 		}
 		streamName := describeLogStreamsOutput.LogStreams[0].LogStreamName
@@ -75,7 +75,7 @@ func (store *Store) GetLogs(tdArn *string) ([]cloudwatchlogsTypes.OutputLogEvent
 		}
 		getLogEventsOutput, err := store.cloudwatchlogs.GetLogEvents(context.Background(), getLogEventsInput)
 		if err != nil {
-			logger.Printf("e1s - aws failed to get log events, err: %v\n", err)
+			logger.Warnf("Failed to run aws api to get log events, err: %v", err)
 			continue
 		}
 		logs = append(logs, getLogEventsOutput.Events...)

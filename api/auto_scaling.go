@@ -61,7 +61,7 @@ func (store *Store) describeScalingActivities(serviceArn *string) ([]types.Scali
 	activitiesOutput, err := store.autoScaling.DescribeScalingActivities(context.Background(), activitiesInput)
 
 	if err != nil {
-		logger.Printf("e1s - aws failed to auto scaling activities serviceArn: \"%s\", err: %v\n", *serviceArn, err)
+		logger.Warnf("Failed to run aws api to auto scaling activities serviceArn: \"%s\", err: %v", *serviceArn, err)
 		return nil, err
 	}
 
@@ -79,7 +79,7 @@ func (store *Store) describeScalableTargets(serviceArn *string) ([]types.Scalabl
 	targetsOutput, err := store.autoScaling.DescribeScalableTargets(context.Background(), targetsInput)
 
 	if err != nil {
-		logger.Printf("e1s - aws failed to auto scaling activities serviceArn: \"%s\", err: %v\n", *serviceArn, err)
+		logger.Warnf("Failed to run aws api to auto scaling activities serviceArn: \"%s\", err: %v", *serviceArn, err)
 		return nil, err
 	}
 
@@ -97,7 +97,7 @@ func (store *Store) describeScalingPolicies(serviceArn *string) ([]types.Scaling
 	policiesOutput, err := store.autoScaling.DescribeScalingPolicies(context.Background(), policiesInput)
 
 	if err != nil {
-		logger.Printf("e1s - aws failed to auto scaling activities serviceArn: \"%s\", err: %v\n", *serviceArn, err)
+		logger.Warnf("Failed to run aws api to auto scaling activities serviceArn: \"%s\", err: %v", *serviceArn, err)
 		return nil, err
 	}
 
@@ -121,7 +121,7 @@ func (store *Store) describeScheduledAction(serviceArn *string) ([]types.Schedul
 	actionsOutput, err := store.autoScaling.DescribeScheduledActions(context.Background(), actionsInput)
 
 	if err != nil {
-		logger.Printf("e1s - aws failed to auto scaling scheduled actions serviceArn: \"%s\", err: %v\n", *serviceArn, err)
+		logger.Warnf("Failed to run aws api to auto scaling scheduled actions serviceArn: \"%s\", err: %v", *serviceArn, err)
 		return nil, err
 	}
 

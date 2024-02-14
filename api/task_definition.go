@@ -25,7 +25,7 @@ func (store *Store) DescribeTaskDefinition(tdArn *string) (types.TaskDefinition,
 		Include:        include,
 	})
 	if err != nil {
-		logger.Printf("e1s - aws failed to describe task definition, error: %v\n", err)
+		logger.Warnf("Failed to run aws api to describe task definition, error: %v\n", err)
 		return types.TaskDefinition{}, err
 	}
 
@@ -43,7 +43,7 @@ func (store *Store) ListTaskDefinition(name *string) (TaskDefinitionRevision, er
 		Sort:         types.SortOrderDesc,
 	})
 	if err != nil {
-		logger.Printf("e1s - aws failed to list task definitions, error: %v\n", err)
+		logger.Warnf("Failed to run aws api to list task definitions, error: %v\n", err)
 		return nil, err
 	}
 
@@ -59,7 +59,7 @@ func (store *Store) ListFullTaskDefinition() (FullTaskDefinition, error) {
 		MaxResults: aws.Int32(MaxTaskDefinitionFamily),
 	})
 	if err != nil {
-		logger.Printf("e1s - aws failed to list task definition family, error: %v\n", err)
+		logger.Warnf("Failed to run aws api to list task definition family, error: %v\n", err)
 		return nil, err
 	}
 	results := make(map[string][]string)
@@ -67,7 +67,7 @@ func (store *Store) ListFullTaskDefinition() (FullTaskDefinition, error) {
 		taskDefinition, err := store.ListTaskDefinition(aws.String(family))
 		logger.Println(taskDefinition)
 		if err != nil {
-			logger.Printf("e1s - aws failed to list task definitions, error: %v\n", err)
+			logger.Warnf("Failed to run aws api to list task definitions, error: %v\n", err)
 		}
 		results[family] = taskDefinition
 	}
@@ -81,7 +81,7 @@ func (store *Store) ListTaskDefinitionFamilies() ([]string, error) {
 		Status: types.TaskDefinitionFamilyStatusActive,
 	})
 	if err != nil {
-		logger.Printf("e1s - aws failed to list task definition families, error: %v\n", err)
+		logger.Warnf("Failed to run aws api to list task definition families, error: %v\n", err)
 		return nil, err
 	}
 

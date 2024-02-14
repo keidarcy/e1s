@@ -34,7 +34,7 @@ func (app *App) showClustersPage(reload bool) error {
 
 	clusters, err := app.Store.ListClusters()
 	if err != nil {
-		logger.Printf("e1s - show clusters failed, error: %v\n", err)
+		logger.Errorf("Failed to show cluster page, error: %v", err)
 		return err
 	}
 

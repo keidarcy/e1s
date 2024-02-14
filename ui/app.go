@@ -1,12 +1,11 @@
 package ui
 
 import (
-	"log"
-
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
 	"github.com/gdamore/tcell/v2"
 	"github.com/keidarcy/e1s/api"
 	"github.com/rivo/tview"
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -15,7 +14,7 @@ const (
 	R = tview.AlignRight
 )
 
-var logger *log.Logger
+var logger *logrus.Logger
 
 // Entity contains ECS resources to show
 type Entity struct {
@@ -37,7 +36,7 @@ type Option struct {
 	// Reload resources in each move
 	StaleData bool
 	// Basic logger
-	Logger *log.Logger
+	Logger *logrus.Logger
 }
 
 // tview App
@@ -80,6 +79,7 @@ func Show(option Option) error {
 	if err := app.showClustersPage(false); err != nil {
 		return err
 	}
+	logger.Debug("Started e1s")
 
 	if err := app.Application.SetRoot(app.Pages, true).Run(); err != nil {
 		return err

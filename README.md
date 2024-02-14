@@ -99,10 +99,11 @@ Use `ctrl` + `d` to exit ssh session.
 
 | Option | Description | Default |
 | --- | --- | --- |
-| `-readonly` | Enable readonly mode | false |
-| `-version` | Show e1s version | false |
-| `-log-file-path` | The e1s debug log file path | ${TMPDIR}e1s.log |
-| `-stale-data` | Only fetch data in the first run(update status when hit ctrl + r) | false |
+| `-version` | Print e1s version | false |
+| `-readonly` | Enable read only mode | false |
+| `-debug` | Enable debug mode | false |
+| `-stale-data` | Enable stale data mode(only refetch data when hit ctrl + r) | false |
+| `-log-file-path` | Custom e1s log file path | ${TMPDIR}e1s.log |
 
 Make sure you have the AWS CLI installed and properly configured with the necessary permissions to access your ECS resources.
 
@@ -118,10 +119,10 @@ Using my-profile profile, us-east-1 region
 $ AWS_PROFILE=my-profile AWS_REGION=us-east-1 e1s
 ```
 
-Using read only mode, custom log path, use stale data
+Using read only, debug, stale data mode with a custom log path
 
 ```bash
-$ e1s -readonly -log-file-path /tmp/e1s.log -stale-data
+$ e1s -readonly -debug -stale-data -log-file-path /tmp/e1s.log
 ```
 
 ### Key Bindings
@@ -147,10 +148,14 @@ $ e1s -readonly -log-file-path /tmp/e1s.log -stale-data
 | `ctrl` + `d` | Exit from container |
 | `ctrl` + `r` | Reload resources |
 
-### Logs
+### Development
 
 ```bash
-tail -f "${TMPDIR}e1s.log"
+go run main.go -debug -log-file-path /tmp/e1s.log
+```
+
+```bash
+tail -f /tmp/e1s.log
 ```
 
 ## Feature Requests & Bug Reports

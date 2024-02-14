@@ -205,7 +205,7 @@ func (v *View) getJsonString(entity Entity, which string) string {
 	jsonBytes, err := json.MarshalIndent(data, "", "  ")
 
 	if err != nil {
-		logger.Printf("e1s - json page marshal indent failed, error: %v\n", err)
+		logger.Warnf("Failed to json marshal indent, error: %v", err)
 		return "json page marshal indent failed"
 	}
 
