@@ -2,13 +2,14 @@ package util
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"os/exec"
 	"runtime"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -27,17 +28,37 @@ const (
 	AppName    = "e1s"
 )
 
-// GetLogger returns a *log.Logger configured to write to the specified file path.
+// GetLogger returns a *logrus.Logger configured to write to the specified file path.
 // It also returns the log file *os.File  itself, such that callers can close the
 // file if/when needed.
-func GetLogger(path string) (*log.Logger, *os.File) {
-	logFile, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-	if err != nil {
-		fmt.Printf("failed to open log file path: %s, err: %v\n", path, err)
-		os.Exit(1)
+func GetLogger(path string, debug bool) (*logrus.Logger, *os.File) {
+
+	logger := logrus.New()
+
+	if debug {
+		logger.SetLevel(logrus.DebugLevel)
+	} else {
+		logger.SetLevel(logrus.InfoLevel)
 	}
 
-	return log.New(logFile, "", log.LstdFlags), logFile
+	file, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	if err == nil {
+		logger.SetOutput(file)
+	} else {
+		logger.Info("Failed to log to file, using default stderr")
+	}
+
+	// Add colored output to the console with a custom timestamp format
+	logger.SetFormatter(&logrus.TextFormatter{
+		ForceColors:     true,
+		FullTimestamp:   true,
+		TimestampFormat: time.RFC3339, // Customize the timestamp format
+	})
+
+    // https://github.com/sirupsen/logrus?tab=readme-ov-file#thread-safety
+    logger.SetNoLock()
+
+	return logger, file
 }
 
 func ArnToName(arn *string) string {

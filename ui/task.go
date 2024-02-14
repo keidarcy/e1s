@@ -41,7 +41,7 @@ func (app *App) showTasksPages(reload bool) error {
 	tasks, err := app.Store.ListTasks(app.cluster.ClusterName, app.service.ServiceName)
 
 	if err != nil {
-		logger.Printf("e1s - show tasks pages failed, error: %v\n", err)
+		logger.Warnf("Failed to show tasks pages, error: %v", err)
 		return err
 	}
 

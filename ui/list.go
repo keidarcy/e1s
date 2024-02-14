@@ -138,7 +138,7 @@ func (v *View) realtimeAwsLog(entity Entity) {
 
 		bin, err := exec.LookPath(awsCli)
 		if err != nil {
-			logger.Printf("e1s - aws cli binary not found, error: %v\n", err)
+			logger.Warnf("Failed to find aws cli binary, error: %v", err)
 			v.back()
 		}
 		arg := []string{
@@ -148,7 +148,7 @@ func (v *View) realtimeAwsLog(entity Entity) {
 			logGroup,
 		}
 
-		logger.Printf("%s %s\n", awsCli, strings.Join(arg, " "))
+		logger.Infof("Exec: `%s %s`", awsCli, strings.Join(arg, " "))
 
 		v.app.Suspend(func() {
 			cmd := exec.Command(bin, arg...)
@@ -159,7 +159,5 @@ func (v *View) realtimeAwsLog(entity Entity) {
 			signal.Stop(interrupt)
 			close(interrupt)
 		})
-
 	}
-
 }

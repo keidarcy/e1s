@@ -7,6 +7,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/service/ecs"
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
+	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -25,7 +26,7 @@ func (store *Store) ListServices(clusterName *string) ([]types.Service, error) {
 	for {
 		listServicesOutput, err := store.ecs.ListServices(context.Background(), params)
 		if err != nil {
-			logger.Printf("e1s - aws failed to list services, err: %v\n", err)
+			logger.Warnf("Failed to run aws api to list services, err: %v", err)
 			// If first run failed return err
 			if len(serviceARNs) == 0 {
 				return []types.Service{}, err
@@ -78,7 +79,7 @@ func (store *Store) ListServices(clusterName *string) ([]types.Service, error) {
 				},
 			})
 			if err != nil {
-				logger.Printf("e1s - aws failed to describe services in i:%d times loop, err: %v\n", i, err)
+				logger.Warnf("Failed to run aws api to describe services in i:%d times loop, err: %v", i, err)
 
 				return err
 			}
@@ -111,10 +112,17 @@ func (store *Store) ListServices(clusterName *string) ([]types.Service, error) {
 // Equivalent to
 // aws ecs update-service --cluster ${cluster} --service ${service} --task-definition ${task-definition} --desired-count ${count} --force-new-deployment
 func (store *Store) UpdateService(input *ecs.UpdateServiceInput) (*types.Service, error) {
-	logger.Printf("cluster: %s, service: %s, desiredCount: %d, taskDef: %s, force: %t\n", *input.Cluster, *input.Service, *input.DesiredCount, *input.TaskDefinition, input.ForceNewDeployment)
+	logger.WithFields(logrus.Fields{
+		"Cluster":            *input.Cluster,
+		"Service":            *input.Service,
+		"DesiredCount":       *input.DesiredCount,
+		"TaskDefinition":     *input.TaskDefinition,
+		"ForceNewDeployment": input.ForceNewDeployment,
+	}).Info("Update service with following parameters")
+
 	updateOutput, err := store.ecs.UpdateService(context.Background(), input)
 	if err != nil {
-		logger.Printf("e1s - aws failed to update service, err: %v\n", err)
+		logger.Warnf("Failed to run aws api to update service, err: %v", err)
 		return nil, err
 	}
 	return updateOutput.Service, nil

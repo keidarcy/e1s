@@ -14,15 +14,17 @@ var (
 	showVersion = false
 	readOnly    = false
 	staleData   = false
+	debug       = false
 )
 
 func main() {
 	defaultLogFilePath := filepath.Join(os.TempDir(), fmt.Sprintf("%s.log", util.AppName))
 
 	flag.BoolVar(&showVersion, "version", false, "Print e1s version")
-	flag.BoolVar(&readOnly, "readonly", false, "Enable readonly mode")
-	logFilePath := flag.String("log-file-path", defaultLogFilePath, "The e1s debug log file path")
-	flag.BoolVar(&staleData, "stale-data", false, "Only fetch data in the first run(update status when hit ctrl + r)")
+	flag.BoolVar(&readOnly, "readonly", false, "Enable read only mode")
+	flag.BoolVar(&debug, "debug", false, "Enable debug mode")
+	flag.BoolVar(&staleData, "stale-data", false, "Enable stale data mode(only refetch data when hit ctrl + r)")
+	logFilePath := flag.String("log-file-path", defaultLogFilePath, "Custom e1s log file path")
 	flag.Parse()
 
 	if showVersion {
@@ -30,8 +32,8 @@ func main() {
 		os.Exit(0)
 	}
 
-	logger, logFile := util.GetLogger(*logFilePath)
-	defer logFile.Close()
+	logger, file := util.GetLogger(*logFilePath, debug)
+	defer file.Close()
 
 	option := ui.Option{
 		StaleData: staleData,
@@ -40,7 +42,7 @@ func main() {
 	}
 
 	if err := ui.Show(option); err != nil {
-		logger.Printf("e1s - failed to start, error: %v\n", err)
+		logger.Fatalf("Failed to start, error: %v\n", err)
 		fmt.Println("e1s failed to start, please check your aws cli credential or permission.")
 		fmt.Println(err)
 		os.Exit(1)

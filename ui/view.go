@@ -170,7 +170,7 @@ func (v *View) getCurrentSelection() (Entity, error) {
 	case Entity:
 		return entity, nil
 	default:
-		logger.Printf("e1s - unexpected error: %v (%T)", entity, entity)
+		logger.Warnf("Unexpected error: %v (%T)", entity, entity)
 		return Entity{}, fmt.Errorf("unexpected error: %v (%T)", entity, entity)
 	}
 }
@@ -340,7 +340,7 @@ func (v *View) ssh(containerName string) {
 
 	bin, err := exec.LookPath(awsCli)
 	if err != nil {
-		logger.Printf("e1s - aws cli binary not found, error: %v\n", err)
+		logger.Warnf("Failed to find aws cli binary, error: %v", err)
 		v.back()
 	}
 	arg := []string{
@@ -357,7 +357,7 @@ func (v *View) ssh(containerName string) {
 		shell,
 	}
 
-	logger.Printf("%s %s\n", awsCli, strings.Join(arg, " "))
+	logger.Infof("Exec: `%s %s`", awsCli, strings.Join(arg, " "))
 
 	v.app.Suspend(func() {
 		cmd := exec.Command(bin, arg...)

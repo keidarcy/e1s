@@ -18,7 +18,7 @@ func (store *Store) ListClusters() ([]types.Cluster, error) {
 	})
 
 	if err != nil {
-		logger.Printf("e1s - aws failed to list clusters, err: %v\n", err)
+		logger.Warnf("Failed to run aws api to list clusters, err: %v", err)
 		return []types.Cluster{}, err
 	}
 
@@ -38,7 +38,7 @@ func (store *Store) ListClusters() ([]types.Cluster, error) {
 
 	describeClusterOutput, err := store.ecs.DescribeClusters(context.Background(), describeInput)
 	if err != nil {
-		logger.Printf("e1s - aws failed to describe clusters, err: %v\n", err)
+		logger.Warnf("Failed to run aws api to describe clusters, err: %v", err)
 		return []types.Cluster{}, err
 	}
 

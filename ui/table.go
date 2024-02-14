@@ -92,7 +92,7 @@ func (v *View) handleSelected(row, column int) {
 	}
 	err := v.handleAppPageSwitch(v.app.entityName, false)
 	if err != nil {
-		logger.Printf("e1s - page change failed, error: %v\n", err)
+		logger.Warnf("Failed to switch app page, error: %v", err)
 		v.back()
 	}
 }
@@ -195,10 +195,10 @@ func (v *View) openInBrowser() {
 	if len(url) == 0 {
 		return
 	}
-	logger.Printf("open url: %s\n", url)
+	logger.Infof("Open url: %s\n", url)
 	err = util.OpenURL(url)
 	if err != nil {
-		logger.Printf("e1s - failed open url %s\n", url)
+		logger.Warnf("Failed to open url %s\n", url)
 	}
 }
 
@@ -224,7 +224,7 @@ func (v *View) editTaskDefinition() {
 	// create tmp file open and defer close it
 	tmpfile, err := os.CreateTemp("", names[len(names)-1])
 	if err != nil {
-		logger.Println("Error creating temporary file:", err)
+		logger.Warnf("Failed to create temporary file, err: %v", err)
 		v.errorModal(errMsg, 2, 110, 10)
 		return
 	}
@@ -233,13 +233,13 @@ func (v *View) editTaskDefinition() {
 
 	originalTD, err := json.MarshalIndent(td, "", "  ")
 	if err != nil {
-		logger.Println("Error reading temporary file:", err)
+		logger.Warnf("Failed to read temporary file, err: %v", err)
 		v.errorModal(errMsg, 2, 110, 10)
 		return
 	}
 
 	if _, err := tmpfile.Write(originalTD); err != nil {
-		logger.Println("Error writing to temporary file:", err)
+		logger.Warnf("Failed to write to temporary file, err: %v", err)
 		v.errorModal(errMsg, 2, 110, 10)
 		return
 	}
@@ -256,14 +256,14 @@ func (v *View) editTaskDefinition() {
 		cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, os.Stderr
 
 		if err := cmd.Run(); err != nil {
-			logger.Println("Error opening editor:", err)
+			logger.Warnf("Failed to open editor, err: %v", err)
 			v.errorModal(errMsg, 2, 110, 10)
 			return
 		}
 
 		editedTD, err := os.ReadFile(tmpfile.Name())
 		if err != nil {
-			logger.Println("Error reading temporary file:", err)
+			logger.Warnf("Failed to read temporary file, err: %v", err)
 			v.errorModal(errMsg, 2, 110, 10)
 			return
 		}
@@ -281,7 +281,7 @@ func (v *View) editTaskDefinition() {
 
 		var updatedTd ecs.RegisterTaskDefinitionInput
 		if err := json.Unmarshal(editedTD, &updatedTd); err != nil {
-			logger.Println("Error unmarshaling JSON:", err)
+			logger.Warnf("Failed to unmarshal JSON, err: %v", err)
 			v.errorModal(errMsg, 2, 110, 10)
 			return
 		}
@@ -290,7 +290,7 @@ func (v *View) editTaskDefinition() {
 			family, revision, err := v.app.Store.RegisterTaskDefinition(&updatedTd)
 
 			if err != nil {
-				logger.Println("Error opening editor:", err)
+				logger.Warnf("Failed to open editor, err: %v", err)
 				v.errorModal(errMsg, 2, 110, 10)
 				return
 			}
