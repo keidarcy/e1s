@@ -7,6 +7,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/ecs"
+	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
 	"github.com/keidarcy/e1s/util"
 	"github.com/rivo/tview"
 )
@@ -236,51 +237,59 @@ func (v *View) serviceUpdateContent() (*tview.Form, string) {
 	f.AddCheckbox(forceLabel, false, nil)
 	f.AddInputField(desiredLabel, strconv.Itoa(int(selected.service.DesiredCount)), 50, nil, nil)
 
-	revisionDrop := tview.NewDropDown().
-		SetLabel(revisionLabel).
-		SetFieldWidth(50)
-
-	currentFamilyIndex := 0
-	for i, f := range families {
-		if currentFamily == f {
-			currentFamilyIndex = i
-		}
+	// If DeploymentController is CodeDeploy do not update task definition
+	DeploymentControllerCodeDeploy := false
+	if selected.service.DeploymentController.Type == types.DeploymentControllerTypeCodeDeploy {
+		DeploymentControllerCodeDeploy = true
 	}
 
-	familyDrop := tview.NewDropDown().
-		SetLabel(familyLabel).
-		SetOptions(families, func(text string, index int) {
-			// when family option change, change revision drop down value
-			taskDefinitions, err := v.app.Store.ListTaskDefinition(&text)
-			if err != nil {
-				v.errorModal("aws api error!", 2, 20, 10)
-				v.closeModal()
+	if !DeploymentControllerCodeDeploy {
+		revisionDrop := tview.NewDropDown().
+			SetLabel(revisionLabel).
+			SetFieldWidth(50)
+
+		currentFamilyIndex := 0
+		for i, f := range families {
+			if currentFamily == f {
+				currentFamilyIndex = i
 			}
-			revisions := []string{}
-			for i, td := range taskDefinitions {
-				def := td
-				_, revision := getTaskDefinitionInfo(&def)
-				if i == 0 {
-					revision += latest
+		}
+
+		familyDrop := tview.NewDropDown().
+			SetLabel(familyLabel).
+			SetOptions(families, func(text string, index int) {
+				// when family option change, change revision drop down value
+				taskDefinitions, err := v.app.Store.ListTaskDefinition(&text)
+				if err != nil {
+					v.errorModal("aws api error!", 2, 20, 10)
+					v.closeModal()
 				}
-				revisions = append(revisions, revision)
-			}
-			revisionDrop.SetOptions(revisions, func(text string, index int) {})
-
-			currentRevisionIndex := 0
-			for i, r := range revisions {
-				if currentRevision == r {
-					currentRevisionIndex = i
+				revisions := []string{}
+				for i, td := range taskDefinitions {
+					def := td
+					_, revision := getTaskDefinitionInfo(&def)
+					if i == 0 {
+						revision += latest
+					}
+					revisions = append(revisions, revision)
 				}
-			}
+				revisionDrop.SetOptions(revisions, func(text string, index int) {})
 
-			revisionDrop.SetCurrentOption(currentRevisionIndex)
-		}).
-		SetCurrentOption(currentFamilyIndex).
-		SetFieldWidth(50)
+				currentRevisionIndex := 0
+				for i, r := range revisions {
+					if currentRevision == r {
+						currentRevisionIndex = i
+					}
+				}
 
-	f.AddFormItem(familyDrop)
-	f.AddFormItem(revisionDrop)
+				revisionDrop.SetCurrentOption(currentRevisionIndex)
+			}).
+			SetCurrentOption(currentFamilyIndex).
+			SetFieldWidth(50)
+
+		f.AddFormItem(familyDrop)
+		f.AddFormItem(revisionDrop)
+	}
 
 	// handle form close
 	f.AddButton("Cancel", func() {
@@ -294,30 +303,43 @@ func (v *View) serviceUpdateContent() (*tview.Form, string) {
 
 	// handle form submit
 	f.AddButton("Update", func() {
+		var input *ecs.UpdateServiceInput
+		var s *types.Service
+
 		// get desired count
 		desired := f.GetFormItemByLabel(desiredLabel).(*tview.InputField).GetText()
 		desiredInt, err := strconv.Atoi(desired)
 		if err != nil {
 			return
 		}
-
-		// get task definition with revision
-		_, selectedFamily := f.GetFormItemByLabel(familyLabel).(*tview.DropDown).GetCurrentOption()
-		_, selectedRevision := f.GetFormItemByLabel(revisionLabel).(*tview.DropDown).GetCurrentOption()
-		// if is latest cut suffix
-		selectedRevision, _ = strings.CutSuffix(selectedRevision, latest)
-		taskDefinitionWithRevision := selectedFamily + ":" + selectedRevision
-
 		// get force deploy bool
 		force := f.GetFormItemByLabel(forceLabel).(*tview.Checkbox).IsChecked()
-		input := &ecs.UpdateServiceInput{
-			Service:            aws.String(name),
-			Cluster:            v.app.cluster.ClusterName,
-			TaskDefinition:     aws.String(taskDefinitionWithRevision),
-			DesiredCount:       aws.Int32(int32(desiredInt)),
-			ForceNewDeployment: force,
+
+		if !DeploymentControllerCodeDeploy {
+			// get task definition with revision
+			_, selectedFamily := f.GetFormItemByLabel(familyLabel).(*tview.DropDown).GetCurrentOption()
+			_, selectedRevision := f.GetFormItemByLabel(revisionLabel).(*tview.DropDown).GetCurrentOption()
+			// if is latest cut suffix
+			selectedRevision, _ = strings.CutSuffix(selectedRevision, latest)
+			taskDefinitionWithRevision := selectedFamily + ":" + selectedRevision
+
+			input = &ecs.UpdateServiceInput{
+				Service:            aws.String(name),
+				Cluster:            v.app.cluster.ClusterName,
+				TaskDefinition:     aws.String(taskDefinitionWithRevision),
+				DesiredCount:       aws.Int32(int32(desiredInt)),
+				ForceNewDeployment: force,
+			}
+			s, err = v.app.Store.UpdateService(input)
+		} else {
+			input = &ecs.UpdateServiceInput{
+				Service:            aws.String(name),
+				Cluster:            v.app.cluster.ClusterName,
+				DesiredCount:       aws.Int32(int32(desiredInt)),
+				ForceNewDeployment: force,
+			}
+			s, err = v.app.Store.UpdateService(input)
 		}
-		s, err := v.app.Store.UpdateService(input)
 
 		if err != nil {
 			v.closeModal()

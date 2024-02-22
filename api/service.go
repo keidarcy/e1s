@@ -112,11 +112,16 @@ func (store *Store) ListServices(clusterName *string) ([]types.Service, error) {
 // Equivalent to
 // aws ecs update-service --cluster ${cluster} --service ${service} --task-definition ${task-definition} --desired-count ${count} --force-new-deployment
 func (store *Store) UpdateService(input *ecs.UpdateServiceInput) (*types.Service, error) {
+	taskDefinition := "no task definition"
+	if input.TaskDefinition != nil {
+		taskDefinition = *input.TaskDefinition
+	}
+
 	logger.WithFields(logrus.Fields{
 		"Cluster":            *input.Cluster,
 		"Service":            *input.Service,
 		"DesiredCount":       *input.DesiredCount,
-		"TaskDefinition":     *input.TaskDefinition,
+		"TaskDefinition":     taskDefinition,
 		"ForceNewDeployment": input.ForceNewDeployment,
 	}).Info("Update service with following parameters")
 
