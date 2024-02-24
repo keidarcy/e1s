@@ -24,7 +24,7 @@ const (
 	serviceURLFmt = clusterFmt + serviceFmt + regionFmt
 	taskURLFmt    = clusterFmt + serviceFmt + taskFmt + regionFmt
 
-	AppVersion = "1.0.22"
+	AppVersion = "1.0.23"
 	AppName    = "e1s"
 )
 
@@ -55,8 +55,8 @@ func GetLogger(path string, debug bool) (*logrus.Logger, *os.File) {
 		TimestampFormat: time.RFC3339, // Customize the timestamp format
 	})
 
-    // https://github.com/sirupsen/logrus?tab=readme-ov-file#thread-safety
-    logger.SetNoLock()
+	// https://github.com/sirupsen/logrus?tab=readme-ov-file#thread-safety
+	logger.SetNoLock()
 
 	return logger, file
 }
