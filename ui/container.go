@@ -27,7 +27,7 @@ func newContainerView(containers []types.Container, app *App) *ContainerView {
 	}
 }
 
-func (app *App) showContainersPage(reload bool) error {
+func (app *App) showContainersPage(reload bool, rowIndex int) error {
 	pageName := ContainerPage.getAppPageName(*app.cluster.ClusterArn)
 	if app.Pages.HasPage(pageName) && app.StaleData && !reload {
 		app.Pages.SwitchToPage(pageName)
@@ -41,6 +41,7 @@ func (app *App) showContainersPage(reload bool) error {
 	view := newContainerView(app.task.Containers, app)
 	page := buildAppPage(view)
 	view.addAppPage(page)
+	view.table.Select(rowIndex, 0)
 	return nil
 }
 

@@ -35,7 +35,7 @@ func newServiceView(services []types.Service, app *App) *ServiceView {
 	}
 }
 
-func (app *App) showServicesPage(reload bool) error {
+func (app *App) showServicesPage(reload bool, rowIndex int) error {
 	pageName := ServicePage.getAppPageName(*app.cluster.ClusterArn)
 	if app.Pages.HasPage(pageName) && app.StaleData && !reload {
 		app.Pages.SwitchToPage(pageName)
@@ -56,6 +56,7 @@ func (app *App) showServicesPage(reload bool) error {
 	view := newServiceView(services, app)
 	page := buildAppPage(view)
 	view.addAppPage(page)
+	view.table.Select(rowIndex, 0)
 	return nil
 }
 

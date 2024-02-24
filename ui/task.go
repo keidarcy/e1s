@@ -31,7 +31,7 @@ func newTaskView(tasks []types.Task, app *App) *TaskView {
 	}
 }
 
-func (app *App) showTasksPages(reload bool) error {
+func (app *App) showTasksPages(reload bool, rowIndex int) error {
 	pageName := TaskPage.getAppPageName(*app.cluster.ClusterArn)
 	if app.Pages.HasPage(pageName) && app.StaleData && !reload {
 		app.Pages.SwitchToPage(pageName)
@@ -53,6 +53,7 @@ func (app *App) showTasksPages(reload bool) error {
 	view := newTaskView(tasks, app)
 	page := buildAppPage(view)
 	view.addAppPage(page)
+	view.table.Select(rowIndex, 0)
 	return nil
 }
 

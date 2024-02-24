@@ -25,7 +25,7 @@ func newClusterView(clusters []types.Cluster, app *App) *ClusterView {
 	}
 }
 
-func (app *App) showClustersPage(reload bool) error {
+func (app *App) showClustersPage(reload bool, rowIndex int) error {
 	pageName := ContainerPage.getAppPageName("")
 	if app.Pages.HasPage(pageName) && app.StaleData && !reload {
 		app.Pages.SwitchToPage(pageName)
@@ -47,6 +47,7 @@ func (app *App) showClustersPage(reload bool) error {
 
 	page := buildAppPage(view)
 	view.addAppPage(page)
+	view.table.Select(rowIndex, 0)
 	return nil
 }
 

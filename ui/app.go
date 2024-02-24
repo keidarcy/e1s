@@ -76,7 +76,7 @@ func Show(option Option) error {
 
 	app.initStyles()
 
-	if err := app.showClustersPage(false); err != nil {
+	if err := app.showClustersPage(false, 0); err != nil {
 		return err
 	}
 	logger.Debug("Started e1s")
