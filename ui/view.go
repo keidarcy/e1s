@@ -195,18 +195,19 @@ func (v *View) handleAppPageSwitch(resourceName string, isJson bool) error {
 	if isJson {
 		kind = v.kind
 	}
-	v.showKindPage(kind, false)
+	v.showKindPage(kind, false, 0)
 	return nil
 }
 
 // Reload current resource
 func (v *View) reloadResource() error {
+	row, _ := v.table.GetSelection()
 	v.successModal("Reloaded ✅", 1, 20, 5)
-	go v.showKindPage(v.kind, true)
+	go v.showKindPage(v.kind, true, row)
 	return nil
 }
 
-func (v *View) showKindPage(k Kind, reload bool) error {
+func (v *View) showKindPage(k Kind, reload bool, rowIndex int) error {
 	switch v.secondaryKind {
 	case LogPage:
 		v.switchToLogsList()
@@ -214,15 +215,15 @@ func (v *View) showKindPage(k Kind, reload bool) error {
 	}
 	switch k {
 	case ClusterPage:
-		return v.app.showClustersPage(reload)
+		return v.app.showClustersPage(reload, rowIndex)
 	case ServicePage:
-		return v.app.showServicesPage(reload)
+		return v.app.showServicesPage(reload, rowIndex)
 	case TaskPage:
-		return v.app.showTasksPages(reload)
+		return v.app.showTasksPages(reload, rowIndex)
 	case ContainerPage:
-		return v.app.showContainersPage(reload)
+		return v.app.showContainersPage(reload, rowIndex)
 	default:
-		v.app.showClustersPage(reload)
+		v.app.showClustersPage(reload, rowIndex)
 	}
 	return nil
 }
