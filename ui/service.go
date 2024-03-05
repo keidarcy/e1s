@@ -27,7 +27,7 @@ func newServiceView(services []types.Service, app *App) *ServiceView {
 		{key: string(lKey), description: showLogs},
 	}...)
 	return &ServiceView{
-		View: *newView(app, ServicePage, keys, secondaryPageKeyMap{
+		View: *newView(app, keys, secondaryPageKeyMap{
 			JsonPage: jsonPageKeys,
 			LogPage:  logPageKeys,
 		}),
@@ -36,9 +36,8 @@ func newServiceView(services []types.Service, app *App) *ServiceView {
 }
 
 func (app *App) showServicesPage(reload bool, rowIndex int) error {
-	pageName := ServicePage.getAppPageName(*app.cluster.ClusterArn)
-	if app.Pages.HasPage(pageName) && app.StaleData && !reload {
-		app.Pages.SwitchToPage(pageName)
+	app.kind = ServicePage
+	if switched := app.SwitchPage(reload); switched {
 		return nil
 	}
 
@@ -55,7 +54,7 @@ func (app *App) showServicesPage(reload bool, rowIndex int) error {
 
 	view := newServiceView(services, app)
 	page := buildAppPage(view)
-	view.addAppPage(page)
+	app.addAppPage(page)
 	view.table.Select(rowIndex, 0)
 	return nil
 }
@@ -88,7 +87,7 @@ func (v *ServiceView) tableBuilder() *tview.Pages {
 
 // Build footer for service page
 func (v *ServiceView) footerBuilder() *tview.Flex {
-	v.footer.service.SetText(fmt.Sprintf(footerSelectedItemFmt, v.kind))
+	v.footer.service.SetText(fmt.Sprintf(footerSelectedItemFmt, v.app.kind))
 	v.addFooterItems()
 	return v.footer.footer
 }

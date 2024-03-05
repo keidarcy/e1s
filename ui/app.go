@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
 	"github.com/gdamore/tcell/v2"
 	"github.com/keidarcy/e1s/api"
@@ -44,6 +45,10 @@ type App struct {
 	*tview.Application
 	*tview.Pages
 	*api.Store
+	// Current page primary kind ex: cluster, service
+	kind Kind
+	// Current secondary kind like json, list
+	secondaryKind Kind
 	// Option from cli args
 	Option
 	Entity
@@ -63,6 +68,14 @@ func newApp(option Option) (*App, error) {
 		Pages:       tview.NewPages(),
 		Store:       store,
 		Option:      option,
+		Entity: Entity{
+			cluster: &types.Cluster{
+				ClusterName: aws.String("placeholder cluster"),
+			},
+			service: &types.Service{
+				ServiceName: aws.String("placeholder service"),
+			},
+		},
 	}, nil
 }
 
@@ -93,4 +106,66 @@ func (app App) initStyles() {
 	tview.Styles.ContrastBackgroundColor = tcell.ColorBlack
 	tview.Styles.PrimaryTextColor = tcell.ColorWhite
 	tview.Styles.BorderColor = tcell.ColorDarkCyan
+}
+
+// Add new page to app.Pages
+func (app *App) addAppPage(page *tview.Flex) {
+	pageName := app.kind.getAppPageName(app.getPageHandle())
+
+	logger.WithFields(logrus.Fields{
+		"Action":        "AppPage",
+		"PageName":      pageName,
+		"Kind":          app.kind.String(),
+		"SecondaryKind": app.secondaryKind.String(),
+		"Cluster":       *app.cluster.ClusterName,
+		"Service":       *app.service.ServiceName,
+	}).Debug("AddPage app.Pages")
+
+	app.Pages.AddPage(pageName, page, true, true)
+}
+
+// Switch app.Pages page
+func (app *App) SwitchPage(reload bool) bool {
+	pageName := app.kind.getAppPageName(app.getPageHandle())
+	if app.Pages.HasPage(pageName) && app.StaleData && !reload {
+
+		logger.WithFields(logrus.Fields{
+			"Action":        "SwitchTo",
+			"Kind":          app.kind.String(),
+			"SecondaryKind": app.secondaryKind.String(),
+			"PageName":      pageName,
+			"Cluster":       *app.cluster.ClusterName,
+			"Service":       *app.service.ServiceName,
+		}).Debug("SwitchToPage app.Pages")
+
+		app.Pages.SwitchToPage(pageName)
+		return true
+	}
+	return false
+}
+
+// Go back page based on current kind
+func (app *App) back() {
+	prevKind := app.kind.prevKind()
+	app.kind = prevKind
+	pageName := prevKind.getAppPageName(app.getPageHandle())
+
+	logger.WithFields(logrus.Fields{
+		"Action":        "Back",
+		"PageName":      pageName,
+		"Kind":          app.kind.String(),
+		"SecondaryKind": app.secondaryKind.String(),
+		"Cluster":       *app.cluster.ClusterName,
+		"Service":       *app.service.ServiceName,
+	}).Debug("AddPage app.Pages")
+
+	app.Pages.SwitchToPage(pageName)
+}
+
+func (app *App) getPageHandle() string {
+	name := ""
+	if app.kind != ClusterPage {
+		name = *app.cluster.ClusterArn
+	}
+	return name
 }

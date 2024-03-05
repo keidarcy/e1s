@@ -10,14 +10,13 @@ import (
 
 func TestGetJsonData(t *testing.T) {
 	app, _ := newApp(Option{})
-	view := newView(app, ClusterPage, []KeyInput{}, secondaryPageKeyMap{
+	view := newView(app, []KeyInput{}, secondaryPageKeyMap{
 		JsonPage: []KeyInput{
 			{key: string(fKey), description: toggleFullScreen},
 		},
 	})
 	type input struct {
 		entity Entity
-		which  string
 	}
 	cluster := &types.Cluster{
 		ClusterName: aws.String(clusterName1),
@@ -45,7 +44,6 @@ func TestGetJsonData(t *testing.T) {
 				entity: Entity{
 					cluster: cluster,
 				},
-				which: "cluster",
 			},
 			want: colorizeJSON(clusterBytes),
 		},
@@ -56,7 +54,6 @@ func TestGetJsonData(t *testing.T) {
 					service: service,
 					events:  events,
 				},
-				which: "service",
 			},
 			want: colorizeJSON(serviceBytes),
 		},
@@ -67,7 +64,6 @@ func TestGetJsonData(t *testing.T) {
 					service: service,
 					events:  events,
 				},
-				which: "events",
 			},
 			want: colorizeJSON(eventsBytes),
 		},
@@ -75,7 +71,7 @@ func TestGetJsonData(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			result := view.getJsonString(tc.input.entity, tc.input.which)
+			result := view.getJsonString(tc.input.entity)
 			if string(result) != tc.want {
 				t.Errorf("Got: %s, Want: %s\n", result, tc.want)
 			}

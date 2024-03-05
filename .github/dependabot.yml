@@ -4,7 +4,7 @@ updates:
   - package-ecosystem: 'gomod'
     directory: '/'
     schedule:
-      interval: 'weekly'
+      interval: 'monthly'
     ignore:
       - dependency-name: 'tview'
       - dependency-name: 'tcell/v2'
@@ -13,4 +13,4 @@ updates:
   - package-ecosystem: 'github-actions'
     directory: '/'
     schedule:
-      interval: weekly
+      interval: monthly

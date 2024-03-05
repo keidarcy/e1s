@@ -18,7 +18,7 @@ type ClusterView struct {
 
 func newClusterView(clusters []types.Cluster, app *App) *ClusterView {
 	return &ClusterView{
-		View: *newView(app, ClusterPage, basicKeyInputs, secondaryPageKeyMap{
+		View: *newView(app, basicKeyInputs, secondaryPageKeyMap{
 			JsonPage: jsonPageKeys,
 		}),
 		clusters: clusters,
@@ -26,9 +26,8 @@ func newClusterView(clusters []types.Cluster, app *App) *ClusterView {
 }
 
 func (app *App) showClustersPage(reload bool, rowIndex int) error {
-	pageName := ContainerPage.getAppPageName("")
-	if app.Pages.HasPage(pageName) && app.StaleData && !reload {
-		app.Pages.SwitchToPage(pageName)
+	app.kind = ClusterPage
+	if switched := app.SwitchPage(reload); switched {
 		return nil
 	}
 
@@ -46,7 +45,7 @@ func (app *App) showClustersPage(reload bool, rowIndex int) error {
 	}
 
 	page := buildAppPage(view)
-	view.addAppPage(page)
+	app.addAppPage(page)
 	view.table.Select(rowIndex, 0)
 	return nil
 }
@@ -79,7 +78,7 @@ func (v *ClusterView) tableBuilder() *tview.Pages {
 
 // Build footer for cluster page
 func (v *ClusterView) footerBuilder() *tview.Flex {
-	v.footer.cluster.SetText(fmt.Sprintf(footerSelectedItemFmt, v.kind))
+	v.footer.cluster.SetText(fmt.Sprintf(footerSelectedItemFmt, v.app.kind))
 	v.addFooterItems()
 	return v.footer.footer
 }
@@ -139,7 +138,7 @@ func (v *ClusterView) infoPagesParam(c types.Cluster) (items []InfoItem) {
 
 // Generate table params
 func (v *ClusterView) tableParam() (title string, headers []string, dataBuilder func() [][]string) {
-	title = fmt.Sprintf(nsTitleFmt, v.kind, "all", len(v.clusters))
+	title = fmt.Sprintf(nsTitleFmt, v.app.kind, "all", len(v.clusters))
 	headers = []string{
 		"Name",
 		"Status",
