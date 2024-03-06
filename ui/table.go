@@ -90,7 +90,7 @@ func (v *View) handleSelected(row, column int) {
 		containerName := *selected.container.Name
 		v.ssh(containerName)
 	}
-	v.showKindPage(v.app.kind.nextKind(), false, 0)
+	v.app.showPrimaryKindPage(v.app.kind.nextKind(), false, 0)
 }
 
 // Handle keyboard input
@@ -98,24 +98,29 @@ func (v *View) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 	// If it's single keystroke, event.Rune() is ascii code
 	switch event.Rune() {
 	case aKey, aKey - upperLowerDiff:
+		v.app.secondaryKind = AutoScalingPage
 		v.switchToAutoScalingJson()
-		// v.showAutoScalingModal()
 	case bKey, bKey - upperLowerDiff:
 		v.openInBrowser()
 	case dKey, dKey - upperLowerDiff:
+		v.app.secondaryKind = JsonPage
 		v.switchToResourceJson()
 	case eKey, eKey - upperLowerDiff:
 		v.showEditServiceModal()
 		v.editTaskDefinition()
 	case lKey, lKey - upperLowerDiff:
+		v.app.secondaryKind = LogPage
 		v.switchToLogsList()
 	case mKey, mKey - upperLowerDiff:
 		v.showMetricsModal()
 	case tKey, tKey - upperLowerDiff:
+		v.app.secondaryKind = TaskDefinitionPage
 		v.switchToTaskDefinitionJson()
 	case vKey, vKey - upperLowerDiff:
+		v.app.secondaryKind = TaskDefinitionRevisionsPage
 		v.switchToTaskDefinitionRevisionsJson()
 	case wKey, wKey - upperLowerDiff:
+		v.app.secondaryKind = ServiceEventsPage
 		v.switchToServiceEventsList()
 	}
 

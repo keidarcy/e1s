@@ -27,7 +27,6 @@ func newContainerView(containers []types.Container, app *App) *ContainerView {
 }
 
 func (app *App) showContainersPage(reload bool, rowIndex int) error {
-	app.kind = ContainerPage
 	if switched := app.SwitchPage(reload); switched {
 		return nil
 	}

@@ -28,15 +28,18 @@ func newServiceView(services []types.Service, app *App) *ServiceView {
 	}...)
 	return &ServiceView{
 		View: *newView(app, keys, secondaryPageKeyMap{
-			JsonPage: jsonPageKeys,
-			LogPage:  logPageKeys,
+			JsonPage:                    jsonPageKeys,
+			LogPage:                     logPageKeys,
+			AutoScalingPage:             jsonPageKeys,
+			ServiceEventsPage:           jsonPageKeys,
+			TaskDefinitionPage:          jsonPageKeys,
+			TaskDefinitionRevisionsPage: jsonPageKeys,
 		}),
 		services: services,
 	}
 }
 
 func (app *App) showServicesPage(reload bool, rowIndex int) error {
-	app.kind = ServicePage
 	if switched := app.SwitchPage(reload); switched {
 		return nil
 	}

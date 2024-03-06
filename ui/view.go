@@ -11,6 +11,7 @@ import (
 	"github.com/gdamore/tcell/v2"
 	"github.com/keidarcy/e1s/util"
 	"github.com/rivo/tview"
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -180,25 +181,14 @@ func (v *View) reloadResource() error {
 	return nil
 }
 
+// Show kind page including primary kind, secondary kind
 func (v *View) showKindPage(k Kind, reload bool, rowIndex int) error {
 	switch v.app.secondaryKind {
 	case LogPage:
 		v.switchToLogsList()
 		return nil
 	}
-	switch k {
-	case ClusterPage:
-		return v.app.showClustersPage(reload, rowIndex)
-	case ServicePage:
-		return v.app.showServicesPage(reload, rowIndex)
-	case TaskPage:
-		return v.app.showTasksPages(reload, rowIndex)
-	case ContainerPage:
-		return v.app.showContainersPage(reload, rowIndex)
-	default:
-		v.app.showClustersPage(reload, rowIndex)
-	}
-	return nil
+	return v.app.showPrimaryKindPage(k, reload, rowIndex)
 }
 
 // Go current page based on current kind
@@ -280,12 +270,31 @@ func (v *View) handleContentPageSwitch(entity Entity, contentString string) {
 
 	contentTextItem.SetDoneFunc(v.handleTableContentDone)
 
+	logger.WithFields(logrus.Fields{
+		"Action":        "AddPage",
+		"PageName":      contentPageName,
+		"Kind":          v.app.kind.String(),
+		"SecondaryKind": v.app.secondaryKind.String(),
+		"Cluster":       *v.app.cluster.ClusterName,
+		"Service":       *v.app.service.ServiceName,
+	}).Debug("AddPage v.tablePages")
+
 	v.tablePages.AddPage(contentPageName, contentTextItem, true, true)
 }
 
 func (v *View) handleInfoPageSwitch(entity Entity) {
-	logger.Info(fmt.Sprintf("%s.%s", entity.entityName, v.app.secondaryKind))
-	v.infoPages.SwitchToPage(fmt.Sprintf("%s.%s", entity.entityName, v.app.secondaryKind))
+	pageName := fmt.Sprintf("%s.%s", entity.entityName, v.app.secondaryKind)
+
+	logger.WithFields(logrus.Fields{
+		"Action":        "SwitchToPage",
+		"PageName":      pageName,
+		"Kind":          v.app.kind.String(),
+		"SecondaryKind": v.app.secondaryKind.String(),
+		"Cluster":       *v.app.cluster.ClusterName,
+		"Service":       *v.app.service.ServiceName,
+	}).Debug("SwitchToPage v.infoPages")
+
+	v.infoPages.SwitchToPage(pageName)
 }
 
 func getContentTextItem(contentStr string, title string) *tview.TextView {

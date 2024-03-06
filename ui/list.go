@@ -66,7 +66,6 @@ func (v *View) getListString(entity Entity) string {
 
 // Switch to selected service events JSON page
 func (v *View) switchToServiceEventsList() {
-	v.app.secondaryKind = ServiceEventsPage
 	selected, err := v.getCurrentSelection()
 	if err != nil {
 		return
@@ -79,7 +78,6 @@ func (v *View) switchToServiceEventsList() {
 
 // Switch to selected service events JSON page
 func (v *View) switchToLogsList() {
-	v.app.secondaryKind = LogPage
 	if v.app.kind == ClusterPage || v.app.kind == ContainerPage {
 		return
 	}
@@ -87,7 +85,6 @@ func (v *View) switchToLogsList() {
 	if err != nil {
 		return
 	}
-	v.app.secondaryKind = LogPage
 	v.showListPages(selected)
 }
 

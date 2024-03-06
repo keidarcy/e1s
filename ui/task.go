@@ -24,15 +24,16 @@ func newTaskView(tasks []types.Task, app *App) *TaskView {
 	}...)
 	return &TaskView{
 		View: *newView(app, keys, secondaryPageKeyMap{
-			JsonPage: jsonPageKeys,
-			LogPage:  logPageKeys,
+			JsonPage:                    jsonPageKeys,
+			LogPage:                     logPageKeys,
+			TaskDefinitionPage:          jsonPageKeys,
+			TaskDefinitionRevisionsPage: jsonPageKeys,
 		}),
 		tasks: tasks,
 	}
 }
 
 func (app *App) showTasksPages(reload bool, rowIndex int) error {
-	app.kind = TaskPage
 	if switched := app.SwitchPage(reload); switched {
 		return nil
 	}

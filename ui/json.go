@@ -8,11 +8,11 @@ import (
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/keidarcy/e1s/util"
+	"github.com/sirupsen/logrus"
 )
 
 // Switch to selected resource JSON page
 func (v *View) switchToResourceJson() {
-	v.app.secondaryKind = JsonPage
 	selected, err := v.getCurrentSelection()
 	if err != nil {
 		return
@@ -22,7 +22,6 @@ func (v *View) switchToResourceJson() {
 
 // Switch to selected task definition JSON page
 func (v *View) switchToTaskDefinitionJson() {
-	v.app.secondaryKind = TaskDefinitionPage
 	selected, err := v.getCurrentSelection()
 	if err != nil {
 		return
@@ -49,7 +48,6 @@ func (v *View) switchToTaskDefinitionJson() {
 
 // Switch to selected task definition revision list JSON page
 func (v *View) switchToTaskDefinitionRevisionsJson() {
-	v.app.secondaryKind = TaskDefinitionRevisionsPage
 	if v.app.kind == ClusterPage {
 		return
 	}
@@ -88,7 +86,6 @@ func (v *View) getTaskDefinitionDetail() (string, string, string) {
 // not called anywhere
 // Switch to auto scaling get by applicationautoscaling
 func (v *View) switchToAutoScalingJson() {
-	v.app.secondaryKind = AutoScalingPage
 	selected, err := v.getCurrentSelection()
 	if err != nil {
 		return
@@ -134,14 +131,33 @@ func (v *View) handleFullScreenContentInput(event *tcell.EventKey) *tcell.EventK
 }
 
 func (v *View) handleTableContentDone(key tcell.Key) {
-	// v.secondaryKind = v.app.kind
 	pageName := v.app.kind.getTablePageName(v.app.getPageHandle())
+
+	logger.WithFields(logrus.Fields{
+		"Action":        "SwitchToPage",
+		"PageName":      pageName,
+		"Kind":          v.app.kind.String(),
+		"SecondaryKind": v.app.secondaryKind.String(),
+		"Cluster":       *v.app.cluster.ClusterName,
+		"Service":       *v.app.service.ServiceName,
+	}).Debug("SwitchToPage v.tablePages")
+
 	v.tablePages.SwitchToPage(pageName)
 
 	selected, err := v.getCurrentSelection()
 	if err != nil {
 		v.app.back()
 	}
+
+	logger.WithFields(logrus.Fields{
+		"Action":        "SwitchToPage",
+		"PageName":      selected.entityName,
+		"Kind":          v.app.kind.String(),
+		"SecondaryKind": v.app.secondaryKind.String(),
+		"Cluster":       *v.app.cluster.ClusterName,
+		"Service":       *v.app.service.ServiceName,
+	}).Debug("SwitchToPage v.infoPages")
+
 	v.infoPages.SwitchToPage(selected.entityName)
 }
 

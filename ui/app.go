@@ -89,10 +89,11 @@ func Show(option Option) error {
 
 	app.initStyles()
 
-	if err := app.showClustersPage(false, 0); err != nil {
+	logger.Info(" ================================ Started e1s =============================== \n\n")
+
+	if err := app.showPrimaryKindPage(ClusterPage, true, 0); err != nil {
 		return err
 	}
-	logger.Debug("Started e1s")
 
 	if err := app.Application.SetRoot(app.Pages, true).Run(); err != nil {
 		return err
@@ -157,15 +158,38 @@ func (app *App) back() {
 		"SecondaryKind": app.secondaryKind.String(),
 		"Cluster":       *app.cluster.ClusterName,
 		"Service":       *app.service.ServiceName,
-	}).Debug("AddPage app.Pages")
+	}).Debug("Back app.Pages")
 
 	app.Pages.SwitchToPage(pageName)
 }
 
+// Get page handler, cluster is empty, other is cluster arn
 func (app *App) getPageHandle() string {
 	name := ""
 	if app.kind != ClusterPage {
 		name = *app.cluster.ClusterArn
 	}
 	return name
+}
+
+// Show Primary kind page
+func (app *App) showPrimaryKindPage(k Kind, reload bool, rowIndex int) error {
+	switch k {
+	case ClusterPage:
+		app.kind = ClusterPage
+		return app.showClustersPage(reload, rowIndex)
+	case ServicePage:
+		app.kind = ServicePage
+		return app.showServicesPage(reload, rowIndex)
+	case TaskPage:
+		app.kind = TaskPage
+		return app.showTasksPages(reload, rowIndex)
+	case ContainerPage:
+		app.kind = ContainerPage
+		return app.showContainersPage(reload, rowIndex)
+	default:
+		app.kind = ClusterPage
+		app.showClustersPage(reload, rowIndex)
+	}
+	return nil
 }
