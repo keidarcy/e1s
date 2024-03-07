@@ -34,9 +34,10 @@ func TestGetJsonData(t *testing.T) {
 	serviceBytes, _ := json.MarshalIndent(service, "", "  ")
 	eventsBytes, _ := json.MarshalIndent(events, "", "  ")
 	testCases := []struct {
-		name  string
-		input input
-		want  string
+		name       string
+		input      input
+		want       string
+		changeKind func()
 	}{
 		{
 			name: "cluster",
@@ -46,6 +47,9 @@ func TestGetJsonData(t *testing.T) {
 				},
 			},
 			want: colorizeJSON(clusterBytes),
+			changeKind: func() {
+				app.kind = ClusterPage
+			},
 		},
 		{
 			name: "service",
@@ -56,9 +60,12 @@ func TestGetJsonData(t *testing.T) {
 				},
 			},
 			want: colorizeJSON(serviceBytes),
+			changeKind: func() {
+				app.kind = ServicePage
+			},
 		},
 		{
-			name: "service",
+			name: "service events",
 			input: input{
 				entity: Entity{
 					service: service,
@@ -66,14 +73,18 @@ func TestGetJsonData(t *testing.T) {
 				},
 			},
 			want: colorizeJSON(eventsBytes),
+			changeKind: func() {
+				app.secondaryKind = ServiceEventsPage
+			},
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			tc.changeKind()
 			result := view.getJsonString(tc.input.entity)
 			if string(result) != tc.want {
-				t.Errorf("Got: %s, Want: %s\n", result, tc.want)
+				t.Errorf("Name: %s, Got: %s, Want: %s\n", tc.name, result, tc.want)
 			}
 		})
 	}
