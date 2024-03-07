@@ -25,6 +25,7 @@ changelog:
       - '^chore:'
       - '^test:'
       - '^bump:'
+      - '^refactor:'
       - '^Merge pull request'
 
 universal_binaries:

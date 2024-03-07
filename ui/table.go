@@ -54,7 +54,7 @@ func (v *View) buildTable(title string, headers []string, dataBuilder func() [][
 
 	v.handleTableEvents()
 
-	pageName := v.kind.getTablePageName(v.getClusterArn())
+	pageName := v.app.kind.getTablePageName(v.app.getPageHandle())
 	v.tablePages.AddPage(pageName, v.table, true, true)
 }
 
@@ -82,7 +82,7 @@ func (v *View) handleSelectionChanged(row, column int) {
 
 // Handle selected event for table when press Enter
 func (v *View) handleSelected(row, column int) {
-	if v.kind == ContainerPage {
+	if v.app.kind == ContainerPage {
 		selected, err := v.getCurrentSelection()
 		if err != nil {
 			return
@@ -90,11 +90,7 @@ func (v *View) handleSelected(row, column int) {
 		containerName := *selected.container.Name
 		v.ssh(containerName)
 	}
-	err := v.handleAppPageSwitch(v.app.entityName, false)
-	if err != nil {
-		logger.Warnf("Failed to switch app page, error: %v", err)
-		v.back()
-	}
+	v.app.showPrimaryKindPage(v.app.kind.nextKind(), false, 0)
 }
 
 // Handle keyboard input
@@ -102,24 +98,29 @@ func (v *View) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 	// If it's single keystroke, event.Rune() is ascii code
 	switch event.Rune() {
 	case aKey, aKey - upperLowerDiff:
+		v.app.secondaryKind = AutoScalingPage
 		v.switchToAutoScalingJson()
-		// v.showAutoScalingModal()
 	case bKey, bKey - upperLowerDiff:
 		v.openInBrowser()
 	case dKey, dKey - upperLowerDiff:
+		v.app.secondaryKind = JsonPage
 		v.switchToResourceJson()
 	case eKey, eKey - upperLowerDiff:
 		v.showEditServiceModal()
 		v.editTaskDefinition()
 	case lKey, lKey - upperLowerDiff:
+		v.app.secondaryKind = LogPage
 		v.switchToLogsList()
 	case mKey, mKey - upperLowerDiff:
 		v.showMetricsModal()
 	case tKey, tKey - upperLowerDiff:
+		v.app.secondaryKind = TaskDefinitionPage
 		v.switchToTaskDefinitionJson()
 	case vKey, vKey - upperLowerDiff:
+		v.app.secondaryKind = TaskDefinitionRevisionsPage
 		v.switchToTaskDefinitionRevisionsJson()
 	case wKey, wKey - upperLowerDiff:
+		v.app.secondaryKind = ServiceEventsPage
 		v.switchToServiceEventsList()
 	}
 
@@ -142,10 +143,10 @@ func (v *View) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 
 // Handle done event for table when press ESC
 func (v *View) handleDone(key tcell.Key) {
-	if v.kind == ClusterPage {
+	if v.app.kind == ClusterPage {
 		return
 	}
-	v.back()
+	v.app.back()
 }
 
 // Handle common values changing for selected event for table when pressed Enter
@@ -154,20 +155,20 @@ func (v *View) changeSelectedValues() {
 	if err != nil {
 		return
 	}
-	if v.kind == ClusterPage {
+	if v.app.kind == ClusterPage {
 		v.app.cluster = selected.cluster
 		v.app.entityName = *selected.cluster.ClusterArn
-	} else if v.kind == ServicePage {
+	} else if v.app.kind == ServicePage {
 		v.app.service = selected.service
 		v.app.entityName = *selected.service.ServiceArn
-	} else if v.kind == TaskPage {
+	} else if v.app.kind == TaskPage {
 		v.app.task = selected.task
 		v.app.entityName = *selected.task.TaskArn
-	} else if v.kind == ContainerPage {
+	} else if v.app.kind == ContainerPage {
 		v.app.container = selected.container
 		v.app.entityName = *selected.container.ContainerArn
 	} else {
-		v.back()
+		v.app.back()
 	}
 }
 
@@ -179,7 +180,7 @@ func (v *View) openInBrowser() {
 	}
 	arn := ""
 	taskService := ""
-	switch v.kind {
+	switch v.app.kind {
 	case ClusterPage:
 		arn = *selected.cluster.ClusterArn
 	case ServicePage:
@@ -204,7 +205,7 @@ func (v *View) openInBrowser() {
 
 func (v *View) editTaskDefinition() {
 	const errMsg = "Error when editing task definition"
-	if v.kind != TaskPage {
+	if v.app.kind != TaskPage {
 		return
 	}
 

@@ -7,11 +7,12 @@ const (
 	ServicePage
 	TaskPage
 	ContainerPage
-	JsonPage
 	TaskDefinitionPage
 	TaskDefinitionRevisionsPage
+	JsonPage
 	ServiceEventsPage
 	LogPage
+	AutoScalingPage
 )
 
 func (k Kind) String() string {
@@ -34,6 +35,8 @@ func (k Kind) String() string {
 		return "serviceEvents"
 	case LogPage:
 		return "logs"
+	case AutoScalingPage:
+		return "autoscaling"
 	default:
 		return "unknownKind"
 	}
@@ -67,6 +70,7 @@ func (k Kind) prevKind() Kind {
 	}
 }
 
+// App page name is kind string + "." + cluster arn
 func (k Kind) getAppPageName(name string) string {
 	switch k {
 	case ClusterPage:
@@ -91,7 +95,7 @@ func (k Kind) getTablePageName(name string) string {
 
 func (k Kind) getContentPageName(name string) string {
 	pageName := k.getAppPageName(name)
-	return pageName + ".json"
+	return pageName + "." + JsonPage.String()
 }
 
 type secondaryPageKeyMap = map[Kind][]KeyInput

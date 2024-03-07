@@ -11,6 +11,7 @@ import (
 	"github.com/gdamore/tcell/v2"
 	"github.com/keidarcy/e1s/util"
 	"github.com/rivo/tview"
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -89,25 +90,22 @@ type InfoItem struct {
 
 // Base struct of different views
 type View struct {
-	app           *App
-	table         *tview.Table
-	infoPages     *tview.Pages
-	tablePages    *tview.Pages
-	kind          Kind
-	secondaryKind Kind
-	keys          []KeyInput
-	footer        *Footer
-	pageKeyMap    secondaryPageKeyMap
+	app        *App
+	table      *tview.Table
+	infoPages  *tview.Pages
+	tablePages *tview.Pages
+	keys       []KeyInput
+	footer     *Footer
+	pageKeyMap secondaryPageKeyMap
 }
 
-func newView(app *App, kind Kind, keys []KeyInput, pageKeys secondaryPageKeyMap) *View {
+func newView(app *App, keys []KeyInput, pageKeys secondaryPageKeyMap) *View {
 	return &View{
 		app:        app,
 		infoPages:  tview.NewPages(),
 		tablePages: tview.NewPages(),
 		table:      tview.NewTable(),
 		keys:       keys,
-		kind:       kind,
 		footer:     newFooter(),
 		pageKeyMap: pageKeys,
 	}
@@ -175,63 +173,22 @@ func (v *View) getCurrentSelection() (Entity, error) {
 	}
 }
 
-// Add new page to app.Pages
-func (v *View) addAppPage(page *tview.Flex) {
-	pageName := v.kind.getAppPageName(v.getClusterArn())
-	v.app.Pages.AddPage(pageName, page, true, true)
-}
-
-func (v *View) getClusterArn() string {
-	name := ""
-	if v.kind != ClusterPage {
-		name = *v.app.cluster.ClusterArn
-	}
-	return name
-}
-
-// Handle app.Pages switch
-func (v *View) handleAppPageSwitch(resourceName string, isJson bool) error {
-	kind := v.kind.nextKind()
-	if isJson {
-		kind = v.kind
-	}
-	v.showKindPage(kind, false, 0)
-	return nil
-}
-
 // Reload current resource
 func (v *View) reloadResource() error {
 	row, _ := v.table.GetSelection()
 	v.successModal("Reloaded ✅", 1, 20, 5)
-	go v.showKindPage(v.kind, true, row)
+	go v.showKindPage(v.app.kind, true, row)
 	return nil
 }
 
+// Show kind page including primary kind, secondary kind
 func (v *View) showKindPage(k Kind, reload bool, rowIndex int) error {
-	switch v.secondaryKind {
+	switch v.app.secondaryKind {
 	case LogPage:
 		v.switchToLogsList()
 		return nil
 	}
-	switch k {
-	case ClusterPage:
-		return v.app.showClustersPage(reload, rowIndex)
-	case ServicePage:
-		return v.app.showServicesPage(reload, rowIndex)
-	case TaskPage:
-		return v.app.showTasksPages(reload, rowIndex)
-	case ContainerPage:
-		return v.app.showContainersPage(reload, rowIndex)
-	default:
-		v.app.showClustersPage(reload, rowIndex)
-	}
-	return nil
-}
-
-// Go back page based on current kind
-func (v *View) back() {
-	toPage := v.kind.prevKind().getAppPageName(v.getClusterArn())
-	v.app.Pages.SwitchToPage(toPage)
+	return v.app.showPrimaryKindPage(k, reload, rowIndex)
 }
 
 // Go current page based on current kind
@@ -240,7 +197,7 @@ func (v *View) closeModal() {
 		v.app.Stop()
 		return
 	}
-	toPage := v.kind.getAppPageName(v.getClusterArn())
+	toPage := v.app.kind.getAppPageName(v.app.getPageHandle())
 	v.app.Pages.SwitchToPage(toPage)
 }
 
@@ -270,9 +227,9 @@ func (v *View) addFooterItems() {
 }
 
 // Content page builder
-func (v *View) handleContentPageSwitch(entity Entity, which string, contentString string) {
-	contentTitle := fmt.Sprintf(contentTitleFmt, which, entity.entityName)
-	contentPageName := v.kind.getContentPageName(entity.entityName + "." + which)
+func (v *View) handleContentPageSwitch(entity Entity, contentString string) {
+	contentTitle := fmt.Sprintf(contentTitleFmt, v.app.kind, entity.entityName)
+	contentPageName := v.app.kind.getContentPageName(entity.entityName + "." + v.app.secondaryKind.String())
 
 	contentTextItem := getContentTextItem(contentString, contentTitle)
 
@@ -296,7 +253,7 @@ func (v *View) handleContentPageSwitch(entity Entity, which string, contentStrin
 		case bKey, bKey - upperLowerDiff:
 			v.openInBrowser()
 		case rKey, rKey - upperLowerDiff:
-			if v.secondaryKind == LogPage {
+			if v.app.secondaryKind == LogPage {
 				v.realtimeAwsLog(entity)
 			}
 
@@ -313,11 +270,31 @@ func (v *View) handleContentPageSwitch(entity Entity, which string, contentStrin
 
 	contentTextItem.SetDoneFunc(v.handleTableContentDone)
 
+	logger.WithFields(logrus.Fields{
+		"Action":        "AddPage",
+		"PageName":      contentPageName,
+		"Kind":          v.app.kind.String(),
+		"SecondaryKind": v.app.secondaryKind.String(),
+		"Cluster":       *v.app.cluster.ClusterName,
+		"Service":       *v.app.service.ServiceName,
+	}).Debug("AddPage v.tablePages")
+
 	v.tablePages.AddPage(contentPageName, contentTextItem, true, true)
 }
 
-func (v *View) handleInfoPageSwitch(entity Entity, kind Kind) {
-	v.infoPages.SwitchToPage(fmt.Sprintf("%s.%s", entity.entityName, kind))
+func (v *View) handleInfoPageSwitch(entity Entity) {
+	pageName := fmt.Sprintf("%s.%s", entity.entityName, v.app.secondaryKind)
+
+	logger.WithFields(logrus.Fields{
+		"Action":        "SwitchToPage",
+		"PageName":      pageName,
+		"Kind":          v.app.kind.String(),
+		"SecondaryKind": v.app.secondaryKind.String(),
+		"Cluster":       *v.app.cluster.ClusterName,
+		"Service":       *v.app.service.ServiceName,
+	}).Debug("SwitchToPage v.infoPages")
+
+	v.infoPages.SwitchToPage(pageName)
 }
 
 func getContentTextItem(contentStr string, title string) *tview.TextView {
@@ -328,7 +305,7 @@ func getContentTextItem(contentStr string, title string) *tview.TextView {
 
 // SSH into selected container
 func (v *View) ssh(containerName string) {
-	if v.kind != ContainerPage {
+	if v.app.kind != ContainerPage {
 		return
 	}
 	if v.app.ReadOnly {
@@ -342,7 +319,7 @@ func (v *View) ssh(containerName string) {
 	bin, err := exec.LookPath(awsCli)
 	if err != nil {
 		logger.Warnf("Failed to find aws cli binary, error: %v", err)
-		v.back()
+		v.app.back()
 	}
 	arg := []string{
 		"ecs",

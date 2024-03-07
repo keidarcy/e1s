@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
-	"github.com/gdamore/tcell/v2"
 	"github.com/keidarcy/e1s/util"
 	"github.com/rivo/tview"
 )
@@ -20,7 +19,7 @@ func newContainerView(containers []types.Container, app *App) *ContainerView {
 		{key: "Enter", description: sshContainer},
 	}...)
 	return &ContainerView{
-		View: *newView(app, ContainerPage, keys, secondaryPageKeyMap{
+		View: *newView(app, keys, secondaryPageKeyMap{
 			JsonPage: jsonPageKeys,
 		}),
 		containers: containers,
@@ -28,9 +27,7 @@ func newContainerView(containers []types.Container, app *App) *ContainerView {
 }
 
 func (app *App) showContainersPage(reload bool, rowIndex int) error {
-	pageName := ContainerPage.getAppPageName(*app.cluster.ClusterArn)
-	if app.Pages.HasPage(pageName) && app.StaleData && !reload {
-		app.Pages.SwitchToPage(pageName)
+	if switched := app.SwitchPage(reload); switched {
 		return nil
 	}
 
@@ -40,7 +37,7 @@ func (app *App) showContainersPage(reload bool, rowIndex int) error {
 	}
 	view := newContainerView(app.task.Containers, app)
 	page := buildAppPage(view)
-	view.addAppPage(page)
+	app.addAppPage(page)
 	view.table.Select(rowIndex, 0)
 	return nil
 }
@@ -73,7 +70,7 @@ func (v *ContainerView) tableBuilder() *tview.Pages {
 
 // Build footer for container page
 func (v *ContainerView) footerBuilder() *tview.Flex {
-	v.footer.container.SetText(fmt.Sprintf(footerSelectedItemFmt, v.kind))
+	v.footer.container.SetText(fmt.Sprintf(footerSelectedItemFmt, v.app.kind))
 	v.addFooterItems()
 	return v.footer.footer
 }
@@ -91,38 +88,6 @@ func (v *ContainerView) tableHandler() {
 	})
 
 	// v.table.SetInputCapture(v.handleInputCapture)
-}
-
-// deprecated
-// Container page specific input handler
-func (v *ContainerView) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
-	// simulate selected action(ssh)
-	sshHandler := func() {
-		selected, err := v.getCurrentSelection()
-		if err != nil {
-			return
-		}
-		containerName := *selected.container.Name
-		v.ssh(containerName)
-	}
-
-	switch event.Rune() {
-	case lKey, lKey - upperLowerDiff:
-		sshHandler()
-	// case hKey, hKey - upperLowerDiff:
-	// 	v.handleDone(0)
-	case bKey, bKey - upperLowerDiff:
-		v.openInBrowser()
-	case dKey, dKey - upperLowerDiff:
-		v.switchToResourceJson()
-	}
-
-	switch event.Key() {
-	case tcell.KeyRight:
-		sshHandler()
-	}
-
-	return event
 }
 
 // Generate info pages params
@@ -157,7 +122,7 @@ func (v *ContainerView) infoPagesParam(c types.Container) (items []InfoItem) {
 
 // Generate table params
 func (v *ContainerView) tableParam() (title string, headers []string, dataBuilder func() [][]string) {
-	title = fmt.Sprintf(nsTitleFmt, v.kind, util.ArnToName(v.app.task.TaskArn), len(v.containers))
+	title = fmt.Sprintf(nsTitleFmt, v.app.kind, util.ArnToName(v.app.task.TaskArn), len(v.containers))
 	headers = []string{
 		"Name",
 		"Health status ▾",

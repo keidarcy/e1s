@@ -8,6 +8,7 @@ import (
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/keidarcy/e1s/util"
+	"github.com/sirupsen/logrus"
 )
 
 // Switch to selected resource JSON page
@@ -16,7 +17,7 @@ func (v *View) switchToResourceJson() {
 	if err != nil {
 		return
 	}
-	v.showJsonPages(selected, "describe")
+	v.showJsonPages(selected)
 }
 
 // Switch to selected task definition JSON page
@@ -27,10 +28,10 @@ func (v *View) switchToTaskDefinitionJson() {
 	}
 	taskDefinition := ""
 	entityName := ""
-	if v.kind == ServicePage {
+	if v.app.kind == ServicePage {
 		taskDefinition = *selected.service.TaskDefinition
 		entityName = *selected.service.ServiceArn
-	} else if v.kind == TaskPage {
+	} else if v.app.kind == TaskPage {
 		taskDefinition = *selected.task.TaskDefinitionArn
 		entityName = *selected.task.TaskArn
 	} else {
@@ -42,12 +43,12 @@ func (v *View) switchToTaskDefinitionJson() {
 		return
 	}
 	entity := Entity{taskDefinition: &td, entityName: entityName}
-	v.showJsonPages(entity, "task definition")
+	v.showJsonPages(entity)
 }
 
 // Switch to selected task definition revision list JSON page
 func (v *View) switchToTaskDefinitionRevisionsJson() {
-	if v.kind == ClusterPage {
+	if v.app.kind == ClusterPage {
 		return
 	}
 	family, _, entityName := v.getTaskDefinitionDetail()
@@ -57,7 +58,7 @@ func (v *View) switchToTaskDefinitionRevisionsJson() {
 		return
 	}
 	entity := Entity{taskDefinitionRevisions: revisions, entityName: entityName}
-	v.showJsonPages(entity, "revisions")
+	v.showJsonPages(entity)
 }
 
 // Get td family
@@ -68,10 +69,10 @@ func (v *View) getTaskDefinitionDetail() (string, string, string) {
 	}
 	taskDefinition := ""
 	entityName := ""
-	if v.kind == ServicePage {
+	if v.app.kind == ServicePage {
 		taskDefinition = *selected.service.TaskDefinition
 		entityName = *selected.service.ServiceArn
-	} else if v.kind == TaskPage {
+	} else if v.app.kind == TaskPage {
 		taskDefinition = *selected.task.TaskDefinitionArn
 		entityName = *selected.task.TaskArn
 	} else {
@@ -82,28 +83,6 @@ func (v *View) getTaskDefinitionDetail() (string, string, string) {
 }
 
 // Deprecated
-// Switch to Metrics get by cloudwatch
-func (v *View) switchToMetrics() {
-	selected, err := v.getCurrentSelection()
-	if err != nil {
-		return
-	}
-	if v.kind != ServicePage {
-		return
-	}
-	cluster := v.app.cluster.ClusterName
-	service := selected.service.ServiceName
-
-	metrics, err := v.app.Store.GetMetrics(cluster, service)
-
-	if err != nil {
-		return
-	}
-	entity := Entity{metrics: metrics, entityName: fmt.Sprintf("%s/%s", *cluster, *service)}
-	v.showJsonPages(entity, "metrics")
-}
-
-// Deprecated
 // not called anywhere
 // Switch to auto scaling get by applicationautoscaling
 func (v *View) switchToAutoScalingJson() {
@@ -111,7 +90,7 @@ func (v *View) switchToAutoScalingJson() {
 	if err != nil {
 		return
 	}
-	if v.kind != ServicePage {
+	if v.app.kind != ServicePage {
 		return
 	}
 	serviceArn := selected.service.ServiceArn
@@ -127,20 +106,20 @@ func (v *View) switchToAutoScalingJson() {
 		return
 	}
 	entity := Entity{autoScaling: autoScaling, entityName: *serviceArn}
-	v.showJsonPages(entity, "auto_scaling")
+	v.showJsonPages(entity)
 }
 
 // Show new page from JSON content in table area and handle done event to go back
-func (v *View) showJsonPages(entity Entity, which string) {
-	contentString := v.getJsonString(entity, which)
-	v.handleContentPageSwitch(entity, which, contentString)
-	v.handleInfoPageSwitch(entity, JsonPage)
+func (v *View) showJsonPages(entity Entity) {
+	contentString := v.getJsonString(entity)
+	v.handleContentPageSwitch(entity, contentString)
+	v.handleInfoPageSwitch(entity)
 }
 
 func (v *View) handleFullScreenContentInput(event *tcell.EventKey) *tcell.EventKey {
 	switch event.Rune() {
 	case fKey, fKey - upperLowerDiff:
-		pageName := v.kind.getAppPageName(v.getClusterArn())
+		pageName := v.app.kind.getAppPageName(v.app.getPageHandle())
 		v.app.Pages.SwitchToPage(pageName)
 	}
 
@@ -152,40 +131,59 @@ func (v *View) handleFullScreenContentInput(event *tcell.EventKey) *tcell.EventK
 }
 
 func (v *View) handleTableContentDone(key tcell.Key) {
-	v.secondaryKind = v.kind
-	pageName := v.kind.getTablePageName(v.getClusterArn())
+	pageName := v.app.kind.getTablePageName(v.app.getPageHandle())
+
+	logger.WithFields(logrus.Fields{
+		"Action":        "SwitchToPage",
+		"PageName":      pageName,
+		"Kind":          v.app.kind.String(),
+		"SecondaryKind": v.app.secondaryKind.String(),
+		"Cluster":       *v.app.cluster.ClusterName,
+		"Service":       *v.app.service.ServiceName,
+	}).Debug("SwitchToPage v.tablePages")
+
 	v.tablePages.SwitchToPage(pageName)
 
 	selected, err := v.getCurrentSelection()
 	if err != nil {
-		v.back()
+		v.app.back()
 	}
+
+	logger.WithFields(logrus.Fields{
+		"Action":        "SwitchToPage",
+		"PageName":      selected.entityName,
+		"Kind":          v.app.kind.String(),
+		"SecondaryKind": v.app.secondaryKind.String(),
+		"Cluster":       *v.app.cluster.ClusterName,
+		"Service":       *v.app.service.ServiceName,
+	}).Debug("SwitchToPage v.infoPages")
+
 	v.infoPages.SwitchToPage(selected.entityName)
 }
 
 func (v *View) handleFullScreenContentDone(key tcell.Key) {
-	pageName := v.kind.getAppPageName(v.getClusterArn())
+	pageName := v.app.kind.getAppPageName(v.app.getPageHandle())
 	v.app.Pages.SwitchToPage(pageName)
 }
 
-func (v *View) getJsonString(entity Entity, which string) string {
+func (v *View) getJsonString(entity Entity) string {
 	var data any
 
 	switch {
-	case entity.cluster != nil:
+	case entity.cluster != nil && v.app.kind == ClusterPage:
 		data = entity.cluster
 	// events need be upper then service
-	case entity.events != nil && which == "events":
+	case entity.events != nil && v.app.secondaryKind == ServiceEventsPage:
 		data = entity.events
-	case entity.service != nil:
+	case entity.service != nil && v.app.kind == ServicePage:
 		data = entity.service
-	case entity.task != nil:
+	case entity.task != nil && v.app.kind == TaskPage:
 		data = entity.task
-	case entity.container != nil:
+	case entity.container != nil && v.app.kind == ContainerPage:
 		data = entity.container
-	case entity.taskDefinition != nil:
+	case entity.taskDefinition != nil && v.app.secondaryKind == TaskDefinitionPage:
 		data = entity.taskDefinition
-	case entity.taskDefinitionRevisions != nil:
+	case entity.taskDefinitionRevisions != nil && v.app.secondaryKind == TaskDefinitionRevisionsPage:
 		data = entity.taskDefinitionRevisions
 	case entity.metrics != nil:
 		data = entity.metrics

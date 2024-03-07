@@ -23,18 +23,18 @@ func newTaskView(tasks []types.Task, app *App) *TaskView {
 		{key: string(lKey), description: showLogs},
 	}...)
 	return &TaskView{
-		View: *newView(app, TaskPage, keys, secondaryPageKeyMap{
-			JsonPage: jsonPageKeys,
-			LogPage:  logPageKeys,
+		View: *newView(app, keys, secondaryPageKeyMap{
+			JsonPage:                    jsonPageKeys,
+			LogPage:                     logPageKeys,
+			TaskDefinitionPage:          jsonPageKeys,
+			TaskDefinitionRevisionsPage: jsonPageKeys,
 		}),
 		tasks: tasks,
 	}
 }
 
 func (app *App) showTasksPages(reload bool, rowIndex int) error {
-	pageName := TaskPage.getAppPageName(*app.cluster.ClusterArn)
-	if app.Pages.HasPage(pageName) && app.StaleData && !reload {
-		app.Pages.SwitchToPage(pageName)
+	if switched := app.SwitchPage(reload); switched {
 		return nil
 	}
 
@@ -52,7 +52,7 @@ func (app *App) showTasksPages(reload bool, rowIndex int) error {
 
 	view := newTaskView(tasks, app)
 	page := buildAppPage(view)
-	view.addAppPage(page)
+	app.addAppPage(page)
 	view.table.Select(rowIndex, 0)
 	return nil
 }
@@ -85,7 +85,7 @@ func (v *TaskView) tableBuilder() *tview.Pages {
 
 // Build footer for task page
 func (v *TaskView) footerBuilder() *tview.Flex {
-	v.footer.task.SetText(fmt.Sprintf(footerSelectedItemFmt, v.kind))
+	v.footer.task.SetText(fmt.Sprintf(footerSelectedItemFmt, v.app.kind))
 	v.addFooterItems()
 	return v.footer.footer
 }
@@ -156,7 +156,7 @@ func (v *TaskView) infoPagesParam(t types.Task) (items []InfoItem) {
 
 // Generate table params
 func (v *TaskView) tableParam() (title string, headers []string, dataBuilder func() [][]string) {
-	title = fmt.Sprintf(nsTitleFmt, v.kind, *v.app.service.ServiceName, len(v.tasks))
+	title = fmt.Sprintf(nsTitleFmt, v.app.kind, *v.app.service.ServiceName, len(v.tasks))
 	headers = []string{
 		"Task ID ▾",
 		"Last status",

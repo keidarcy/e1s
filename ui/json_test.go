@@ -10,14 +10,13 @@ import (
 
 func TestGetJsonData(t *testing.T) {
 	app, _ := newApp(Option{})
-	view := newView(app, ClusterPage, []KeyInput{}, secondaryPageKeyMap{
+	view := newView(app, []KeyInput{}, secondaryPageKeyMap{
 		JsonPage: []KeyInput{
 			{key: string(fKey), description: toggleFullScreen},
 		},
 	})
 	type input struct {
 		entity Entity
-		which  string
 	}
 	cluster := &types.Cluster{
 		ClusterName: aws.String(clusterName1),
@@ -35,9 +34,10 @@ func TestGetJsonData(t *testing.T) {
 	serviceBytes, _ := json.MarshalIndent(service, "", "  ")
 	eventsBytes, _ := json.MarshalIndent(events, "", "  ")
 	testCases := []struct {
-		name  string
-		input input
-		want  string
+		name       string
+		input      input
+		want       string
+		changeKind func()
 	}{
 		{
 			name: "cluster",
@@ -45,9 +45,11 @@ func TestGetJsonData(t *testing.T) {
 				entity: Entity{
 					cluster: cluster,
 				},
-				which: "cluster",
 			},
 			want: colorizeJSON(clusterBytes),
+			changeKind: func() {
+				app.kind = ClusterPage
+			},
 		},
 		{
 			name: "service",
@@ -56,28 +58,33 @@ func TestGetJsonData(t *testing.T) {
 					service: service,
 					events:  events,
 				},
-				which: "service",
 			},
 			want: colorizeJSON(serviceBytes),
+			changeKind: func() {
+				app.kind = ServicePage
+			},
 		},
 		{
-			name: "service",
+			name: "service events",
 			input: input{
 				entity: Entity{
 					service: service,
 					events:  events,
 				},
-				which: "events",
 			},
 			want: colorizeJSON(eventsBytes),
+			changeKind: func() {
+				app.secondaryKind = ServiceEventsPage
+			},
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			result := view.getJsonString(tc.input.entity, tc.input.which)
+			tc.changeKind()
+			result := view.getJsonString(tc.input.entity)
 			if string(result) != tc.want {
-				t.Errorf("Got: %s, Want: %s\n", result, tc.want)
+				t.Errorf("Name: %s, Got: %s, Want: %s\n", tc.name, result, tc.want)
 			}
 		})
 	}
