@@ -3,7 +3,6 @@ package ui
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"os"
 	"os/exec"
 	"strings"
@@ -200,11 +199,11 @@ func (v *View) openInBrowser() {
 	err = util.OpenURL(url)
 	if err != nil {
 		logger.Warnf("Failed to open url %s\n", url)
+		v.app.Notice.Warnf("Failed to open url %s\n", url)
 	}
 }
 
 func (v *View) editTaskDefinition() {
-	const errMsg = "Error when editing task definition"
 	if v.app.kind != TaskPage {
 		return
 	}
@@ -217,7 +216,8 @@ func (v *View) editTaskDefinition() {
 	taskDefinition := *selected.task.TaskDefinitionArn
 	td, err := v.app.Store.DescribeTaskDefinition(&taskDefinition)
 	if err != nil {
-		v.errorModal(errMsg, 2, 110, 10)
+		logger.Warnf("Failed to describe task definition, err: %v", err)
+		v.app.Notice.Warnf("Failed to describe task definition, err: %v", err)
 		return
 	}
 	names := strings.Split(selected.entityName, "/")
@@ -226,7 +226,7 @@ func (v *View) editTaskDefinition() {
 	tmpfile, err := os.CreateTemp("", names[len(names)-1])
 	if err != nil {
 		logger.Warnf("Failed to create temporary file, err: %v", err)
-		v.errorModal(errMsg, 2, 110, 10)
+		v.app.Notice.Warnf("Failed to create temporary file, err: %v", err)
 		return
 	}
 	defer os.Remove(tmpfile.Name())
@@ -235,13 +235,13 @@ func (v *View) editTaskDefinition() {
 	originalTD, err := json.MarshalIndent(td, "", "  ")
 	if err != nil {
 		logger.Warnf("Failed to read temporary file, err: %v", err)
-		v.errorModal(errMsg, 2, 110, 10)
+		v.app.Notice.Warnf("Failed to read temporary file, err: %v", err)
 		return
 	}
 
 	if _, err := tmpfile.Write(originalTD); err != nil {
 		logger.Warnf("Failed to write to temporary file, err: %v", err)
-		v.errorModal(errMsg, 2, 110, 10)
+		v.app.Notice.Warnf("Failed to write to temporary file, err: %v", err)
 		return
 	}
 
@@ -258,14 +258,14 @@ func (v *View) editTaskDefinition() {
 
 		if err := cmd.Run(); err != nil {
 			logger.Warnf("Failed to open editor, err: %v", err)
-			v.errorModal(errMsg, 2, 110, 10)
+			v.app.Notice.Warnf("Failed to open editor, err: %v", err)
 			return
 		}
 
 		editedTD, err := os.ReadFile(tmpfile.Name())
 		if err != nil {
 			logger.Warnf("Failed to read temporary file, err: %v", err)
-			v.errorModal(errMsg, 2, 110, 10)
+			v.app.Notice.Warnf("Failed to read temporary file, err: %v", err)
 			return
 		}
 
@@ -276,14 +276,14 @@ func (v *View) editTaskDefinition() {
 
 		// if no change do nothing
 		if bytes.Equal(originalTD, editedTD) {
-			v.flashModal(" Task definition has no change.", 2, 50, 3)
+			v.app.Notice.Info("Task definition has no change")
 			return
 		}
 
 		var updatedTd ecs.RegisterTaskDefinitionInput
 		if err := json.Unmarshal(editedTD, &updatedTd); err != nil {
 			logger.Warnf("Failed to unmarshal JSON, err: %v", err)
-			v.errorModal(errMsg, 2, 110, 10)
+			v.app.Notice.Warnf("Failed to unmarshal JSON, err: %v", err)
 			return
 		}
 
@@ -292,10 +292,10 @@ func (v *View) editTaskDefinition() {
 
 			if err != nil {
 				logger.Warnf("Failed to open editor, err: %v", err)
-				v.errorModal(errMsg, 2, 110, 10)
+				v.app.Notice.Warnf("Failed to open editor, err: %v", err)
 				return
 			}
-			v.successModal(fmt.Sprintf("SUCCESS 🚀\nTaskDefinition Family: %s\nRevision: %d\n", family, revision), 5, 110, 5)
+			v.app.Notice.Infof("SUCCESS TaskDefinition Family: %s, Revision: %d", family, revision)
 		}
 
 		v.showTaskDefinitionConfirm(register)

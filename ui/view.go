@@ -50,6 +50,8 @@ const (
 	awsCli         = "aws"
 	sshBannerFmt   = "\033[1;31m<<E1S-ECS-EXEC>>\033[0m: \n#######################################\n\033[1;32mCluster\033[0m: \"%s\" \n\033[1;32mService\033[0m: \"%s\" \n\033[1;32mTask\033[0m: \"%s\" \n\033[1;32mContainer\033[0m: \"%s\"\n#######################################\n"
 	realtimeLogFmt = "\033[1;31m<<E1S-LOGS-TAIL>>\033[0m: \n#######################################\n\033[1;32mCluster\033[0m: \"%s\" \n\033[1;32mService\033[0m: \"%s\" \n\033[1;32mLogGroup\033[0m: \"%s\"\n#######################################\n"
+
+	reloadText = "Reloaded"
 )
 
 const (
@@ -169,6 +171,7 @@ func (v *View) getCurrentSelection() (Entity, error) {
 		return entity, nil
 	default:
 		logger.Warnf("Unexpected error: %v (%T)", entity, entity)
+		v.app.Notice.Warnf("Unexpected error: %v (%T)", entity, entity)
 		return Entity{}, fmt.Errorf("unexpected error: %v (%T)", entity, entity)
 	}
 }
@@ -176,7 +179,7 @@ func (v *View) getCurrentSelection() (Entity, error) {
 // Reload current resource
 func (v *View) reloadResource() error {
 	row, _ := v.table.GetSelection()
-	v.successModal("Reloaded ✅", 1, 20, 5)
+	v.app.Notice.Info(reloadText)
 	go v.showKindPage(v.app.kind, true, row)
 	return nil
 }
@@ -306,9 +309,11 @@ func getContentTextItem(contentStr string, title string) *tview.TextView {
 // SSH into selected container
 func (v *View) ssh(containerName string) {
 	if v.app.kind != ContainerPage {
+		v.app.Notice.Warn("Invalid operation")
 		return
 	}
 	if v.app.ReadOnly {
+		v.app.Notice.Warn("No ecs exec permission in read only e1s mode")
 		return
 	}
 
@@ -319,6 +324,7 @@ func (v *View) ssh(containerName string) {
 	bin, err := exec.LookPath(awsCli)
 	if err != nil {
 		logger.Warnf("Failed to find aws cli binary, error: %v", err)
+		v.app.Notice.Warnf("Failed to find aws cli binary, error: %v", err)
 		v.app.back()
 	}
 	arg := []string{

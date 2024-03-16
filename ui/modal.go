@@ -1,7 +1,6 @@
 package ui
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 
@@ -107,7 +106,8 @@ func (v *View) serviceUpdateContent() (*tview.Form, string) {
 	// get data for form
 	families, err := v.app.Store.ListTaskDefinitionFamilies()
 	if err != nil {
-		v.errorModal("aws api error!", 2, 20, 10)
+		logger.Errorf("Failed list task definition families, err: %s", err.Error())
+		v.app.Notice.Errorf("Failed list task definition families, err: %s", err.Error())
 		v.closeModal()
 	}
 
@@ -144,7 +144,8 @@ func (v *View) serviceUpdateContent() (*tview.Form, string) {
 				// when family option change, change revision drop down value
 				taskDefinitions, err := v.app.Store.ListTaskDefinition(&text)
 				if err != nil {
-					v.errorModal("aws api error!", 2, 20, 10)
+					logger.Errorf("Failed list task definition, err: %s", err.Error())
+					v.app.Notice.Errorf("Failed list task definition, err: %s", err.Error())
 					v.closeModal()
 				}
 				revisions := []string{}
@@ -226,11 +227,13 @@ func (v *View) serviceUpdateContent() (*tview.Form, string) {
 
 		if err != nil {
 			v.closeModal()
-			go v.errorModal(err.Error(), 5, 100, 10)
+			v.app.Notice.Error(err.Error())
+			logger.Error(err.Error())
 			v.reloadResource()
 		} else {
 			v.closeModal()
-			go v.successModal(fmt.Sprintf("SUCCESS 🚀\nDesiredCount: %d\nTaskDefinition: %s\n", s.DesiredCount, *s.TaskDefinition), 5, 110, 5)
+			v.app.Notice.Infof("SUCCESS: DesiredCount: %d, TaskDefinition: %s", s.DesiredCount, *s.TaskDefinition)
+			logger.Infof("SUCCESS: DesiredCount: %d, TaskDefinition: %s", s.DesiredCount, *s.TaskDefinition)
 			v.reloadResource()
 		}
 	})

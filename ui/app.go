@@ -1,6 +1,8 @@
 package ui
 
 import (
+	"fmt"
+
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
 	"github.com/gdamore/tcell/v2"
@@ -42,8 +44,15 @@ type Option struct {
 
 // tview App
 type App struct {
+	// tview Application
 	*tview.Application
+	// Info + table area pages UI for MainScreen
 	*tview.Pages
+	// Notice text UI in MainScreen footer
+	Notice *Notice
+	// MainScreen content UI
+	MainScreen *tview.Flex
+	// API client
 	*api.Store
 	// Current page primary kind ex: cluster, service
 	kind Kind
@@ -51,6 +60,7 @@ type App struct {
 	secondaryKind Kind
 	// Option from cli args
 	Option
+	// Current screen item content
 	Entity
 }
 
@@ -63,9 +73,22 @@ func newApp(option Option) (*App, error) {
 	if len(region) == 0 {
 		region = "unknown"
 	}
+	logger.Debugf("Region: %s", region)
+	app := tview.NewApplication()
+	pages := tview.NewPages()
+	footer := tview.NewFlex()
+
+	notice := newNotice(app)
+	footer.AddItem(notice, 0, 1, false)
+	main := tview.NewFlex().SetDirection(tview.FlexRow).
+		AddItem(pages, 0, 2, true).
+		AddItem(footer, 1, 1, false)
+
 	return &App{
-		Application: tview.NewApplication(),
-		Pages:       tview.NewPages(),
+		Application: app,
+		Pages:       pages,
+		Notice:      notice,
+		MainScreen:  main,
 		Store:       store,
 		Option:      option,
 		Entity: Entity{
@@ -82,6 +105,7 @@ func newApp(option Option) (*App, error) {
 // Entry point of the app
 func Show(option Option) error {
 	logger = option.Logger
+	logger.Info("================================ Started e1s =============================== \n\n")
 	app, err := newApp(option)
 	if err != nil {
 		return err
@@ -89,13 +113,11 @@ func Show(option Option) error {
 
 	app.initStyles()
 
-	logger.Info(" ================================ Started e1s =============================== \n\n")
-
 	if err := app.showPrimaryKindPage(ClusterPage, true, 0); err != nil {
 		return err
 	}
 
-	if err := app.Application.SetRoot(app.Pages, true).Run(); err != nil {
+	if err := app.Application.SetRoot(app.MainScreen, true).Run(); err != nil {
 		return err
 	}
 	return nil
@@ -123,6 +145,7 @@ func (app *App) addAppPage(page *tview.Flex) {
 	}).Debug("AddPage app.Pages")
 
 	app.Pages.AddPage(pageName, page, true, true)
+	app.Notice.Info(fmt.Sprintf("Viewing %s", app.kind.String()))
 }
 
 // Switch app.Pages page

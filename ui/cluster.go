@@ -2,7 +2,6 @@ package ui
 
 import (
 	"fmt"
-	"os"
 	"strconv"
 	"strings"
 
@@ -33,17 +32,16 @@ func (app *App) showClustersPage(reload bool, rowIndex int) error {
 
 	clusters, err := app.Store.ListClusters()
 	if err != nil {
-		logger.Errorf("Failed to show cluster page, error: %v", err)
-		return err
+		logger.Errorf("Failed to load clusters in %s region, error: %s", app.Region, err.Error())
+		app.Notice.Errorf("Failed to load clusters in %s region, error: %s", app.Region, err.Error())
+	}
+
+	if len(clusters) == 0 {
+		logger.Warnf("There is no valid clusters in %s region", app.Region)
+		app.Notice.Warnf("There is no valid clusters in %s region", app.Region)
 	}
 
 	view := newClusterView(clusters, app)
-
-	if len(clusters) == 0 {
-		fmt.Printf("There is no valid clusters in \033[31m%s\033[0m. Please check you ecs cluster via `AWS_REGION=%s aws ecs list-clusters`.\n", app.Region, app.Region)
-		os.Exit(0)
-	}
-
 	page := buildAppPage(view)
 	app.addAppPage(page)
 	view.table.Select(rowIndex, 0)

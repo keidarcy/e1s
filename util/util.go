@@ -45,7 +45,7 @@ func GetLogger(path string, debug bool) (*logrus.Logger, *os.File) {
 	if err == nil {
 		logger.SetOutput(file)
 	} else {
-		logger.Info("Failed to log to file, using default stderr")
+		logger.Error("Failed to log to file, using default stderr")
 	}
 
 	// Add colored output to the console with a custom timestamp format

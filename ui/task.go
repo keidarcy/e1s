@@ -42,6 +42,7 @@ func (app *App) showTasksPages(reload bool, rowIndex int) error {
 
 	if err != nil {
 		logger.Warnf("Failed to show tasks pages, error: %v", err)
+		app.Notice.Warnf("Failed to show tasks pages, error: %v", err)
 		return err
 	}
 
