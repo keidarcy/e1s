@@ -3,7 +3,6 @@ package ui
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"os"
 	"os/exec"
 	"strings"
@@ -75,6 +74,8 @@ func (v *View) handleSelectionChanged(row, column int) {
 	v.changeSelectedValues()
 	selected, err := v.getCurrentSelection()
 	if err != nil {
+		v.app.Notice.Warn("Failed to handleSelectionChanged")
+		logger.Warnf("Failed to handleSelectionChanged, err: %v", err)
 		return
 	}
 	v.infoPages.SwitchToPage(selected.entityName)
@@ -85,6 +86,8 @@ func (v *View) handleSelected(row, column int) {
 	if v.app.kind == ContainerPage {
 		selected, err := v.getCurrentSelection()
 		if err != nil {
+			v.app.Notice.Warn("Failed to handleSelected")
+			logger.Warnf("Failed to handleSelected, err: %v", err)
 			return
 		}
 		containerName := *selected.container.Name
@@ -99,29 +102,29 @@ func (v *View) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 	switch event.Rune() {
 	case aKey, aKey - upperLowerDiff:
 		v.app.secondaryKind = AutoScalingPage
-		v.switchToAutoScalingJson()
+		v.showSecondaryKindPage(false)
 	case bKey, bKey - upperLowerDiff:
 		v.openInBrowser()
 	case dKey, dKey - upperLowerDiff:
-		v.app.secondaryKind = JsonPage
-		v.switchToResourceJson()
+		v.app.secondaryKind = DescriptionPage
+		v.showSecondaryKindPage(false)
 	case eKey, eKey - upperLowerDiff:
 		v.showEditServiceModal()
 		v.editTaskDefinition()
 	case lKey, lKey - upperLowerDiff:
 		v.app.secondaryKind = LogPage
-		v.switchToLogsList()
+		v.showSecondaryKindPage(false)
 	case mKey, mKey - upperLowerDiff:
 		v.showMetricsModal()
 	case tKey, tKey - upperLowerDiff:
 		v.app.secondaryKind = TaskDefinitionPage
-		v.switchToTaskDefinitionJson()
+		v.showSecondaryKindPage(false)
 	case vKey, vKey - upperLowerDiff:
 		v.app.secondaryKind = TaskDefinitionRevisionsPage
-		v.switchToTaskDefinitionRevisionsJson()
+		v.showSecondaryKindPage(false)
 	case wKey, wKey - upperLowerDiff:
 		v.app.secondaryKind = ServiceEventsPage
-		v.switchToServiceEventsList()
+		v.showSecondaryKindPage(false)
 	}
 
 	// If it's composite keystroke, event.Key() is ctrl-char ascii code
@@ -134,7 +137,7 @@ func (v *View) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 		v.handleSelected(0, 0)
 	// Handle <ctrl> + r
 	case tcell.KeyCtrlR:
-		v.reloadResource()
+		v.reloadResource(true)
 	case tcell.KeyCtrlZ:
 		v.handleDone(0)
 	}
@@ -153,6 +156,8 @@ func (v *View) handleDone(key tcell.Key) {
 func (v *View) changeSelectedValues() {
 	selected, err := v.getCurrentSelection()
 	if err != nil {
+		v.app.Notice.Warn("Failed to changeSelectedValues")
+		logger.Warnf("Failed to changeSelectedValues, err: %v", err)
 		return
 	}
 	if v.app.kind == ClusterPage {
@@ -176,6 +181,8 @@ func (v *View) changeSelectedValues() {
 func (v *View) openInBrowser() {
 	selected, err := v.getCurrentSelection()
 	if err != nil {
+		v.app.Notice.Warn("Failed to openInBrowser")
+		logger.Warnf("Failed to openInBrowser, err: %v", err)
 		return
 	}
 	arn := ""
@@ -200,11 +207,11 @@ func (v *View) openInBrowser() {
 	err = util.OpenURL(url)
 	if err != nil {
 		logger.Warnf("Failed to open url %s\n", url)
+		v.app.Notice.Warnf("Failed to open url %s\n", url)
 	}
 }
 
 func (v *View) editTaskDefinition() {
-	const errMsg = "Error when editing task definition"
 	if v.app.kind != TaskPage {
 		return
 	}
@@ -212,12 +219,15 @@ func (v *View) editTaskDefinition() {
 	// get td detail
 	selected, err := v.getCurrentSelection()
 	if err != nil {
+		v.app.Notice.Warn("Failed to editTaskDefinition")
+		logger.Warnf("Failed to editTaskDefinition, err: %v", err)
 		return
 	}
 	taskDefinition := *selected.task.TaskDefinitionArn
 	td, err := v.app.Store.DescribeTaskDefinition(&taskDefinition)
 	if err != nil {
-		v.errorModal(errMsg, 2, 110, 10)
+		logger.Warnf("Failed to describe task definition, err: %v", err)
+		v.app.Notice.Warnf("Failed to describe task definition, err: %v", err)
 		return
 	}
 	names := strings.Split(selected.entityName, "/")
@@ -226,7 +236,7 @@ func (v *View) editTaskDefinition() {
 	tmpfile, err := os.CreateTemp("", names[len(names)-1])
 	if err != nil {
 		logger.Warnf("Failed to create temporary file, err: %v", err)
-		v.errorModal(errMsg, 2, 110, 10)
+		v.app.Notice.Warnf("Failed to create temporary file, err: %v", err)
 		return
 	}
 	defer os.Remove(tmpfile.Name())
@@ -235,13 +245,13 @@ func (v *View) editTaskDefinition() {
 	originalTD, err := json.MarshalIndent(td, "", "  ")
 	if err != nil {
 		logger.Warnf("Failed to read temporary file, err: %v", err)
-		v.errorModal(errMsg, 2, 110, 10)
+		v.app.Notice.Warnf("Failed to read temporary file, err: %v", err)
 		return
 	}
 
 	if _, err := tmpfile.Write(originalTD); err != nil {
 		logger.Warnf("Failed to write to temporary file, err: %v", err)
-		v.errorModal(errMsg, 2, 110, 10)
+		v.app.Notice.Warnf("Failed to write to temporary file, err: %v", err)
 		return
 	}
 
@@ -258,14 +268,14 @@ func (v *View) editTaskDefinition() {
 
 		if err := cmd.Run(); err != nil {
 			logger.Warnf("Failed to open editor, err: %v", err)
-			v.errorModal(errMsg, 2, 110, 10)
+			v.app.Notice.Warnf("Failed to open editor, err: %v", err)
 			return
 		}
 
 		editedTD, err := os.ReadFile(tmpfile.Name())
 		if err != nil {
 			logger.Warnf("Failed to read temporary file, err: %v", err)
-			v.errorModal(errMsg, 2, 110, 10)
+			v.app.Notice.Warnf("Failed to read temporary file, err: %v", err)
 			return
 		}
 
@@ -276,14 +286,14 @@ func (v *View) editTaskDefinition() {
 
 		// if no change do nothing
 		if bytes.Equal(originalTD, editedTD) {
-			v.flashModal(" Task definition has no change.", 2, 50, 3)
+			v.app.Notice.Info("Task definition has no change")
 			return
 		}
 
 		var updatedTd ecs.RegisterTaskDefinitionInput
 		if err := json.Unmarshal(editedTD, &updatedTd); err != nil {
 			logger.Warnf("Failed to unmarshal JSON, err: %v", err)
-			v.errorModal(errMsg, 2, 110, 10)
+			v.app.Notice.Warnf("Failed to unmarshal JSON, err: %v", err)
 			return
 		}
 
@@ -292,10 +302,10 @@ func (v *View) editTaskDefinition() {
 
 			if err != nil {
 				logger.Warnf("Failed to open editor, err: %v", err)
-				v.errorModal(errMsg, 2, 110, 10)
+				v.app.Notice.Warnf("Failed to open editor, err: %v", err)
 				return
 			}
-			v.successModal(fmt.Sprintf("SUCCESS 🚀\nTaskDefinition Family: %s\nRevision: %d\n", family, revision), 5, 110, 5)
+			v.app.Notice.Infof("SUCCESS TaskDefinition Family: %s, Revision: %d", family, revision)
 		}
 
 		v.showTaskDefinitionConfirm(register)

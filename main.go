@@ -42,9 +42,7 @@ func main() {
 	}
 
 	if err := ui.Show(option); err != nil {
-		logger.Fatalf("Failed to start, error: %v\n", err)
-		fmt.Println("e1s failed to start, please check your aws cli credential or permission.")
-		fmt.Println(err)
-		os.Exit(1)
+		fmt.Printf("e1s failed to start, please check your aws cli credential and permission. error: %v\n", err)
+		logger.Fatalf("Failed to start, error: %v\n", err) // will call os.Exit(1)
 	}
 }

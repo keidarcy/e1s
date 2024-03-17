@@ -28,12 +28,12 @@ func newServiceView(services []types.Service, app *App) *ServiceView {
 	}...)
 	return &ServiceView{
 		View: *newView(app, keys, secondaryPageKeyMap{
-			JsonPage:                    jsonPageKeys,
+			DescriptionPage:             descriptionPageKeys,
 			LogPage:                     logPageKeys,
-			AutoScalingPage:             jsonPageKeys,
-			ServiceEventsPage:           jsonPageKeys,
-			TaskDefinitionPage:          jsonPageKeys,
-			TaskDefinitionRevisionsPage: jsonPageKeys,
+			AutoScalingPage:             descriptionPageKeys,
+			ServiceEventsPage:           descriptionPageKeys,
+			TaskDefinitionPage:          descriptionPageKeys,
+			TaskDefinitionRevisionsPage: descriptionPageKeys,
 		}),
 		services: services,
 	}
@@ -47,6 +47,7 @@ func (app *App) showServicesPage(reload bool, rowIndex int) error {
 	services, err := app.Store.ListServices(app.cluster.ClusterName)
 	if err != nil {
 		logger.Warnf("Failed to show services page, error: %v", err)
+		app.Notice.Warnf("Failed to show services page, error: %v", err)
 		return err
 	}
 

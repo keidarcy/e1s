@@ -2,7 +2,6 @@ package ui
 
 import (
 	"fmt"
-	"os"
 	"strconv"
 	"strings"
 
@@ -19,7 +18,7 @@ type ClusterView struct {
 func newClusterView(clusters []types.Cluster, app *App) *ClusterView {
 	return &ClusterView{
 		View: *newView(app, basicKeyInputs, secondaryPageKeyMap{
-			JsonPage: jsonPageKeys,
+			DescriptionPage: descriptionPageKeys,
 		}),
 		clusters: clusters,
 	}
@@ -33,17 +32,18 @@ func (app *App) showClustersPage(reload bool, rowIndex int) error {
 
 	clusters, err := app.Store.ListClusters()
 	if err != nil {
-		logger.Errorf("Failed to show cluster page, error: %v", err)
+		logger.Errorf("Failed to load clusters in %s region, error: %s", app.Region, err.Error())
+		// app.Notice.Errorf("Failed to load clusters in %s region, error: %s", app.Region, err.Error())
 		return err
 	}
 
-	view := newClusterView(clusters, app)
-
 	if len(clusters) == 0 {
-		fmt.Printf("There is no valid clusters in \033[31m%s\033[0m. Please check you ecs cluster via `AWS_REGION=%s aws ecs list-clusters`.\n", app.Region, app.Region)
-		os.Exit(0)
+		logger.Warnf("There is no valid clusters in %s region", app.Region)
+		return fmt.Errorf("there is no valid clusters in %s region", app.Region)
+		// app.Notice.Warnf("There is no valid clusters in %s region", app.Region)
 	}
 
+	view := newClusterView(clusters, app)
 	page := buildAppPage(view)
 	app.addAppPage(page)
 	view.table.Select(rowIndex, 0)

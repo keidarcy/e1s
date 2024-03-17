@@ -50,6 +50,8 @@ const (
 	awsCli         = "aws"
 	sshBannerFmt   = "\033[1;31m<<E1S-ECS-EXEC>>\033[0m: \n#######################################\n\033[1;32mCluster\033[0m: \"%s\" \n\033[1;32mService\033[0m: \"%s\" \n\033[1;32mTask\033[0m: \"%s\" \n\033[1;32mContainer\033[0m: \"%s\"\n#######################################\n"
 	realtimeLogFmt = "\033[1;31m<<E1S-LOGS-TAIL>>\033[0m: \n#######################################\n\033[1;32mCluster\033[0m: \"%s\" \n\033[1;32mService\033[0m: \"%s\" \n\033[1;32mLogGroup\033[0m: \"%s\"\n#######################################\n"
+
+	reloadText = "Reloaded"
 )
 
 const (
@@ -168,27 +170,51 @@ func (v *View) getCurrentSelection() (Entity, error) {
 	case Entity:
 		return entity, nil
 	default:
-		logger.Warnf("Unexpected error: %v (%T)", entity, entity)
-		return Entity{}, fmt.Errorf("unexpected error: %v (%T)", entity, entity)
+		logger.Warnf("Unexpected error in getCurrentSelection: %v (%T)", entity, entity)
+		v.app.Notice.Warnf("Unexpected error in getCurrentSelection: %v (%T)", entity, entity)
+		return Entity{}, fmt.Errorf("unexpected error in getCurrentSelection: %v (%T)", entity, entity)
 	}
 }
 
 // Reload current resource
-func (v *View) reloadResource() error {
+func (v *View) reloadResource(reloadNotice bool) error {
 	row, _ := v.table.GetSelection()
-	v.successModal("Reloaded ✅", 1, 20, 5)
-	go v.showKindPage(v.app.kind, true, row)
+	if reloadNotice {
+		v.app.Notice.Info(reloadText)
+	}
+	v.showKindPage(v.app.kind, true, row)
 	return nil
 }
 
 // Show kind page including primary kind, secondary kind
-func (v *View) showKindPage(k Kind, reload bool, rowIndex int) error {
+func (v *View) showKindPage(k Kind, reload bool, rowIndex int) {
+	if v.app.secondaryKind != EmptyKind {
+		v.showSecondaryKindPage(reload)
+		return
+	}
+	v.app.showPrimaryKindPage(k, reload, rowIndex)
+}
+
+func (v *View) showSecondaryKindPage(reload bool) {
 	switch v.app.secondaryKind {
+	case AutoScalingPage:
+		v.switchToAutoScalingJson()
+	case DescriptionPage:
+		v.switchToDescriptionJson()
 	case LogPage:
 		v.switchToLogsList()
-		return nil
+	case TaskDefinitionPage:
+		v.switchToTaskDefinitionJson()
+	case TaskDefinitionRevisionsPage:
+		v.switchToTaskDefinitionRevisionsJson()
+	case ServiceEventsPage:
+		v.switchToServiceEventsList()
 	}
-	return v.app.showPrimaryKindPage(k, reload, rowIndex)
+	if !reload {
+		v.app.Notice.Infof("Viewing %s...", v.app.secondaryKind.String())
+	} else {
+		logger.Debugf("Reload in showSecondaryKindPage: %v", reload)
+	}
 }
 
 // Go current page based on current kind
@@ -261,7 +287,7 @@ func (v *View) handleContentPageSwitch(entity Entity, contentString string) {
 
 		switch event.Key() {
 		case tcell.KeyCtrlR:
-			v.reloadResource()
+			v.reloadResource(true)
 		case tcell.KeyCtrlZ:
 			v.handleTableContentDone(0)
 		}
@@ -306,9 +332,11 @@ func getContentTextItem(contentStr string, title string) *tview.TextView {
 // SSH into selected container
 func (v *View) ssh(containerName string) {
 	if v.app.kind != ContainerPage {
+		v.app.Notice.Warn("Invalid operation")
 		return
 	}
 	if v.app.ReadOnly {
+		v.app.Notice.Warn("No ecs exec permission in read only e1s mode")
 		return
 	}
 
@@ -319,6 +347,7 @@ func (v *View) ssh(containerName string) {
 	bin, err := exec.LookPath(awsCli)
 	if err != nil {
 		logger.Warnf("Failed to find aws cli binary, error: %v", err)
+		v.app.Notice.Warnf("Failed to find aws cli binary, error: %v", err)
 		v.app.back()
 	}
 	arg := []string{

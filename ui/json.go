@@ -11,8 +11,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// Switch to selected resource JSON page
-func (v *View) switchToResourceJson() {
+// Switch to current kind description JSON page
+func (v *View) switchToDescriptionJson() {
 	selected, err := v.getCurrentSelection()
 	if err != nil {
 		return
@@ -125,13 +125,14 @@ func (v *View) handleFullScreenContentInput(event *tcell.EventKey) *tcell.EventK
 
 	switch event.Key() {
 	case tcell.KeyCtrlR:
-		v.reloadResource()
+		v.reloadResource(true)
 	}
 	return event
 }
 
 func (v *View) handleTableContentDone(key tcell.Key) {
 	pageName := v.app.kind.getTablePageName(v.app.getPageHandle())
+	v.app.secondaryKind = EmptyKind
 
 	logger.WithFields(logrus.Fields{
 		"Action":        "SwitchToPage",
@@ -204,6 +205,7 @@ func (v *View) getJsonString(entity Entity) string {
 
 	if err != nil {
 		logger.Warnf("Failed to json marshal indent, error: %v", err)
+		v.app.Notice.Warnf("Failed to json marshal indent, error: %v", err)
 		return "json page marshal indent failed"
 	}
 

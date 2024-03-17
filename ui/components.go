@@ -1,7 +1,6 @@
 package ui
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/gdamore/tcell/v2"
@@ -49,16 +48,22 @@ func (v *View) styledForm(title string) *tview.Form {
 	return f
 }
 
-// Call this function need a new goroutine
-func (v *View) errorModal(text string, duration, width, height int) {
-	v.flashModal(fmt.Sprintf("[red::b]%s ", text), duration, width, height)
-}
+// // deprecated
+// // Replaced by notice
+// // Call this function need a new goroutine
+// func (v *View) errorModal(text string, duration, width, height int) {
+// 	v.flashModal(fmt.Sprintf("[red::b]%s ", text), duration, width, height)
+// }
 
-// Call this function need a new goroutine
-func (v *View) successModal(text string, duration, width, height int) {
-	v.flashModal(fmt.Sprintf("[green::b]%s ", text), duration, width, height)
-}
+// // deprecated
+// // Replaced by notice
+// // Call this function need a new goroutine
+// func (v *View) successModal(text string, duration, width, height int) {
+// 	v.flashModal(fmt.Sprintf("[green::b]%s ", text), duration, width, height)
+// }
 
+// deprecated
+// Replaced by notice
 // show a flash modal in a given time duration
 func (v *View) flashModal(text string, duration, width, height int) {
 	t := tview.NewTextView().SetDynamicColors(true).SetText(text)

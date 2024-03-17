@@ -53,11 +53,17 @@ func (v *View) getListString(entity Entity) string {
 
 		if err != nil {
 			contentString += "[red::]No valid contents[-:-:-]"
+			v.app.Notice.Warn("Failed to getListString")
+			logger.Warnf("Failed to getListString, err: %v", err)
 		}
 
-		for _, log := range logs {
-			m := log.Message
-			contentString += fmt.Sprintf(logFmt, time.Unix(0, *log.Timestamp*int64(time.Millisecond)).Format(time.RFC3339), *m)
+		if len(logs) == 0 {
+			contentString += "[orange::]Empty logs[-:-:-]"
+		} else {
+			for _, log := range logs {
+				m := log.Message
+				contentString += fmt.Sprintf(logFmt, time.Unix(0, *log.Timestamp*int64(time.Millisecond)).Format(time.RFC3339), *m)
+			}
 		}
 	}
 
@@ -68,6 +74,8 @@ func (v *View) getListString(entity Entity) string {
 func (v *View) switchToServiceEventsList() {
 	selected, err := v.getCurrentSelection()
 	if err != nil {
+		v.app.Notice.Warn("Failed to switchToServiceEventsList")
+		logger.Warnf("Failed to switchToServiceEventsList, err: %v", err)
 		return
 	}
 	if v.app.kind != ServicePage {
@@ -83,6 +91,8 @@ func (v *View) switchToLogsList() {
 	}
 	selected, err := v.getCurrentSelection()
 	if err != nil {
+		v.app.Notice.Warn("Failed to switchToLogsList")
+		logger.Warnf("Failed to switchToLogsList, err: %v", err)
 		return
 	}
 	v.showListPages(selected)
@@ -102,6 +112,8 @@ func (v *View) realtimeAwsLog(entity Entity) {
 	}
 	td, err := v.app.Store.DescribeTaskDefinition(tdArn)
 	if err != nil {
+		v.app.Notice.Warn("Failed to switchToLogsList")
+		logger.Warnf("Failed to switchToLogsList, err: %v", err)
 		return
 	}
 	for _, c := range td.ContainerDefinitions {
@@ -138,6 +150,7 @@ func (v *View) realtimeAwsLog(entity Entity) {
 		bin, err := exec.LookPath(awsCli)
 		if err != nil {
 			logger.Warnf("Failed to find aws cli binary, error: %v", err)
+			v.app.Notice.Warnf("Failed to find aws cli binary, error: %v", err)
 			v.app.back()
 		}
 		arg := []string{

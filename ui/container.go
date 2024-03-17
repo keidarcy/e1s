@@ -20,7 +20,7 @@ func newContainerView(containers []types.Container, app *App) *ContainerView {
 	}...)
 	return &ContainerView{
 		View: *newView(app, keys, secondaryPageKeyMap{
-			JsonPage: jsonPageKeys,
+			DescriptionPage: descriptionPageKeys,
 		}),
 		containers: containers,
 	}
