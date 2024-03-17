@@ -17,8 +17,8 @@ const (
 type Notice struct {
 	*tview.TextView
 	app        *tview.Application
-	delay      time.Duration
-	forceDelay time.Duration
+	timer      *time.Timer
+	forceTimer *time.Timer
 }
 
 func newNotice(app *tview.Application) *Notice {
@@ -28,8 +28,8 @@ func newNotice(app *tview.Application) *Notice {
 	return &Notice{
 		TextView:   t,
 		app:        app,
-		delay:      time.Second * 2,
-		forceDelay: time.Second * 6,
+		timer:      time.NewTimer(time.Second * 3),
+		forceTimer: time.NewTimer(time.Second * 8),
 	}
 }
 
@@ -43,9 +43,9 @@ func (n *Notice) sendMessage(s string) {
 }
 
 func (n *Notice) clear() {
-	timer := time.NewTimer(n.delay)
+	n.timer.Reset(time.Second * 3)
 	go func() {
-		<-timer.C
+		<-n.timer.C
 		n.app.QueueUpdate(func() {
 			n.Clear()
 		})
@@ -53,9 +53,9 @@ func (n *Notice) clear() {
 }
 
 func (n *Notice) forceClear() {
-	timer := time.NewTimer(n.forceDelay)
+	n.forceTimer.Reset(time.Second * 8)
 	go func() {
-		<-timer.C
+		<-n.forceTimer.C
 		n.Clear()
 		n.app.Draw()
 	}()

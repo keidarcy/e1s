@@ -137,7 +137,7 @@ func (v *View) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 		v.handleSelected(0, 0)
 	// Handle <ctrl> + r
 	case tcell.KeyCtrlR:
-		v.reloadResource()
+		v.reloadResource(true)
 	case tcell.KeyCtrlZ:
 		v.handleDone(0)
 	}

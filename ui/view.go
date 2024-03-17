@@ -177,10 +177,12 @@ func (v *View) getCurrentSelection() (Entity, error) {
 }
 
 // Reload current resource
-func (v *View) reloadResource() error {
+func (v *View) reloadResource(reloadNotice bool) error {
 	row, _ := v.table.GetSelection()
-	v.app.Notice.Info(reloadText)
-	go v.showKindPage(v.app.kind, true, row)
+	if reloadNotice {
+		v.app.Notice.Info(reloadText)
+	}
+	v.showKindPage(v.app.kind, true, row)
 	return nil
 }
 
@@ -211,7 +213,7 @@ func (v *View) showSecondaryKindPage(reload bool) {
 	if !reload {
 		v.app.Notice.Infof("Viewing %s...", v.app.secondaryKind.String())
 	} else {
-		logger.Infof("Reload in show: %v", reload)
+		logger.Debugf("Reload in showSecondaryKindPage: %v", reload)
 	}
 }
 
@@ -285,7 +287,7 @@ func (v *View) handleContentPageSwitch(entity Entity, contentString string) {
 
 		switch event.Key() {
 		case tcell.KeyCtrlR:
-			v.reloadResource()
+			v.reloadResource(true)
 		case tcell.KeyCtrlZ:
 			v.handleTableContentDone(0)
 		}

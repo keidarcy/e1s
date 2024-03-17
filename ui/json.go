@@ -125,13 +125,14 @@ func (v *View) handleFullScreenContentInput(event *tcell.EventKey) *tcell.EventK
 
 	switch event.Key() {
 	case tcell.KeyCtrlR:
-		v.reloadResource()
+		v.reloadResource(true)
 	}
 	return event
 }
 
 func (v *View) handleTableContentDone(key tcell.Key) {
 	pageName := v.app.kind.getTablePageName(v.app.getPageHandle())
+	v.app.secondaryKind = EmptyKind
 
 	logger.WithFields(logrus.Fields{
 		"Action":        "SwitchToPage",

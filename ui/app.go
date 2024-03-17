@@ -218,7 +218,7 @@ func (app *App) showPrimaryKindPage(k Kind, reload bool, rowIndex int) error {
 	if !reload {
 		app.Notice.Infof("Viewing %s...", app.kind.String())
 	} else {
-		logger.Infof("Reload in show: %v", reload)
+		logger.Debugf("Reload in showPrimaryKindPage: %v", reload)
 	}
 	return err
 }

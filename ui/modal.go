@@ -229,12 +229,12 @@ func (v *View) serviceUpdateContent() (*tview.Form, string) {
 			v.closeModal()
 			v.app.Notice.Error(err.Error())
 			logger.Error(err.Error())
-			v.reloadResource()
+			v.reloadResource(false)
 		} else {
 			v.closeModal()
 			v.app.Notice.Infof("SUCCESS: DesiredCount: %d, TaskDefinition: %s", s.DesiredCount, *s.TaskDefinition)
 			logger.Infof("SUCCESS: DesiredCount: %d, TaskDefinition: %s", s.DesiredCount, *s.TaskDefinition)
-			v.reloadResource()
+			v.reloadResource(false)
 		}
 	})
 	return f, title
