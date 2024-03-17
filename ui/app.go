@@ -105,7 +105,10 @@ func newApp(option Option) (*App, error) {
 // Entry point of the app
 func Show(option Option) error {
 	logger = option.Logger
-	logger.Info("================================ Started e1s =============================== \n\n")
+	logger.Debug(`
+****************************************************************
+*********** Started e1s debug
+****************************************************************`)
 	app, err := newApp(option)
 	if err != nil {
 		return err

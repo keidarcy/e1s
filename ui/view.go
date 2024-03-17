@@ -170,9 +170,9 @@ func (v *View) getCurrentSelection() (Entity, error) {
 	case Entity:
 		return entity, nil
 	default:
-		logger.Warnf("Unexpected error: %v (%T)", entity, entity)
-		v.app.Notice.Warnf("Unexpected error: %v (%T)", entity, entity)
-		return Entity{}, fmt.Errorf("unexpected error: %v (%T)", entity, entity)
+		logger.Warnf("Unexpected error in getCurrentSelection: %v (%T)", entity, entity)
+		v.app.Notice.Warnf("Unexpected error in getCurrentSelection: %v (%T)", entity, entity)
+		return Entity{}, fmt.Errorf("unexpected error in getCurrentSelection: %v (%T)", entity, entity)
 	}
 }
 

@@ -33,12 +33,14 @@ func (app *App) showClustersPage(reload bool, rowIndex int) error {
 	clusters, err := app.Store.ListClusters()
 	if err != nil {
 		logger.Errorf("Failed to load clusters in %s region, error: %s", app.Region, err.Error())
-		app.Notice.Errorf("Failed to load clusters in %s region, error: %s", app.Region, err.Error())
+		// app.Notice.Errorf("Failed to load clusters in %s region, error: %s", app.Region, err.Error())
+		return err
 	}
 
 	if len(clusters) == 0 {
 		logger.Warnf("There is no valid clusters in %s region", app.Region)
-		app.Notice.Warnf("There is no valid clusters in %s region", app.Region)
+		return fmt.Errorf("there is no valid clusters in %s region", app.Region)
+		// app.Notice.Warnf("There is no valid clusters in %s region", app.Region)
 	}
 
 	view := newClusterView(clusters, app)
