@@ -71,7 +71,6 @@ func newApp(option Option) (*App, error) {
 	if len(region) == 0 {
 		region = "unknown"
 	}
-	logger.Debugf("Region: %s", region)
 	app := tview.NewApplication()
 	pages := tview.NewPages()
 	footer := tview.NewFlex()
