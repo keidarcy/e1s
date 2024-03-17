@@ -11,7 +11,7 @@ import (
 func TestGetJsonData(t *testing.T) {
 	app, _ := newApp(Option{})
 	view := newView(app, []KeyInput{}, secondaryPageKeyMap{
-		JsonPage: []KeyInput{
+		DescriptionPage: []KeyInput{
 			{key: string(fKey), description: toggleFullScreen},
 		},
 	})

@@ -11,8 +11,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// Switch to selected resource JSON page
-func (v *View) switchToResourceJson() {
+// Switch to current kind description JSON page
+func (v *View) switchToDescriptionJson() {
 	selected, err := v.getCurrentSelection()
 	if err != nil {
 		return

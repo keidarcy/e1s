@@ -1,8 +1,6 @@
 package ui
 
 import (
-	"fmt"
-
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
 	"github.com/gdamore/tcell/v2"
@@ -85,12 +83,14 @@ func newApp(option Option) (*App, error) {
 		AddItem(footer, 1, 1, false)
 
 	return &App{
-		Application: app,
-		Pages:       pages,
-		Notice:      notice,
-		MainScreen:  main,
-		Store:       store,
-		Option:      option,
+		Application:   app,
+		Pages:         pages,
+		Notice:        notice,
+		MainScreen:    main,
+		Store:         store,
+		Option:        option,
+		kind:          ClusterPage,
+		secondaryKind: EmptyKind,
 		Entity: Entity{
 			cluster: &types.Cluster{
 				ClusterName: aws.String("placeholder cluster"),
@@ -113,7 +113,7 @@ func Show(option Option) error {
 
 	app.initStyles()
 
-	if err := app.showPrimaryKindPage(ClusterPage, true, 0); err != nil {
+	if err := app.showPrimaryKindPage(ClusterPage, false, 0); err != nil {
 		return err
 	}
 
@@ -145,7 +145,6 @@ func (app *App) addAppPage(page *tview.Flex) {
 	}).Debug("AddPage app.Pages")
 
 	app.Pages.AddPage(pageName, page, true, true)
-	app.Notice.Info(fmt.Sprintf("Viewing %s", app.kind.String()))
 }
 
 // Switch app.Pages page
@@ -172,6 +171,7 @@ func (app *App) SwitchPage(reload bool) bool {
 func (app *App) back() {
 	prevKind := app.kind.prevKind()
 	app.kind = prevKind
+	app.secondaryKind = EmptyKind
 	pageName := prevKind.getAppPageName(app.getPageHandle())
 
 	logger.WithFields(logrus.Fields{
@@ -197,22 +197,28 @@ func (app *App) getPageHandle() string {
 
 // Show Primary kind page
 func (app *App) showPrimaryKindPage(k Kind, reload bool, rowIndex int) error {
+	var err error
 	switch k {
 	case ClusterPage:
 		app.kind = ClusterPage
-		return app.showClustersPage(reload, rowIndex)
+		err = app.showClustersPage(reload, rowIndex)
 	case ServicePage:
 		app.kind = ServicePage
-		return app.showServicesPage(reload, rowIndex)
+		err = app.showServicesPage(reload, rowIndex)
 	case TaskPage:
 		app.kind = TaskPage
-		return app.showTasksPages(reload, rowIndex)
+		err = app.showTasksPages(reload, rowIndex)
 	case ContainerPage:
 		app.kind = ContainerPage
-		return app.showContainersPage(reload, rowIndex)
+		err = app.showContainersPage(reload, rowIndex)
 	default:
 		app.kind = ClusterPage
-		app.showClustersPage(reload, rowIndex)
+		err = app.showClustersPage(reload, rowIndex)
 	}
-	return nil
+	if !reload {
+		app.Notice.Infof("Viewing %s...", app.kind.String())
+	} else {
+		logger.Infof("Reload in show: %v", reload)
+	}
+	return err
 }

@@ -53,6 +53,8 @@ func (v *View) getListString(entity Entity) string {
 
 		if err != nil {
 			contentString += "[red::]No valid contents[-:-:-]"
+			v.app.Notice.Warn("Failed to getListString")
+			logger.Warnf("Failed to getListString, err: %v", err)
 		}
 
 		if len(logs) == 0 {
@@ -72,6 +74,8 @@ func (v *View) getListString(entity Entity) string {
 func (v *View) switchToServiceEventsList() {
 	selected, err := v.getCurrentSelection()
 	if err != nil {
+		v.app.Notice.Warn("Failed to switchToServiceEventsList")
+		logger.Warnf("Failed to switchToServiceEventsList, err: %v", err)
 		return
 	}
 	if v.app.kind != ServicePage {
@@ -87,6 +91,8 @@ func (v *View) switchToLogsList() {
 	}
 	selected, err := v.getCurrentSelection()
 	if err != nil {
+		v.app.Notice.Warn("Failed to switchToLogsList")
+		logger.Warnf("Failed to switchToLogsList, err: %v", err)
 		return
 	}
 	v.showListPages(selected)
@@ -106,6 +112,8 @@ func (v *View) realtimeAwsLog(entity Entity) {
 	}
 	td, err := v.app.Store.DescribeTaskDefinition(tdArn)
 	if err != nil {
+		v.app.Notice.Warn("Failed to switchToLogsList")
+		logger.Warnf("Failed to switchToLogsList, err: %v", err)
 		return
 	}
 	for _, c := range td.ContainerDefinitions {

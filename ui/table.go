@@ -74,6 +74,8 @@ func (v *View) handleSelectionChanged(row, column int) {
 	v.changeSelectedValues()
 	selected, err := v.getCurrentSelection()
 	if err != nil {
+		v.app.Notice.Warn("Failed to handleSelectionChanged")
+		logger.Warnf("Failed to handleSelectionChanged, err: %v", err)
 		return
 	}
 	v.infoPages.SwitchToPage(selected.entityName)
@@ -84,6 +86,8 @@ func (v *View) handleSelected(row, column int) {
 	if v.app.kind == ContainerPage {
 		selected, err := v.getCurrentSelection()
 		if err != nil {
+			v.app.Notice.Warn("Failed to handleSelected")
+			logger.Warnf("Failed to handleSelected, err: %v", err)
 			return
 		}
 		containerName := *selected.container.Name
@@ -98,29 +102,29 @@ func (v *View) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 	switch event.Rune() {
 	case aKey, aKey - upperLowerDiff:
 		v.app.secondaryKind = AutoScalingPage
-		v.switchToAutoScalingJson()
+		v.showSecondaryKindPage(false)
 	case bKey, bKey - upperLowerDiff:
 		v.openInBrowser()
 	case dKey, dKey - upperLowerDiff:
-		v.app.secondaryKind = JsonPage
-		v.switchToResourceJson()
+		v.app.secondaryKind = DescriptionPage
+		v.showSecondaryKindPage(false)
 	case eKey, eKey - upperLowerDiff:
 		v.showEditServiceModal()
 		v.editTaskDefinition()
 	case lKey, lKey - upperLowerDiff:
 		v.app.secondaryKind = LogPage
-		v.switchToLogsList()
+		v.showSecondaryKindPage(false)
 	case mKey, mKey - upperLowerDiff:
 		v.showMetricsModal()
 	case tKey, tKey - upperLowerDiff:
 		v.app.secondaryKind = TaskDefinitionPage
-		v.switchToTaskDefinitionJson()
+		v.showSecondaryKindPage(false)
 	case vKey, vKey - upperLowerDiff:
 		v.app.secondaryKind = TaskDefinitionRevisionsPage
-		v.switchToTaskDefinitionRevisionsJson()
+		v.showSecondaryKindPage(false)
 	case wKey, wKey - upperLowerDiff:
 		v.app.secondaryKind = ServiceEventsPage
-		v.switchToServiceEventsList()
+		v.showSecondaryKindPage(false)
 	}
 
 	// If it's composite keystroke, event.Key() is ctrl-char ascii code
@@ -152,6 +156,8 @@ func (v *View) handleDone(key tcell.Key) {
 func (v *View) changeSelectedValues() {
 	selected, err := v.getCurrentSelection()
 	if err != nil {
+		v.app.Notice.Warn("Failed to changeSelectedValues")
+		logger.Warnf("Failed to changeSelectedValues, err: %v", err)
 		return
 	}
 	if v.app.kind == ClusterPage {
@@ -175,6 +181,8 @@ func (v *View) changeSelectedValues() {
 func (v *View) openInBrowser() {
 	selected, err := v.getCurrentSelection()
 	if err != nil {
+		v.app.Notice.Warn("Failed to openInBrowser")
+		logger.Warnf("Failed to openInBrowser, err: %v", err)
 		return
 	}
 	arn := ""
@@ -211,6 +219,8 @@ func (v *View) editTaskDefinition() {
 	// get td detail
 	selected, err := v.getCurrentSelection()
 	if err != nil {
+		v.app.Notice.Warn("Failed to editTaskDefinition")
+		logger.Warnf("Failed to editTaskDefinition, err: %v", err)
 		return
 	}
 	taskDefinition := *selected.task.TaskDefinitionArn

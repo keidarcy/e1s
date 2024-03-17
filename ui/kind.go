@@ -9,10 +9,11 @@ const (
 	ContainerPage
 	TaskDefinitionPage
 	TaskDefinitionRevisionsPage
-	JsonPage
+	DescriptionPage
 	ServiceEventsPage
 	LogPage
 	AutoScalingPage
+	EmptyKind
 )
 
 func (k Kind) String() string {
@@ -25,8 +26,8 @@ func (k Kind) String() string {
 		return "tasks"
 	case ContainerPage:
 		return "containers"
-	case JsonPage:
-		return "json"
+	case DescriptionPage:
+		return "description"
 	case TaskDefinitionPage:
 		return "taskDefinition"
 	case TaskDefinitionRevisionsPage:
@@ -81,7 +82,7 @@ func (k Kind) getAppPageName(name string) string {
 		return k.String() + "." + name
 	case ContainerPage:
 		return k.String() + "." + name
-	case JsonPage:
+	case DescriptionPage:
 		return k.String() + "." + name
 	default:
 		return k.String()
@@ -95,12 +96,12 @@ func (k Kind) getTablePageName(name string) string {
 
 func (k Kind) getContentPageName(name string) string {
 	pageName := k.getAppPageName(name)
-	return pageName + "." + JsonPage.String()
+	return pageName + "." + DescriptionPage.String()
 }
 
 type secondaryPageKeyMap = map[Kind][]KeyInput
 
-var jsonPageKeys = []KeyInput{
+var descriptionPageKeys = []KeyInput{
 	{key: string(fKey), description: toggleFullScreen},
 	{key: string(bKey), description: openInBrowser},
 	{key: ctrlZ, description: backToPrevious},

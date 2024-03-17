@@ -2,7 +2,6 @@ package ui
 
 import (
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/rivo/tview"
@@ -17,7 +16,9 @@ const (
 
 type Notice struct {
 	*tview.TextView
-	app *tview.Application
+	app        *tview.Application
+	delay      time.Duration
+	forceDelay time.Duration
 }
 
 func newNotice(app *tview.Application) *Notice {
@@ -25,30 +26,39 @@ func newNotice(app *tview.Application) *Notice {
 		SetTextAlign(C).
 		SetDynamicColors(true)
 	return &Notice{
-		TextView: t,
-		app:      app,
+		TextView:   t,
+		app:        app,
+		delay:      time.Second * 2,
+		forceDelay: time.Second * 6,
 	}
 }
 
 func (n *Notice) sendMessage(s string) {
 	update := func() {
-		t := strings.TrimSpace(n.GetText(false))
-		if t != infoFmt+reloadText+closeFmt {
-			n.SetText(s)
-		}
-	}
-	clear := func() {
-		n.app.QueueUpdate(func() {
-			n.SetText("")
-		})
-	}
-	forceClear := func() {
-		n.SetText("")
-		n.app.Draw()
+		n.SetText(s)
 	}
 	go n.app.QueueUpdateDraw(update)
-	time.AfterFunc(2*time.Second, clear)
-	time.AfterFunc(8*time.Second, forceClear)
+	n.clear()
+	n.forceClear()
+}
+
+func (n *Notice) clear() {
+	timer := time.NewTimer(n.delay)
+	go func() {
+		<-timer.C
+		n.app.QueueUpdate(func() {
+			n.Clear()
+		})
+	}()
+}
+
+func (n *Notice) forceClear() {
+	timer := time.NewTimer(n.forceDelay)
+	go func() {
+		<-timer.C
+		n.Clear()
+		n.app.Draw()
+	}()
 }
 
 func (n *Notice) Info(s string) {

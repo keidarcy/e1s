@@ -185,13 +185,34 @@ func (v *View) reloadResource() error {
 }
 
 // Show kind page including primary kind, secondary kind
-func (v *View) showKindPage(k Kind, reload bool, rowIndex int) error {
+func (v *View) showKindPage(k Kind, reload bool, rowIndex int) {
+	if v.app.secondaryKind != EmptyKind {
+		v.showSecondaryKindPage(reload)
+		return
+	}
+	v.app.showPrimaryKindPage(k, reload, rowIndex)
+}
+
+func (v *View) showSecondaryKindPage(reload bool) {
 	switch v.app.secondaryKind {
+	case AutoScalingPage:
+		v.switchToAutoScalingJson()
+	case DescriptionPage:
+		v.switchToDescriptionJson()
 	case LogPage:
 		v.switchToLogsList()
-		return nil
+	case TaskDefinitionPage:
+		v.switchToTaskDefinitionJson()
+	case TaskDefinitionRevisionsPage:
+		v.switchToTaskDefinitionRevisionsJson()
+	case ServiceEventsPage:
+		v.switchToServiceEventsList()
 	}
-	return v.app.showPrimaryKindPage(k, reload, rowIndex)
+	if !reload {
+		v.app.Notice.Infof("Viewing %s...", v.app.secondaryKind.String())
+	} else {
+		logger.Infof("Reload in show: %v", reload)
+	}
 }
 
 // Go current page based on current kind

@@ -28,12 +28,12 @@ func newServiceView(services []types.Service, app *App) *ServiceView {
 	}...)
 	return &ServiceView{
 		View: *newView(app, keys, secondaryPageKeyMap{
-			JsonPage:                    jsonPageKeys,
+			DescriptionPage:             descriptionPageKeys,
 			LogPage:                     logPageKeys,
-			AutoScalingPage:             jsonPageKeys,
-			ServiceEventsPage:           jsonPageKeys,
-			TaskDefinitionPage:          jsonPageKeys,
-			TaskDefinitionRevisionsPage: jsonPageKeys,
+			AutoScalingPage:             descriptionPageKeys,
+			ServiceEventsPage:           descriptionPageKeys,
+			TaskDefinitionPage:          descriptionPageKeys,
+			TaskDefinitionRevisionsPage: descriptionPageKeys,
 		}),
 		services: services,
 	}

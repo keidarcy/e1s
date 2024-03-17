@@ -18,7 +18,7 @@ type ClusterView struct {
 func newClusterView(clusters []types.Cluster, app *App) *ClusterView {
 	return &ClusterView{
 		View: *newView(app, basicKeyInputs, secondaryPageKeyMap{
-			JsonPage: jsonPageKeys,
+			DescriptionPage: descriptionPageKeys,
 		}),
 		clusters: clusters,
 	}
