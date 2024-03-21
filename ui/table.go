@@ -125,6 +125,8 @@ func (v *View) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 	case wKey, wKey - upperLowerDiff:
 		v.app.secondaryKind = ServiceEventsPage
 		v.showSecondaryKindPage(false)
+	case 'F':
+		v.showPortForwardModal()
 	}
 
 	// If it's composite keystroke, event.Key() is ctrl-char ascii code
@@ -309,6 +311,5 @@ func (v *View) editTaskDefinition() {
 		}
 
 		v.showTaskDefinitionConfirm(register)
-
 	})
 }

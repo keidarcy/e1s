@@ -1,6 +1,9 @@
 package ui
 
 import (
+	"encoding/json"
+	"fmt"
+	"os/exec"
 	"strconv"
 	"strings"
 
@@ -274,5 +277,131 @@ func (v *View) serviceMetricsContent() (*tview.Form, string) {
 		f.AddTextView(memLabel, util.BuildMeterText(*metrics.MemoryUtilization[0].Average), 50, 1, true, false)
 	}
 
+	return f, title
+}
+
+// Show port forward modal and handle confirm event
+func (v *View) showPortForwardModal() {
+	if v.app.kind != ContainerPage {
+		return
+	}
+	content, title := v.portForwardForm()
+	if content == nil {
+		return
+	}
+	v.app.Pages.AddPage(title, v.modal(content, 100, 15), true, true)
+}
+
+// Get port forward form
+// Equivalent to
+// aws ssm start-session
+// --target ecs:${cluster_id}_${task_id}_${runtime_id}
+// --document-name AWS-StartPortForwardingSession
+// --parameters {"portNumber":["${port}"], "localPortNumber":["${local_port}"]}
+// OR
+// aws ssm start-session
+// --target ecs:${cluster_id}_${task_id}_${runtime_id}
+// --document-name AWS-StartPortForwardingSession
+// --parameters {"portNumber":["${port}"], "localPortNumber":["${local_port}"]}
+func (v *View) portForwardForm() (*tview.Form, string) {
+	selected, err := v.getCurrentSelection()
+	if err != nil {
+		return nil, ""
+	}
+	name := *selected.container.Name
+
+	readOnly := ""
+	if v.app.ReadOnly {
+		readOnly = readonlyLabel
+	}
+
+	title := " Port Forward [purple::b]" + name + readOnly
+
+	f := v.styledForm(title)
+	remoteForwardLabel := "Remote Forward"
+	hostLabel := "Host"
+	portLabel := "Port number"
+	localPortLabel := "Local port number"
+
+	f.AddCheckbox(remoteForwardLabel, false, nil)
+	f.AddInputField(hostLabel, "", 50, nil, nil)
+	f.AddInputField(portLabel, "3000", 50, nil, nil)
+	f.AddInputField(localPortLabel, "3000", 50, nil, nil)
+
+	// handle form close
+	f.AddButton("Cancel", func() {
+		v.closeModal()
+	})
+
+	// readonly mode has no submit button
+	if v.app.ReadOnly {
+		return f, title
+	}
+
+	// handle form submit
+	f.AddButton("Start", func() {
+		taskArn := strings.Split(*v.app.task.TaskArn, "/")
+		clusterName := taskArn[1]
+		taskId := taskArn[2]
+		runtimeId := *selected.container.RuntimeId
+
+		remoteForward := f.GetFormItemByLabel(remoteForwardLabel).(*tview.Checkbox).IsChecked()
+		host := f.GetFormItemByLabel(hostLabel).(*tview.InputField).GetText()
+		port := f.GetFormItemByLabel(portLabel).(*tview.InputField).GetText()
+		localPort := f.GetFormItemByLabel(localPortLabel).(*tview.InputField).GetText()
+
+		target := fmt.Sprintf("ecs:%s_%s_%s", clusterName, taskId, runtimeId)
+
+		documentName := "AWS-StartPortForwardingSession"
+		params := map[string][]string{
+			"portNumber":      {port},
+			"localPortNumber": {localPort},
+		}
+		if remoteForward {
+			// remote forward
+			documentName = "AWS-StartPortForwardingSessionToRemoteHost"
+			params["host"] = []string{host}
+		}
+
+		bin, err := exec.LookPath(awsCli)
+		if err != nil {
+			logger.Warnf("Failed to find aws cli binary, error: %v", err)
+			v.app.Notice.Warnf("Failed to find aws cli binary, error: %v", err)
+			v.app.back()
+		}
+
+		paramsJson, _ := json.Marshal(params)
+
+		arg := []string{
+			"ssm",
+			"start-session",
+			"--target", target,
+			"--document-name", documentName,
+			"--parameter", string(paramsJson),
+		}
+
+		logger.Infof("Exec: `%s %s`", awsCli, strings.Join(arg, " "))
+
+		cmd := exec.Command(bin, arg...)
+		err = cmd.Start()
+		out, _ := cmd.Output()
+		pid := cmd.Process.Pid
+		logger.Info(out)
+		logger.Info(pid)
+
+		if err != nil {
+			v.closeModal()
+			v.app.Notice.Error(err.Error())
+			logger.Error(err.Error())
+		} else {
+			v.closeModal()
+			if remoteForward {
+				v.app.Notice.Infof("Remote host port forwarding, host: %s, port: %s, local port: %s", host, port, localPort)
+				logger.Infof("Remote host port forwarding, host: %s, port: %s, local port: %s", host, port, localPort)
+			}
+			v.app.Notice.Infof("Port forwarding, port: %s, local port: %s", port, localPort)
+			logger.Infof("Port forwarding, port: %s, local port: %s", port, localPort)
+		}
+	})
 	return f, title
 }
