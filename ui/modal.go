@@ -1,15 +1,13 @@
 package ui
 
 import (
-	"encoding/json"
-	"fmt"
-	"os/exec"
 	"strconv"
 	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/ecs"
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
+	"github.com/keidarcy/e1s/api"
 	"github.com/keidarcy/e1s/util"
 	"github.com/rivo/tview"
 )
@@ -281,29 +279,19 @@ func (v *View) serviceMetricsContent() (*tview.Form, string) {
 }
 
 // Show port forward modal and handle confirm event
-func (v *View) showPortForwardModal() {
+func (v *View) showPortForwardingModal() {
 	if v.app.kind != ContainerPage {
 		return
 	}
-	content, title := v.portForwardForm()
+	content, title := v.portForwardingForm()
 	if content == nil {
 		return
 	}
 	v.app.Pages.AddPage(title, v.modal(content, 100, 15), true, true)
 }
 
-// Get port forward form
-// Equivalent to
-// aws ssm start-session
-// --target ecs:${cluster_id}_${task_id}_${runtime_id}
-// --document-name AWS-StartPortForwardingSession
-// --parameters {"portNumber":["${port}"], "localPortNumber":["${local_port}"]}
-// OR
-// aws ssm start-session
-// --target ecs:${cluster_id}_${task_id}_${runtime_id}
-// --document-name AWS-StartPortForwardingSession
-// --parameters {"portNumber":["${port}"], "localPortNumber":["${local_port}"]}
-func (v *View) portForwardForm() (*tview.Form, string) {
+// Get port forward form content
+func (v *View) portForwardingForm() (*tview.Form, string) {
 	selected, err := v.getCurrentSelection()
 	if err != nil {
 		return nil, ""
@@ -345,62 +333,44 @@ func (v *View) portForwardForm() (*tview.Form, string) {
 		taskId := taskArn[2]
 		runtimeId := *selected.container.RuntimeId
 
-		remoteForward := f.GetFormItemByLabel(remoteForwardLabel).(*tview.Checkbox).IsChecked()
+		remoteHost := f.GetFormItemByLabel(remoteForwardLabel).(*tview.Checkbox).IsChecked()
 		host := f.GetFormItemByLabel(hostLabel).(*tview.InputField).GetText()
 		port := f.GetFormItemByLabel(portLabel).(*tview.InputField).GetText()
 		localPort := f.GetFormItemByLabel(localPortLabel).(*tview.InputField).GetText()
 
-		target := fmt.Sprintf("ecs:%s_%s_%s", clusterName, taskId, runtimeId)
-
-		documentName := "AWS-StartPortForwardingSession"
-		params := map[string][]string{
-			"portNumber":      {port},
-			"localPortNumber": {localPort},
-		}
-		if remoteForward {
-			// remote forward
-			documentName = "AWS-StartPortForwardingSessionToRemoteHost"
-			params["host"] = []string{host}
-		}
-
-		bin, err := exec.LookPath(awsCli)
-		if err != nil {
-			logger.Warnf("Failed to find aws cli binary, error: %v", err)
-			v.app.Notice.Warnf("Failed to find aws cli binary, error: %v", err)
-			v.app.back()
-		}
-
-		paramsJson, _ := json.Marshal(params)
-
-		arg := []string{
-			"ssm",
-			"start-session",
-			"--target", target,
-			"--document-name", documentName,
-			"--parameter", string(paramsJson),
-		}
-
-		logger.Infof("Exec: `%s %s`", awsCli, strings.Join(arg, " "))
-
-		cmd := exec.Command(bin, arg...)
-		err = cmd.Start()
-		out, _ := cmd.Output()
-		pid := cmd.Process.Pid
-		logger.Info(out)
-		logger.Info(pid)
+		sessionId, err := v.app.Store.StartSession(&api.SsmStartSessionInput{
+			ClusterName: clusterName,
+			TaskId:      taskId,
+			RuntimeId:   runtimeId,
+			RemoteHost:  remoteHost,
+			Port:        port,
+			LocalPort:   localPort,
+		})
 
 		if err != nil {
 			v.closeModal()
+
 			v.app.Notice.Error(err.Error())
 			logger.Error(err.Error())
 		} else {
 			v.closeModal()
-			if remoteForward {
+
+			if remoteHost {
 				v.app.Notice.Infof("Remote host port forwarding, host: %s, port: %s, local port: %s", host, port, localPort)
 				logger.Infof("Remote host port forwarding, host: %s, port: %s, local port: %s", host, port, localPort)
 			}
+			v.app.sessionIds = append(v.app.sessionIds, &sessionId)
 			v.app.Notice.Infof("Port forwarding, port: %s, local port: %s", port, localPort)
 			logger.Infof("Port forwarding, port: %s, local port: %s", port, localPort)
+
+			// Update container table associated row PF text
+			row, _ := v.table.GetSelection()
+			if row == 0 {
+				row++
+			}
+			go v.app.QueueUpdateDraw(func() {
+				v.table.GetCell(row, 3).SetText("[green::i]F[-:-:-]")
+			})
 		}
 	})
 	return f, title

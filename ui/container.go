@@ -17,6 +17,7 @@ type ContainerView struct {
 func newContainerView(containers []types.Container, app *App) *ContainerView {
 	keys := append(basicKeyInputs, []KeyInput{
 		{key: "Enter", description: sshContainer},
+		{key: "shift-f", description: portForwarding},
 	}...)
 	return &ContainerView{
 		View: *newView(app, keys, secondaryPageKeyMap{
@@ -32,8 +33,9 @@ func (app *App) showContainersPage(reload bool, rowIndex int) error {
 	}
 
 	// no containers exists do nothing
-	if len(app.task.Containers) == 0 {
-		return nil
+	if app.task == nil || len(app.task.Containers) == 0 {
+		app.back()
+		return fmt.Errorf("no valid container")
 	}
 	view := newContainerView(app.task.Containers, app)
 	page := buildAppPage(view)
@@ -127,6 +129,7 @@ func (v *ContainerView) tableParam() (title string, headers []string, dataBuilde
 		"Name",
 		"Health status ▾",
 		"Status",
+		"PF",
 		"Container runtime id",
 		"Image URI",
 	}
@@ -138,6 +141,7 @@ func (v *ContainerView) tableParam() (title string, headers []string, dataBuilde
 			row = append(row, util.ShowString(c.Name))
 			row = append(row, util.ShowGreenGrey(&health, "healthy"))
 			row = append(row, util.ShowGreenGrey(c.LastStatus, "running"))
+			row = append(row, util.EmptyText)
 			row = append(row, util.ShowString(c.RuntimeId))
 			row = append(row, util.ShowString(c.Image))
 			data = append(data, row)

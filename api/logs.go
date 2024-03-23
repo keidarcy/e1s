@@ -27,7 +27,7 @@ import (
 //	  --query "events[*].[timestamp,message]" \
 //	  --output table
 func (store *Store) GetLogs(tdArn *string) ([]cloudwatchlogsTypes.OutputLogEvent, error) {
-	store.getCloudwatchlogsClient()
+	store.initCloudwatchlogsClient()
 	td, err := store.DescribeTaskDefinition(tdArn)
 
 	if err != nil {

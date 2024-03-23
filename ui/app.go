@@ -60,6 +60,8 @@ type App struct {
 	Option
 	// Current screen item content
 	Entity
+	// Port forwarding ssm session Id
+	sessionIds []*string
 }
 
 func newApp(option Option) (*App, error) {
@@ -106,7 +108,7 @@ func Show(option Option) error {
 	logger = option.Logger
 	logger.Debug(`
 ****************************************************************
-*********** Started e1s debug
+**************** Started e1s
 ****************************************************************`)
 	app, err := newApp(option)
 	if err != nil {
@@ -122,6 +124,7 @@ func Show(option Option) error {
 	if err := app.Application.SetRoot(app.MainScreen, true).Run(); err != nil {
 		return err
 	}
+	app.onClose()
 	return nil
 }
 
@@ -217,10 +220,29 @@ func (app *App) showPrimaryKindPage(k Kind, reload bool, rowIndex int) error {
 		app.kind = ClusterPage
 		err = app.showClustersPage(reload, rowIndex)
 	}
+	if err != nil {
+		app.Notice.Error(err.Error())
+		return err
+	}
 	if !reload {
 		app.Notice.Infof("Viewing %s...", app.kind.String())
 	} else {
 		logger.Debugf("Reload in showPrimaryKindPage: %v", reload)
 	}
-	return err
+	return nil
+}
+
+// E1s app close hook
+func (app *App) onClose() {
+	if len(app.sessionIds) != 0 {
+		err := app.Store.TerminateSessions(app.sessionIds)
+		if err != nil {
+			logger.Errorf("Failed to terminated port forwarding sessions err: %v", err)
+		} else {
+			logger.Debug("Terminated port forwarding session terminated")
+		}
+	}
+
+	logger.Debug(`
+**************** Exited e1s ************************************`)
 }

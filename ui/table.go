@@ -100,33 +100,33 @@ func (v *View) handleSelected(row, column int) {
 func (v *View) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 	// If it's single keystroke, event.Rune() is ascii code
 	switch event.Rune() {
-	case aKey, aKey - upperLowerDiff:
+	case aKey:
 		v.app.secondaryKind = AutoScalingPage
 		v.showSecondaryKindPage(false)
-	case bKey, bKey - upperLowerDiff:
+	case bKey:
 		v.openInBrowser()
-	case dKey, dKey - upperLowerDiff:
+	case dKey:
 		v.app.secondaryKind = DescriptionPage
 		v.showSecondaryKindPage(false)
-	case eKey, eKey - upperLowerDiff:
+	case eKey:
 		v.showEditServiceModal()
 		v.editTaskDefinition()
-	case lKey, lKey - upperLowerDiff:
+	case lKey:
 		v.app.secondaryKind = LogPage
 		v.showSecondaryKindPage(false)
-	case mKey, mKey - upperLowerDiff:
+	case mKey:
 		v.showMetricsModal()
-	case tKey, tKey - upperLowerDiff:
+	case tKey:
 		v.app.secondaryKind = TaskDefinitionPage
 		v.showSecondaryKindPage(false)
-	case vKey, vKey - upperLowerDiff:
+	case vKey:
 		v.app.secondaryKind = TaskDefinitionRevisionsPage
 		v.showSecondaryKindPage(false)
-	case wKey, wKey - upperLowerDiff:
+	case wKey:
 		v.app.secondaryKind = ServiceEventsPage
 		v.showSecondaryKindPage(false)
-	case 'F':
-		v.showPortForwardModal()
+	case FKey:
+		v.showPortForwardingModal()
 	}
 
 	// If it's composite keystroke, event.Key() is ctrl-char ascii code

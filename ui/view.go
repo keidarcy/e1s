@@ -41,6 +41,7 @@ const (
 	reloadResource     = "Reload Resources"
 	openInBrowser      = "Open in browser"
 	sshContainer       = "SSH container"
+	portForwarding     = "Port forwarding"
 	toggleFullScreen   = "Content Toggle full screen"
 	realtimeLog        = "Cloudwatch realtime logs(only support one log group)"
 	backToPrevious     = "Back"
@@ -48,6 +49,7 @@ const (
 	// shell        = "/bin/sh -c \"if [ -x /bin/bash ]; then exec /bin/bash; else exec /bin/sh; fi\""
 	shell          = "/bin/sh"
 	awsCli         = "aws"
+	smpCi          = "session-manager-plugin"
 	sshBannerFmt   = "\033[1;31m<<E1S-ECS-EXEC>>\033[0m: \n#######################################\n\033[1;32mCluster\033[0m: \"%s\" \n\033[1;32mService\033[0m: \"%s\" \n\033[1;32mTask\033[0m: \"%s\" \n\033[1;32mContainer\033[0m: \"%s\"\n#######################################\n"
 	realtimeLogFmt = "\033[1;31m<<E1S-LOGS-TAIL>>\033[0m: \n#######################################\n\033[1;32mCluster\033[0m: \"%s\" \n\033[1;32mService\033[0m: \"%s\" \n\033[1;32mLogGroup\033[0m: \"%s\"\n#######################################\n"
 
@@ -66,10 +68,9 @@ const (
 	tKey  = 't'
 	vKey  = 'v'
 	wKey  = 'w'
+	FKey  = 'F'
 	ctrlR = "ctrl-r"
 	ctrlZ = "ctrl-z"
-
-	upperLowerDiff = rune(32)
 )
 
 var basicKeyInputs = []KeyInput{
@@ -274,11 +275,11 @@ func (v *View) handleContentPageSwitch(entity Entity, contentString string) {
 
 		// contentTextComponent press f open in full screen
 		switch event.Rune() {
-		case fKey, fKey - upperLowerDiff:
+		case fKey:
 			v.app.Pages.AddPage(contentPageName, fullScreenContent, true, true)
-		case bKey, bKey - upperLowerDiff:
+		case bKey:
 			v.openInBrowser()
-		case rKey, rKey - upperLowerDiff:
+		case rKey:
 			if v.app.secondaryKind == LogPage {
 				v.realtimeAwsLog(entity)
 			}
@@ -346,11 +347,19 @@ func (v *View) ssh(containerName string) {
 
 	bin, err := exec.LookPath(awsCli)
 	if err != nil {
-		logger.Warnf("Failed to find aws cli binary, error: %v", err)
-		v.app.Notice.Warnf("Failed to find aws cli binary, error: %v", err)
+		logger.Warnf("Failed to find %s path, please check %s", awsCli, "https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html")
+		v.app.Notice.Warnf("Failed to find %s path, please check %s", awsCli, "https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html")
 		v.app.back()
 	}
-	arg := []string{
+
+	_, err = exec.LookPath(smpCi)
+	if err != nil {
+		logger.Warnf("Failed to find %s path, please check %s", smpCi, "https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html")
+		v.app.Notice.Warnf("Failed to find %s path, please check %s", smpCi, "https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html")
+		v.app.back()
+	}
+
+	args := []string{
 		"ecs",
 		"execute-command",
 		"--cluster",
@@ -364,10 +373,10 @@ func (v *View) ssh(containerName string) {
 		shell,
 	}
 
-	logger.Infof("Exec: `%s %s`", awsCli, strings.Join(arg, " "))
+	logger.Infof("Exec: `%s %s`", awsCli, strings.Join(args, " "))
 
 	v.app.Suspend(func() {
-		cmd := exec.Command(bin, arg...)
+		cmd := exec.Command(bin, args...)
 		cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, os.Stderr
 		// ignore the stderr from ssh server
 		_, err = cmd.Stdout.Write([]byte(fmt.Sprintf(sshBannerFmt, *v.app.cluster.ClusterName, *v.app.service.ServiceName, util.ArnToName(v.app.task.TaskArn), containerName)))

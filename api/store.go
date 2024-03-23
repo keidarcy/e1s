@@ -10,6 +10,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/cloudwatch"
 	"github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs"
 	"github.com/aws/aws-sdk-go-v2/service/ecs"
+	"github.com/aws/aws-sdk-go-v2/service/ssm"
 	"github.com/sirupsen/logrus"
 )
 
@@ -21,6 +22,7 @@ type Store struct {
 	cloudwatch     *cloudwatch.Client
 	cloudwatchlogs *cloudwatchlogs.Client
 	autoScaling    *applicationautoscaling.Client
+	ssm            *ssm.Client
 }
 
 func NewStore(logr *logrus.Logger) (*Store, error) {
@@ -37,14 +39,20 @@ func NewStore(logr *logrus.Logger) (*Store, error) {
 	}, nil
 }
 
-func (store *Store) getCloudwatchClient() {
+func (store *Store) initCloudwatchClient() {
 	if store.cloudwatch == nil {
 		store.cloudwatch = cloudwatch.NewFromConfig(*store.Config)
 	}
 }
 
-func (store *Store) getCloudwatchlogsClient() {
+func (store *Store) initCloudwatchlogsClient() {
 	if store.cloudwatchlogs == nil {
 		store.cloudwatchlogs = cloudwatchlogs.NewFromConfig(*store.Config)
+	}
+}
+
+func (store *Store) initSsmClient() {
+	if store.ssm == nil {
+		store.ssm = ssm.NewFromConfig(*store.Config)
 	}
 }
