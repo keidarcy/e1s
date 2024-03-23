@@ -296,7 +296,28 @@ func (v *View) portForwardingForm() (*tview.Form, string) {
 	if err != nil {
 		return nil, ""
 	}
+	// container name
 	name := *selected.container.Name
+
+	placeHolderPort := "8080"
+	placeHolderLocalPort := "8080"
+
+	td, err := v.app.Store.DescribeTaskDefinition(v.app.task.TaskDefinitionArn)
+	if err != nil {
+		return nil, ""
+	}
+
+	for _, c := range td.ContainerDefinitions {
+		if name == *c.Name {
+			if len(c.PortMappings) > 0 {
+				if p := c.PortMappings[0].ContainerPort; p != nil {
+					placeHolderPort = strconv.Itoa(int((*p)))
+					placeHolderLocalPort = strconv.Itoa(int((*p)))
+				}
+			}
+			break
+		}
+	}
 
 	readOnly := ""
 	if v.app.ReadOnly {
@@ -313,8 +334,8 @@ func (v *View) portForwardingForm() (*tview.Form, string) {
 
 	f.AddCheckbox(remoteForwardLabel, false, nil)
 	f.AddInputField(hostLabel, "", 50, nil, nil)
-	f.AddInputField(portLabel, "3000", 50, nil, nil)
-	f.AddInputField(localPortLabel, "3000", 50, nil, nil)
+	f.AddInputField(portLabel, placeHolderPort, 50, nil, nil)
+	f.AddInputField(localPortLabel, placeHolderLocalPort, 50, nil, nil)
 
 	// handle form close
 	f.AddButton("Cancel", func() {
@@ -340,6 +361,7 @@ func (v *View) portForwardingForm() (*tview.Form, string) {
 
 		sessionId, err := v.app.Store.StartSession(&api.SsmStartSessionInput{
 			ClusterName: clusterName,
+			Host:        host,
 			TaskId:      taskId,
 			RuntimeId:   runtimeId,
 			RemoteHost:  remoteHost,
