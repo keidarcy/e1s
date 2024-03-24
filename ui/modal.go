@@ -7,6 +7,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/ecs"
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
+	"github.com/keidarcy/e1s/api"
 	"github.com/keidarcy/e1s/util"
 	"github.com/rivo/tview"
 )
@@ -274,5 +275,125 @@ func (v *View) serviceMetricsContent() (*tview.Form, string) {
 		f.AddTextView(memLabel, util.BuildMeterText(*metrics.MemoryUtilization[0].Average), 50, 1, true, false)
 	}
 
+	return f, title
+}
+
+// Show port forward modal and handle confirm event
+func (v *View) showPortForwardingModal() {
+	if v.app.kind != ContainerPage {
+		return
+	}
+	content, title := v.portForwardingForm()
+	if content == nil {
+		return
+	}
+	v.app.Pages.AddPage(title, v.modal(content, 100, 15), true, true)
+}
+
+// Get port forward form content
+func (v *View) portForwardingForm() (*tview.Form, string) {
+	selected, err := v.getCurrentSelection()
+	if err != nil {
+		return nil, ""
+	}
+	// container name
+	name := *selected.container.Name
+
+	placeHolderPort := "8080"
+	placeHolderLocalPort := "8080"
+
+	td, err := v.app.Store.DescribeTaskDefinition(v.app.task.TaskDefinitionArn)
+	if err != nil {
+		return nil, ""
+	}
+
+	for _, c := range td.ContainerDefinitions {
+		if name == *c.Name {
+			if len(c.PortMappings) > 0 {
+				if p := c.PortMappings[0].ContainerPort; p != nil {
+					placeHolderPort = strconv.Itoa(int((*p)))
+					placeHolderLocalPort = strconv.Itoa(int((*p)))
+				}
+			}
+			break
+		}
+	}
+
+	readOnly := ""
+	if v.app.ReadOnly {
+		readOnly = readonlyLabel
+	}
+
+	title := " Port Forward [purple::b]" + name + readOnly
+
+	f := v.styledForm(title)
+	remoteForwardLabel := "Remote Forward"
+	hostLabel := "Host"
+	portLabel := "Port number"
+	localPortLabel := "Local port number"
+
+	f.AddCheckbox(remoteForwardLabel, false, nil)
+	f.AddInputField(hostLabel, "", 50, nil, nil)
+	f.AddInputField(portLabel, placeHolderPort, 50, nil, nil)
+	f.AddInputField(localPortLabel, placeHolderLocalPort, 50, nil, nil)
+
+	// handle form close
+	f.AddButton("Cancel", func() {
+		v.closeModal()
+	})
+
+	// readonly mode has no submit button
+	if v.app.ReadOnly {
+		return f, title
+	}
+
+	// handle form submit
+	f.AddButton("Start", func() {
+		taskArn := strings.Split(*v.app.task.TaskArn, "/")
+		clusterName := taskArn[1]
+		taskId := taskArn[2]
+		runtimeId := *selected.container.RuntimeId
+
+		remoteHost := f.GetFormItemByLabel(remoteForwardLabel).(*tview.Checkbox).IsChecked()
+		host := f.GetFormItemByLabel(hostLabel).(*tview.InputField).GetText()
+		port := f.GetFormItemByLabel(portLabel).(*tview.InputField).GetText()
+		localPort := f.GetFormItemByLabel(localPortLabel).(*tview.InputField).GetText()
+
+		sessionId, err := v.app.Store.StartSession(&api.SsmStartSessionInput{
+			ClusterName: clusterName,
+			Host:        host,
+			TaskId:      taskId,
+			RuntimeId:   runtimeId,
+			RemoteHost:  remoteHost,
+			Port:        port,
+			LocalPort:   localPort,
+		})
+
+		if err != nil {
+			v.closeModal()
+
+			v.app.Notice.Error(err.Error())
+			logger.Error(err.Error())
+		} else {
+			v.closeModal()
+
+			if remoteHost {
+				v.app.Notice.Infof("Remote host port forwarding, host: %s, port: %s, local port: %s", host, port, localPort)
+				logger.Infof("Remote host port forwarding, host: %s, port: %s, local port: %s", host, port, localPort)
+			}
+			v.app.sessionIds = append(v.app.sessionIds, &sessionId)
+			v.app.Notice.Infof("Port forwarding, port: %s, local port: %s", port, localPort)
+			logger.Infof("Port forwarding, port: %s, local port: %s", port, localPort)
+
+			// Update container table associated row PF text
+			row, _ := v.table.GetSelection()
+			if row == 0 {
+				row++
+			}
+			go v.app.QueueUpdateDraw(func() {
+				v.table.GetCell(row, 3).SetText("[green::i]F[-:-:-]")
+			})
+		}
+	})
 	return f, title
 }

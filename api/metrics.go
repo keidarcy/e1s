@@ -90,7 +90,7 @@ func (store *Store) getMemory(cluster, service *string) ([]types.Datapoint, erro
 }
 
 func (store *Store) getStatisticsInput(cluster, service *string) *cloudwatch.GetMetricStatisticsInput {
-	store.getCloudwatchClient()
+	store.initCloudwatchClient()
 
 	// period := 30
 	// granularity := 1800

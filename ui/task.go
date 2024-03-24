@@ -42,13 +42,14 @@ func (app *App) showTasksPages(reload bool, rowIndex int) error {
 
 	if err != nil {
 		logger.Warnf("Failed to show tasks pages, error: %v", err)
-		app.Notice.Warnf("Failed to show tasks pages, error: %v", err)
+		app.back()
 		return err
 	}
 
 	// no tasks exists do nothing
 	if len(tasks) == 0 {
-		return nil
+		app.back()
+		return fmt.Errorf("no valid task")
 	}
 
 	view := newTaskView(tasks, app)

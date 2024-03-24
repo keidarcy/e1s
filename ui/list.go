@@ -153,17 +153,17 @@ func (v *View) realtimeAwsLog(entity Entity) {
 			v.app.Notice.Warnf("Failed to find aws cli binary, error: %v", err)
 			v.app.back()
 		}
-		arg := []string{
+		args := []string{
 			"logs",
 			"tail",
 			"--follow",
 			logGroup,
 		}
 
-		logger.Infof("Exec: `%s %s`", awsCli, strings.Join(arg, " "))
+		logger.Infof("Exec: `%s %s`", awsCli, strings.Join(args, " "))
 
 		v.app.Suspend(func() {
-			cmd := exec.Command(bin, arg...)
+			cmd := exec.Command(bin, args...)
 			cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, os.Stderr
 			_, err = cmd.Stdout.Write([]byte(fmt.Sprintf(realtimeLogFmt, *v.app.cluster.ClusterName, *v.app.service.ServiceName, logGroup)))
 			err = cmd.Run()

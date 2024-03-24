@@ -47,13 +47,15 @@ func (app *App) showServicesPage(reload bool, rowIndex int) error {
 	services, err := app.Store.ListServices(app.cluster.ClusterName)
 	if err != nil {
 		logger.Warnf("Failed to show services page, error: %v", err)
-		app.Notice.Warnf("Failed to show services page, error: %v", err)
+		app.back()
 		return err
 	}
 
 	// no services exists do nothing
 	if len(services) == 0 {
-		return nil
+		app.Notice.Warn("No valid service")
+		app.back()
+		return fmt.Errorf("no valid service")
 	}
 
 	view := newServiceView(services, app)

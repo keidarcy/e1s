@@ -52,6 +52,8 @@ brew install keidarcy/tap/e1s
   - [x] Task definition family
   - [x] Task definition revision
 - [x] Register new task definition
+- [x] [Start port forwarding session](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-sessions-start.html#sessions-start-port-forwarding)
+- [x] [Start port forwarding to remote host session](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-sessions-start.html#sessions-remote-port-forwarding)
 
 ### SSH into container ([ECS Exec](https://docs.aws.amazon.com/AmazonECS/latest/userguide/ecs-exec.html))
 
