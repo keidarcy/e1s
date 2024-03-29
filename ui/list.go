@@ -86,9 +86,6 @@ func (v *View) switchToServiceEventsList() {
 
 // Switch to selected service events JSON page
 func (v *View) switchToLogsList() {
-	if v.app.kind == ClusterPage || v.app.kind == ContainerPage {
-		return
-	}
 	selected, err := v.getCurrentSelection()
 	if err != nil {
 		v.app.Notice.Warn("Failed to switchToLogsList")

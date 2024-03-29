@@ -2,6 +2,9 @@ package util
 
 import (
 	"fmt"
+	"io"
+	"log"
+	"net/http"
 	"os"
 	"os/exec"
 	"runtime"
@@ -31,8 +34,7 @@ const (
 // GetLogger returns a *logrus.Logger configured to write to the specified file path.
 // It also returns the log file *os.File  itself, such that callers can close the
 // file if/when needed.
-func GetLogger(path string, debug bool) (*logrus.Logger, *os.File) {
-
+func GetLogger(path string, json bool, debug bool) (*logrus.Logger, *os.File) {
 	logger := logrus.New()
 
 	if debug {
@@ -48,12 +50,18 @@ func GetLogger(path string, debug bool) (*logrus.Logger, *os.File) {
 		logger.Error("Failed to log to file, using default stderr")
 	}
 
-	// Add colored output to the console with a custom timestamp format
-	logger.SetFormatter(&logrus.TextFormatter{
-		ForceColors:     true,
-		FullTimestamp:   true,
-		TimestampFormat: time.RFC3339, // Customize the timestamp format
-	})
+	if json {
+		logger.SetFormatter(&logrus.JSONFormatter{
+			TimestampFormat: time.RFC3339, // Customize the timestamp format
+		})
+	} else {
+		// Add colored output to the console with a custom timestamp format
+		logger.SetFormatter(&logrus.TextFormatter{
+			ForceColors:     true,
+			FullTimestamp:   true,
+			TimestampFormat: time.RFC3339, // Customize the timestamp format
+		})
+	}
 
 	// https://github.com/sirupsen/logrus?tab=readme-ov-file#thread-safety
 	logger.SetNoLock()
@@ -181,4 +189,25 @@ func BuildMeterText(f float64) string {
 	}, "")
 
 	return meterVal + " " + fmt.Sprintf("%.2f", f) + "%"
+}
+
+func ShowVersion() string {
+	resp, err := http.Get("https://raw.githubusercontent.com/keidarcy/e1s/master/app-version")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+	latestVersion := strings.TrimSpace(string(body))
+
+	message := ""
+	if latestVersion != AppVersion {
+		message = "\nPlease upgrade e1s to latest version on https://github.com/keidarcy/e1s/releases"
+	}
+
+	return fmt.Sprintf("\nCurrent: v%s\nLatest: v%s%s", AppVersion, latestVersion, message)
 }

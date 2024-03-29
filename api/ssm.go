@@ -33,7 +33,7 @@ type SsmStartSessionInput struct {
 // --target ecs:${cluster_id}_${task_id}_${runtime_id}
 // --document-name AWS-StartPortForwardingSession
 // --parameters {"portNumber":["${port}"], "localPortNumber":["${local_port}"]}
-func (store *Store) StartSession(input *SsmStartSessionInput) (string, error) {
+func (store *Store) StartSession(input *SsmStartSessionInput) (*string, error) {
 	store.initSsmClient()
 	smpCi := "session-manager-plugin"
 
@@ -58,7 +58,7 @@ func (store *Store) StartSession(input *SsmStartSessionInput) (string, error) {
 
 	result, err := store.ssm.StartSession(context.Background(), startInput)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	type sessionManagerPluginParameter struct {
@@ -69,7 +69,7 @@ func (store *Store) StartSession(input *SsmStartSessionInput) (string, error) {
 	bin, err := exec.LookPath(smpCi)
 	if err != nil {
 		logger.Warnf("Failed to find %s path, please check %s", smpCi, "https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html")
-		return "", fmt.Errorf("failed to find %s path, please check %s", smpCi, "https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html")
+		return nil, fmt.Errorf("failed to find %s path, please check %s", smpCi, "https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html")
 	}
 
 	region := store.Config.Region
@@ -97,7 +97,7 @@ func (store *Store) StartSession(input *SsmStartSessionInput) (string, error) {
 	cmd := exec.Command(bin, args...)
 	err = cmd.Start()
 
-	return *result.SessionId, err
+	return result.SessionId, err
 }
 
 func (store *Store) TerminateSessions(sessionIds []*string) error {

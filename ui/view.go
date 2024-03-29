@@ -36,15 +36,16 @@ const (
 	showMetrics                     = "Show metrics"
 	showLogs                        = "Show logs"
 
-	editService        = "Edit Service"
-	editTaskDefinition = "Edit Task Definition"
-	reloadResource     = "Reload Resources"
-	openInBrowser      = "Open in browser"
-	sshContainer       = "SSH container"
-	portForwarding     = "Port forwarding"
-	toggleFullScreen   = "Content Toggle full screen"
-	realtimeLog        = "Cloudwatch realtime logs(only support one log group)"
-	backToPrevious     = "Back"
+	editService                    = "Edit Service"
+	editTaskDefinition             = "Edit Task Definition"
+	reloadResource                 = "Reload Resources"
+	openInBrowser                  = "Open in browser"
+	sshContainer                   = "SSH container"
+	portForwarding                 = "Port forwarding session"
+	terminatePortForwardingSession = "Terminate port forwarding session"
+	toggleFullScreen               = "Content Toggle full screen"
+	realtimeLog                    = "Cloudwatch realtime logs(only support one log group)"
+	backToPrevious                 = "Back"
 
 	// shell        = "/bin/sh -c \"if [ -x /bin/bash ]; then exec /bin/bash; else exec /bin/sh; fi\""
 	shell          = "/bin/sh"
@@ -69,6 +70,7 @@ const (
 	vKey  = 'v'
 	wKey  = 'w'
 	FKey  = 'F'
+	TKey  = 'T'
 	ctrlR = "ctrl-r"
 	ctrlZ = "ctrl-z"
 )

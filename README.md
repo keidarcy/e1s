@@ -99,13 +99,14 @@ Use `ctrl` + `d` to exit ssh session.
 ### Run `e1s`
 
 
-| Option | Description | Default |
-| --- | --- | --- |
-| `-version` | Print e1s version | false |
-| `-readonly` | Enable read only mode | false |
-| `-debug` | Enable debug mode | false |
-| `-stale-data` | Enable stale data mode(only refetch data when hit ctrl + r) | false |
-| `-log-file-path` | Custom e1s log file path | ${TMPDIR}e1s.log |
+| Long | Short | Description | Default Value |
+| ---- | ----- | ---- | ---- |
+| `--debug` | `-d` | enable debug mode | false |
+| `--json` | `-j` | log output json format | false |
+| `--log-file-path` | `-j` | custom e1s log file path | ${TMPDIR}e1s.log |
+| `--stale-data` | `-s` | enable stale data mode(only refetch data when hit ctrl + r) | false |
+| `--readonly` | `-r` | enable read only mode | false |
+
 
 Make sure you have the AWS CLI installed and properly configured with the necessary permissions to access your ECS resources.
 
@@ -121,10 +122,10 @@ Using my-profile profile, us-east-1 region
 $ AWS_PROFILE=my-profile AWS_REGION=us-east-1 e1s
 ```
 
-Using read only, debug, stale data mode with a custom log path
+Using read only, debug, stale data mode with a custom log path json output
 
 ```bash
-$ e1s -readonly -debug -stale-data -log-file-path /tmp/e1s.log
+$ e1s --readonly --debug --stale-data --log-file-path /tmp/e1s.log --json
 ```
 
 ### Key Bindings

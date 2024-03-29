@@ -16,8 +16,9 @@ type ContainerView struct {
 
 func newContainerView(containers []types.Container, app *App) *ContainerView {
 	keys := append(basicKeyInputs, []KeyInput{
-		{key: "Enter", description: sshContainer},
 		{key: "shift-f", description: portForwarding},
+		{key: "shift-t", description: terminatePortForwardingSession},
+		{key: "enter", description: sshContainer},
 	}...)
 	return &ContainerView{
 		View: *newView(app, keys, secondaryPageKeyMap{
@@ -133,15 +134,27 @@ func (v *ContainerView) tableParam() (title string, headers []string, dataBuilde
 		"Container runtime id",
 		"Image URI",
 	}
+
 	dataBuilder = func() (data [][]string) {
 		for _, c := range v.containers {
+			containerId := fmt.Sprintf("%s.%s", *v.app.cluster.ClusterName, *c.Name)
+			portText := util.EmptyText
+			ports := []string{}
+			for _, session := range v.app.sessions {
+				if session.containerId == containerId {
+					ports = append(ports, session.port)
+				}
+			}
+			if len(ports) != 0 {
+				portText = strings.Join(ports, ",")
+			}
 			health := string(c.HealthStatus)
 
 			row := []string{}
 			row = append(row, util.ShowString(c.Name))
 			row = append(row, util.ShowGreenGrey(&health, "healthy"))
 			row = append(row, util.ShowGreenGrey(c.LastStatus, "running"))
-			row = append(row, util.EmptyText)
+			row = append(row, portText)
 			row = append(row, util.ShowString(c.RuntimeId))
 			row = append(row, util.ShowString(c.Image))
 			data = append(data, row)
