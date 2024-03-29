@@ -154,6 +154,11 @@ func (v *View) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 			v.showPortForwardingModal()
 			return event
 		}
+	case TKey:
+		if v.app.kind == ContainerPage {
+			v.showTerminatePortForwardingModal()
+			return event
+		}
 	}
 
 	// If it's composite keystroke, event.Key() is ctrl-char ascii code
@@ -330,7 +335,7 @@ func (v *View) editTaskDefinition() {
 				v.app.Notice.Warnf("Failed to open editor, err: %v", err)
 				return
 			}
-			v.app.Notice.Infof("SUCCESS TaskDefinition Family: %s, Revision: %d", family, revision)
+			v.app.Notice.Infof("Success TaskDefinition Family: %s, Revision: %d", family, revision)
 		}
 
 		v.showTaskDefinitionConfirm(register)

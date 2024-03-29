@@ -185,6 +185,7 @@ func (v *View) getJsonString(entity Entity) string {
 	case entity.autoScaling != nil:
 		data = entity.autoScaling
 	default:
+		logger.Errorf("Failed to get json string data: %v", data)
 		data = struct {
 			Message     string
 			IssueReport string

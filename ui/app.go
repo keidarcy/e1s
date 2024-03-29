@@ -61,7 +61,7 @@ type App struct {
 	// Current screen item content
 	Entity
 	// Port forwarding ssm session Id
-	sessionIds []*string
+	sessions []*PortForwardingSession
 }
 
 func newApp(option Option) (*App, error) {
@@ -234,8 +234,12 @@ func (app *App) showPrimaryKindPage(k Kind, reload bool, rowIndex int) error {
 
 // E1s app close hook
 func (app *App) onClose() {
-	if len(app.sessionIds) != 0 {
-		err := app.Store.TerminateSessions(app.sessionIds)
+	if len(app.sessions) != 0 {
+		ids := []*string{}
+		for _, s := range app.sessions {
+			ids = append(ids, s.sessionId)
+		}
+		err := app.Store.TerminateSessions(ids)
 		if err != nil {
 			logger.Errorf("Failed to terminated port forwarding sessions err: %v", err)
 		} else {
