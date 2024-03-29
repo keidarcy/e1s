@@ -16,24 +16,26 @@ var (
 	staleData   bool
 	debug       bool
 	logFilePath string
+	json        bool
 )
 
 func init() {
 	defaultLogFilePath := filepath.Join(os.TempDir(), fmt.Sprintf("%s.log", util.AppName))
 
-	rootCmd.Flags().BoolVarP(&readOnly, "readonly", "r", false, "Enable read only mode")
-	rootCmd.Flags().BoolVar(&debug, "debug", false, "Enable debug mode")
-	rootCmd.Flags().BoolVar(&staleData, "stale-data", false, "Enable stale data mode(only refetch data when hit ctrl + r)")
-	rootCmd.Flags().StringVar(&logFilePath, "log-file-path", defaultLogFilePath, "Custom e1s log file path")
+	rootCmd.Flags().BoolVarP(&debug, "debug", "d", false, "enable debug mode")
+	rootCmd.Flags().BoolVarP(&json, "json", "j", false, "log output json format")
+	rootCmd.Flags().StringVarP(&logFilePath, "log-file-path", "l", defaultLogFilePath, "custom log file path")
+	rootCmd.Flags().BoolVarP(&staleData, "stale-data", "s", false, "enable stale data mode")
+	rootCmd.Flags().BoolVarP(&readOnly, "readonly", "r", false, "enable read only mode")
 }
 
 var rootCmd = &cobra.Command{
 	Use:   "e1s",
-	Short: "E1S - Easily Manage AWS ECS Resources in Terminal 🐱",
-	Long: `E1S is a terminal application to easily browse and manage AWS ECS resources, with a focus on Fargate. 
-Inspired by k9s.`,
+	Short: "E1s - Easily Manage AWS ECS Resources in Terminal 🐱",
+	Long: `E1s is a terminal application to easily browse and manage AWS ECS resources, with a focus on Fargate. 
+Check https://github.com/keidarcy/e1s for more details.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		logger, file := util.GetLogger(logFilePath, debug)
+		logger, file := util.GetLogger(logFilePath, json, debug)
 		defer file.Close()
 
 		option := ui.Option{

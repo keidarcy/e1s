@@ -101,32 +101,59 @@ func (v *View) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 	// If it's single keystroke, event.Rune() is ascii code
 	switch event.Rune() {
 	case aKey:
-		v.app.secondaryKind = AutoScalingPage
-		v.showSecondaryKindPage(false)
+		if v.app.kind == ServicePage {
+			v.app.secondaryKind = AutoScalingPage
+			v.showSecondaryKindPage(false)
+			return event
+		}
 	case bKey:
 		v.openInBrowser()
 	case dKey:
 		v.app.secondaryKind = DescriptionPage
 		v.showSecondaryKindPage(false)
 	case eKey:
-		v.showEditServiceModal()
-		v.editTaskDefinition()
+		if v.app.kind == ServicePage {
+			v.showEditServiceModal()
+			return event
+		}
+		if v.app.kind == TaskPage {
+			v.editTaskDefinition()
+			return event
+		}
 	case lKey:
-		v.app.secondaryKind = LogPage
-		v.showSecondaryKindPage(false)
+		if v.app.kind == ServicePage || v.app.kind == TaskPage {
+			v.app.secondaryKind = LogPage
+			v.showSecondaryKindPage(false)
+			return event
+		}
 	case mKey:
-		v.showMetricsModal()
+		if v.app.kind == ServicePage {
+			v.showMetricsModal()
+			return event
+		}
 	case tKey:
-		v.app.secondaryKind = TaskDefinitionPage
-		v.showSecondaryKindPage(false)
+		if v.app.kind == ServicePage || v.app.kind == TaskPage {
+			v.app.secondaryKind = TaskDefinitionPage
+			v.showSecondaryKindPage(false)
+			return event
+		}
 	case vKey:
-		v.app.secondaryKind = TaskDefinitionRevisionsPage
-		v.showSecondaryKindPage(false)
+		if v.app.kind == ServicePage || v.app.kind == TaskPage {
+			v.app.secondaryKind = TaskDefinitionRevisionsPage
+			v.showSecondaryKindPage(false)
+			return event
+		}
 	case wKey:
-		v.app.secondaryKind = ServiceEventsPage
-		v.showSecondaryKindPage(false)
+		if v.app.kind == ServicePage {
+			v.app.secondaryKind = ServiceEventsPage
+			v.showSecondaryKindPage(false)
+			return event
+		}
 	case FKey:
-		v.showPortForwardingModal()
+		if v.app.kind == ContainerPage {
+			v.showPortForwardingModal()
+			return event
+		}
 	}
 
 	// If it's composite keystroke, event.Key() is ctrl-char ascii code
@@ -214,10 +241,6 @@ func (v *View) openInBrowser() {
 }
 
 func (v *View) editTaskDefinition() {
-	if v.app.kind != TaskPage {
-		return
-	}
-
 	// get td detail
 	selected, err := v.getCurrentSelection()
 	if err != nil {

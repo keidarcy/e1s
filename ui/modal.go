@@ -21,9 +21,6 @@ const (
 
 // Show update service modal and handle submit event
 func (v *View) showEditServiceModal() {
-	if v.app.kind != ServicePage {
-		return
-	}
 	content, title := v.serviceUpdateContent()
 	if content == nil {
 		return
@@ -45,9 +42,6 @@ func (v *View) showTaskDefinitionConfirm(fn func()) {
 
 // Show service metrics modal(Memory/CPU)
 func (v *View) showMetricsModal() {
-	if v.app.kind != ServicePage {
-		return
-	}
 	content, title := v.serviceMetricsContent()
 	if content == nil {
 		return
@@ -280,9 +274,6 @@ func (v *View) serviceMetricsContent() (*tview.Form, string) {
 
 // Show port forward modal and handle confirm event
 func (v *View) showPortForwardingModal() {
-	if v.app.kind != ContainerPage {
-		return
-	}
 	content, title := v.portForwardingForm()
 	if content == nil {
 		return

@@ -16,8 +16,8 @@ type ContainerView struct {
 
 func newContainerView(containers []types.Container, app *App) *ContainerView {
 	keys := append(basicKeyInputs, []KeyInput{
-		{key: "Enter", description: sshContainer},
 		{key: "shift-f", description: portForwarding},
+		{key: "enter", description: sshContainer},
 	}...)
 	return &ContainerView{
 		View: *newView(app, keys, secondaryPageKeyMap{

@@ -31,8 +31,7 @@ const (
 // GetLogger returns a *logrus.Logger configured to write to the specified file path.
 // It also returns the log file *os.File  itself, such that callers can close the
 // file if/when needed.
-func GetLogger(path string, debug bool) (*logrus.Logger, *os.File) {
-
+func GetLogger(path string, json bool, debug bool) (*logrus.Logger, *os.File) {
 	logger := logrus.New()
 
 	if debug {
@@ -48,12 +47,18 @@ func GetLogger(path string, debug bool) (*logrus.Logger, *os.File) {
 		logger.Error("Failed to log to file, using default stderr")
 	}
 
-	// Add colored output to the console with a custom timestamp format
-	logger.SetFormatter(&logrus.TextFormatter{
-		ForceColors:     true,
-		FullTimestamp:   true,
-		TimestampFormat: time.RFC3339, // Customize the timestamp format
-	})
+	if json {
+		logger.SetFormatter(&logrus.JSONFormatter{
+			TimestampFormat: time.RFC3339, // Customize the timestamp format
+		})
+	} else {
+		// Add colored output to the console with a custom timestamp format
+		logger.SetFormatter(&logrus.TextFormatter{
+			ForceColors:     true,
+			FullTimestamp:   true,
+			TimestampFormat: time.RFC3339, // Customize the timestamp format
+		})
+	}
 
 	// https://github.com/sirupsen/logrus?tab=readme-ov-file#thread-safety
 	logger.SetNoLock()

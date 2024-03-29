@@ -48,9 +48,6 @@ func (v *View) switchToTaskDefinitionJson() {
 
 // Switch to selected task definition revision list JSON page
 func (v *View) switchToTaskDefinitionRevisionsJson() {
-	if v.app.kind == ClusterPage {
-		return
-	}
 	family, _, entityName := v.getTaskDefinitionDetail()
 
 	revisions, err := v.app.Store.ListTaskDefinition(&family)
@@ -88,9 +85,6 @@ func (v *View) getTaskDefinitionDetail() (string, string, string) {
 func (v *View) switchToAutoScalingJson() {
 	selected, err := v.getCurrentSelection()
 	if err != nil {
-		return
-	}
-	if v.app.kind != ServicePage {
 		return
 	}
 	serviceArn := selected.service.ServiceArn
