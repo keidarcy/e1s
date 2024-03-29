@@ -32,7 +32,7 @@ func init() {
 var rootCmd = &cobra.Command{
 	Use:   "e1s",
 	Short: "E1s - Easily Manage AWS ECS Resources in Terminal 🐱",
-	Long: `E1s is a terminal application to easily browse and manage AWS ECS resources, with a focus on Fargate. 
+	Long: `E1s is a terminal application to easily browse and manage AWS ECS resources 🐱. 
 Check https://github.com/keidarcy/e1s for more details.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		logger, file := util.GetLogger(logFilePath, json, debug)
@@ -49,7 +49,7 @@ Check https://github.com/keidarcy/e1s for more details.`,
 			logger.Fatalf("Failed to start, error: %v\n", err) // will call os.Exit(1)
 		}
 	},
-	Version: fmt.Sprintf("v%s", util.AppVersion),
+	Version: util.ShowVersion(),
 }
 
 func main() {

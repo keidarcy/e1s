@@ -2,6 +2,9 @@ package util
 
 import (
 	"fmt"
+	"io"
+	"log"
+	"net/http"
 	"os"
 	"os/exec"
 	"runtime"
@@ -186,4 +189,25 @@ func BuildMeterText(f float64) string {
 	}, "")
 
 	return meterVal + " " + fmt.Sprintf("%.2f", f) + "%"
+}
+
+func ShowVersion() string {
+	resp, err := http.Get("https://raw.githubusercontent.com/keidarcy/e1s/master/app-version")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+	latestVersion := strings.TrimSpace(string(body))
+
+	message := ""
+	if latestVersion != AppVersion {
+		message = "\nPlease upgrade e1s to latest version on https://github.com/keidarcy/e1s/releases"
+	}
+
+	return fmt.Sprintf("\nCurrent: v%s\nLatest: v%s%s", AppVersion, latestVersion, message)
 }
