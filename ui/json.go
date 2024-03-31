@@ -28,10 +28,10 @@ func (v *View) switchToTaskDefinitionJson() {
 	}
 	taskDefinition := ""
 	entityName := ""
-	if v.app.kind == ServicePage {
+	if v.app.kind == ServiceKind {
 		taskDefinition = *selected.service.TaskDefinition
 		entityName = *selected.service.ServiceArn
-	} else if v.app.kind == TaskPage {
+	} else if v.app.kind == TaskKind {
 		taskDefinition = *selected.task.TaskDefinitionArn
 		entityName = *selected.task.TaskArn
 	} else {
@@ -66,10 +66,10 @@ func (v *View) getTaskDefinitionDetail() (string, string, string) {
 	}
 	taskDefinition := ""
 	entityName := ""
-	if v.app.kind == ServicePage {
+	if v.app.kind == ServiceKind {
 		taskDefinition = *selected.service.TaskDefinition
 		entityName = *selected.service.ServiceArn
-	} else if v.app.kind == TaskPage {
+	} else if v.app.kind == TaskKind {
 		taskDefinition = *selected.task.TaskDefinitionArn
 		entityName = *selected.task.TaskArn
 	} else {
@@ -165,20 +165,20 @@ func (v *View) getJsonString(entity Entity) string {
 	var data any
 
 	switch {
-	case entity.cluster != nil && v.app.kind == ClusterPage:
+	case entity.cluster != nil && v.app.kind == ClusterKind:
 		data = entity.cluster
 	// events need be upper then service
-	case entity.events != nil && v.app.secondaryKind == ServiceEventsPage:
+	case entity.events != nil && v.app.secondaryKind == ServiceEventsKind:
 		data = entity.events
-	case entity.service != nil && v.app.kind == ServicePage:
+	case entity.service != nil && v.app.kind == ServiceKind:
 		data = entity.service
-	case entity.task != nil && v.app.kind == TaskPage:
+	case entity.task != nil && v.app.kind == TaskKind:
 		data = entity.task
-	case entity.container != nil && v.app.kind == ContainerPage:
+	case entity.container != nil && v.app.kind == ContainerKind:
 		data = entity.container
-	case entity.taskDefinition != nil && v.app.secondaryKind == TaskDefinitionPage:
+	case entity.taskDefinition != nil && v.app.secondaryKind == TaskDefinitionKind:
 		data = entity.taskDefinition
-	case entity.taskDefinitionRevisions != nil && v.app.secondaryKind == TaskDefinitionRevisionsPage:
+	case entity.taskDefinitionRevisions != nil && v.app.secondaryKind == TaskDefinitionRevisionsKind:
 		data = entity.taskDefinitionRevisions
 	case entity.metrics != nil:
 		data = entity.metrics

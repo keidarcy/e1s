@@ -11,7 +11,7 @@ import (
 func TestGetJsonData(t *testing.T) {
 	app, _ := newApp(Option{})
 	view := newView(app, []KeyInput{}, secondaryPageKeyMap{
-		DescriptionPage: []KeyInput{
+		DescriptionKind: []KeyInput{
 			{key: string(fKey), description: toggleFullScreen},
 		},
 	})
@@ -48,7 +48,7 @@ func TestGetJsonData(t *testing.T) {
 			},
 			want: colorizeJSON(clusterBytes),
 			changeKind: func() {
-				app.kind = ClusterPage
+				app.kind = ClusterKind
 			},
 		},
 		{
@@ -61,7 +61,7 @@ func TestGetJsonData(t *testing.T) {
 			},
 			want: colorizeJSON(serviceBytes),
 			changeKind: func() {
-				app.kind = ServicePage
+				app.kind = ServiceKind
 			},
 		},
 		{
@@ -74,7 +74,7 @@ func TestGetJsonData(t *testing.T) {
 			},
 			want: colorizeJSON(eventsBytes),
 			changeKind: func() {
-				app.secondaryKind = ServiceEventsPage
+				app.secondaryKind = ServiceEventsKind
 			},
 		},
 	}

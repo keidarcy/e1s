@@ -24,10 +24,10 @@ func newTaskView(tasks []types.Task, app *App) *TaskView {
 	}...)
 	return &TaskView{
 		View: *newView(app, keys, secondaryPageKeyMap{
-			DescriptionPage:             descriptionPageKeys,
-			LogPage:                     logPageKeys,
-			TaskDefinitionPage:          descriptionPageKeys,
-			TaskDefinitionRevisionsPage: descriptionPageKeys,
+			DescriptionKind:             descriptionPageKeys,
+			LogKind:                     logPageKeys,
+			TaskDefinitionKind:          descriptionPageKeys,
+			TaskDefinitionRevisionsKind: descriptionPageKeys,
 		}),
 		tasks: tasks,
 	}

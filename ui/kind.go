@@ -3,41 +3,44 @@ package ui
 type Kind int
 
 const (
-	ClusterPage Kind = iota
-	ServicePage
-	TaskPage
-	ContainerPage
-	TaskDefinitionPage
-	TaskDefinitionRevisionsPage
-	DescriptionPage
-	ServiceEventsPage
-	LogPage
-	AutoScalingPage
+	ClusterKind Kind = iota
+	ServiceKind
+	TaskKind
+	ContainerKind
+	TaskDefinitionKind
+	TaskDefinitionRevisionsKind
+	DescriptionKind
+	ServiceEventsKind
+	LogKind
+	AutoScalingKind
+	ModalKind
 	EmptyKind
 )
 
 func (k Kind) String() string {
 	switch k {
-	case ClusterPage:
+	case ClusterKind:
 		return "clusters"
-	case ServicePage:
+	case ServiceKind:
 		return "services"
-	case TaskPage:
+	case TaskKind:
 		return "tasks"
-	case ContainerPage:
+	case ContainerKind:
 		return "containers"
-	case DescriptionPage:
+	case DescriptionKind:
 		return "description"
-	case TaskDefinitionPage:
+	case TaskDefinitionKind:
 		return "taskDefinition"
-	case TaskDefinitionRevisionsPage:
+	case TaskDefinitionRevisionsKind:
 		return "taskDefinitionRevisions"
-	case ServiceEventsPage:
+	case ServiceEventsKind:
 		return "serviceEvents"
-	case LogPage:
+	case LogKind:
 		return "logs"
-	case AutoScalingPage:
+	case AutoScalingKind:
 		return "autoscaling"
+	case ModalKind:
+		return "modal"
 	default:
 		return "unknownKind"
 	}
@@ -45,44 +48,44 @@ func (k Kind) String() string {
 
 func (k Kind) nextKind() Kind {
 	switch k {
-	case ClusterPage:
-		return ServicePage
-	case ServicePage:
-		return TaskPage
-	case TaskPage:
-		return ContainerPage
+	case ClusterKind:
+		return ServiceKind
+	case ServiceKind:
+		return TaskKind
+	case TaskKind:
+		return ContainerKind
 	default:
-		return ClusterPage
+		return ClusterKind
 	}
 }
 
 func (k Kind) prevKind() Kind {
 	switch k {
-	case ClusterPage:
-		return ClusterPage
-	case ServicePage:
-		return ClusterPage
-	case TaskPage:
-		return ServicePage
-	case ContainerPage:
-		return TaskPage
+	case ClusterKind:
+		return ClusterKind
+	case ServiceKind:
+		return ClusterKind
+	case TaskKind:
+		return ServiceKind
+	case ContainerKind:
+		return TaskKind
 	default:
-		return ClusterPage
+		return ClusterKind
 	}
 }
 
 // App page name is kind string + "." + cluster arn
 func (k Kind) getAppPageName(name string) string {
 	switch k {
-	case ClusterPage:
+	case ClusterKind:
 		return k.String()
-	case ServicePage:
+	case ServiceKind:
 		return k.String() + "." + name
-	case TaskPage:
+	case TaskKind:
 		return k.String() + "." + name
-	case ContainerPage:
+	case ContainerKind:
 		return k.String() + "." + name
-	case DescriptionPage:
+	case DescriptionKind:
 		return k.String() + "." + name
 	default:
 		return k.String()
@@ -96,7 +99,7 @@ func (k Kind) getTablePageName(name string) string {
 
 func (k Kind) getContentPageName(name string) string {
 	pageName := k.getAppPageName(name)
-	return pageName + "." + DescriptionPage.String()
+	return pageName + "." + DescriptionKind.String()
 }
 
 type secondaryPageKeyMap = map[Kind][]KeyInput

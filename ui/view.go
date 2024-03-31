@@ -135,10 +135,10 @@ type Footer struct {
 func newFooter() *Footer {
 	return &Footer{
 		footer:    tview.NewFlex().SetDirection(tview.FlexColumn),
-		cluster:   tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(footerItemFmt, ClusterPage)),
-		service:   tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(footerItemFmt, ServicePage)),
-		task:      tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(footerItemFmt, TaskPage)),
-		container: tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(footerItemFmt, ContainerPage)),
+		cluster:   tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(footerItemFmt, ClusterKind)),
+		service:   tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(footerItemFmt, ServiceKind)),
+		task:      tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(footerItemFmt, TaskKind)),
+		container: tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(footerItemFmt, ContainerKind)),
 	}
 }
 
@@ -181,36 +181,36 @@ func (v *View) getCurrentSelection() (Entity, error) {
 
 // Reload current resource
 func (v *View) reloadResource(reloadNotice bool) error {
-	row, _ := v.table.GetSelection()
 	if reloadNotice {
 		v.app.Notice.Info(reloadText)
 	}
-	v.showKindPage(v.app.kind, true, row)
+	v.showKindPage(v.app.kind, true)
 	return nil
 }
 
 // Show kind page including primary kind, secondary kind
-func (v *View) showKindPage(k Kind, reload bool, rowIndex int) {
+func (v *View) showKindPage(k Kind, reload bool) {
 	if v.app.secondaryKind != EmptyKind {
 		v.showSecondaryKindPage(reload)
 		return
 	}
+	rowIndex, _ := v.table.GetSelection()
 	v.app.showPrimaryKindPage(k, reload, rowIndex)
 }
 
 func (v *View) showSecondaryKindPage(reload bool) {
 	switch v.app.secondaryKind {
-	case AutoScalingPage:
+	case AutoScalingKind:
 		v.switchToAutoScalingJson()
-	case DescriptionPage:
+	case DescriptionKind:
 		v.switchToDescriptionJson()
-	case LogPage:
+	case LogKind:
 		v.switchToLogsList()
-	case TaskDefinitionPage:
+	case TaskDefinitionKind:
 		v.switchToTaskDefinitionJson()
-	case TaskDefinitionRevisionsPage:
+	case TaskDefinitionRevisionsKind:
 		v.switchToTaskDefinitionRevisionsJson()
-	case ServiceEventsPage:
+	case ServiceEventsKind:
 		v.switchToServiceEventsList()
 	}
 	if !reload {
@@ -226,6 +226,7 @@ func (v *View) closeModal() {
 		v.app.Stop()
 		return
 	}
+	// v.app.secondaryKind = EmptyKind
 	toPage := v.app.kind.getAppPageName(v.app.getPageHandle())
 	v.app.Pages.SwitchToPage(toPage)
 }
@@ -282,7 +283,7 @@ func (v *View) handleContentPageSwitch(entity Entity, contentString string) {
 		case bKey:
 			v.openInBrowser()
 		case rKey:
-			if v.app.secondaryKind == LogPage {
+			if v.app.secondaryKind == LogKind {
 				v.realtimeAwsLog(entity)
 			}
 
@@ -334,7 +335,7 @@ func getContentTextItem(contentStr string, title string) *tview.TextView {
 
 // SSH into selected container
 func (v *View) ssh(containerName string) {
-	if v.app.kind != ContainerPage {
+	if v.app.kind != ContainerKind {
 		v.app.Notice.Warn("Invalid operation")
 		return
 	}

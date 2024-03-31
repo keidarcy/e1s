@@ -1,6 +1,8 @@
 package ui
 
 import (
+	"time"
+
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
 	"github.com/gdamore/tcell/v2"
@@ -38,6 +40,8 @@ type Option struct {
 	StaleData bool
 	// Basic logger
 	Logger *logrus.Logger
+	// Reload resources every x second(s)
+	Refresh int
 }
 
 // tview App
@@ -52,16 +56,18 @@ type App struct {
 	MainScreen *tview.Flex
 	// API client
 	*api.Store
-	// Current page primary kind ex: cluster, service
-	kind Kind
-	// Current secondary kind like json, list
-	secondaryKind Kind
 	// Option from cli args
 	Option
 	// Current screen item content
 	Entity
+	// Current page primary kind ex: cluster, service
+	kind Kind
+	// Current secondary kind like json, list
+	secondaryKind Kind
 	// Port forwarding ssm session Id
 	sessions []*PortForwardingSession
+	// Current primary kind table row index for auto refresh to keep row selected
+	rowIndex int
 }
 
 func newApp(option Option) (*App, error) {
@@ -90,7 +96,7 @@ func newApp(option Option) (*App, error) {
 		MainScreen:    main,
 		Store:         store,
 		Option:        option,
-		kind:          ClusterPage,
+		kind:          ClusterKind,
 		secondaryKind: EmptyKind,
 		Entity: Entity{
 			cluster: &types.Cluster{
@@ -104,7 +110,7 @@ func newApp(option Option) (*App, error) {
 }
 
 // Entry point of the app
-func Show(option Option) error {
+func Start(option Option) error {
 	logger = option.Logger
 	logger.Debug(`
 ****************************************************************
@@ -117,7 +123,7 @@ func Show(option Option) error {
 
 	app.initStyles()
 
-	if err := app.showPrimaryKindPage(ClusterPage, false, 0); err != nil {
+	if err := app.start(); err != nil {
 		return err
 	}
 
@@ -147,6 +153,7 @@ func (app *App) addAppPage(page *tview.Flex) {
 		"SecondaryKind": app.secondaryKind.String(),
 		"Cluster":       *app.cluster.ClusterName,
 		"Service":       *app.service.ServiceName,
+		// "RowIndex":      app.rowIndex,
 	}).Debug("AddPage app.Pages")
 
 	app.Pages.AddPage(pageName, page, true, true)
@@ -164,6 +171,7 @@ func (app *App) SwitchPage(reload bool) bool {
 			"PageName":      pageName,
 			"Cluster":       *app.cluster.ClusterName,
 			"Service":       *app.service.ServiceName,
+			// "RowIndex":      app.rowIndex,
 		}).Debug("SwitchToPage app.Pages")
 
 		app.Pages.SwitchToPage(pageName)
@@ -186,6 +194,7 @@ func (app *App) back() {
 		"SecondaryKind": app.secondaryKind.String(),
 		"Cluster":       *app.cluster.ClusterName,
 		"Service":       *app.service.ServiceName,
+		// "RowIndex":      app.rowIndex,
 	}).Debug("Back app.Pages")
 
 	app.Pages.SwitchToPage(pageName)
@@ -194,30 +203,50 @@ func (app *App) back() {
 // Get page handler, cluster is empty, other is cluster arn
 func (app *App) getPageHandle() string {
 	name := ""
-	if app.kind != ClusterPage {
+	if app.kind != ClusterKind {
 		name = *app.cluster.ClusterArn
 	}
 	return name
+}
+
+func (app *App) start() error {
+	err := app.showPrimaryKindPage(ClusterKind, false, 0)
+
+	if app.Option.Refresh > 0 {
+		logger.Debugf("Auto refresh rate every %d seconds", app.Option.Refresh)
+		ticker := time.NewTicker(time.Duration(app.Option.Refresh) * time.Second)
+
+		go func() {
+			for {
+				<-ticker.C
+				if app.secondaryKind == EmptyKind {
+					app.showPrimaryKindPage(app.kind, true, app.rowIndex)
+					app.Application.Draw()
+				}
+			}
+		}()
+	}
+	return err
 }
 
 // Show Primary kind page
 func (app *App) showPrimaryKindPage(k Kind, reload bool, rowIndex int) error {
 	var err error
 	switch k {
-	case ClusterPage:
-		app.kind = ClusterPage
+	case ClusterKind:
+		app.kind = ClusterKind
 		err = app.showClustersPage(reload, rowIndex)
-	case ServicePage:
-		app.kind = ServicePage
+	case ServiceKind:
+		app.kind = ServiceKind
 		err = app.showServicesPage(reload, rowIndex)
-	case TaskPage:
-		app.kind = TaskPage
+	case TaskKind:
+		app.kind = TaskKind
 		err = app.showTasksPages(reload, rowIndex)
-	case ContainerPage:
-		app.kind = ContainerPage
+	case ContainerKind:
+		app.kind = ContainerKind
 		err = app.showContainersPage(reload, rowIndex)
 	default:
-		app.kind = ClusterPage
+		app.kind = ClusterKind
 		err = app.showClustersPage(reload, rowIndex)
 	}
 	if err != nil {

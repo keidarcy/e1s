@@ -101,11 +101,12 @@ Use `ctrl` + `d` to exit ssh session.
 
 | Long | Short | Description | Default Value |
 | ---- | ----- | ---- | ---- |
-| `--debug` | `-d` | enable debug mode | false |
+| `--debug` | `-d` | sets debug mode | false |
 | `--json` | `-j` | log output json format | false |
 | `--log-file-path` | `-j` | custom e1s log file path | ${TMPDIR}e1s.log |
-| `--stale-data` | `-s` | enable stale data mode(only refetch data when hit ctrl + r) | false |
-| `--readonly` | `-r` | enable read only mode | false |
+| `--stale-data` | `-s` | sets stale data mode(only refetch data when hit ctrl + r) | false |
+| `--readonly` |  | sets read only mode | false |
+| `--refresh` | `-r` | specify the default refresh rate as an integer (sec) (default 0 no refresh) | false |
 
 
 Make sure you have the AWS CLI installed and properly configured with the necessary permissions to access your ECS resources.
@@ -150,11 +151,13 @@ $ e1s --readonly --debug --stale-data --log-file-path /tmp/e1s.log --json
 | `ctrl` + `c` | Quit |
 | `ctrl` + `d` | Exit from container |
 | `ctrl` + `r` | Reload resources |
+| `shift` + `f` | Start port forwarding session |
+| `shift` + `t` | Terminate port forwarding session |
 
 ### Development
 
 ```bash
-go run main.go -debug -log-file-path /tmp/e1s.log
+go run main.go --debug --log-file-path /tmp/e1s.log
 ```
 
 ```bash
