@@ -7,7 +7,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/keidarcy/e1s/ui"
+	e1s "github.com/keidarcy/e1s/ui"
 	"github.com/keidarcy/e1s/util"
 )
 
@@ -49,14 +49,14 @@ Check https://github.com/keidarcy/e1s for more details.`,
 		logger, file := util.GetLogger(logFilePath, json, debug)
 		defer file.Close()
 
-		option := ui.Option{
+		option := e1s.Option{
 			StaleData: staleData,
 			ReadOnly:  readOnly,
 			Logger:    logger,
 			Refresh:   refresh,
 		}
 
-		if err := ui.Start(option); err != nil {
+		if err := e1s.Start(option); err != nil {
 			fmt.Printf("e1s failed to start, please check your aws cli credential and permission. error: %v\n", err)
 			logger.Fatalf("Failed to start, error: %v\n", err) // will call os.Exit(1)
 		}

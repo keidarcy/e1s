@@ -71,6 +71,7 @@ func (v *View) handleTableEvents() {
 // Handle selected event for table when press up and down
 // Detail page will switch
 func (v *View) handleSelectionChanged(row, column int) {
+	logger.Warnf("handleSelectionChanged, row: %d, column: %d", row, column)
 	v.changeSelectedValues()
 	selected, err := v.getCurrentSelection()
 	if err != nil {
@@ -78,11 +79,15 @@ func (v *View) handleSelectionChanged(row, column int) {
 		logger.Warnf("Failed to handleSelectionChanged, err: %v", err)
 		return
 	}
+	// v.app.rowIndex = row
+	// logger.Infof("set rowIndex in change to %d", row)
 	v.infoPages.SwitchToPage(selected.entityName)
 }
 
 // Handle selected event for table when press Enter
 func (v *View) handleSelected(row, column int) {
+	// v.app.rowIndex = 1
+	// logger.Infof("set rowIndex back to in selected %d", 1)
 	if v.app.kind == ContainerPage {
 		selected, err := v.getCurrentSelection()
 		if err != nil {
@@ -93,7 +98,7 @@ func (v *View) handleSelected(row, column int) {
 		containerName := *selected.container.Name
 		v.ssh(containerName)
 	}
-	v.app.showPrimaryKindPage(v.app.kind.nextKind(), false, 0)
+	v.showKindPage(v.app.kind.nextKind(), false)
 }
 
 // Handle keyboard input

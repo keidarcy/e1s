@@ -181,20 +181,20 @@ func (v *View) getCurrentSelection() (Entity, error) {
 
 // Reload current resource
 func (v *View) reloadResource(reloadNotice bool) error {
-	row, _ := v.table.GetSelection()
 	if reloadNotice {
 		v.app.Notice.Info(reloadText)
 	}
-	v.showKindPage(v.app.kind, true, row)
+	v.showKindPage(v.app.kind, true)
 	return nil
 }
 
 // Show kind page including primary kind, secondary kind
-func (v *View) showKindPage(k Kind, reload bool, rowIndex int) {
+func (v *View) showKindPage(k Kind, reload bool) {
 	if v.app.secondaryKind != EmptyKind {
 		v.showSecondaryKindPage(reload)
 		return
 	}
+	rowIndex, _ := v.table.GetSelection()
 	v.app.showPrimaryKindPage(k, reload, rowIndex)
 }
 
@@ -226,6 +226,7 @@ func (v *View) closeModal() {
 		v.app.Stop()
 		return
 	}
+	// v.app.secondaryKind = EmptyKind
 	toPage := v.app.kind.getAppPageName(v.app.getPageHandle())
 	v.app.Pages.SwitchToPage(toPage)
 }

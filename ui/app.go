@@ -38,6 +38,8 @@ type Option struct {
 	StaleData bool
 	// Basic logger
 	Logger *logrus.Logger
+	// Reload resources every x second(s)
+	Refresh int
 }
 
 // tview App
@@ -52,16 +54,18 @@ type App struct {
 	MainScreen *tview.Flex
 	// API client
 	*api.Store
-	// Current page primary kind ex: cluster, service
-	kind Kind
-	// Current secondary kind like json, list
-	secondaryKind Kind
 	// Option from cli args
 	Option
 	// Current screen item content
 	Entity
+	// Current page primary kind ex: cluster, service
+	kind Kind
+	// Current secondary kind like json, list
+	secondaryKind Kind
 	// Port forwarding ssm session Id
 	sessions []*PortForwardingSession
+	// Current primary kind table row index for auto refresh to keep row selected
+	// rowIndex int
 }
 
 func newApp(option Option) (*App, error) {
@@ -104,7 +108,7 @@ func newApp(option Option) (*App, error) {
 }
 
 // Entry point of the app
-func Show(option Option) error {
+func Start(option Option) error {
 	logger = option.Logger
 	logger.Debug(`
 ****************************************************************
@@ -117,7 +121,7 @@ func Show(option Option) error {
 
 	app.initStyles()
 
-	if err := app.showPrimaryKindPage(ClusterPage, false, 0); err != nil {
+	if err := app.start(); err != nil {
 		return err
 	}
 
@@ -147,6 +151,7 @@ func (app *App) addAppPage(page *tview.Flex) {
 		"SecondaryKind": app.secondaryKind.String(),
 		"Cluster":       *app.cluster.ClusterName,
 		"Service":       *app.service.ServiceName,
+		// "RowIndex":      app.rowIndex,
 	}).Debug("AddPage app.Pages")
 
 	app.Pages.AddPage(pageName, page, true, true)
@@ -164,6 +169,7 @@ func (app *App) SwitchPage(reload bool) bool {
 			"PageName":      pageName,
 			"Cluster":       *app.cluster.ClusterName,
 			"Service":       *app.service.ServiceName,
+			// "RowIndex":      app.rowIndex,
 		}).Debug("SwitchToPage app.Pages")
 
 		app.Pages.SwitchToPage(pageName)
@@ -186,6 +192,7 @@ func (app *App) back() {
 		"SecondaryKind": app.secondaryKind.String(),
 		"Cluster":       *app.cluster.ClusterName,
 		"Service":       *app.service.ServiceName,
+		// "RowIndex":      app.rowIndex,
 	}).Debug("Back app.Pages")
 
 	app.Pages.SwitchToPage(pageName)
@@ -198,6 +205,30 @@ func (app *App) getPageHandle() string {
 		name = *app.cluster.ClusterArn
 	}
 	return name
+}
+
+func (app *App) start() error {
+	err := app.showPrimaryKindPage(ClusterPage, false, 0)
+
+	// if app.Option.Refresh > 0 {
+	// 	logger.Debugf("Auto refresh rate every %d seconds", app.Option.Refresh)
+	// 	ticker := time.NewTicker(time.Duration(app.Option.Refresh) * time.Second)
+	// 	var mutex sync.Mutex
+
+	// 	go func() {
+	// 		for {
+	// 			<-ticker.C
+	// 			mutex.Lock()
+	// 			if app.secondaryKind == EmptyKind && app.kind == ServicePage {
+	// 				logger.Infof("when refresh row index is %d", app.rowIndex)
+	// 				app.showPrimaryKindPage(app.kind, true, app.rowIndex)
+	// 				app.Application.Draw()
+	// 			}
+	// 			mutex.Unlock()
+	// 		}
+	// 	}()
+	// }
+	return err
 }
 
 // Show Primary kind page
