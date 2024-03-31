@@ -71,7 +71,6 @@ func (v *View) handleTableEvents() {
 // Handle selected event for table when press up and down
 // Detail page will switch
 func (v *View) handleSelectionChanged(row, column int) {
-	logger.Warnf("handleSelectionChanged, row: %d, column: %d", row, column)
 	v.changeSelectedValues()
 	selected, err := v.getCurrentSelection()
 	if err != nil {
@@ -79,16 +78,14 @@ func (v *View) handleSelectionChanged(row, column int) {
 		logger.Warnf("Failed to handleSelectionChanged, err: %v", err)
 		return
 	}
-	// v.app.rowIndex = row
-	// logger.Infof("set rowIndex in change to %d", row)
+	v.app.rowIndex = row
 	v.infoPages.SwitchToPage(selected.entityName)
 }
 
 // Handle selected event for table when press Enter
 func (v *View) handleSelected(row, column int) {
-	// v.app.rowIndex = 1
-	// logger.Infof("set rowIndex back to in selected %d", 1)
-	if v.app.kind == ContainerPage {
+	v.app.rowIndex = 0
+	if v.app.kind == ContainerKind {
 		selected, err := v.getCurrentSelection()
 		if err != nil {
 			v.app.Notice.Warn("Failed to handleSelected")
@@ -98,7 +95,7 @@ func (v *View) handleSelected(row, column int) {
 		containerName := *selected.container.Name
 		v.ssh(containerName)
 	}
-	v.showKindPage(v.app.kind.nextKind(), false)
+	v.app.showPrimaryKindPage(v.app.kind.nextKind(), false, 0)
 }
 
 // Handle keyboard input
@@ -106,61 +103,66 @@ func (v *View) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 	// If it's single keystroke, event.Rune() is ascii code
 	switch event.Rune() {
 	case aKey:
-		if v.app.kind == ServicePage {
-			v.app.secondaryKind = AutoScalingPage
+		if v.app.kind == ServiceKind {
+			v.app.secondaryKind = AutoScalingKind
 			v.showSecondaryKindPage(false)
 			return event
 		}
 	case bKey:
 		v.openInBrowser()
 	case dKey:
-		v.app.secondaryKind = DescriptionPage
+		v.app.secondaryKind = DescriptionKind
 		v.showSecondaryKindPage(false)
 	case eKey:
-		if v.app.kind == ServicePage {
+		if v.app.kind == ServiceKind {
+			v.app.secondaryKind = ModalKind
 			v.showEditServiceModal()
 			return event
 		}
-		if v.app.kind == TaskPage {
+		if v.app.kind == TaskKind {
+			v.app.secondaryKind = ModalKind
 			v.editTaskDefinition()
 			return event
 		}
 	case lKey:
-		if v.app.kind == ServicePage || v.app.kind == TaskPage {
-			v.app.secondaryKind = LogPage
+		if v.app.kind == ServiceKind || v.app.kind == TaskKind {
+			v.app.secondaryKind = LogKind
 			v.showSecondaryKindPage(false)
 			return event
 		}
 	case mKey:
-		if v.app.kind == ServicePage {
+		if v.app.kind == ServiceKind {
+			v.app.secondaryKind = ModalKind
 			v.showMetricsModal()
 			return event
 		}
 	case tKey:
-		if v.app.kind == ServicePage || v.app.kind == TaskPage {
-			v.app.secondaryKind = TaskDefinitionPage
+		if v.app.kind == ServiceKind || v.app.kind == TaskKind {
+			v.app.secondaryKind = TaskDefinitionKind
 			v.showSecondaryKindPage(false)
 			return event
 		}
 	case vKey:
-		if v.app.kind == ServicePage || v.app.kind == TaskPage {
-			v.app.secondaryKind = TaskDefinitionRevisionsPage
+		if v.app.kind == ServiceKind || v.app.kind == TaskKind {
+			v.app.secondaryKind = TaskDefinitionRevisionsKind
 			v.showSecondaryKindPage(false)
 			return event
 		}
 	case wKey:
-		if v.app.kind == ServicePage {
-			v.app.secondaryKind = ServiceEventsPage
+		if v.app.kind == ServiceKind {
+			v.app.secondaryKind = ServiceEventsKind
 			v.showSecondaryKindPage(false)
 			return event
 		}
 	case FKey:
-		if v.app.kind == ContainerPage {
+		if v.app.kind == ContainerKind {
+			v.app.secondaryKind = ModalKind
 			v.showPortForwardingModal()
 			return event
 		}
 	case TKey:
-		if v.app.kind == ContainerPage {
+		if v.app.kind == ContainerKind {
+			v.app.secondaryKind = ModalKind
 			v.showTerminatePortForwardingModal()
 			return event
 		}
@@ -185,7 +187,7 @@ func (v *View) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 
 // Handle done event for table when press ESC
 func (v *View) handleDone(key tcell.Key) {
-	if v.app.kind == ClusterPage {
+	if v.app.kind == ClusterKind {
 		return
 	}
 	v.app.back()
@@ -199,16 +201,16 @@ func (v *View) changeSelectedValues() {
 		logger.Warnf("Failed to changeSelectedValues, err: %v", err)
 		return
 	}
-	if v.app.kind == ClusterPage {
+	if v.app.kind == ClusterKind {
 		v.app.cluster = selected.cluster
 		v.app.entityName = *selected.cluster.ClusterArn
-	} else if v.app.kind == ServicePage {
+	} else if v.app.kind == ServiceKind {
 		v.app.service = selected.service
 		v.app.entityName = *selected.service.ServiceArn
-	} else if v.app.kind == TaskPage {
+	} else if v.app.kind == TaskKind {
 		v.app.task = selected.task
 		v.app.entityName = *selected.task.TaskArn
-	} else if v.app.kind == ContainerPage {
+	} else if v.app.kind == ContainerKind {
 		v.app.container = selected.container
 		v.app.entityName = *selected.container.ContainerArn
 	} else {
@@ -227,14 +229,14 @@ func (v *View) openInBrowser() {
 	arn := ""
 	taskService := ""
 	switch v.app.kind {
-	case ClusterPage:
+	case ClusterKind:
 		arn = *selected.cluster.ClusterArn
-	case ServicePage:
+	case ServiceKind:
 		arn = *selected.service.ServiceArn
-	case TaskPage:
+	case TaskKind:
 		taskService = *v.app.service.ServiceName
 		arn = *selected.task.TaskArn
-	case ContainerPage:
+	case ContainerKind:
 		taskService = *v.app.service.ServiceName
 		arn = *v.app.task.TaskArn
 	}

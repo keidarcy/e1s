@@ -1,6 +1,8 @@
 package ui
 
 import (
+	"time"
+
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
 	"github.com/gdamore/tcell/v2"
@@ -65,7 +67,7 @@ type App struct {
 	// Port forwarding ssm session Id
 	sessions []*PortForwardingSession
 	// Current primary kind table row index for auto refresh to keep row selected
-	// rowIndex int
+	rowIndex int
 }
 
 func newApp(option Option) (*App, error) {
@@ -94,7 +96,7 @@ func newApp(option Option) (*App, error) {
 		MainScreen:    main,
 		Store:         store,
 		Option:        option,
-		kind:          ClusterPage,
+		kind:          ClusterKind,
 		secondaryKind: EmptyKind,
 		Entity: Entity{
 			cluster: &types.Cluster{
@@ -201,33 +203,29 @@ func (app *App) back() {
 // Get page handler, cluster is empty, other is cluster arn
 func (app *App) getPageHandle() string {
 	name := ""
-	if app.kind != ClusterPage {
+	if app.kind != ClusterKind {
 		name = *app.cluster.ClusterArn
 	}
 	return name
 }
 
 func (app *App) start() error {
-	err := app.showPrimaryKindPage(ClusterPage, false, 0)
+	err := app.showPrimaryKindPage(ClusterKind, false, 0)
 
-	// if app.Option.Refresh > 0 {
-	// 	logger.Debugf("Auto refresh rate every %d seconds", app.Option.Refresh)
-	// 	ticker := time.NewTicker(time.Duration(app.Option.Refresh) * time.Second)
-	// 	var mutex sync.Mutex
+	if app.Option.Refresh > 0 {
+		logger.Debugf("Auto refresh rate every %d seconds", app.Option.Refresh)
+		ticker := time.NewTicker(time.Duration(app.Option.Refresh) * time.Second)
 
-	// 	go func() {
-	// 		for {
-	// 			<-ticker.C
-	// 			mutex.Lock()
-	// 			if app.secondaryKind == EmptyKind && app.kind == ServicePage {
-	// 				logger.Infof("when refresh row index is %d", app.rowIndex)
-	// 				app.showPrimaryKindPage(app.kind, true, app.rowIndex)
-	// 				app.Application.Draw()
-	// 			}
-	// 			mutex.Unlock()
-	// 		}
-	// 	}()
-	// }
+		go func() {
+			for {
+				<-ticker.C
+				if app.secondaryKind == EmptyKind {
+					app.showPrimaryKindPage(app.kind, true, app.rowIndex)
+					app.Application.Draw()
+				}
+			}
+		}()
+	}
 	return err
 }
 
@@ -235,20 +233,20 @@ func (app *App) start() error {
 func (app *App) showPrimaryKindPage(k Kind, reload bool, rowIndex int) error {
 	var err error
 	switch k {
-	case ClusterPage:
-		app.kind = ClusterPage
+	case ClusterKind:
+		app.kind = ClusterKind
 		err = app.showClustersPage(reload, rowIndex)
-	case ServicePage:
-		app.kind = ServicePage
+	case ServiceKind:
+		app.kind = ServiceKind
 		err = app.showServicesPage(reload, rowIndex)
-	case TaskPage:
-		app.kind = TaskPage
+	case TaskKind:
+		app.kind = TaskKind
 		err = app.showTasksPages(reload, rowIndex)
-	case ContainerPage:
-		app.kind = ContainerPage
+	case ContainerKind:
+		app.kind = ContainerKind
 		err = app.showContainersPage(reload, rowIndex)
 	default:
-		app.kind = ClusterPage
+		app.kind = ClusterKind
 		err = app.showClustersPage(reload, rowIndex)
 	}
 	if err != nil {

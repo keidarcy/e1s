@@ -18,14 +18,14 @@ type ClusterView struct {
 func newClusterView(clusters []types.Cluster, app *App) *ClusterView {
 	return &ClusterView{
 		View: *newView(app, basicKeyInputs, secondaryPageKeyMap{
-			DescriptionPage: descriptionPageKeys,
+			DescriptionKind: descriptionPageKeys,
 		}),
 		clusters: clusters,
 	}
 }
 
 func (app *App) showClustersPage(reload bool, rowIndex int) error {
-	app.kind = ClusterPage
+	app.kind = ClusterKind
 	if switched := app.SwitchPage(reload); switched {
 		return nil
 	}

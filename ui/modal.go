@@ -29,7 +29,7 @@ func (v *View) showEditServiceModal() {
 
 // Show task definition register confirm modal
 func (v *View) showTaskDefinitionConfirm(fn func()) {
-	if v.app.kind != TaskPage {
+	if v.app.kind != TaskKind {
 		return
 	}
 	content, title := v.taskDefinitionRegisterContent(fn)
@@ -50,7 +50,7 @@ func (v *View) showMetricsModal() {
 
 // Get task definition register content
 func (v *View) taskDefinitionRegisterContent(fn func()) (*tview.Form, string) {
-	if v.app.kind != TaskPage {
+	if v.app.kind != TaskKind {
 		return nil, ""
 	}
 
@@ -226,6 +226,22 @@ func (v *View) serviceUpdateContent() (*tview.Form, string) {
 			v.reloadResource(false)
 		} else {
 			v.closeModal()
+
+			// Update service last deployment
+			row, _ := v.table.GetSelection()
+			if row == 0 {
+				row++
+			}
+			// go v.app.QueueUpdateDraw(func() {
+			// 	cell := v.table.GetCell(row, 3)
+			// 	cell.SetText(strings.Replace(cell.Text,  "[green]completed[-:-:-]", "[grey]in_progress[-:-:-]", 1))
+			// })
+			go func() {
+				cell := v.table.GetCell(row, 3)
+				cell.SetText(strings.Replace(cell.Text, "[green]completed[-:-:-]", "[grey]in_progress[-:-:-]", 1))
+				v.app.Application.Draw()
+			}()
+
 			v.app.Notice.Infof("Success: DesiredCount: %d, TaskDefinition: %s", s.DesiredCount, *s.TaskDefinition)
 			logger.Infof("Success: DesiredCount: %d, TaskDefinition: %s", s.DesiredCount, *s.TaskDefinition)
 			v.reloadResource(false)
@@ -236,7 +252,7 @@ func (v *View) serviceUpdateContent() (*tview.Form, string) {
 
 // Get service metrics charts
 func (v *View) serviceMetricsContent() (*tview.Form, string) {
-	if v.app.kind != ServicePage {
+	if v.app.kind != ServiceKind {
 		return nil, ""
 	}
 

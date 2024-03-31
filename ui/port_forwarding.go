@@ -120,14 +120,6 @@ func (v *View) portForwardingForm() (*tview.Form, string) {
 			v.app.Notice.Infof("Port forwarding session started on %s", localPort)
 			logger.Infof("Port forwarding session started on %s", localPort)
 
-			// // Update container table associated row PF text
-			// row, _ := v.table.GetSelection()
-			// if row == 0 {
-			// 	row++
-			// }
-			// go v.app.QueueUpdateDraw(func() {
-			// 	v.table.GetCell(row, 3).SetText("[green::i]F[-:-:-]")
-			// })
 			v.reloadResource(false)
 		}
 	})
@@ -136,7 +128,7 @@ func (v *View) portForwardingForm() (*tview.Form, string) {
 
 // Show task definition register confirm modal
 func (v *View) showTerminatePortForwardingModal() {
-	if v.app.kind != ContainerPage {
+	if v.app.kind != ContainerKind {
 		return
 	}
 	content, title := v.terminatePortForwardingContent()
@@ -168,7 +160,7 @@ func (v *View) terminatePortForwardingContent() (*tview.Form, string) {
 		}
 	}
 
-	if v.app.kind != ContainerPage {
+	if v.app.kind != ContainerKind {
 		return nil, ""
 	}
 

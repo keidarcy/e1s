@@ -22,7 +22,7 @@ func newContainerView(containers []types.Container, app *App) *ContainerView {
 	}...)
 	return &ContainerView{
 		View: *newView(app, keys, secondaryPageKeyMap{
-			DescriptionPage: descriptionPageKeys,
+			DescriptionKind: descriptionPageKeys,
 		}),
 		containers: containers,
 	}

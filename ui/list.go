@@ -31,7 +31,7 @@ func (v *View) getListString(entity Entity) string {
 	currentTz, _ := time.LoadLocation(tz)
 
 	switch v.app.secondaryKind {
-	case ServiceEventsPage:
+	case ServiceEventsKind:
 		if entity.service == nil {
 			contentString += "[red::]No valid contents[-:-:-]"
 		}
@@ -39,7 +39,7 @@ func (v *View) getListString(entity Entity) string {
 			createdAt := e.CreatedAt.In(currentTz)
 			contentString += fmt.Sprintf(logFmt, createdAt.Format(time.RFC3339), *e.Message)
 		}
-	case LogPage:
+	case LogKind:
 		var logs []types.OutputLogEvent
 		var err error
 		var tdArn *string
@@ -78,7 +78,7 @@ func (v *View) switchToServiceEventsList() {
 		logger.Warnf("Failed to switchToServiceEventsList, err: %v", err)
 		return
 	}
-	if v.app.kind != ServicePage {
+	if v.app.kind != ServiceKind {
 		return
 	}
 	v.showListPages(selected)

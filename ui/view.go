@@ -135,10 +135,10 @@ type Footer struct {
 func newFooter() *Footer {
 	return &Footer{
 		footer:    tview.NewFlex().SetDirection(tview.FlexColumn),
-		cluster:   tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(footerItemFmt, ClusterPage)),
-		service:   tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(footerItemFmt, ServicePage)),
-		task:      tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(footerItemFmt, TaskPage)),
-		container: tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(footerItemFmt, ContainerPage)),
+		cluster:   tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(footerItemFmt, ClusterKind)),
+		service:   tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(footerItemFmt, ServiceKind)),
+		task:      tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(footerItemFmt, TaskKind)),
+		container: tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(footerItemFmt, ContainerKind)),
 	}
 }
 
@@ -200,17 +200,17 @@ func (v *View) showKindPage(k Kind, reload bool) {
 
 func (v *View) showSecondaryKindPage(reload bool) {
 	switch v.app.secondaryKind {
-	case AutoScalingPage:
+	case AutoScalingKind:
 		v.switchToAutoScalingJson()
-	case DescriptionPage:
+	case DescriptionKind:
 		v.switchToDescriptionJson()
-	case LogPage:
+	case LogKind:
 		v.switchToLogsList()
-	case TaskDefinitionPage:
+	case TaskDefinitionKind:
 		v.switchToTaskDefinitionJson()
-	case TaskDefinitionRevisionsPage:
+	case TaskDefinitionRevisionsKind:
 		v.switchToTaskDefinitionRevisionsJson()
-	case ServiceEventsPage:
+	case ServiceEventsKind:
 		v.switchToServiceEventsList()
 	}
 	if !reload {
@@ -283,7 +283,7 @@ func (v *View) handleContentPageSwitch(entity Entity, contentString string) {
 		case bKey:
 			v.openInBrowser()
 		case rKey:
-			if v.app.secondaryKind == LogPage {
+			if v.app.secondaryKind == LogKind {
 				v.realtimeAwsLog(entity)
 			}
 
@@ -335,7 +335,7 @@ func getContentTextItem(contentStr string, title string) *tview.TextView {
 
 // SSH into selected container
 func (v *View) ssh(containerName string) {
-	if v.app.kind != ContainerPage {
+	if v.app.kind != ContainerKind {
 		v.app.Notice.Warn("Invalid operation")
 		return
 	}
