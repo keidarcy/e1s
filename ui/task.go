@@ -162,7 +162,7 @@ func (v *TaskView) tableParam() (title string, headers []string, dataBuilder fun
 	headers = []string{
 		"Task ID ▾",
 		"Last status",
-		"Desired status",
+		"Failures",
 		"Task definition",
 		"Started at",
 		"Containers",
@@ -176,10 +176,16 @@ func (v *TaskView) tableParam() (title string, headers []string, dataBuilder fun
 			// healthy status
 			health := string(t.HealthStatus)
 
+			failures := util.EmptyText
+
+			if len(failures) > 0 {
+				failures = "[red::b]F[-:-:-]"
+			}
+
 			row := []string{}
 			row = append(row, util.ArnToName(t.TaskArn))
 			row = append(row, util.ShowGreenGrey(t.LastStatus, "running"))
-			row = append(row, util.ShowString(t.DesiredStatus))
+			row = append(row, failures)
 			row = append(row, util.ArnToName(t.TaskDefinitionArn))
 			row = append(row, util.ShowTime(t.StartedAt))
 			row = append(row, strconv.Itoa(len(t.Containers)))
