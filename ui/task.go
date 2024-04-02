@@ -111,7 +111,6 @@ func (v *TaskView) infoPagesParam(t types.Task) (items []InfoItem) {
 	subnetID := util.EmptyText
 	eniID := util.EmptyText
 	privateIP := util.EmptyText
-	macAddress := util.EmptyText
 	for _, a := range t.Attachments {
 		if *a.Type == "ElasticNetworkInterface" {
 			for _, d := range a.Details {
@@ -124,10 +123,6 @@ func (v *TaskView) infoPagesParam(t types.Task) (items []InfoItem) {
 
 				if *d.Name == "privateIPv4Address" {
 					privateIP = *d.Value
-				}
-
-				if *d.Name == "macAddress" {
-					macAddress = *d.Value
 				}
 			}
 		}
@@ -143,13 +138,14 @@ func (v *TaskView) infoPagesParam(t types.Task) (items []InfoItem) {
 		{name: "Subnet ID", value: subnetID},
 		{name: "ENI ID", value: eniID},
 		{name: "Private IP", value: privateIP},
-		{name: "MAC address", value: macAddress},
+		{name: "Execute command", value: strconv.FormatBool(t.EnableExecuteCommand)},
 		{name: "Started by", value: util.ShowString(t.StartedBy)},
 		{name: "Started at", value: util.ShowTime(t.StartedAt)},
-		{name: "Created at", value: util.ShowTime(t.CreatedAt)},
 		{name: "Pull started at", value: util.ShowTime(t.PullStartedAt)},
 		{name: "Pull stopped at", value: util.ShowTime(t.PullStoppedAt)},
 		{name: "StoppedReason", value: util.ShowString(t.StoppedReason)},
+		{name: "StoppedAt", value: util.ShowTime(t.StoppedAt)},
+		{name: "StoppingAt", value: util.ShowTime(t.StoppingAt)},
 		{name: "Platform family", value: util.ShowString(t.PlatformFamily)},
 		{name: "Platform version", value: util.ShowString(t.PlatformVersion)},
 	}
@@ -179,7 +175,7 @@ func (v *TaskView) tableParam() (title string, headers []string, dataBuilder fun
 			row := []string{}
 			row = append(row, util.ArnToName(t.TaskArn))
 			row = append(row, util.ShowGreenGrey(t.LastStatus, "running"))
-			row = append(row, util.ShowString(t.DesiredStatus))
+			row = append(row, util.ShowGreenGrey(t.DesiredStatus, "running"))
 			row = append(row, util.ArnToName(t.TaskDefinitionArn))
 			row = append(row, util.ShowTime(t.StartedAt))
 			row = append(row, strconv.Itoa(len(t.Containers)))
