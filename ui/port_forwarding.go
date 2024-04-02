@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/keidarcy/e1s/api"
+	"github.com/keidarcy/e1s/util"
 	"github.com/rivo/tview"
 )
 
@@ -111,6 +112,23 @@ func (v *View) portForwardingForm() (*tview.Form, string) {
 			v.app.Notice.Infof("Port forwarding session started on %s", localPort)
 			logger.Infof("Port forwarding session started on %s", localPort)
 
+			// Update port
+			go func() {
+				row, _ := v.table.GetSelection()
+				if row == 0 {
+					row++
+				}
+				cell := v.table.GetCell(row, 3)
+				text := cell.Text
+				if text == util.EmptyText {
+					text = localPort
+				} else {
+					text = fmt.Sprintf("%s,%s", text, localPort)
+				}
+				cell.SetText(text)
+				v.app.Application.Draw()
+			}()
+
 			v.reloadResource(false)
 		}
 	})
@@ -188,6 +206,17 @@ func (v *View) terminatePortForwardingContent() (*tview.Form, string) {
 			v.app.Notice.Infof("Success terminated sessions on port %s", portText)
 			logger.Debug("Terminated port forwarding session terminated")
 		}
+
+		// Update port
+		go func() {
+			row, _ := v.table.GetSelection()
+			if row == 0 {
+				row++
+			}
+			cell := v.table.GetCell(row, 3)
+			cell.SetText(util.EmptyText)
+			v.app.Application.Draw()
+		}()
 
 		v.closeModal()
 
