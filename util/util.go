@@ -113,15 +113,17 @@ func ShowInt(p *int32) string {
 	return strconv.Itoa(int(*p))
 }
 
-func ShowGreenGrey(s *string, greenStr string) string {
-	if s == nil {
+func ShowGreenGrey(inputStr *string, greenStr string) string {
+	if inputStr == nil {
 		return EmptyText
 	}
 
-	if strings.ToLower(*s) == greenStr {
-		return fmt.Sprintf(greenFmt, strings.ToLower(*s))
+	str := *inputStr
+	outputStr := strings.ToUpper(string(str[0])) + strings.ToLower(string(str[1:]))
+	if strings.ToLower(str) == greenStr {
+		return fmt.Sprintf(greenFmt, outputStr)
 	}
-	return fmt.Sprintf(greyFmt, strings.ToLower(*s))
+	return fmt.Sprintf(greyFmt, outputStr)
 }
 
 // Convert ARN to AWS web console URL
