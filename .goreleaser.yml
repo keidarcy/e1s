@@ -23,6 +23,7 @@ changelog:
       - '^docs:'
       - '^ci:'
       - '^test:'
+      - '^deps:'
       - '^bump:'
       - '^refactor:'
       - '^Merge pull request'
