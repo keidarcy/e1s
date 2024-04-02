@@ -119,6 +119,9 @@ func ShowGreenGrey(inputStr *string, greenStr string) string {
 	}
 
 	str := *inputStr
+	if str == "" {
+		return EmptyText
+	}
 	outputStr := strings.ToUpper(string(str[0])) + strings.ToLower(string(str[1:]))
 	if strings.ToLower(str) == greenStr {
 		return fmt.Sprintf(greenFmt, outputStr)

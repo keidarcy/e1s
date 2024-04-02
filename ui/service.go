@@ -216,7 +216,7 @@ func (v *ServiceView) tableParam() (title string, headers []string, dataBuilder 
 			row = append(row, util.ShowInt(&s.PendingCount))
 			row = append(row, lastDeployment)
 			row = append(row, strconv.FormatBool(s.EnableExecuteCommand))
-			row = append(row, *s.TaskDefinition)
+			row = append(row, util.ShowString(s.TaskDefinition))
 			data = append(data, row)
 		}
 		return data
