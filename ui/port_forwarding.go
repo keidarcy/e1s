@@ -15,15 +15,6 @@ type PortForwardingSession struct {
 	containerId string
 }
 
-// Show port forward modal and handle confirm event
-func (v *View) showPortForwardingModal() {
-	content, title := v.portForwardingForm()
-	if content == nil {
-		return
-	}
-	v.app.Pages.AddPage(title, v.modal(content, 100, 15), true, true)
-}
-
 // Get port forward form content
 func (v *View) portForwardingForm() (*tview.Form, string) {
 	selected, err := v.getCurrentSelection()

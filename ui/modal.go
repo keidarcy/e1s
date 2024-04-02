@@ -18,13 +18,13 @@ const (
 	readonlyLabel = " [-:-:-] (readonly) "
 )
 
-// Show update service modal and handle submit event
-func (v *View) showEditServiceModal() {
-	content, title := v.serviceUpdateContent()
+// Show modal with form
+func (v *View) showFormModal(formContentFn func() (*tview.Form, string), height int) {
+	content, title := formContentFn()
 	if content == nil {
 		return
 	}
-	v.app.Pages.AddPage(title, v.modal(content, 100, 15), true, true)
+	v.app.Pages.AddPage(title, v.modal(content, 100, height), true, true)
 }
 
 // Show task definition register confirm modal
@@ -32,24 +32,15 @@ func (v *View) showTaskDefinitionConfirm(fn func()) {
 	if v.app.kind != TaskKind {
 		return
 	}
-	content, title := v.taskDefinitionRegisterContent(fn)
+	content, title := v.taskDefinitionRegisterForm(fn)
 	if content == nil {
 		return
 	}
 	v.app.Pages.AddPage(title, v.modal(content, 100, 10), true, true)
 }
 
-// Show service metrics modal(Memory/CPU)
-func (v *View) showMetricsModal() {
-	content, title := v.serviceMetricsContent()
-	if content == nil {
-		return
-	}
-	v.app.Pages.AddPage(title, v.modal(content, 100, 15), true, true)
-}
-
 // Get task definition register content
-func (v *View) taskDefinitionRegisterContent(fn func()) (*tview.Form, string) {
+func (v *View) taskDefinitionRegisterForm(fn func()) (*tview.Form, string) {
 	if v.app.kind != TaskKind {
 		return nil, ""
 	}
@@ -80,7 +71,7 @@ func (v *View) taskDefinitionRegisterContent(fn func()) (*tview.Form, string) {
 }
 
 // Get service update form
-func (v *View) serviceUpdateContent() (*tview.Form, string) {
+func (v *View) serviceUpdateForm() (*tview.Form, string) {
 	const latest = "(LATEST)"
 
 	selected, err := v.getCurrentSelection()
@@ -237,8 +228,8 @@ func (v *View) serviceUpdateContent() (*tview.Form, string) {
 			// 	cell.SetText(strings.Replace(cell.Text,  "[green]completed[-:-:-]", "[grey]in_progress[-:-:-]", 1))
 			// })
 			go func() {
-				cell := v.table.GetCell(row, 3)
-				cell.SetText(strings.Replace(cell.Text, "[green]completed[-:-:-]", "[grey]in_progress[-:-:-]", 1))
+				cell := v.table.GetCell(row, 4)
+				cell.SetText(strings.Replace(cell.Text, "[green]Completed[-:-:-]", "[grey]In_progress[-:-:-]", 1))
 				v.app.Application.Draw()
 			}()
 
@@ -251,7 +242,7 @@ func (v *View) serviceUpdateContent() (*tview.Form, string) {
 }
 
 // Get service metrics charts
-func (v *View) serviceMetricsContent() (*tview.Form, string) {
+func (v *View) serviceMetricsForm() (*tview.Form, string) {
 	if v.app.kind != ServiceKind {
 		return nil, ""
 	}
