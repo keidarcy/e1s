@@ -191,9 +191,10 @@ func (v *ServiceView) tableParam() (title string, headers []string, dataBuilder 
 		"Name",
 		"Status",
 		"Tasks ▾",
+		"Pending",
 		"Last deployment",
+		"Execute command",
 		"Task definition",
-		"Revision",
 	}
 	dataBuilder = func() (data [][]string) {
 		for _, s := range v.services {
@@ -209,15 +210,13 @@ func (v *ServiceView) tableParam() (title string, headers []string, dataBuilder 
 				lastDeployment += fmt.Sprintf("%s - %s", util.ShowGreenGrey(&rollout, "completed"), s.Deployments[0].UpdatedAt.Format(time.RFC3339))
 			}
 
-			// task definition family and revision
-			family, revision := getTaskDefinitionInfo(s.TaskDefinition)
-
 			row = append(row, util.ShowString(s.ServiceName))
 			row = append(row, util.ShowGreenGrey(s.Status, "active"))
 			row = append(row, tasks)
+			row = append(row, util.ShowInt(&s.PendingCount))
 			row = append(row, lastDeployment)
-			row = append(row, family)
-			row = append(row, revision)
+			row = append(row, strconv.FormatBool(s.EnableExecuteCommand))
+			row = append(row, util.ShowString(s.TaskDefinition))
 			data = append(data, row)
 		}
 		return data

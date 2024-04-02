@@ -23,8 +23,8 @@ const (
 	footerItemFmt         = " [black:grey:] <%s> [-:-:-] "
 	keyFmt                = " [purple::b]<%s> [green:-:-]%s "
 	infoItemFmt           = " %s:[aqua::b] %s "
-	clusterTasksFmt       = "[blue]%d pending[-] | [green]%d running"
-	serviceTasksFmt       = "%d/%d tasks running"
+	clusterTasksFmt       = "[blue]%d Pending[-] | [green]%d Running"
+	serviceTasksFmt       = "%d/%d Tasks running"
 	footerKeyFmt          = "[::b][↓,j/↑,k][::-] Down/Up [::b][Enter/Esc][::-] Enter/Back [::b][ctrl-c[][::-] Quit"
 	colorJSONFmt          = `%s"[steelblue::b]%s[-:-:-]": %s`
 

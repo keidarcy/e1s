@@ -116,7 +116,7 @@ func (v *View) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 	case eKey:
 		if v.app.kind == ServiceKind {
 			v.app.secondaryKind = ModalKind
-			v.showEditServiceModal()
+			v.showFormModal(v.serviceUpdateForm, 15)
 			return event
 		}
 		if v.app.kind == TaskKind {
@@ -133,7 +133,7 @@ func (v *View) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 	case mKey:
 		if v.app.kind == ServiceKind {
 			v.app.secondaryKind = ModalKind
-			v.showMetricsModal()
+			v.showFormModal(v.serviceMetricsForm, 15)
 			return event
 		}
 	case tKey:
@@ -157,7 +157,7 @@ func (v *View) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 	case FKey:
 		if v.app.kind == ContainerKind {
 			v.app.secondaryKind = ModalKind
-			v.showPortForwardingModal()
+			v.showFormModal(v.portForwardingForm, 15)
 			return event
 		}
 	case TKey:
