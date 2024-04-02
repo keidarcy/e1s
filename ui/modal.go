@@ -218,16 +218,17 @@ func (v *View) serviceUpdateForm() (*tview.Form, string) {
 		} else {
 			v.closeModal()
 
-			// Update service last deployment
-			row, _ := v.table.GetSelection()
-			if row == 0 {
-				row++
-			}
 			// go v.app.QueueUpdateDraw(func() {
 			// 	cell := v.table.GetCell(row, 3)
 			// 	cell.SetText(strings.Replace(cell.Text,  "[green]completed[-:-:-]", "[grey]in_progress[-:-:-]", 1))
 			// })
+
+			// Update service last deployment
 			go func() {
+				row, _ := v.table.GetSelection()
+				if row == 0 {
+					row++
+				}
 				cell := v.table.GetCell(row, 4)
 				cell.SetText(strings.Replace(cell.Text, "[green]Completed[-:-:-]", "[grey]In_progress[-:-:-]", 1))
 				v.app.Application.Draw()

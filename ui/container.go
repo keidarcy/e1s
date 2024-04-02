@@ -128,8 +128,8 @@ func (v *ContainerView) tableParam() (title string, headers []string, dataBuilde
 	title = fmt.Sprintf(nsTitleFmt, v.app.kind, util.ArnToName(v.app.task.TaskArn), len(v.containers))
 	headers = []string{
 		"Name",
-		"Health status ▾",
 		"Status",
+		"Health status ▾",
 		"PF",
 		"Container runtime id",
 		"Image URI",
@@ -152,8 +152,8 @@ func (v *ContainerView) tableParam() (title string, headers []string, dataBuilde
 
 			row := []string{}
 			row = append(row, util.ShowString(c.Name))
-			row = append(row, util.ShowGreenGrey(&health, "healthy"))
 			row = append(row, util.ShowGreenGrey(c.LastStatus, "running"))
+			row = append(row, util.ShowGreenGrey(&health, "healthy"))
 			row = append(row, portText)
 			row = append(row, util.ShowString(c.RuntimeId))
 			row = append(row, util.ShowString(c.Image))
