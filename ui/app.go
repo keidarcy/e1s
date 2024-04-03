@@ -37,11 +37,9 @@ type Entity struct {
 type Option struct {
 	// Read only mode indicator
 	ReadOnly bool
-	// Reload resources in each move
-	StaleData bool
 	// Basic logger
 	Logger *logrus.Logger
-	// Reload resources every x second(s)
+	// Reload resources every x second(s), -1 is stop auto refresh
 	Refresh int
 }
 
@@ -165,7 +163,7 @@ func (app *App) addAppPage(page *tview.Flex) {
 // Switch app.Pages page
 func (app *App) SwitchPage(reload bool) bool {
 	pageName := app.kind.getAppPageName(app.getPageHandle())
-	if app.Pages.HasPage(pageName) && app.StaleData && !reload {
+	if app.Pages.HasPage(pageName) && app.Refresh < 0 && !reload {
 
 		logger.WithFields(logrus.Fields{
 			"Action":        "SwitchTo",

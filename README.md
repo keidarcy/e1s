@@ -31,7 +31,7 @@ brew install keidarcy/tap/e1s
 ### Basic
 
 - [x] Read only mode
-- [x] Reload resources
+- [x] Auto refresh
 - [x] Describe clusters
 - [x] Describe services
 - [x] Describe tasks
@@ -104,9 +104,8 @@ Use `ctrl` + `d` to exit ssh session.
 | `--debug` | `-d` | sets debug mode | false |
 | `--json` | `-j` | log output json format | false |
 | `--log-file-path` | `-j` | custom e1s log file path | ${TMPDIR}e1s.log |
-| `--stale-data` | `-s` | sets stale data mode(only refetch data when hit ctrl + r) | false |
 | `--readonly` |  | sets read only mode | false |
-| `--refresh` | `-r` | specify the default refresh rate as an integer (sec) (default 0 no refresh) | false |
+| `--refresh` | `-r` | specify the default refresh rate as an integer (sec) (default 30, set -1 to stop auto refresh) | 30 |
 
 
 Make sure you have the AWS CLI installed and properly configured with the necessary permissions to access your ECS resources.
@@ -123,10 +122,10 @@ Using my-profile profile, us-east-1 region
 $ AWS_PROFILE=my-profile AWS_REGION=us-east-1 e1s
 ```
 
-Using read only, debug, stale data mode with a custom log path json output
+Using read only, debug, stop auto refresh with a custom log path json output
 
 ```bash
-$ e1s --readonly --debug --stale-data --log-file-path /tmp/e1s.log --json
+$ e1s --readonly --debug --refresh -1 --log-file-path /tmp/e1s.log --json
 ```
 
 ### Key Bindings
