@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"sync"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -109,6 +110,8 @@ func newApp(option Option) (*App, error) {
 	}, nil
 }
 
+var rowIndexMutex sync.Mutex
+
 // Entry point of the app
 func Start(option Option) error {
 	logger = option.Logger
@@ -210,7 +213,7 @@ func (app *App) getPageHandle() string {
 }
 
 func (app *App) start() error {
-	err := app.showPrimaryKindPage(ClusterKind, false, 0)
+	err := app.showPrimaryKindPage(ClusterKind, false)
 
 	if app.Option.Refresh > 0 {
 		logger.Debugf("Auto refresh rate every %d seconds", app.Option.Refresh)
@@ -220,7 +223,7 @@ func (app *App) start() error {
 			for {
 				<-ticker.C
 				if app.secondaryKind == EmptyKind {
-					app.showPrimaryKindPage(app.kind, true, app.rowIndex)
+					app.showPrimaryKindPage(app.kind, true)
 					app.Application.Draw()
 				}
 			}
@@ -230,24 +233,24 @@ func (app *App) start() error {
 }
 
 // Show Primary kind page
-func (app *App) showPrimaryKindPage(k Kind, reload bool, rowIndex int) error {
+func (app *App) showPrimaryKindPage(k Kind, reload bool) error {
 	var err error
 	switch k {
 	case ClusterKind:
 		app.kind = ClusterKind
-		err = app.showClustersPage(reload, rowIndex)
+		err = app.showClustersPage(reload)
 	case ServiceKind:
 		app.kind = ServiceKind
-		err = app.showServicesPage(reload, rowIndex)
+		err = app.showServicesPage(reload)
 	case TaskKind:
 		app.kind = TaskKind
-		err = app.showTasksPages(reload, rowIndex)
+		err = app.showTasksPages(reload)
 	case ContainerKind:
 		app.kind = ContainerKind
-		err = app.showContainersPage(reload, rowIndex)
+		err = app.showContainersPage(reload)
 	default:
 		app.kind = ClusterKind
-		err = app.showClustersPage(reload, rowIndex)
+		err = app.showClustersPage(reload)
 	}
 	if err != nil {
 		app.Notice.Error(err.Error())

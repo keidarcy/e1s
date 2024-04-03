@@ -95,7 +95,7 @@ func (v *View) handleSelected(row, column int) {
 		containerName := *selected.container.Name
 		v.ssh(containerName)
 	}
-	v.app.showPrimaryKindPage(v.app.kind.nextKind(), false, 0)
+	v.app.showPrimaryKindPage(v.app.kind.nextKind(), false)
 }
 
 // Handle keyboard input
@@ -202,17 +202,42 @@ func (v *View) changeSelectedValues() {
 		return
 	}
 	if v.app.kind == ClusterKind {
-		v.app.cluster = selected.cluster
-		v.app.entityName = *selected.cluster.ClusterArn
+		cluster := selected.cluster
+		if cluster != nil {
+			v.app.cluster = cluster
+			v.app.entityName = *selected.cluster.ClusterArn
+		} else {
+			logger.Warnf("unexpected")
+			return
+		}
 	} else if v.app.kind == ServiceKind {
-		v.app.service = selected.service
-		v.app.entityName = *selected.service.ServiceArn
+		service := selected.service
+
+		if service != nil {
+
+			v.app.service = service
+			v.app.entityName = *selected.service.ServiceArn
+		} else {
+			return
+		}
 	} else if v.app.kind == TaskKind {
-		v.app.task = selected.task
-		v.app.entityName = *selected.task.TaskArn
+		task := selected.task
+		if task != nil {
+
+			v.app.task = task
+			v.app.entityName = *selected.task.TaskArn
+		} else {
+			return
+		}
 	} else if v.app.kind == ContainerKind {
-		v.app.container = selected.container
-		v.app.entityName = *selected.container.ContainerArn
+		container := selected.container
+		if container != nil {
+
+			v.app.container = selected.container
+			v.app.entityName = *selected.container.ContainerArn
+		} else {
+			return
+		}
 	} else {
 		v.app.back()
 	}
