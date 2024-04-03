@@ -28,7 +28,7 @@ func newContainerView(containers []types.Container, app *App) *ContainerView {
 	}
 }
 
-func (app *App) showContainersPage(reload bool, rowIndex int) error {
+func (app *App) showContainersPage(reload bool) error {
 	if switched := app.SwitchPage(reload); switched {
 		return nil
 	}
@@ -41,7 +41,7 @@ func (app *App) showContainersPage(reload bool, rowIndex int) error {
 	view := newContainerView(app.task.Containers, app)
 	page := buildAppPage(view)
 	app.addAppPage(page)
-	view.table.Select(rowIndex, 0)
+	view.table.Select(app.rowIndex, 0)
 	return nil
 }
 

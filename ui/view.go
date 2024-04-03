@@ -194,8 +194,7 @@ func (v *View) showKindPage(k Kind, reload bool) {
 		v.showSecondaryKindPage(reload)
 		return
 	}
-	rowIndex, _ := v.table.GetSelection()
-	v.app.showPrimaryKindPage(k, reload, rowIndex)
+	v.app.showPrimaryKindPage(k, reload)
 }
 
 func (v *View) showSecondaryKindPage(reload bool) {

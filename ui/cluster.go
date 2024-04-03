@@ -24,7 +24,7 @@ func newClusterView(clusters []types.Cluster, app *App) *ClusterView {
 	}
 }
 
-func (app *App) showClustersPage(reload bool, rowIndex int) error {
+func (app *App) showClustersPage(reload bool) error {
 	app.kind = ClusterKind
 	if switched := app.SwitchPage(reload); switched {
 		return nil
@@ -46,7 +46,7 @@ func (app *App) showClustersPage(reload bool, rowIndex int) error {
 	view := newClusterView(clusters, app)
 	page := buildAppPage(view)
 	app.addAppPage(page)
-	view.table.Select(rowIndex, 0)
+	view.table.Select(app.rowIndex, 0)
 	return nil
 }
 

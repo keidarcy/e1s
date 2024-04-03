@@ -33,7 +33,7 @@ func newTaskView(tasks []types.Task, app *App) *TaskView {
 	}
 }
 
-func (app *App) showTasksPages(reload bool, rowIndex int) error {
+func (app *App) showTasksPages(reload bool) error {
 	if switched := app.SwitchPage(reload); switched {
 		return nil
 	}
@@ -55,7 +55,7 @@ func (app *App) showTasksPages(reload bool, rowIndex int) error {
 	view := newTaskView(tasks, app)
 	page := buildAppPage(view)
 	app.addAppPage(page)
-	view.table.Select(rowIndex, 0)
+	view.table.Select(app.rowIndex, 0)
 	return nil
 }
 
