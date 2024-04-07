@@ -2,15 +2,17 @@ package api
 
 import (
 	"context"
+	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/ecs"
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
+	"github.com/keidarcy/e1s/util"
 )
 
 const (
 	MaxTaskDefinitionFamily   = 50
-	MaxTaskDefinitionRevision = 20
+	MaxTaskDefinitionRevision = 2
 )
 
 // Equivalent to
@@ -36,9 +38,9 @@ type TaskDefinitionRevision = []string
 
 // Equivalent to
 // aws ecs list-task-definitions --family-prefix ${prefix}
-func (store *Store) ListTaskDefinition(name *string) (TaskDefinitionRevision, error) {
+func (store *Store) ListTaskDefinition(familyName *string) (TaskDefinitionRevision, error) {
 	listTaskDefinitions, err := store.ecs.ListTaskDefinitions(context.Background(), &ecs.ListTaskDefinitionsInput{
-		FamilyPrefix: name,
+		FamilyPrefix: familyName,
 		MaxResults:   aws.Int32(MaxTaskDefinitionRevision),
 		Sort:         types.SortOrderDesc,
 	})
@@ -50,26 +52,17 @@ func (store *Store) ListTaskDefinition(name *string) (TaskDefinitionRevision, er
 	return listTaskDefinitions.TaskDefinitionArns, nil
 }
 
-type FullTaskDefinition = map[string][]string
+// List given task definition revision with contents
+func (store *Store) ListFullTaskDefinition(taskDefinition *string) ([]types.TaskDefinition, error) {
+	td := strings.Split(util.ArnToName(taskDefinition), ":")
+	familyName := td[0]
+	list, _ := store.ListTaskDefinition(&familyName)
 
-// Deprecated
-// List all task definition family with revisions for service update form(not support yet)
-func (store *Store) ListFullTaskDefinition() (FullTaskDefinition, error) {
-	listFamily, err := store.ecs.ListTaskDefinitionFamilies(context.Background(), &ecs.ListTaskDefinitionFamiliesInput{
-		MaxResults: aws.Int32(MaxTaskDefinitionFamily),
-	})
-	if err != nil {
-		logger.Warnf("Failed to run aws api to list task definition family, error: %v\n", err)
-		return nil, err
-	}
-	results := make(map[string][]string)
-	for _, family := range listFamily.Families {
-		taskDefinition, err := store.ListTaskDefinition(aws.String(family))
-		logger.Println(taskDefinition)
-		if err != nil {
-			logger.Warnf("Failed to run aws api to list task definitions, error: %v\n", err)
-		}
-		results[family] = taskDefinition
+	results := []types.TaskDefinition{}
+
+	for _, t := range list {
+		d, _ := store.DescribeTaskDefinition(&t)
+		results = append(results, d)
 	}
 	return results, nil
 }

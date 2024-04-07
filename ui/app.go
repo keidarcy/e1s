@@ -1,7 +1,6 @@
 package ui
 
 import (
-	"sync"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -107,8 +106,6 @@ func newApp(option Option) (*App, error) {
 		},
 	}, nil
 }
-
-var rowIndexMutex sync.Mutex
 
 // Entry point of the app
 func Start(option Option) error {
@@ -233,19 +230,18 @@ func (app *App) start() error {
 // Show Primary kind page
 func (app *App) showPrimaryKindPage(k Kind, reload bool) error {
 	var err error
+	app.kind = k
 	switch k {
 	case ClusterKind:
-		app.kind = ClusterKind
 		err = app.showClustersPage(reload)
 	case ServiceKind:
-		app.kind = ServiceKind
 		err = app.showServicesPage(reload)
 	case TaskKind:
-		app.kind = TaskKind
 		err = app.showTasksPages(reload)
 	case ContainerKind:
-		app.kind = ContainerKind
 		err = app.showContainersPage(reload)
+	case TaskDefinitionKind:
+		err = app.showTaskDefinitionPage(reload)
 	default:
 		app.kind = ClusterKind
 		err = app.showClustersPage(reload)

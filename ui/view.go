@@ -15,18 +15,15 @@ import (
 )
 
 const (
-	titleFmt              = "[aqua::b]%s[aqua::-]([purple::b]%d[aqua::-]) "
-	nsTitleFmt            = " [aqua::-]<[purple::b]%s[aqua::-]>" + titleFmt
-	contentTitleFmt       = " [blue]%s([purple::b]%s[blue:-:-]) "
-	infoTitleFmt          = " [blue]info([purple::b]%s[blue:-:-]) "
-	footerSelectedItemFmt = " [black:aqua:b] <%s> [-:-:-] "
-	footerItemFmt         = " [black:grey:] <%s> [-:-:-] "
-	keyFmt                = " [purple::b]<%s> [green:-:-]%s "
-	infoItemFmt           = " %s:[aqua::b] %s "
-	clusterTasksFmt       = "[blue]%d Pending[-] | [green]%d Running"
-	serviceTasksFmt       = "%d/%d Tasks running"
-	footerKeyFmt          = "[::b][↓,j/↑,k][::-] Down/Up [::b][Enter/Esc][::-] Enter/Back [::b][ctrl-c[][::-] Quit"
-	colorJSONFmt          = `%s"[steelblue::b]%s[-:-:-]": %s`
+	titleFmt        = "[aqua::b]%s[aqua::-]([purple::b]%d[aqua::-]) "
+	nsTitleFmt      = " [aqua::-]<[purple::b]%s[aqua::-]>" + titleFmt
+	contentTitleFmt = " [blue]%s([purple::b]%s[blue:-:-]) "
+	infoTitleFmt    = " [blue]info([purple::b]%s[blue:-:-]) "
+	keyFmt          = " [purple::b]<%s> [green:-:-]%s "
+	infoItemFmt     = " %s:[aqua::b] %s "
+	clusterTasksFmt = "[blue]%d Pending[-] | [green]%d Running"
+	serviceTasksFmt = "%d/%d Tasks running"
+	colorJSONFmt    = `%s"[steelblue::b]%s[-:-:-]": %s`
 
 	describe                        = "Describe"
 	describeTaskDefinition          = "Describe task definition"
@@ -123,25 +120,6 @@ type DataView interface {
 	footerBuilder() *tview.Flex
 }
 
-// View footer struct
-type Footer struct {
-	footer    *tview.Flex
-	cluster   *tview.TextView
-	service   *tview.TextView
-	task      *tview.TextView
-	container *tview.TextView
-}
-
-func newFooter() *Footer {
-	return &Footer{
-		footer:    tview.NewFlex().SetDirection(tview.FlexColumn),
-		cluster:   tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(footerItemFmt, ClusterKind)),
-		service:   tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(footerItemFmt, ServiceKind)),
-		task:      tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(footerItemFmt, TaskKind)),
-		container: tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(footerItemFmt, ContainerKind)),
-	}
-}
-
 const (
 	// column height in info page
 	oneColumnCount = 11
@@ -205,10 +183,8 @@ func (v *View) showSecondaryKindPage(reload bool) {
 		v.switchToDescriptionJson()
 	case LogKind:
 		v.switchToLogsList()
-	case TaskDefinitionKind:
+	case TaskDefinitionDetailKind:
 		v.switchToTaskDefinitionJson()
-	case TaskDefinitionRevisionsKind:
-		v.switchToTaskDefinitionRevisionsJson()
 	case ServiceEventsKind:
 		v.switchToServiceEventsList()
 	}
@@ -228,31 +204,6 @@ func (v *View) closeModal() {
 	// v.app.secondaryKind = EmptyKind
 	toPage := v.app.kind.getAppPageName(v.app.getPageHandle())
 	v.app.Pages.SwitchToPage(toPage)
-}
-
-func (v *View) addFooterItems() {
-	// left resources
-	v.footer.footer.AddItem(v.footer.cluster, 13, 0, false).
-		AddItem(v.footer.service, 13, 0, false).
-		AddItem(v.footer.task, 10, 0, false).
-		AddItem(v.footer.container, 15, 0, false)
-
-	// keep middle space
-	keysLabel := tview.NewTextView().
-		// SetText(footerKeyFmt)
-		SetText("")
-	keysLabel.SetDynamicColors(true).SetTextAlign(tview.AlignCenter)
-	v.footer.footer.
-		AddItem(keysLabel, 0, 1, false)
-
-	// right labels
-	// name version label
-	regionLabel := tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf("[black:yellow:bi] %s ", v.app.Region))
-	v.footer.footer.AddItem(regionLabel, len(v.app.Region)+3, 0, false)
-
-	appLabel := fmt.Sprintf("[black:blue:bi] %s:%s ", util.AppName, util.AppVersion)
-	t := tview.NewTextView().SetTextAlign(L).SetDynamicColors(true).SetText(appLabel)
-	v.footer.footer.AddItem(t, 15, 1, false)
 }
 
 // Content page builder

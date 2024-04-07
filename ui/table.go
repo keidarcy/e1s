@@ -138,14 +138,16 @@ func (v *View) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 		}
 	case tKey:
 		if v.app.kind == ServiceKind || v.app.kind == TaskKind {
-			v.app.secondaryKind = TaskDefinitionKind
+			v.app.secondaryKind = TaskDefinitionDetailKind
 			v.showSecondaryKindPage(false)
 			return event
 		}
 	case vKey:
 		if v.app.kind == ServiceKind || v.app.kind == TaskKind {
-			v.app.secondaryKind = TaskDefinitionRevisionsKind
-			v.showSecondaryKindPage(false)
+			// v.app.secondaryKind = TaskDefinitionRevisionsKind
+			// v.app.kind = TaskDefinitionRevisionsKind
+			v.showKindPage(TaskDefinitionKind, true)
+			// v.showSecondaryKindPage(false)
 			return event
 		}
 	case wKey:
@@ -201,44 +203,54 @@ func (v *View) changeSelectedValues() {
 		logger.Warnf("Failed to changeSelectedValues, err: %v", err)
 		return
 	}
-	if v.app.kind == ClusterKind {
+	switch v.app.kind {
+	case ClusterKind:
 		cluster := selected.cluster
 		if cluster != nil {
 			v.app.cluster = cluster
 			v.app.entityName = *selected.cluster.ClusterArn
 		} else {
-			logger.Warnf("unexpected")
+			logger.Warnf("unexpected in changeSelectedValues kind: %s", v.app.kind)
 			return
 		}
-	} else if v.app.kind == ServiceKind {
+	case ServiceKind:
 		service := selected.service
-
 		if service != nil {
-
 			v.app.service = service
 			v.app.entityName = *selected.service.ServiceArn
 		} else {
+			logger.Warnf("unexpected in changeSelectedValues kind: %s", v.app.kind)
 			return
 		}
-	} else if v.app.kind == TaskKind {
-		task := selected.task
-		if task != nil {
+	case TaskKind:
 
-			v.app.task = task
-			v.app.entityName = *selected.task.TaskArn
+		service := selected.service
+		if service != nil {
+			v.app.service = service
+			v.app.entityName = *selected.service.ServiceArn
 		} else {
+			logger.Warnf("unexpected in changeSelectedValues kind: %s", v.app.kind)
 			return
 		}
-	} else if v.app.kind == ContainerKind {
+	case ContainerKind:
 		container := selected.container
 		if container != nil {
-
 			v.app.container = selected.container
 			v.app.entityName = *selected.container.ContainerArn
 		} else {
+			logger.Warnf("unexpected in changeSelectedValues kind: %s", v.app.kind)
 			return
 		}
-	} else {
+	case TaskDefinitionKind:
+		taskDefinition := selected.taskDefinition
+		if taskDefinition != nil {
+			v.app.taskDefinition = selected.taskDefinition
+			v.app.entityName = *selected.taskDefinition.TaskDefinitionArn
+		} else {
+			logger.Warnf("unexpected in changeSelectedValues kind: %s", v.app.kind)
+			return
+		}
+	default:
 		v.app.back()
 	}
 }

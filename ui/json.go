@@ -176,9 +176,9 @@ func (v *View) getJsonString(entity Entity) string {
 		data = entity.task
 	case entity.container != nil && v.app.kind == ContainerKind:
 		data = entity.container
-	case entity.taskDefinition != nil && v.app.secondaryKind == TaskDefinitionKind:
+	case entity.taskDefinition != nil && v.app.secondaryKind == TaskDefinitionDetailKind:
 		data = entity.taskDefinition
-	case entity.taskDefinitionRevisions != nil && v.app.secondaryKind == TaskDefinitionRevisionsKind:
+	case entity.taskDefinitionRevisions != nil && v.app.secondaryKind == TaskDefinitionKind:
 		data = entity.taskDefinitionRevisions
 	case entity.metrics != nil:
 		data = entity.metrics
