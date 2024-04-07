@@ -21,16 +21,15 @@ var logger *logrus.Logger
 
 // Entity contains ECS resources to show
 type Entity struct {
-	cluster                 *types.Cluster
-	service                 *types.Service
-	task                    *types.Task
-	container               *types.Container
-	taskDefinition          *types.TaskDefinition
-	events                  []types.ServiceEvent
-	taskDefinitionRevisions api.TaskDefinitionRevision
-	metrics                 *api.MetricsData
-	autoScaling             *api.AutoScalingData
-	entityName              string
+	cluster        *types.Cluster
+	service        *types.Service
+	task           *types.Task
+	container      *types.Container
+	taskDefinition *types.TaskDefinition
+	events         []types.ServiceEvent
+	metrics        *api.MetricsData
+	autoScaling    *api.AutoScalingData
+	entityName     string
 }
 
 type Option struct {

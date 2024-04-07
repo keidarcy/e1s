@@ -144,10 +144,7 @@ func (v *View) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 		}
 	case vKey:
 		if v.app.kind == ServiceKind || v.app.kind == TaskKind {
-			// v.app.secondaryKind = TaskDefinitionRevisionsKind
-			// v.app.kind = TaskDefinitionRevisionsKind
-			v.showKindPage(TaskDefinitionKind, true)
-			// v.showSecondaryKindPage(false)
+			v.showKindPage(TaskDefinitionKind, false)
 			return event
 		}
 	case wKey:

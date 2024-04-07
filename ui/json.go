@@ -46,18 +46,6 @@ func (v *View) switchToTaskDefinitionJson() {
 	v.showJsonPages(entity)
 }
 
-// Switch to selected task definition revision list JSON page
-func (v *View) switchToTaskDefinitionRevisionsJson() {
-	family, _, entityName := v.getTaskDefinitionDetail()
-
-	revisions, err := v.app.Store.ListTaskDefinition(&family)
-	if err != nil {
-		return
-	}
-	entity := Entity{taskDefinitionRevisions: revisions, entityName: entityName}
-	v.showJsonPages(entity)
-}
-
 // Get td family
 func (v *View) getTaskDefinitionDetail() (string, string, string) {
 	selected, err := v.getCurrentSelection()
@@ -79,8 +67,6 @@ func (v *View) getTaskDefinitionDetail() (string, string, string) {
 	return familyRevision[0], familyRevision[1], entityName
 }
 
-// Deprecated
-// not called anywhere
 // Switch to auto scaling get by applicationautoscaling
 func (v *View) switchToAutoScalingJson() {
 	selected, err := v.getCurrentSelection()
@@ -178,8 +164,8 @@ func (v *View) getJsonString(entity Entity) string {
 		data = entity.container
 	case entity.taskDefinition != nil && v.app.secondaryKind == TaskDefinitionDetailKind:
 		data = entity.taskDefinition
-	case entity.taskDefinitionRevisions != nil && v.app.secondaryKind == TaskDefinitionKind:
-		data = entity.taskDefinitionRevisions
+	case entity.taskDefinition != nil && v.app.kind == TaskDefinitionKind:
+		data = entity.taskDefinition
 	case entity.metrics != nil:
 		data = entity.metrics
 	case entity.autoScaling != nil:
