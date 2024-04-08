@@ -22,10 +22,7 @@ func newTaskDefinitionView(taskDefinitions []types.TaskDefinition, app *App) *Ta
 	}...)
 	return &TaskDefinitionView{
 		View: *newView(app, keys, secondaryPageKeyMap{
-			DescriptionKind:          descriptionPageKeys,
-			LogKind:                  logPageKeys,
-			TaskDefinitionDetailKind: descriptionPageKeys,
-			TaskDefinitionKind:       descriptionPageKeys,
+			DescriptionKind: descriptionPageKeys,
 		}),
 		taskDefinitions: taskDefinitions,
 	}
@@ -100,8 +97,28 @@ func (v *TaskDefinitionView) tableHandler() {
 
 // Generate info pages params
 func (v *TaskDefinitionView) infoPagesParam(t types.TaskDefinition) (items []InfoItem) {
+	compatibilities := []string{}
+	for _, c := range t.Compatibilities {
+		compatibilities = append(compatibilities, string(c))
+	}
+
+	requiresCompatibilities := []string{}
+	for _, r := range t.RequiresCompatibilities {
+		requiresCompatibilities = append(requiresCompatibilities, string(r))
+	}
+
 	items = []InfoItem{
-		{name: "Task ID", value: util.ArnToName(t.TaskDefinitionArn)},
+		{name: "Revision", value: util.ArnToName(t.TaskDefinitionArn)},
+		{name: "Task Role", value: util.ShowString(t.TaskRoleArn)},
+		{name: "Execution Role", value: util.ShowString(t.ExecutionRoleArn)},
+		{name: "Network Mode", value: string(t.NetworkMode)},
+		{name: "Status", value: string(t.Status)},
+		{name: "Compatibilities", value: util.ShowArray(compatibilities)},
+		{name: "Requires Compatibilities", value: util.ShowArray(requiresCompatibilities)},
+		{name: "Cpu", value: util.ShowString(t.Cpu)},
+		{name: "Memory", value: util.ShowString(t.Memory)},
+		{name: "Registered At", value: util.ShowTime(t.RegisteredAt)},
+		{name: "Registered By", value: util.ShowString(t.RegisteredBy)},
 	}
 	return
 }
@@ -110,12 +127,26 @@ func (v *TaskDefinitionView) infoPagesParam(t types.TaskDefinition) (items []Inf
 func (v *TaskDefinitionView) tableParam() (title string, headers []string, dataBuilder func() [][]string) {
 	title = fmt.Sprintf(nsTitleFmt, v.app.kind, *v.app.service.ServiceName, len(v.taskDefinitions))
 	headers = []string{
-		"Task ID ▾",
+		"Revision ▾",
+		"In Use",
+		"Cpu",
+		"Memory",
+		"Registered At",
 	}
+
 	dataBuilder = func() (data [][]string) {
 		for _, t := range v.taskDefinitions {
+			inUse := "False"
+			if *v.app.service.TaskDefinition == *t.TaskDefinitionArn {
+				inUse = "True"
+			}
+
 			row := []string{}
 			row = append(row, util.ArnToName(t.TaskDefinitionArn))
+			row = append(row, util.ShowGreenGrey(&inUse, "true"))
+			row = append(row, util.ShowString(t.Cpu))
+			row = append(row, util.ShowString(t.Memory))
+			row = append(row, util.ShowTime(t.RegisteredAt))
 			data = append(data, row)
 		}
 		return data

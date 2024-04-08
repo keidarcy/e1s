@@ -80,7 +80,6 @@ func (store *Store) ListServices(clusterName *string) ([]types.Service, error) {
 			})
 			if err != nil {
 				logger.Warnf("Failed to run aws api to describe services in i:%d times loop, err: %v", i, err)
-
 				return err
 			}
 
