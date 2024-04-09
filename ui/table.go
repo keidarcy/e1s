@@ -220,11 +220,11 @@ func (v *View) changeSelectedValues() {
 			return
 		}
 	case TaskKind:
+		task := selected.task
+		if task != nil {
 
-		service := selected.service
-		if service != nil {
-			v.app.service = service
-			v.app.entityName = *selected.service.ServiceArn
+			v.app.task = task
+			v.app.entityName = *selected.task.TaskArn
 		} else {
 			logger.Warnf("unexpected in changeSelectedValues kind: %s", v.app.kind)
 			return

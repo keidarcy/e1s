@@ -14,12 +14,7 @@ type TaskDefinitionView struct {
 }
 
 func newTaskDefinitionView(taskDefinitions []types.TaskDefinition, app *App) *TaskDefinitionView {
-	keys := append(basicKeyInputs, []KeyInput{
-		{key: string(tKey), description: describeTaskDefinition},
-		{key: string(vKey), description: describeTaskDefinitionRevisions},
-		{key: string(eKey), description: editTaskDefinition},
-		{key: string(lKey), description: showLogs},
-	}...)
+	keys := append(basicKeyInputs, []KeyInput{}...)
 	return &TaskDefinitionView{
 		View: *newView(app, keys, secondaryPageKeyMap{
 			DescriptionKind: descriptionPageKeys,

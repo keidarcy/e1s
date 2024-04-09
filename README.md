@@ -103,7 +103,7 @@ Use `ctrl` + `d` to exit ssh session.
 | ---- | ----- | ---- | ---- |
 | `--debug` | `-d` | sets debug mode | false |
 | `--json` | `-j` | log output json format | false |
-| `--log-file-path` | `-j` | custom e1s log file path | ${TMPDIR}e1s.log |
+| `--log-file-path` | `-l` | custom e1s log file path | ${TMPDIR}e1s.log |
 | `--readonly` |  | sets read only mode | false |
 | `--refresh` | `-r` | specify the default refresh rate as an integer (sec) (default 30, set -1 to stop auto refresh) | 30 |
 
