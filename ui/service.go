@@ -19,21 +19,18 @@ type ServiceView struct {
 func newServiceView(services []types.Service, app *App) *ServiceView {
 	keys := append(basicKeyInputs, []KeyInput{
 		{key: string(wKey), description: describeServiceEvents},
-		{key: string(tKey), description: describeTaskDefinition},
-		{key: string(vKey), description: describeTaskDefinitionRevisions},
+		{key: string(tKey), description: showTaskDefinitions},
 		{key: string(mKey), description: showMetrics},
-		{key: string(aKey), description: showAutoScaling},
-		{key: string(eKey), description: editService},
+		{key: string(aKey), description: describeAutoScaling},
 		{key: string(lKey), description: showLogs},
+		{key: string("shift-u"), description: updateService},
 	}...)
 	return &ServiceView{
 		View: *newView(app, keys, secondaryPageKeyMap{
-			DescriptionKind:          descriptionPageKeys,
-			LogKind:                  logPageKeys,
-			AutoScalingKind:          descriptionPageKeys,
-			ServiceEventsKind:        descriptionPageKeys,
-			TaskDefinitionDetailKind: descriptionPageKeys,
-			TaskDefinitionKind:       descriptionPageKeys,
+			DescriptionKind:   descriptionPageKeys,
+			LogKind:           logPageKeys,
+			AutoScalingKind:   descriptionPageKeys,
+			ServiceEventsKind: descriptionPageKeys,
 		}),
 		services: services,
 	}

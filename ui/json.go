@@ -1,11 +1,15 @@
 package ui
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"os"
+	"os/exec"
 	"regexp"
 	"strings"
 
+	"github.com/aws/aws-sdk-go-v2/service/ecs"
 	"github.com/gdamore/tcell/v2"
 	"github.com/keidarcy/e1s/util"
 	"github.com/sirupsen/logrus"
@@ -18,32 +22,6 @@ func (v *View) switchToDescriptionJson() {
 		return
 	}
 	v.showJsonPages(selected)
-}
-
-// Switch to selected task definition JSON page
-func (v *View) switchToTaskDefinitionJson() {
-	selected, err := v.getCurrentSelection()
-	if err != nil {
-		return
-	}
-	taskDefinition := ""
-	entityName := ""
-	if v.app.kind == ServiceKind {
-		taskDefinition = *selected.service.TaskDefinition
-		entityName = *selected.service.ServiceArn
-	} else if v.app.kind == TaskKind {
-		taskDefinition = *selected.task.TaskDefinitionArn
-		entityName = *selected.task.TaskArn
-	} else {
-		return
-	}
-
-	td, err := v.app.Store.DescribeTaskDefinition(&taskDefinition)
-	if err != nil {
-		return
-	}
-	entity := Entity{taskDefinition: &td, entityName: entityName}
-	v.showJsonPages(entity)
 }
 
 // Get td family
@@ -91,8 +69,11 @@ func (v *View) switchToAutoScalingJson() {
 
 // Show new page from JSON content in table area and handle done event to go back
 func (v *View) showJsonPages(entity Entity) {
-	contentString := v.getJsonString(entity)
-	v.handleContentPageSwitch(entity, contentString)
+	colorizedJsonString, rawJsonString, err := v.getJsonString(entity)
+	if err != nil {
+		return
+	}
+	v.handleContentPageSwitch(entity, colorizedJsonString, rawJsonString)
 	v.handleInfoPageSwitch(entity)
 }
 
@@ -142,12 +123,106 @@ func (v *View) handleTableContentDone(key tcell.Key) {
 	v.infoPages.SwitchToPage(selected.entityName)
 }
 
-func (v *View) handleFullScreenContentDone(key tcell.Key) {
+func (v *View) handleFullScreenContentDone() {
 	pageName := v.app.kind.getAppPageName(v.app.getPageHandle())
 	v.app.Pages.SwitchToPage(pageName)
 }
 
-func (v *View) getJsonString(entity Entity) string {
+func (v *View) openInEditor(beforeJson []byte) {
+	selected, err := v.getCurrentSelection()
+	if err != nil {
+		logger.Warnf("Failed to get current selection")
+		return
+	}
+	names := strings.Split(selected.entityName, "/")
+
+	// create tmp file open and defer close it
+	tmpfile, err := os.CreateTemp("", names[len(names)-1])
+	defer os.Remove(tmpfile.Name())
+	defer tmpfile.Close()
+
+	if err != nil {
+		logger.Warnf("Failed to read temporary file, err: %v", err)
+		v.app.Notice.Warnf("Failed to read temporary file, err: %v", err)
+		return
+	}
+
+	if _, err := tmpfile.Write(beforeJson); err != nil {
+		logger.Warnf("Failed to write to temporary file, err: %v", err)
+		v.app.Notice.Warnf("Failed to write to temporary file, err: %v", err)
+		return
+	}
+
+	// Open the vi editor to allow the user to modify the JSON data.
+	bin := os.Getenv("EDITOR")
+	if bin == "" {
+		// if $EDITOR is empty use vi as default
+		bin = "vi"
+	}
+
+	logger.Infof("%s open %s", bin, tmpfile.Name())
+	v.app.Suspend(func() {
+		cmd := exec.Command(bin, tmpfile.Name())
+		cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, os.Stderr
+
+		if err := cmd.Run(); err != nil {
+			logger.Warnf("Failed to open editor, err: %v", err)
+			v.app.Notice.Warnf("Failed to open editor, err: %v", err)
+			return
+		}
+
+		afterJson, err := os.ReadFile(tmpfile.Name())
+		if err != nil {
+			logger.Warnf("Failed to read temporary file, err: %v", err)
+			v.app.Notice.Warnf("Failed to read temporary file, err: %v", err)
+			return
+		}
+
+		// remove edited empty line
+		if afterJson[len(afterJson)-1] == '\n' {
+			beforeJson = append(beforeJson, '\n')
+		}
+
+		// if no change do nothing
+		if bytes.Equal(beforeJson, afterJson) {
+			if v.app.kind == TaskDefinitionKind {
+				v.app.Notice.Info("JSON content has no change")
+				logger.Info("JSON content has no change")
+			}
+			return
+		}
+
+		// if not task definition do nothing
+		if v.app.kind != TaskDefinitionKind {
+			v.app.Notice.Warnf("Not support to update %s", v.app.kind)
+			logger.Warnf("Not support to update %s", v.app.kind)
+			return
+		}
+
+		// only task definition and edited json register task definition
+		var updatedTd ecs.RegisterTaskDefinitionInput
+		if err := json.Unmarshal(afterJson, &updatedTd); err != nil {
+			logger.Warnf("Failed to unmarshal JSON, err: %v", err)
+			v.app.Notice.Warnf("Failed to unmarshal JSON, err: %v", err)
+			return
+		}
+
+		register := func() {
+			family, revision, err := v.app.Store.RegisterTaskDefinition(&updatedTd)
+
+			if err != nil {
+				logger.Warnf("Failed to register new task definition, err: %v", err)
+				v.app.Notice.Warnf("Failed to register new task definition, err: %v", err)
+				return
+			}
+			v.app.Notice.Infof("Success TaskDefinition Family: %s, Revision: %d", family, revision)
+		}
+
+		v.showTaskDefinitionConfirm(register)
+	})
+}
+
+func (v *View) getJsonString(entity Entity) (string, []byte, error) {
 	var data any
 
 	switch {
@@ -162,8 +237,6 @@ func (v *View) getJsonString(entity Entity) string {
 		data = entity.task
 	case entity.container != nil && v.app.kind == ContainerKind:
 		data = entity.container
-	case entity.taskDefinition != nil && v.app.secondaryKind == TaskDefinitionDetailKind:
-		data = entity.taskDefinition
 	case entity.taskDefinition != nil && v.app.kind == TaskDefinitionKind:
 		data = entity.taskDefinition
 	case entity.metrics != nil:
@@ -187,10 +260,10 @@ func (v *View) getJsonString(entity Entity) string {
 	if err != nil {
 		logger.Warnf("Failed to json marshal indent, error: %v", err)
 		v.app.Notice.Warnf("Failed to json marshal indent, error: %v", err)
-		return "json page marshal indent failed"
+		return "", []byte{}, err
 	}
 
-	return colorizeJSON(jsonBytes)
+	return colorizeJSON(jsonBytes), jsonBytes, nil
 }
 
 func colorizeJSON(raw []byte) string {

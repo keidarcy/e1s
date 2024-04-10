@@ -82,7 +82,7 @@ func TestGetJsonData(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			tc.changeKind()
-			result := view.getJsonString(tc.input.entity)
+			result, _, _ := view.getJsonString(tc.input.entity)
 			if string(result) != tc.want {
 				t.Errorf("Name: %s, Got: %s, Want: %s\n", tc.name, result, tc.want)
 			}

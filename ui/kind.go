@@ -7,7 +7,6 @@ const (
 	ServiceKind
 	TaskKind
 	ContainerKind
-	TaskDefinitionDetailKind
 	TaskDefinitionKind
 	DescriptionKind
 	ServiceEventsKind
@@ -31,8 +30,6 @@ func (k Kind) String() string {
 		return "description"
 	case TaskDefinitionKind:
 		return "task definitions"
-	case TaskDefinitionDetailKind:
-		return "task definition detail"
 	case ServiceEventsKind:
 		return "service events"
 	case LogKind:
@@ -107,6 +104,7 @@ type secondaryPageKeyMap = map[Kind][]KeyInput
 var descriptionPageKeys = []KeyInput{
 	{key: string(fKey), description: toggleFullScreen},
 	{key: string(bKey), description: openInBrowser},
+	{key: string(eKey), description: openInEditor},
 	{key: ctrlZ, description: backToPrevious},
 }
 

@@ -135,19 +135,19 @@ $ e1s --readonly --debug --refresh -1 --log-file-path /tmp/e1s.log --json
 | `↓`, `j`  | Select next item |
 | `↑`, `k`  | Select previous item |
 | `→`, `Enter` | Enter current resource/SSH |
-| `←`, `Esc`, `ctrl` + `z` | Go to previous view |
-| `d` | Describe selected resource(show json) |
-| `t` | Describe task definition |
+| `←`, `Esc`, `ctrl` + `z` | Back |
+| `d` | Describe selected resource |
 | `w` | Describe service events |
-| `a` | Show service auto scaling |
-| `m` | Show service metrics(CPUUtilization/MemoryUtilization) |
+| `a` | Describe service auto scaling |
+| `t` | Show task definition |
+| `m` | Show metrics(CPUUtilization/MemoryUtilization) |
 | `l` | Show cloudwatch logs(Only support awslogs logDriver) |
 | `r` | Realtime log streaming(Only support one log group) |
-| `v` | List task definition revisions |
 | `f` | Toggle full screen |
-| `e` | Edit resource |
-| `b` | Open selected resource in AWS web console |
+| `e` | Open in default editor |
+| `b` | Open in browser |
 | `ctrl` + `c` | Quit |
+| `shift` + `u` | Update resource |
 | `ctrl` + `d` | Exit from container |
 | `ctrl` + `r` | Reload resources |
 | `shift` + `f` | Start port forwarding session |

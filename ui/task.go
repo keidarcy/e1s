@@ -17,17 +17,12 @@ type TaskView struct {
 
 func newTaskView(tasks []types.Task, app *App) *TaskView {
 	keys := append(basicKeyInputs, []KeyInput{
-		{key: string(tKey), description: describeTaskDefinition},
-		{key: string(vKey), description: describeTaskDefinitionRevisions},
-		{key: string(eKey), description: editTaskDefinition},
-		{key: string(lKey), description: showLogs},
+		{key: string(tKey), description: showTaskDefinitions},
 	}...)
 	return &TaskView{
 		View: *newView(app, keys, secondaryPageKeyMap{
-			DescriptionKind:          descriptionPageKeys,
-			LogKind:                  logPageKeys,
-			TaskDefinitionDetailKind: descriptionPageKeys,
-			TaskDefinitionKind:       descriptionPageKeys,
+			DescriptionKind: descriptionPageKeys,
+			LogKind:         logPageKeys,
 		}),
 		tasks: tasks,
 	}

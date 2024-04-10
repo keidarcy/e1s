@@ -2,14 +2,8 @@ package ui
 
 import (
 	"fmt"
-	"os"
-	"os/exec"
-	"os/signal"
-	"strings"
-	"syscall"
 
 	"github.com/gdamore/tcell/v2"
-	"github.com/keidarcy/e1s/util"
 	"github.com/rivo/tview"
 	"github.com/sirupsen/logrus"
 )
@@ -25,24 +19,23 @@ const (
 	serviceTasksFmt = "%d/%d Tasks running"
 	colorJSONFmt    = `%s"[steelblue::b]%s[-:-:-]": %s`
 
-	describe                        = "Describe"
-	describeTaskDefinition          = "Describe task definition"
-	describeTaskDefinitionRevisions = "Describe task definition revisions"
-	describeServiceEvents           = "Describe service events"
-	showAutoScaling                 = "Describe autoscaling targets, policies, actions, activities"
-	showMetrics                     = "Show metrics"
-	showLogs                        = "Show logs"
+	backToPrevious        = "Back"
+	describe              = "Describe selected resource"
+	describeServiceEvents = "Describe service events"
+	describeAutoScaling   = "Describe service auto scaling"
+	showTaskDefinitions   = "Show task definitions"
+	showMetrics           = "Show metrics(CPUUtilization/MemoryUtilization)"
+	showLogs              = "Show cloudwatch logs"
 
-	editService                    = "Edit Service"
-	editTaskDefinition             = "Edit Task Definition"
+	updateService                  = "Update Service"
 	reloadResource                 = "Reload Resources"
 	openInBrowser                  = "Open in browser"
+	openInEditor                   = "Open in default editor"
 	sshContainer                   = "SSH container"
 	portForwarding                 = "Port forwarding session"
 	terminatePortForwardingSession = "Terminate port forwarding session"
-	toggleFullScreen               = "Content Toggle full screen"
+	toggleFullScreen               = "Toggle full screen"
 	realtimeLog                    = "Cloudwatch realtime logs(only support one log group)"
-	backToPrevious                 = "Back"
 
 	// shell        = "/bin/sh -c \"if [ -x /bin/bash ]; then exec /bin/bash; else exec /bin/sh; fi\""
 	shell          = "/bin/sh"
@@ -64,10 +57,10 @@ const (
 	mKey  = 'm'
 	rKey  = 'r'
 	tKey  = 't'
-	vKey  = 'v'
 	wKey  = 'w'
 	FKey  = 'F'
 	TKey  = 'T'
+	UKey  = 'U'
 	ctrlR = "ctrl-r"
 	ctrlZ = "ctrl-z"
 )
@@ -183,8 +176,6 @@ func (v *View) showSecondaryKindPage(reload bool) {
 		v.switchToDescriptionJson()
 	case LogKind:
 		v.switchToLogsList()
-	case TaskDefinitionDetailKind:
-		v.switchToTaskDefinitionJson()
 	case ServiceEventsKind:
 		v.switchToServiceEventsList()
 	}
@@ -208,19 +199,19 @@ func (v *View) closeModal() {
 }
 
 // Content page builder
-func (v *View) handleContentPageSwitch(entity Entity, contentString string) {
+func (v *View) handleContentPageSwitch(entity Entity, colorizedJsonString string, jsonBytes []byte) {
 	contentTitle := fmt.Sprintf(contentTitleFmt, v.app.kind, entity.entityName)
 	contentPageName := v.app.kind.getContentPageName(entity.entityName + "." + v.app.secondaryKind.String())
 
-	contentTextItem := getContentTextItem(contentString, contentTitle)
+	contentTextItem := getContentTextItem(colorizedJsonString, contentTitle)
 
 	// press f toggle json
 	contentTextItem.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		fullScreenContent := getContentTextItem(contentString, contentTitle)
+		fullScreenContent := getContentTextItem(colorizedJsonString, contentTitle)
 
 		// full screen json press ESC close full screen json and back to table
 		fullScreenContent.SetDoneFunc(func(key tcell.Key) {
-			v.handleFullScreenContentDone(key)
+			v.handleFullScreenContentDone()
 			v.handleTableContentDone(key)
 		})
 
@@ -237,7 +228,10 @@ func (v *View) handleContentPageSwitch(entity Entity, contentString string) {
 			if v.app.secondaryKind == LogKind {
 				v.realtimeAwsLog(entity)
 			}
-
+		case eKey:
+			if v.app.secondaryKind == DescriptionKind {
+				v.openInEditor(jsonBytes)
+			}
 		}
 
 		switch event.Key() {
@@ -282,63 +276,6 @@ func getContentTextItem(contentStr string, title string) *tview.TextView {
 	contentText := tview.NewTextView().SetDynamicColors(true).SetText(contentStr)
 	contentText.SetBorder(true).SetTitle(title).SetBorderPadding(0, 0, 1, 1)
 	return contentText
-}
-
-// SSH into selected container
-func (v *View) ssh(containerName string) {
-	if v.app.kind != ContainerKind {
-		v.app.Notice.Warn("Invalid operation")
-		return
-	}
-	if v.app.ReadOnly {
-		v.app.Notice.Warn("No ecs exec permission in read only e1s mode")
-		return
-	}
-
-	// catch ctrl+C & SIGTERM
-	interrupt := make(chan os.Signal, 1)
-	signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM)
-
-	bin, err := exec.LookPath(awsCli)
-	if err != nil {
-		logger.Warnf("Failed to find %s path, please check %s", awsCli, "https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html")
-		v.app.Notice.Warnf("Failed to find %s path, please check %s", awsCli, "https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html")
-		v.app.back()
-	}
-
-	_, err = exec.LookPath(smpCi)
-	if err != nil {
-		logger.Warnf("Failed to find %s path, please check %s", smpCi, "https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html")
-		v.app.Notice.Warnf("Failed to find %s path, please check %s", smpCi, "https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html")
-		v.app.back()
-	}
-
-	args := []string{
-		"ecs",
-		"execute-command",
-		"--cluster",
-		*v.app.cluster.ClusterName,
-		"--task",
-		*v.app.task.TaskArn,
-		"--container",
-		containerName,
-		"--interactive",
-		"--command",
-		shell,
-	}
-
-	logger.Infof("Exec: `%s %s`", awsCli, strings.Join(args, " "))
-
-	v.app.Suspend(func() {
-		cmd := exec.Command(bin, args...)
-		cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, os.Stderr
-		// ignore the stderr from ssh server
-		_, err = cmd.Stdout.Write([]byte(fmt.Sprintf(sshBannerFmt, *v.app.cluster.ClusterName, *v.app.service.ServiceName, util.ArnToName(v.app.task.TaskArn), containerName)))
-		err = cmd.Run()
-		// return signal
-		signal.Stop(interrupt)
-		close(interrupt)
-	})
 }
 
 func (v *View) buildInfoPages(items []InfoItem, title, entityName string) {
