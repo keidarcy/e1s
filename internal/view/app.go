@@ -1,4 +1,4 @@
-package ui
+package view
 
 import (
 	"time"
@@ -6,15 +6,10 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
 	"github.com/gdamore/tcell/v2"
-	"github.com/keidarcy/e1s/api"
+	"github.com/keidarcy/e1s/internal/api"
+	"github.com/keidarcy/e1s/internal/ui"
 	"github.com/rivo/tview"
 	"github.com/sirupsen/logrus"
-)
-
-const (
-	L = tview.AlignLeft
-	C = tview.AlignCenter
-	R = tview.AlignRight
 )
 
 var logger *logrus.Logger
@@ -50,7 +45,7 @@ type App struct {
 	// Info + table area pages UI for MainScreen
 	*tview.Pages
 	// Notice text UI in MainScreen footer
-	Notice *Notice
+	Notice *ui.Notice
 	// MainScreen content UI
 	MainScreen *tview.Flex
 	// API client
@@ -82,7 +77,7 @@ func newApp(option Option) (*App, error) {
 	pages := tview.NewPages()
 	footer := tview.NewFlex()
 
-	notice := newNotice(app)
+	notice := ui.NewNotice(app)
 	footer.AddItem(notice, 0, 1, false)
 	main := tview.NewFlex().SetDirection(tview.FlexRow).
 		AddItem(pages, 0, 2, true).

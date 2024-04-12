@@ -8,7 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/ecs"
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
-	"github.com/keidarcy/e1s/util"
+	"github.com/keidarcy/e1s/internal/utils"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -59,7 +59,7 @@ func (store *Store) ListTaskDefinition(familyName *string) (TaskDefinitionRevisi
 // aws ecs list-task-definitions --family-prefix ${prefix}
 // aws ecs describe-task-definition --task-definition ${taskDefinition}
 func (store *Store) ListFullTaskDefinition(taskDefinition *string) ([]types.TaskDefinition, error) {
-	td := strings.Split(util.ArnToName(taskDefinition), ":")
+	td := strings.Split(utils.ArnToName(taskDefinition), ":")
 	familyName := td[0]
 	list, err := store.ListTaskDefinition(&familyName)
 

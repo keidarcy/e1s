@@ -1,11 +1,11 @@
-package ui
+package view
 
 import (
 	"fmt"
 	"strconv"
 
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
-	"github.com/keidarcy/e1s/util"
+	"github.com/keidarcy/e1s/internal/utils"
 	"github.com/rivo/tview"
 )
 
@@ -15,7 +15,7 @@ type TaskDefinitionView struct {
 }
 
 func newTaskDefinitionView(taskDefinitions []types.TaskDefinition, app *App) *TaskDefinitionView {
-	keys := append(basicKeyInputs, []KeyInput{}...)
+	keys := append(basicKeyInputs, []keyInput{}...)
 	return &TaskDefinitionView{
 		View: *newView(app, keys, secondaryPageKeyMap{
 			DescriptionKind: describePageKeys,
@@ -53,7 +53,7 @@ func (app *App) showTaskDefinitionPage(reload bool) error {
 // Build info pages for task page
 func (v *TaskDefinitionView) infoBuilder() *tview.Pages {
 	for _, t := range v.taskDefinitions {
-		title := util.ArnToName(t.TaskDefinitionArn)
+		title := utils.ArnToName(t.TaskDefinitionArn)
 		entityName := *t.TaskDefinitionArn
 		items := v.infoPagesParam(t)
 
@@ -92,7 +92,7 @@ func (v *TaskDefinitionView) tableHandler() {
 }
 
 // Generate info pages params
-func (v *TaskDefinitionView) infoPagesParam(t types.TaskDefinition) (items []InfoItem) {
+func (v *TaskDefinitionView) infoPagesParam(t types.TaskDefinition) (items []infoItem) {
 	compatibilities := []string{}
 	for _, c := range t.Compatibilities {
 		compatibilities = append(compatibilities, string(c))
@@ -118,21 +118,21 @@ func (v *TaskDefinitionView) infoPagesParam(t types.TaskDefinition) (items []Inf
 		placements = append(placements, string(p.Type))
 	}
 
-	items = []InfoItem{
-		{name: "Revision", value: util.ArnToName(t.TaskDefinitionArn)},
-		{name: "Task role", value: util.ShowString(t.TaskRoleArn)},
-		{name: "Execution role", value: util.ShowString(t.ExecutionRoleArn)},
+	items = []infoItem{
+		{name: "Revision", value: utils.ArnToName(t.TaskDefinitionArn)},
+		{name: "Task role", value: utils.ShowString(t.TaskRoleArn)},
+		{name: "Execution role", value: utils.ShowString(t.ExecutionRoleArn)},
 		{name: "Network mode", value: string(t.NetworkMode)},
-		{name: "Volumes", value: util.ShowArray(volumes)},
-		{name: "Containers", value: util.ShowArray(containers)},
-		{name: "Placement constraints", value: util.ShowArray(placements)},
+		{name: "Volumes", value: utils.ShowArray(volumes)},
+		{name: "Containers", value: utils.ShowArray(containers)},
+		{name: "Placement constraints", value: utils.ShowArray(placements)},
 		{name: "Status", value: string(t.Status)},
-		{name: "Compatibilities", value: util.ShowArray(compatibilities)},
-		{name: "Requires Compatibilities", value: util.ShowArray(requiresCompatibilities)},
-		{name: "Cpu", value: util.ShowString(t.Cpu)},
-		{name: "Memory", value: util.ShowString(t.Memory)},
-		{name: "Registered At", value: util.ShowTime(t.RegisteredAt)},
-		{name: "Registered By", value: util.ShowString(t.RegisteredBy)},
+		{name: "Compatibilities", value: utils.ShowArray(compatibilities)},
+		{name: "Requires Compatibilities", value: utils.ShowArray(requiresCompatibilities)},
+		{name: "Cpu", value: utils.ShowString(t.Cpu)},
+		{name: "Memory", value: utils.ShowString(t.Memory)},
+		{name: "Registered At", value: utils.ShowTime(t.RegisteredAt)},
+		{name: "Registered By", value: utils.ShowString(t.RegisteredBy)},
 	}
 	return
 }
@@ -178,11 +178,11 @@ func (v *TaskDefinitionView) tableParam() (title string, headers []string, dataB
 			}
 
 			row := []string{}
-			row = append(row, util.ArnToName(t.TaskDefinitionArn))
-			row = append(row, util.ShowGreenGrey(&inUse, "true"))
+			row = append(row, utils.ArnToName(t.TaskDefinitionArn))
+			row = append(row, utils.ShowGreenGrey(&inUse, "true"))
 			row = append(row, cpu)
 			row = append(row, memory)
-			row = append(row, util.Age(t.RegisteredAt))
+			row = append(row, utils.Age(t.RegisteredAt))
 			data = append(data, row)
 		}
 		return data

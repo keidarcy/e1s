@@ -1,9 +1,15 @@
-package ui
+package view
 
 import (
 	"github.com/gdamore/tcell/v2"
-	"github.com/keidarcy/e1s/util"
+	"github.com/keidarcy/e1s/internal/utils"
 	"github.com/rivo/tview"
+)
+
+const (
+	L = tview.AlignLeft
+	C = tview.AlignCenter
+	R = tview.AlignRight
 )
 
 // Build common table
@@ -259,12 +265,12 @@ func (v *View) openInBrowser() {
 		taskService = *v.app.service.ServiceName
 		arn = *v.app.task.TaskArn
 	}
-	url := util.ArnToUrl(arn, taskService)
+	url := utils.ArnToUrl(arn, taskService)
 	if len(url) == 0 {
 		return
 	}
 	logger.Infof("Open url: %s\n", url)
-	err = util.OpenURL(url)
+	err = utils.OpenURL(url)
 	if err != nil {
 		logger.Warnf("Failed to open url %s\n", url)
 		v.app.Notice.Warnf("Failed to open url %s\n", url)

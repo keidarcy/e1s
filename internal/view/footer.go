@@ -1,9 +1,9 @@
-package ui
+package view
 
 import (
 	"fmt"
 
-	"github.com/keidarcy/e1s/util"
+	"github.com/keidarcy/e1s/internal/utils"
 	"github.com/rivo/tview"
 )
 
@@ -13,7 +13,7 @@ const (
 )
 
 // View footer struct
-type Footer struct {
+type footer struct {
 	footer         *tview.Flex
 	cluster        *tview.TextView
 	service        *tview.TextView
@@ -22,8 +22,8 @@ type Footer struct {
 	taskDefinition *tview.TextView
 }
 
-func newFooter() *Footer {
-	return &Footer{
+func newFooter() *footer {
+	return &footer{
 		footer:         tview.NewFlex().SetDirection(tview.FlexColumn),
 		cluster:        tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(footerItemFmt, ClusterKind)),
 		service:        tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(footerItemFmt, ServiceKind)),
@@ -49,7 +49,7 @@ func (v *View) addFooterItems() {
 	regionLabel := tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf("[black:yellow:bi] %s ", v.app.Region))
 	v.footer.footer.AddItem(regionLabel, len(v.app.Region)+3, 0, false)
 
-	appLabel := fmt.Sprintf("[black:blue:bi] %s:%s ", util.AppName, util.AppVersion)
+	appLabel := fmt.Sprintf("[black:blue:bi] %s:%s ", utils.AppName, utils.AppVersion)
 	t := tview.NewTextView().SetTextAlign(L).SetDynamicColors(true).SetText(appLabel)
 	v.footer.footer.AddItem(t, 15, 1, false)
 }

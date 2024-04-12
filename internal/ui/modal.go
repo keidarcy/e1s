@@ -6,7 +6,7 @@ import (
 )
 
 // modal to show in the middle of screen for any usage
-func (v *View) modal(p tview.Primitive, width, height int) tview.Primitive {
+func Modal(p tview.Primitive, width, height int, closeFn func()) tview.Primitive {
 	m := tview.NewFlex().
 		AddItem(nil, 0, 1, false).
 		AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
@@ -19,9 +19,9 @@ func (v *View) modal(p tview.Primitive, width, height int) tview.Primitive {
 	m.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Key() {
 		case tcell.KeyESC:
-			v.closeModal()
+			closeFn()
 		case tcell.KeyCtrlZ:
-			v.closeModal()
+			closeFn()
 		}
 		return event
 	})
@@ -29,7 +29,7 @@ func (v *View) modal(p tview.Primitive, width, height int) tview.Primitive {
 	return m
 }
 
-func (v *View) styledForm(title string) *tview.Form {
+func StyledForm(title string) *tview.Form {
 	f := tview.NewForm()
 	// f.SetItemPadding(0)
 	f.SetButtonsAlign(tview.AlignCenter).

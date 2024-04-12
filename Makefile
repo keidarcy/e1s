@@ -1,5 +1,8 @@
 VERSION := $(shell cat app-version)
 
+run:
+	go run ./cmd/e1s/main.go
+
 dep:
 	go mod download
 

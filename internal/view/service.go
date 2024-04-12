@@ -1,4 +1,4 @@
-package ui
+package view
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
-	"github.com/keidarcy/e1s/util"
+	"github.com/keidarcy/e1s/internal/utils"
 	"github.com/rivo/tview"
 )
 
@@ -17,7 +17,7 @@ type ServiceView struct {
 }
 
 func newServiceView(services []types.Service, app *App) *ServiceView {
-	keys := append(basicKeyInputs, []KeyInput{
+	keys := append(basicKeyInputs, []keyInput{
 		{key: string("shift-u"), description: updateService},
 		{key: string(wKey), description: describeServiceEvents},
 		{key: string(tKey), description: showTaskDefinitions},
@@ -107,9 +107,9 @@ func (v *ServiceView) tableHandler() {
 }
 
 // Generate info pages params
-func (v *ServiceView) infoPagesParam(s types.Service) (items []InfoItem) {
+func (v *ServiceView) infoPagesParam(s types.Service) (items []infoItem) {
 	// publicIP
-	ip := util.EmptyText
+	ip := utils.EmptyText
 	// security groups
 	sgs := []string{}
 	if s.NetworkConfiguration != nil && s.NetworkConfiguration.AwsvpcConfiguration != nil {
@@ -120,7 +120,7 @@ func (v *ServiceView) infoPagesParam(s types.Service) (items []InfoItem) {
 	// target groups
 	tgs := []string{}
 	for _, lb := range s.LoadBalancers {
-		tgs = append(tgs, util.ArnToFullName(lb.TargetGroupArn))
+		tgs = append(tgs, utils.ArnToFullName(lb.TargetGroupArn))
 	}
 
 	// capacity provider strategy
@@ -130,17 +130,17 @@ func (v *ServiceView) infoPagesParam(s types.Service) (items []InfoItem) {
 	}
 	cpsString := strings.Join(cps, ",")
 	if len(cpsString) == 0 {
-		cpsString = util.EmptyText
+		cpsString = utils.EmptyText
 	}
 
 	// deployment circuit breaker enable
-	dcbe := util.EmptyText
+	dcbe := utils.EmptyText
 	// deployment circuit breaker rollback
-	dcbr := util.EmptyText
+	dcbr := utils.EmptyText
 	// deployment max percent
-	dmaxp := util.EmptyText
+	dmaxp := utils.EmptyText
 	// deployment min percent
-	dminp := util.EmptyText
+	dminp := utils.EmptyText
 
 	if s.DeploymentConfiguration != nil {
 		dmaxp = strconv.Itoa(int(*s.DeploymentConfiguration.MaximumPercent)) + "%"
@@ -152,17 +152,17 @@ func (v *ServiceView) infoPagesParam(s types.Service) (items []InfoItem) {
 	}
 
 	// deployment controller
-	dc := util.EmptyText
+	dc := utils.EmptyText
 	if s.DeploymentController != nil {
 		dc = string(s.DeploymentController.Type)
 	}
 
-	items = []InfoItem{
-		{name: "Name", value: util.ShowString(s.ServiceName)},
-		{name: "Cluster", value: util.ArnToName(s.ClusterArn)},
+	items = []infoItem{
+		{name: "Name", value: utils.ShowString(s.ServiceName)},
+		{name: "Cluster", value: utils.ArnToName(s.ClusterArn)},
 		{name: "Capacity provider strategy", value: cpsString},
-		{name: "RoleArn", value: util.ArnToName(s.RoleArn)},
-		{name: "Task Definition", value: util.ArnToName(s.TaskDefinition)},
+		{name: "RoleArn", value: utils.ArnToName(s.RoleArn)},
+		{name: "Task Definition", value: utils.ArnToName(s.TaskDefinition)},
 		{name: "Scheduling strategy", value: string(s.SchedulingStrategy)},
 		{name: "Deployment controller", value: dc},
 		{name: "Deployment circuitBreaker enable", value: dcbe},
@@ -173,10 +173,10 @@ func (v *ServiceView) infoPagesParam(s types.Service) (items []InfoItem) {
 		{name: "Security groups", value: strings.Join(sgs, ",")},
 		{name: "Target groups", value: strings.Join(tgs, ",")},
 		{name: "Execute command", value: strconv.FormatBool(s.EnableExecuteCommand)},
-		{name: "Created", value: util.ShowTime(s.CreatedAt)},
-		{name: "Created by", value: util.ArnToName(s.CreatedBy)},
-		{name: "Platform family", value: util.ShowString(s.PlatformFamily)},
-		{name: "Platform version", value: util.ShowString(s.PlatformVersion)},
+		{name: "Created", value: utils.ShowTime(s.CreatedAt)},
+		{name: "Created by", value: utils.ArnToName(s.CreatedBy)},
+		{name: "Platform family", value: utils.ShowString(s.PlatformFamily)},
+		{name: "Platform version", value: utils.ShowString(s.PlatformVersion)},
 	}
 	return
 }
@@ -208,7 +208,7 @@ func (v *ServiceView) tableParam() (title string, headers []string, dataBuilder 
 
 			if len(s.Deployments) > 0 {
 				rollout := string(s.Deployments[0].RolloutState)
-				lastDeployment += fmt.Sprintf("%s - %s", util.ShowGreenGrey(&rollout, "completed"), s.Deployments[0].UpdatedAt.Format(time.RFC3339))
+				lastDeployment += fmt.Sprintf("%s - %s", utils.ShowGreenGrey(&rollout, "completed"), s.Deployments[0].UpdatedAt.Format(time.RFC3339))
 
 				lastUpdateTime = s.Deployments[0].UpdatedAt
 			}
@@ -219,14 +219,14 @@ func (v *ServiceView) tableParam() (title string, headers []string, dataBuilder 
 				enableExecuteCommand = "True"
 			}
 
-			row = append(row, util.ShowString(s.ServiceName))
-			row = append(row, util.ShowGreenGrey(s.Status, "active"))
+			row = append(row, utils.ShowString(s.ServiceName))
+			row = append(row, utils.ShowGreenGrey(s.Status, "active"))
 			row = append(row, tasks)
-			row = append(row, util.ShowInt(&s.PendingCount))
+			row = append(row, utils.ShowInt(&s.PendingCount))
 			row = append(row, lastDeployment)
-			row = append(row, util.ShowGreenGrey(&enableExecuteCommand, "true"))
-			row = append(row, util.ArnToName(s.TaskDefinition))
-			row = append(row, util.Age(lastUpdateTime))
+			row = append(row, utils.ShowGreenGrey(&enableExecuteCommand, "true"))
+			row = append(row, utils.ArnToName(s.TaskDefinition))
+			row = append(row, utils.Age(lastUpdateTime))
 			data = append(data, row)
 		}
 		return data

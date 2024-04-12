@@ -7,8 +7,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	e1s "github.com/keidarcy/e1s/ui"
-	"github.com/keidarcy/e1s/util"
+	"github.com/keidarcy/e1s/internal/utils"
+	e1s "github.com/keidarcy/e1s/internal/view"
 )
 
 var (
@@ -21,7 +21,7 @@ var (
 )
 
 func init() {
-	defaultLogFilePath := filepath.Join(os.TempDir(), fmt.Sprintf("%s.log", util.AppName))
+	defaultLogFilePath := filepath.Join(os.TempDir(), fmt.Sprintf("%s.log", utils.AppName))
 
 	rootCmd.Flags().BoolVarP(&debug, "debug", "d", false, "sets debug mode")
 	rootCmd.Flags().BoolVarP(&json, "json", "j", false, "log output json format")
@@ -37,7 +37,7 @@ var rootCmd = &cobra.Command{
 	Long: `E1s is a terminal application to easily browse and manage AWS ECS resources 🐱. 
 Check https://github.com/keidarcy/e1s for more details.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		logger, file := util.GetLogger(logFilePath, json, debug)
+		logger, file := utils.GetLogger(logFilePath, json, debug)
 		defer file.Close()
 
 		option := e1s.Option{
@@ -52,7 +52,7 @@ Check https://github.com/keidarcy/e1s for more details.`,
 			logger.Fatalf("Failed to start, error: %v\n", err) // will call os.Exit(1)
 		}
 	},
-	Version: util.ShowVersion(),
+	Version: utils.ShowVersion(),
 }
 
 func main() {

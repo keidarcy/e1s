@@ -1,4 +1,4 @@
-package ui
+package view
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
-	"github.com/keidarcy/e1s/util"
+	"github.com/keidarcy/e1s/internal/utils"
 	"github.com/rivo/tview"
 )
 
@@ -92,13 +92,13 @@ func (v *ClusterView) tableHandler() {
 }
 
 // Generate info pages params
-func (v *ClusterView) infoPagesParam(c types.Cluster) (items []InfoItem) {
+func (v *ClusterView) infoPagesParam(c types.Cluster) (items []infoItem) {
 	containerInsights := "disabled"
 	if len(c.Settings) > 0 && c.Settings[0].Name == "containerInsights" {
 		containerInsights = *c.Settings[0].Value
 	}
 	// ServiceConnectDefaults
-	scd := util.EmptyText
+	scd := utils.EmptyText
 	if c.ServiceConnectDefaults != nil {
 		scd = *c.ServiceConnectDefaults.Namespace
 	}
@@ -121,17 +121,17 @@ func (v *ClusterView) infoPagesParam(c types.Cluster) (items []InfoItem) {
 			pending += v
 		}
 	}
-	items = []InfoItem{
+	items = []infoItem{
 		{name: "Name", value: *c.ClusterName},
 		{name: "Active services count", value: strconv.Itoa(active)},
 		{name: "Draining services count", value: strconv.Itoa(draining)},
 		{name: "Running tasks count", value: strconv.Itoa(running)},
 		{name: "Pending tasks count", value: strconv.Itoa(pending)},
-		{name: "Capacity providers", value: util.ShowArray(c.CapacityProviders)},
+		{name: "Capacity providers", value: utils.ShowArray(c.CapacityProviders)},
 		{name: "Container insights", value: containerInsights},
 		{name: "Service connect defaults", value: scd},
-		{name: "Attachments status", value: util.ShowString(c.AttachmentsStatus)},
-		{name: "Registered containers", value: util.ShowInt(&c.RegisteredContainerInstancesCount)},
+		{name: "Attachments status", value: utils.ShowString(c.AttachmentsStatus)},
+		{name: "Registered containers", value: utils.ShowInt(&c.RegisteredContainerInstancesCount)},
 	}
 	return
 }
@@ -153,12 +153,12 @@ func (v *ClusterView) tableParam() (title string, headers []string, dataBuilder 
 			tasks := fmt.Sprintf(clusterTasksFmt, c.PendingTasksCount, c.RunningTasksCount)
 
 			row := []string{}
-			row = append(row, util.ShowString(c.ClusterName))
-			row = append(row, util.ShowGreenGrey(c.Status, "active"))
-			row = append(row, util.ShowInt(&c.ActiveServicesCount))
+			row = append(row, utils.ShowString(c.ClusterName))
+			row = append(row, utils.ShowGreenGrey(c.Status, "active"))
+			row = append(row, utils.ShowInt(&c.ActiveServicesCount))
 			row = append(row, tasks)
-			row = append(row, util.ShowArray(c.CapacityProviders))
-			row = append(row, util.ShowInt(&c.RegisteredContainerInstancesCount))
+			row = append(row, utils.ShowArray(c.CapacityProviders))
+			row = append(row, utils.ShowInt(&c.RegisteredContainerInstancesCount))
 
 			data = append(data, row)
 		}

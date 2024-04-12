@@ -1,4 +1,4 @@
-package ui
+package view
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
-	"github.com/keidarcy/e1s/util"
+	"github.com/keidarcy/e1s/internal/utils"
 	"github.com/rivo/tview"
 )
 
@@ -16,7 +16,7 @@ type TaskView struct {
 }
 
 func newTaskView(tasks []types.Task, app *App) *TaskView {
-	keys := append(basicKeyInputs, []KeyInput{
+	keys := append(basicKeyInputs, []keyInput{
 		{key: string(tKey), description: showTaskDefinitions},
 	}...)
 	return &TaskView{
@@ -57,7 +57,7 @@ func (app *App) showTasksPages(reload bool) error {
 // Build info pages for task page
 func (v *TaskView) infoBuilder() *tview.Pages {
 	for _, t := range v.tasks {
-		title := util.ArnToName(t.TaskArn)
+		title := utils.ArnToName(t.TaskArn)
 		entityName := *t.TaskArn
 		items := v.infoPagesParam(t)
 
@@ -96,16 +96,16 @@ func (v *TaskView) tableHandler() {
 }
 
 // Generate info pages params
-func (v *TaskView) infoPagesParam(t types.Task) (items []InfoItem) {
+func (v *TaskView) infoPagesParam(t types.Task) (items []infoItem) {
 	// containers
 	containers := []string{}
 	for _, c := range t.Containers {
 		containers = append(containers, *c.Name)
 	}
 	// network
-	subnetID := util.EmptyText
-	eniID := util.EmptyText
-	privateIP := util.EmptyText
+	subnetID := utils.EmptyText
+	eniID := utils.EmptyText
+	privateIP := utils.EmptyText
 	for _, a := range t.Attachments {
 		if *a.Type == "ElasticNetworkInterface" {
 			for _, d := range a.Details {
@@ -122,27 +122,27 @@ func (v *TaskView) infoPagesParam(t types.Task) (items []InfoItem) {
 			}
 		}
 	}
-	items = []InfoItem{
-		{name: "Task ID", value: util.ArnToName(t.TaskArn)},
-		{name: "Task definition", value: util.ArnToName(t.TaskDefinitionArn)},
+	items = []infoItem{
+		{name: "Task ID", value: utils.ArnToName(t.TaskArn)},
+		{name: "Task definition", value: utils.ArnToName(t.TaskDefinitionArn)},
 		{name: "Containers", value: strings.Join(containers, ",")},
-		{name: "Cluster", value: util.ArnToName(t.ClusterArn)},
+		{name: "Cluster", value: utils.ArnToName(t.ClusterArn)},
 		{name: "Launch type", value: string(t.LaunchType)},
-		{name: "Capacity provider", value: util.ShowString(t.CapacityProviderName)},
-		{name: "Group", value: util.ShowString(t.Group)},
+		{name: "Capacity provider", value: utils.ShowString(t.CapacityProviderName)},
+		{name: "Group", value: utils.ShowString(t.Group)},
 		{name: "Subnet ID", value: subnetID},
 		{name: "ENI ID", value: eniID},
 		{name: "Private IP", value: privateIP},
 		{name: "Execute command", value: strconv.FormatBool(t.EnableExecuteCommand)},
-		{name: "Started by", value: util.ShowString(t.StartedBy)},
-		{name: "Started at", value: util.ShowTime(t.StartedAt)},
-		{name: "Pull started at", value: util.ShowTime(t.PullStartedAt)},
-		{name: "Pull stopped at", value: util.ShowTime(t.PullStoppedAt)},
-		{name: "StoppedReason", value: util.ShowString(t.StoppedReason)},
-		{name: "StoppedAt", value: util.ShowTime(t.StoppedAt)},
-		{name: "StoppingAt", value: util.ShowTime(t.StoppingAt)},
-		{name: "Platform family", value: util.ShowString(t.PlatformFamily)},
-		{name: "Platform version", value: util.ShowString(t.PlatformVersion)},
+		{name: "Started by", value: utils.ShowString(t.StartedBy)},
+		{name: "Started at", value: utils.ShowTime(t.StartedAt)},
+		{name: "Pull started at", value: utils.ShowTime(t.PullStartedAt)},
+		{name: "Pull stopped at", value: utils.ShowTime(t.PullStoppedAt)},
+		{name: "StoppedReason", value: utils.ShowString(t.StoppedReason)},
+		{name: "StoppedAt", value: utils.ShowTime(t.StoppedAt)},
+		{name: "StoppingAt", value: utils.ShowTime(t.StoppingAt)},
+		{name: "Platform family", value: utils.ShowString(t.PlatformFamily)},
+		{name: "Platform version", value: utils.ShowString(t.PlatformVersion)},
 	}
 	return
 }
@@ -168,16 +168,16 @@ func (v *TaskView) tableParam() (title string, headers []string, dataBuilder fun
 			health := string(t.HealthStatus)
 
 			row := []string{}
-			row = append(row, util.ArnToName(t.TaskArn))
-			row = append(row, util.ShowGreenGrey(t.LastStatus, "running"))
-			row = append(row, util.ShowGreenGrey(t.DesiredStatus, "running"))
-			row = append(row, util.ArnToName(t.TaskDefinitionArn))
+			row = append(row, utils.ArnToName(t.TaskArn))
+			row = append(row, utils.ShowGreenGrey(t.LastStatus, "running"))
+			row = append(row, utils.ShowGreenGrey(t.DesiredStatus, "running"))
+			row = append(row, utils.ArnToName(t.TaskDefinitionArn))
 			row = append(row, strconv.Itoa(len(t.Containers)))
-			row = append(row, util.ShowGreenGrey(&health, "healthy"))
+			row = append(row, utils.ShowGreenGrey(&health, "healthy"))
 			row = append(row, string(t.LaunchType))
-			row = append(row, util.ShowString(t.Cpu))
-			row = append(row, util.ShowString(t.Memory))
-			row = append(row, util.Age(t.StartedAt))
+			row = append(row, utils.ShowString(t.Cpu))
+			row = append(row, utils.ShowString(t.Memory))
+			row = append(row, utils.Age(t.StartedAt))
 			data = append(data, row)
 		}
 		return data
@@ -189,11 +189,11 @@ func (v *TaskView) tableParam() (title string, headers []string, dataBuilder fun
 // task definition arn to family and revision
 func getTaskDefinitionInfo(arn *string) (family, revision string) {
 	if arn == nil {
-		return util.EmptyText, util.EmptyText
+		return utils.EmptyText, utils.EmptyText
 	}
-	td := strings.Split(util.ArnToName(arn), ":")
+	td := strings.Split(utils.ArnToName(arn), ":")
 	if len(td) < 2 {
-		return util.EmptyText, util.EmptyText
+		return utils.EmptyText, utils.EmptyText
 	}
 	family = td[0]
 	revision = td[1]

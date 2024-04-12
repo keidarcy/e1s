@@ -1,4 +1,4 @@
-package ui
+package view
 
 import (
 	"fmt"
@@ -61,36 +61,18 @@ const (
 	ctrlZ = "ctrl-z"
 )
 
-var basicKeyInputs = []KeyInput{
-	{key: string(bKey), description: openInBrowser},
-	{key: string(dKey), description: describe},
-	{key: ctrlR, description: reloadResource},
-}
-
-// Keyboard key and description
-type KeyInput struct {
-	key         string
-	description string
-}
-
-// Info item name and value
-type InfoItem struct {
-	name  string
-	value string
-}
-
 // Base struct of different views
 type View struct {
 	app        *App
 	table      *tview.Table
 	infoPages  *tview.Pages
 	tablePages *tview.Pages
-	keys       []KeyInput
-	footer     *Footer
+	keys       []keyInput
+	footer     *footer
 	pageKeyMap secondaryPageKeyMap
 }
 
-func newView(app *App, keys []KeyInput, pageKeys secondaryPageKeyMap) *View {
+func newView(app *App, keys []keyInput, pageKeys secondaryPageKeyMap) *View {
 	return &View{
 		app:        app,
 		infoPages:  tview.NewPages(),
@@ -103,19 +85,14 @@ func newView(app *App, keys []KeyInput, pageKeys secondaryPageKeyMap) *View {
 }
 
 // Interface to show each view
-type DataView interface {
+type dataView interface {
 	infoBuilder() *tview.Pages
 	tableBuilder() *tview.Pages
 	footerBuilder() *tview.Flex
 }
 
-const (
-	// column height in info page
-	oneColumnCount = 11
-)
-
 // Common function to build page for each view
-func buildAppPage(v DataView) *tview.Flex {
+func buildAppPage(v dataView) *tview.Flex {
 	// build table reference first
 	tablePages := v.tableBuilder()
 	infoPages := v.infoBuilder()
@@ -274,7 +251,7 @@ func getContentTextItem(contentStr string, title string) *tview.TextView {
 	return contentText
 }
 
-func (v *View) buildInfoPages(items []InfoItem, title, entityName string) {
+func (v *View) buildInfoPages(items []infoItem, title, entityName string) {
 	infoFlex := v.buildInfoFlex(title, items, v.keys)
 	v.infoPages.AddPage(entityName, infoFlex, true, true)
 

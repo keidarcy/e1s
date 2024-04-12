@@ -1,4 +1,4 @@
-package ui
+package view
 
 import (
 	"encoding/json"
@@ -10,8 +10,8 @@ import (
 
 func TestGetJsonData(t *testing.T) {
 	app, _ := newApp(Option{})
-	view := newView(app, []KeyInput{}, secondaryPageKeyMap{
-		DescriptionKind: []KeyInput{
+	view := newView(app, []keyInput{}, secondaryPageKeyMap{
+		DescriptionKind: []keyInput{
 			{key: string(fKey), description: toggleFullScreen},
 		},
 	})

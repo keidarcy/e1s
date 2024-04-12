@@ -1,4 +1,4 @@
-package ui
+package view
 
 import (
 	"testing"
@@ -6,7 +6,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
-	"github.com/keidarcy/e1s/util"
+	"github.com/keidarcy/e1s/internal/utils"
 )
 
 var (
@@ -55,14 +55,14 @@ func TestTaskPageParams(t *testing.T) {
 			name: taskArn1,
 			view: taskViews[0],
 			want: want{
-				taskID: util.ArnToName(&taskArn1),
+				taskID: utils.ArnToName(&taskArn1),
 			},
 		},
 		{
 			name: taskArn2,
 			view: taskViews[1],
 			want: want{
-				taskID: util.ArnToName(&taskArn2),
+				taskID: utils.ArnToName(&taskArn2),
 			},
 		},
 	}
@@ -91,14 +91,14 @@ func TestTaskTableParam(t *testing.T) {
 			name: serviceName1,
 			view: taskViews[0],
 			want: want{
-				taskID: util.ArnToName(&taskArn1),
+				taskID: utils.ArnToName(&taskArn1),
 			},
 		},
 		{
 			name: clusterName2,
 			view: taskViews[1],
 			want: want{
-				taskID: util.ArnToName(&taskArn2),
+				taskID: utils.ArnToName(&taskArn2),
 			},
 		},
 	}

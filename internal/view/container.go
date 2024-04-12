@@ -1,4 +1,4 @@
-package ui
+package view
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 	"syscall"
 
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
-	"github.com/keidarcy/e1s/util"
+	"github.com/keidarcy/e1s/internal/utils"
 	"github.com/rivo/tview"
 )
 
@@ -19,7 +19,7 @@ type ContainerView struct {
 }
 
 func newContainerView(containers []types.Container, app *App) *ContainerView {
-	keys := append(basicKeyInputs, []KeyInput{
+	keys := append(basicKeyInputs, []keyInput{
 		{key: "shift-f", description: portForwarding},
 		{key: "shift-t", description: terminatePortForwardingSession},
 		{key: "enter", description: sshContainer},
@@ -53,7 +53,7 @@ func (app *App) showContainersPage(reload bool) error {
 // Build info pages for container page
 func (v *ContainerView) infoBuilder() *tview.Pages {
 	for _, c := range v.containers {
-		title := util.ArnToName(c.ContainerArn)
+		title := utils.ArnToName(c.ContainerArn)
 		entityName := *c.ContainerArn
 		items := v.infoPagesParam(c)
 
@@ -99,7 +99,7 @@ func (v *ContainerView) tableHandler() {
 }
 
 // Generate info pages params
-func (v *ContainerView) infoPagesParam(c types.Container) (items []InfoItem) {
+func (v *ContainerView) infoPagesParam(c types.Container) (items []infoItem) {
 	// Managed agents
 	mas := []string{}
 	for _, m := range c.ManagedAgents {
@@ -107,30 +107,30 @@ func (v *ContainerView) infoPagesParam(c types.Container) (items []InfoItem) {
 	}
 	masString := strings.Join(mas, ",")
 	if len(masString) == 0 {
-		masString = util.EmptyText
+		masString = utils.EmptyText
 	}
 
-	items = []InfoItem{
-		{name: "Name", value: util.ShowString(c.Name)},
-		{name: "Task", value: util.ShowString(c.TaskArn)},
-		{name: "Image url", value: util.ShowString(c.Image)},
-		{name: "Image digest", value: util.ShowString(c.ImageDigest)},
-		{name: "Runtime ID", value: util.ShowString(c.RuntimeId)},
-		{name: "Last status", value: util.ShowString(c.LastStatus)},
-		{name: "CPU", value: util.ShowString(c.Cpu)},
-		{name: "Memory", value: util.ShowString(c.Memory)},
-		{name: "Memory reservation", value: util.ShowString(c.MemoryReservation)},
-		{name: "GPU IDs", value: util.ShowArray(c.GpuIds)},
-		{name: "Exit code", value: util.ShowInt(c.ExitCode)},
-		{name: "Reason", value: util.ShowString(c.Reason)},
-		{name: "Managed agents", value: util.ShowString(&masString)},
+	items = []infoItem{
+		{name: "Name", value: utils.ShowString(c.Name)},
+		{name: "Task", value: utils.ShowString(c.TaskArn)},
+		{name: "Image url", value: utils.ShowString(c.Image)},
+		{name: "Image digest", value: utils.ShowString(c.ImageDigest)},
+		{name: "Runtime ID", value: utils.ShowString(c.RuntimeId)},
+		{name: "Last status", value: utils.ShowString(c.LastStatus)},
+		{name: "CPU", value: utils.ShowString(c.Cpu)},
+		{name: "Memory", value: utils.ShowString(c.Memory)},
+		{name: "Memory reservation", value: utils.ShowString(c.MemoryReservation)},
+		{name: "GPU IDs", value: utils.ShowArray(c.GpuIds)},
+		{name: "Exit code", value: utils.ShowInt(c.ExitCode)},
+		{name: "Reason", value: utils.ShowString(c.Reason)},
+		{name: "Managed agents", value: utils.ShowString(&masString)},
 	}
 	return
 }
 
 // Generate table params
 func (v *ContainerView) tableParam() (title string, headers []string, dataBuilder func() [][]string) {
-	title = fmt.Sprintf(nsTitleFmt, v.app.kind, util.ArnToName(v.app.task.TaskArn), len(v.containers))
+	title = fmt.Sprintf(nsTitleFmt, v.app.kind, utils.ArnToName(v.app.task.TaskArn), len(v.containers))
 	headers = []string{
 		"Name",
 		"Status",
@@ -144,7 +144,7 @@ func (v *ContainerView) tableParam() (title string, headers []string, dataBuilde
 	dataBuilder = func() (data [][]string) {
 		for _, c := range v.containers {
 			containerId := fmt.Sprintf("%s.%s", *v.app.cluster.ClusterName, *c.Name)
-			portText := util.EmptyText
+			portText := utils.EmptyText
 			ports := []string{}
 			for _, session := range v.app.sessions {
 				if session.containerId == containerId {
@@ -156,14 +156,14 @@ func (v *ContainerView) tableParam() (title string, headers []string, dataBuilde
 			}
 			health := string(c.HealthStatus)
 
-			registry, imageName := util.ImageInfo(c.Image)
+			registry, imageName := utils.ImageInfo(c.Image)
 
 			row := []string{}
-			row = append(row, util.ShowString(c.Name))
-			row = append(row, util.ShowGreenGrey(c.LastStatus, "running"))
-			row = append(row, util.ShowGreenGrey(&health, "healthy"))
+			row = append(row, utils.ShowString(c.Name))
+			row = append(row, utils.ShowGreenGrey(c.LastStatus, "running"))
+			row = append(row, utils.ShowGreenGrey(&health, "healthy"))
 			row = append(row, portText)
-			row = append(row, util.ShowString(c.RuntimeId))
+			row = append(row, utils.ShowString(c.RuntimeId))
 			row = append(row, registry)
 			row = append(row, imageName)
 			data = append(data, row)
@@ -223,7 +223,7 @@ func (v *View) ssh(containerName string) {
 		cmd := exec.Command(bin, args...)
 		cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, os.Stderr
 		// ignore the stderr from ssh server
-		_, err = cmd.Stdout.Write([]byte(fmt.Sprintf(sshBannerFmt, *v.app.cluster.ClusterName, *v.app.service.ServiceName, util.ArnToName(v.app.task.TaskArn), containerName)))
+		_, err = cmd.Stdout.Write([]byte(fmt.Sprintf(sshBannerFmt, *v.app.cluster.ClusterName, *v.app.service.ServiceName, utils.ArnToName(v.app.task.TaskArn), containerName)))
 		err = cmd.Run()
 		// return signal
 		signal.Stop(interrupt)

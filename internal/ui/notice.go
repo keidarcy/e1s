@@ -21,9 +21,9 @@ type Notice struct {
 	forceTimer *time.Timer
 }
 
-func newNotice(app *tview.Application) *Notice {
+func NewNotice(app *tview.Application) *Notice {
 	t := tview.NewTextView().
-		SetTextAlign(C).
+		SetTextAlign(tview.AlignCenter).
 		SetDynamicColors(true)
 	return &Notice{
 		TextView:   t,

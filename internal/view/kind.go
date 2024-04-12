@@ -1,4 +1,4 @@
-package ui
+package view
 
 type Kind int
 
@@ -99,27 +99,4 @@ func (k Kind) getTablePageName(name string) string {
 func (k Kind) getContentPageName(name string) string {
 	pageName := k.getAppPageName(name)
 	return pageName + "." + DescriptionKind.String()
-}
-
-type secondaryPageKeyMap = map[Kind][]KeyInput
-
-var describePageKeys = []KeyInput{
-	{key: string(fKey), description: toggleFullScreen},
-	{key: string(bKey), description: openInBrowser},
-	{key: string(eKey), description: openInEditor},
-	{key: ctrlZ, description: backToPrevious},
-}
-
-var otherDescribePageKeys = []KeyInput{
-	{key: string(fKey), description: toggleFullScreen},
-	{key: string(bKey), description: openInBrowser},
-	{key: ctrlZ, description: backToPrevious},
-}
-
-var logPageKeys = []KeyInput{
-	{key: string(fKey), description: toggleFullScreen},
-	{key: string(bKey), description: openInBrowser},
-	{key: string(rKey), description: realtimeLog},
-	{key: ctrlR, description: reloadResource},
-	{key: ctrlZ, description: backToPrevious},
 }

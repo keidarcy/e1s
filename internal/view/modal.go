@@ -1,4 +1,4 @@
-package ui
+package view
 
 import (
 	"strconv"
@@ -7,7 +7,8 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/ecs"
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
-	"github.com/keidarcy/e1s/util"
+	"github.com/keidarcy/e1s/internal/ui"
+	"github.com/keidarcy/e1s/internal/utils"
 	"github.com/rivo/tview"
 )
 
@@ -24,7 +25,7 @@ func (v *View) showFormModal(formContentFn func() (*tview.Form, string), height 
 	if content == nil {
 		return
 	}
-	v.app.Pages.AddPage(title, v.modal(content, 100, height), true, true)
+	v.app.Pages.AddPage(title, ui.Modal(content, 100, height, v.closeModal), true, true)
 }
 
 // Show task definition register confirm modal
@@ -36,7 +37,7 @@ func (v *View) showTaskDefinitionConfirm(fn func()) {
 	if content == nil {
 		return
 	}
-	v.app.Pages.AddPage(title, v.modal(content, 100, 10), true, true)
+	v.app.Pages.AddPage(title, ui.Modal(content, 100, 10, v.closeModal), true, true)
 }
 
 // Get task definition register content
@@ -51,7 +52,7 @@ func (v *View) taskDefinitionRegisterForm(fn func()) (*tview.Form, string) {
 	}
 
 	title := " Register edited [purple::b]task definition?" + readonly
-	f := v.styledForm(title)
+	f := ui.StyledForm(title)
 
 	// handle form close
 	f.AddButton("Cancel", func() {
@@ -96,7 +97,7 @@ func (v *View) serviceUpdateForm() (*tview.Form, string) {
 		v.closeModal()
 	}
 
-	f := v.styledForm(title)
+	f := ui.StyledForm(title)
 	forceLabel := "Force new deployment"
 	desiredLabel := "Desired tasks"
 	familyLabel := "Task definition family"
@@ -257,7 +258,7 @@ func (v *View) serviceMetricsForm() (*tview.Form, string) {
 
 	title := " Metrics [purple::b](" + service + ")" + readonlyLabel
 
-	f := v.styledForm(title)
+	f := ui.StyledForm(title)
 	f.AddInputField("Service ", service+placeholder, len(service)+len(placeholder)+1, nil, nil)
 
 	metrics, err := v.app.Store.GetMetrics(cluster, &service)
@@ -268,12 +269,12 @@ func (v *View) serviceMetricsForm() (*tview.Form, string) {
 	}
 	if len(metrics.CPUUtilization) > 0 {
 		cpuLabel := "CPUUtilization"
-		f.AddTextView(cpuLabel, util.BuildMeterText(*metrics.CPUUtilization[0].Average), 50, 1, true, false)
+		f.AddTextView(cpuLabel, utils.BuildMeterText(*metrics.CPUUtilization[0].Average), 50, 1, true, false)
 	}
 
 	if len(metrics.MemoryUtilization) > 0 {
 		memLabel := "MemoryUtilization"
-		f.AddTextView(memLabel, util.BuildMeterText(*metrics.MemoryUtilization[0].Average), 50, 1, true, false)
+		f.AddTextView(memLabel, utils.BuildMeterText(*metrics.MemoryUtilization[0].Average), 50, 1, true, false)
 	}
 
 	return f, title

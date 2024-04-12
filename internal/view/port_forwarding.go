@@ -1,12 +1,13 @@
-package ui
+package view
 
 import (
 	"fmt"
 	"strconv"
 	"strings"
 
-	"github.com/keidarcy/e1s/api"
-	"github.com/keidarcy/e1s/util"
+	"github.com/keidarcy/e1s/internal/api"
+	"github.com/keidarcy/e1s/internal/ui"
+	"github.com/keidarcy/e1s/internal/utils"
 	"github.com/rivo/tview"
 )
 
@@ -52,7 +53,7 @@ func (v *View) portForwardingForm() (*tview.Form, string) {
 
 	title := " Port Forward [purple::b]" + name + readOnly
 
-	f := v.styledForm(title)
+	f := ui.StyledForm(title)
 	remoteForwardLabel := "Remote Forward"
 	hostLabel := "Host"
 	portLabel := "Port number"
@@ -120,7 +121,7 @@ func (v *View) portForwardingForm() (*tview.Form, string) {
 				}
 				cell := v.table.GetCell(row, 3)
 				text := cell.Text
-				if text == util.EmptyText {
+				if text == utils.EmptyText {
 					text = localPort
 				} else {
 					text = fmt.Sprintf("%s,%s", text, localPort)
@@ -144,7 +145,7 @@ func (v *View) showTerminatePortForwardingModal() {
 	if content == nil {
 		return
 	}
-	v.app.Pages.AddPage(title, v.modal(content, 100, 6), true, true)
+	v.app.Pages.AddPage(title, ui.Modal(content, 100, 6, v.closeModal), true, true)
 }
 
 // Get task definition register content
@@ -184,7 +185,7 @@ func (v *View) terminatePortForwardingContent() (*tview.Form, string) {
 	if len(ports) != 0 {
 		title = fmt.Sprintf(" Terminate port forwarding session on [purple::b]%s[-:-:-] ? ", portText) + readonly
 	}
-	f := v.styledForm(title)
+	f := ui.StyledForm(title)
 
 	// handle form close
 	f.AddButton("Cancel", func() {
@@ -214,7 +215,7 @@ func (v *View) terminatePortForwardingContent() (*tview.Form, string) {
 				row++
 			}
 			cell := v.table.GetCell(row, 3)
-			cell.SetText(util.EmptyText)
+			cell.SetText(utils.EmptyText)
 			v.app.Application.Draw()
 		}()
 

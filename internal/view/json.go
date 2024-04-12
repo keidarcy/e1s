@@ -1,4 +1,4 @@
-package ui
+package view
 
 import (
 	"bytes"
@@ -11,7 +11,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/service/ecs"
 	"github.com/gdamore/tcell/v2"
-	"github.com/keidarcy/e1s/util"
+	"github.com/keidarcy/e1s/internal/utils"
 	"github.com/sirupsen/logrus"
 )
 
@@ -41,7 +41,7 @@ func (v *View) getTaskDefinitionDetail() (string, string, string) {
 	} else {
 		return "", "", ""
 	}
-	familyRevision := strings.Split(util.ArnToName(&taskDefinition), ":")
+	familyRevision := strings.Split(utils.ArnToName(&taskDefinition), ":")
 	return familyRevision[0], familyRevision[1], entityName
 }
 
@@ -57,7 +57,7 @@ func (v *View) switchToAutoScalingJson() {
 		return
 	}
 
-	serviceFullName := util.ArnToFullName(serviceArn)
+	serviceFullName := utils.ArnToFullName(serviceArn)
 	autoScaling, err := v.app.Store.GetAutoscaling(&serviceFullName)
 
 	if err != nil {
