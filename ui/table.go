@@ -1,13 +1,6 @@
 package ui
 
 import (
-	"bytes"
-	"encoding/json"
-	"os"
-	"os/exec"
-	"strings"
-
-	"github.com/aws/aws-sdk-go-v2/service/ecs"
 	"github.com/gdamore/tcell/v2"
 	"github.com/keidarcy/e1s/util"
 	"github.com/rivo/tview"
@@ -84,6 +77,9 @@ func (v *View) handleSelectionChanged(row, column int) {
 
 // Handle selected event for table when press Enter
 func (v *View) handleSelected(row, column int) {
+	if v.app.kind == TaskDefinitionKind {
+		return
+	}
 	v.app.rowIndex = 0
 	if v.app.kind == ContainerKind {
 		selected, err := v.getCurrentSelection()
@@ -113,17 +109,6 @@ func (v *View) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 	case dKey:
 		v.app.secondaryKind = DescriptionKind
 		v.showSecondaryKindPage(false)
-	case eKey:
-		if v.app.kind == ServiceKind {
-			v.app.secondaryKind = ModalKind
-			v.showFormModal(v.serviceUpdateForm, 15)
-			return event
-		}
-		if v.app.kind == TaskKind {
-			v.app.secondaryKind = ModalKind
-			v.editTaskDefinition()
-			return event
-		}
 	case lKey:
 		if v.app.kind == ServiceKind || v.app.kind == TaskKind {
 			v.app.secondaryKind = LogKind
@@ -138,14 +123,7 @@ func (v *View) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 		}
 	case tKey:
 		if v.app.kind == ServiceKind || v.app.kind == TaskKind {
-			v.app.secondaryKind = TaskDefinitionKind
-			v.showSecondaryKindPage(false)
-			return event
-		}
-	case vKey:
-		if v.app.kind == ServiceKind || v.app.kind == TaskKind {
-			v.app.secondaryKind = TaskDefinitionRevisionsKind
-			v.showSecondaryKindPage(false)
+			v.showKindPage(TaskDefinitionKind, false)
 			return event
 		}
 	case wKey:
@@ -158,6 +136,12 @@ func (v *View) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 		if v.app.kind == ContainerKind {
 			v.app.secondaryKind = ModalKind
 			v.showFormModal(v.portForwardingForm, 15)
+			return event
+		}
+	case UKey:
+		if v.app.kind == ServiceKind {
+			v.app.secondaryKind = ModalKind
+			v.showFormModal(v.serviceUpdateForm, 15)
 			return event
 		}
 	case TKey:
@@ -201,44 +185,54 @@ func (v *View) changeSelectedValues() {
 		logger.Warnf("Failed to changeSelectedValues, err: %v", err)
 		return
 	}
-	if v.app.kind == ClusterKind {
+	switch v.app.kind {
+	case ClusterKind:
 		cluster := selected.cluster
 		if cluster != nil {
 			v.app.cluster = cluster
 			v.app.entityName = *selected.cluster.ClusterArn
 		} else {
-			logger.Warnf("unexpected")
+			logger.Warnf("unexpected in changeSelectedValues kind: %s", v.app.kind)
 			return
 		}
-	} else if v.app.kind == ServiceKind {
+	case ServiceKind:
 		service := selected.service
-
 		if service != nil {
-
 			v.app.service = service
 			v.app.entityName = *selected.service.ServiceArn
 		} else {
+			logger.Warnf("unexpected in changeSelectedValues kind: %s", v.app.kind)
 			return
 		}
-	} else if v.app.kind == TaskKind {
+	case TaskKind:
 		task := selected.task
 		if task != nil {
 
 			v.app.task = task
 			v.app.entityName = *selected.task.TaskArn
 		} else {
+			logger.Warnf("unexpected in changeSelectedValues kind: %s", v.app.kind)
 			return
 		}
-	} else if v.app.kind == ContainerKind {
+	case ContainerKind:
 		container := selected.container
 		if container != nil {
-
 			v.app.container = selected.container
 			v.app.entityName = *selected.container.ContainerArn
 		} else {
+			logger.Warnf("unexpected in changeSelectedValues kind: %s", v.app.kind)
 			return
 		}
-	} else {
+	case TaskDefinitionKind:
+		taskDefinition := selected.taskDefinition
+		if taskDefinition != nil {
+			v.app.taskDefinition = selected.taskDefinition
+			v.app.entityName = *selected.taskDefinition.TaskDefinitionArn
+		} else {
+			logger.Warnf("unexpected in changeSelectedValues kind: %s", v.app.kind)
+			return
+		}
+	default:
 		v.app.back()
 	}
 }
@@ -275,101 +269,4 @@ func (v *View) openInBrowser() {
 		logger.Warnf("Failed to open url %s\n", url)
 		v.app.Notice.Warnf("Failed to open url %s\n", url)
 	}
-}
-
-func (v *View) editTaskDefinition() {
-	// get td detail
-	selected, err := v.getCurrentSelection()
-	if err != nil {
-		v.app.Notice.Warn("Failed to editTaskDefinition")
-		logger.Warnf("Failed to editTaskDefinition, err: %v", err)
-		return
-	}
-	taskDefinition := *selected.task.TaskDefinitionArn
-	td, err := v.app.Store.DescribeTaskDefinition(&taskDefinition)
-	if err != nil {
-		logger.Warnf("Failed to describe task definition, err: %v", err)
-		v.app.Notice.Warnf("Failed to describe task definition, err: %v", err)
-		return
-	}
-	names := strings.Split(selected.entityName, "/")
-
-	// create tmp file open and defer close it
-	tmpfile, err := os.CreateTemp("", names[len(names)-1])
-	if err != nil {
-		logger.Warnf("Failed to create temporary file, err: %v", err)
-		v.app.Notice.Warnf("Failed to create temporary file, err: %v", err)
-		return
-	}
-	defer os.Remove(tmpfile.Name())
-	defer tmpfile.Close()
-
-	originalTD, err := json.MarshalIndent(td, "", "  ")
-	if err != nil {
-		logger.Warnf("Failed to read temporary file, err: %v", err)
-		v.app.Notice.Warnf("Failed to read temporary file, err: %v", err)
-		return
-	}
-
-	if _, err := tmpfile.Write(originalTD); err != nil {
-		logger.Warnf("Failed to write to temporary file, err: %v", err)
-		v.app.Notice.Warnf("Failed to write to temporary file, err: %v", err)
-		return
-	}
-
-	// Open the vi editor to allow the user to modify the JSON data.
-	bin := os.Getenv("EDITOR")
-	if bin == "" {
-		// if $EDITOR is empty use vi as default
-		bin = "vi"
-	}
-
-	v.app.Suspend(func() {
-		cmd := exec.Command(bin, tmpfile.Name())
-		cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, os.Stderr
-
-		if err := cmd.Run(); err != nil {
-			logger.Warnf("Failed to open editor, err: %v", err)
-			v.app.Notice.Warnf("Failed to open editor, err: %v", err)
-			return
-		}
-
-		editedTD, err := os.ReadFile(tmpfile.Name())
-		if err != nil {
-			logger.Warnf("Failed to read temporary file, err: %v", err)
-			v.app.Notice.Warnf("Failed to read temporary file, err: %v", err)
-			return
-		}
-
-		// remove edited empty line
-		if editedTD[len(editedTD)-1] == '\n' {
-			originalTD = append(originalTD, '\n')
-		}
-
-		// if no change do nothing
-		if bytes.Equal(originalTD, editedTD) {
-			v.app.Notice.Info("Task definition has no change")
-			return
-		}
-
-		var updatedTd ecs.RegisterTaskDefinitionInput
-		if err := json.Unmarshal(editedTD, &updatedTd); err != nil {
-			logger.Warnf("Failed to unmarshal JSON, err: %v", err)
-			v.app.Notice.Warnf("Failed to unmarshal JSON, err: %v", err)
-			return
-		}
-
-		register := func() {
-			family, revision, err := v.app.Store.RegisterTaskDefinition(&updatedTd)
-
-			if err != nil {
-				logger.Warnf("Failed to open editor, err: %v", err)
-				v.app.Notice.Warnf("Failed to open editor, err: %v", err)
-				return
-			}
-			v.app.Notice.Infof("Success TaskDefinition Family: %s, Revision: %d", family, revision)
-		}
-
-		v.showTaskDefinitionConfirm(register)
-	})
 }

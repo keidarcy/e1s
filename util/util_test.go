@@ -102,3 +102,33 @@ func TextBuildMeterText(t *testing.T) {
 	}
 
 }
+
+func TestGetRegistryInfo(t *testing.T) {
+	tests := []struct {
+		imageURL          string
+		expectedRegistry  string
+		expectedImageName string
+	}{
+		{"ubuntu:latest", "Docker Hub", "ubuntu:latest"},
+		{"ubuntu:1234567890", "Docker Hub", "ubuntu:12345678..."},
+		{"123456789012.dkr.ecr.region.amazonaws.com/my-image:tag", "Amazon ECR", "my-image:tag"},
+		{"public.ecr.aws/username/my-image:tag", "Amazon ECR Public", "username/my-image:tag"},
+		{"gcr.io/my-project/my-image:tag", "Google GCR", "my-project/my-image:tag"},
+		{"myregistry.azurecr.io/my-image:tag", "Azure ACR", "my-image:tag"},
+		{"registry.gitlab.com/my-group/my-project/my-image:tag", "GitLab", "my-group/my-project/my-image:tag"},
+		{"ghcr.io/username/my-image:tag", "GitHub", "username/my-image:tag"},
+		{"quay.io/username/my-image:tag", "Quay", "username/my-image:tag"},
+	}
+
+	for _, test := range tests {
+		t.Run(test.imageURL, func(t *testing.T) {
+			registry, imageName := ImageInfo(&test.imageURL)
+			if registry != test.expectedRegistry {
+				t.Errorf("getRegistryInfo(%q) got registry %q, want %q", test.imageURL, registry, test.expectedRegistry)
+			}
+			if imageName != test.expectedImageName {
+				t.Errorf("getRegistryInfo(%q) got image name %q, want %q", test.imageURL, imageName, test.expectedImageName)
+			}
+		})
+	}
+}

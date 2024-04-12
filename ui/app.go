@@ -1,7 +1,6 @@
 package ui
 
 import (
-	"sync"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -22,16 +21,15 @@ var logger *logrus.Logger
 
 // Entity contains ECS resources to show
 type Entity struct {
-	cluster                 *types.Cluster
-	service                 *types.Service
-	task                    *types.Task
-	container               *types.Container
-	taskDefinition          *types.TaskDefinition
-	events                  []types.ServiceEvent
-	taskDefinitionRevisions api.TaskDefinitionRevision
-	metrics                 *api.MetricsData
-	autoScaling             *api.AutoScalingData
-	entityName              string
+	cluster        *types.Cluster
+	service        *types.Service
+	task           *types.Task
+	container      *types.Container
+	taskDefinition *types.TaskDefinition
+	events         []types.ServiceEvent
+	metrics        *api.MetricsData
+	autoScaling    *api.AutoScalingData
+	entityName     string
 }
 
 type Option struct {
@@ -107,8 +105,6 @@ func newApp(option Option) (*App, error) {
 		},
 	}, nil
 }
-
-var rowIndexMutex sync.Mutex
 
 // Entry point of the app
 func Start(option Option) error {
@@ -222,6 +218,7 @@ func (app *App) start() error {
 				<-ticker.C
 				if app.secondaryKind == EmptyKind {
 					app.showPrimaryKindPage(app.kind, true)
+					logger.Debug("Auto refresh")
 					app.Application.Draw()
 				}
 			}
@@ -233,19 +230,18 @@ func (app *App) start() error {
 // Show Primary kind page
 func (app *App) showPrimaryKindPage(k Kind, reload bool) error {
 	var err error
+	app.kind = k
 	switch k {
 	case ClusterKind:
-		app.kind = ClusterKind
 		err = app.showClustersPage(reload)
 	case ServiceKind:
-		app.kind = ServiceKind
 		err = app.showServicesPage(reload)
 	case TaskKind:
-		app.kind = TaskKind
 		err = app.showTasksPages(reload)
 	case ContainerKind:
-		app.kind = ContainerKind
 		err = app.showContainersPage(reload)
+	case TaskDefinitionKind:
+		err = app.showTaskDefinitionPage(reload)
 	default:
 		app.kind = ClusterKind
 		err = app.showClustersPage(reload)
@@ -257,7 +253,7 @@ func (app *App) showPrimaryKindPage(k Kind, reload bool) error {
 	if !reload {
 		app.Notice.Infof("Viewing %s...", app.kind.String())
 	} else {
-		logger.Debugf("Reload in showPrimaryKindPage: %v", reload)
+		logger.Debug("Reload in showPrimaryKindPage")
 	}
 	return nil
 }

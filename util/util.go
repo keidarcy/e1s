@@ -216,3 +216,91 @@ func ShowVersion() string {
 
 	return fmt.Sprintf("\nCurrent: v%s\nLatest: v%s%s", AppVersion, latestVersion, message)
 }
+
+func Age(t *time.Time) string {
+	if t == nil {
+		return EmptyText
+	}
+	now := time.Now()
+	if now.Before(*t) {
+		return "0s"
+	}
+	duration := now.Sub(*t)
+
+	if years := int(duration.Hours() / 24 / 365); years > 0 {
+		return fmt.Sprintf("%dy", years)
+	}
+	if months := int(duration.Hours() / 24 / 30); months > 0 {
+		return fmt.Sprintf("%dmo", months)
+	}
+	if weeks := int(duration.Hours() / 24 / 7); weeks > 0 {
+		return fmt.Sprintf("%dw", weeks)
+	}
+	if days := int(duration.Hours() / 24); days > 0 {
+		return fmt.Sprintf("%dd", days)
+	}
+	if hours := int(duration.Hours()); hours > 0 {
+		return fmt.Sprintf("%dh", hours)
+	}
+	if minutes := int(duration.Minutes()); minutes > 0 {
+		return fmt.Sprintf("%dm", minutes)
+	}
+	return fmt.Sprintf("%ds", int(duration.Seconds()))
+}
+
+// Return docker image registry and image name with tag
+func ImageInfo(imageURL *string) (string, string) {
+	if imageURL == nil {
+		return EmptyText, EmptyText
+	}
+	url := *imageURL
+	// Map of known registry domains to their short names
+	registryMap := map[string]string{
+		"docker.io":           "Docker Hub",
+		"ecr.aws":             "Amazon ECR Public",
+		".amazonaws.com":      "Amazon ECR",
+		"gcr.io":              "Google GCR",
+		"azurecr.io":          "Azure ACR",
+		"registry.gitlab.com": "GitLab",
+		"ghcr.io":             "GitHub",
+		"quay.io":             "Quay",
+	}
+
+	// Default registry short name
+	defaultRegistry := "Docker Hub"
+
+	// Extract the domain and path from the image URL
+	domain := url
+	path := ""
+	if strings.Contains(url, "/") {
+		parts := strings.SplitN(url, "/", 2)
+		domain = parts[0]
+		path = parts[1]
+	} else {
+		// If there's no '/', it's an official image on Docker Hub
+		path = url
+		domain = "docker.io"
+	}
+
+	// Check for known registries by domain
+	registryShortName := defaultRegistry
+	for key, shortName := range registryMap {
+		if strings.Contains(domain, key) {
+			registryShortName = shortName
+			break
+		}
+	}
+
+	if strings.Contains(path, ":") {
+		parts := strings.SplitN(path, ":", 2)
+		imageName := parts[0]
+		tag := parts[1]
+		if len(tag) > 8 {
+			tag = tag[:8] + "..."
+		}
+		path = imageName + ":" + tag
+	}
+
+	// Return the registry short name and the image name with tag
+	return registryShortName, path
+}

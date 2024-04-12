@@ -2,7 +2,11 @@ package ui
 
 import (
 	"fmt"
+	"os"
+	"os/exec"
+	"os/signal"
 	"strings"
+	"syscall"
 
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
 	"github.com/keidarcy/e1s/util"
@@ -19,10 +23,11 @@ func newContainerView(containers []types.Container, app *App) *ContainerView {
 		{key: "shift-f", description: portForwarding},
 		{key: "shift-t", description: terminatePortForwardingSession},
 		{key: "enter", description: sshContainer},
+		{key: "ctrl-d", description: exitContainer},
 	}...)
 	return &ContainerView{
 		View: *newView(app, keys, secondaryPageKeyMap{
-			DescriptionKind: descriptionPageKeys,
+			DescriptionKind: describePageKeys,
 		}),
 		containers: containers,
 	}
@@ -132,7 +137,8 @@ func (v *ContainerView) tableParam() (title string, headers []string, dataBuilde
 		"Health status ▾",
 		"PF",
 		"Container runtime id",
-		"Image URI",
+		"Registry",
+		"Image name",
 	}
 
 	dataBuilder = func() (data [][]string) {
@@ -150,17 +156,77 @@ func (v *ContainerView) tableParam() (title string, headers []string, dataBuilde
 			}
 			health := string(c.HealthStatus)
 
+			registry, imageName := util.ImageInfo(c.Image)
+
 			row := []string{}
 			row = append(row, util.ShowString(c.Name))
 			row = append(row, util.ShowGreenGrey(c.LastStatus, "running"))
 			row = append(row, util.ShowGreenGrey(&health, "healthy"))
 			row = append(row, portText)
 			row = append(row, util.ShowString(c.RuntimeId))
-			row = append(row, util.ShowString(c.Image))
+			row = append(row, registry)
+			row = append(row, imageName)
 			data = append(data, row)
 		}
 		return data
 	}
 
 	return
+}
+
+// SSH into selected container
+func (v *View) ssh(containerName string) {
+	if v.app.kind != ContainerKind {
+		v.app.Notice.Warn("Invalid operation")
+		return
+	}
+	if v.app.ReadOnly {
+		v.app.Notice.Warn("No ecs exec permission in read only e1s mode")
+		return
+	}
+
+	// catch ctrl+C & SIGTERM
+	interrupt := make(chan os.Signal, 1)
+	signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM)
+
+	bin, err := exec.LookPath(awsCli)
+	if err != nil {
+		logger.Warnf("Failed to find %s path, please check %s", awsCli, "https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html")
+		v.app.Notice.Warnf("Failed to find %s path, please check %s", awsCli, "https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html")
+		v.app.back()
+	}
+
+	_, err = exec.LookPath(smpCi)
+	if err != nil {
+		logger.Warnf("Failed to find %s path, please check %s", smpCi, "https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html")
+		v.app.Notice.Warnf("Failed to find %s path, please check %s", smpCi, "https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html")
+		v.app.back()
+	}
+
+	args := []string{
+		"ecs",
+		"execute-command",
+		"--cluster",
+		*v.app.cluster.ClusterName,
+		"--task",
+		*v.app.task.TaskArn,
+		"--container",
+		containerName,
+		"--interactive",
+		"--command",
+		shell,
+	}
+
+	logger.Infof("Exec: `%s %s`", awsCli, strings.Join(args, " "))
+
+	v.app.Suspend(func() {
+		cmd := exec.Command(bin, args...)
+		cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, os.Stderr
+		// ignore the stderr from ssh server
+		_, err = cmd.Stdout.Write([]byte(fmt.Sprintf(sshBannerFmt, *v.app.cluster.ClusterName, *v.app.service.ServiceName, util.ArnToName(v.app.task.TaskArn), containerName)))
+		err = cmd.Run()
+		// return signal
+		signal.Stop(interrupt)
+		close(interrupt)
+	})
 }

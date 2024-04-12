@@ -103,7 +103,7 @@ Use `ctrl` + `d` to exit ssh session.
 | ---- | ----- | ---- | ---- |
 | `--debug` | `-d` | sets debug mode | false |
 | `--json` | `-j` | log output json format | false |
-| `--log-file-path` | `-j` | custom e1s log file path | ${TMPDIR}e1s.log |
+| `--log-file-path` | `-l` | custom e1s log file path | ${TMPDIR}e1s.log |
 | `--readonly` |  | sets read only mode | false |
 | `--refresh` | `-r` | specify the default refresh rate as an integer (sec) (default 30, set -1 to stop auto refresh) | 30 |
 
@@ -135,19 +135,19 @@ $ e1s --readonly --debug --refresh -1 --log-file-path /tmp/e1s.log --json
 | `↓`, `j`  | Select next item |
 | `↑`, `k`  | Select previous item |
 | `→`, `Enter` | Enter current resource/SSH |
-| `←`, `Esc`, `ctrl` + `z` | Go to previous view |
-| `d` | Describe selected resource(show json) |
-| `t` | Describe task definition |
+| `←`, `Esc`, `ctrl` + `z` | Back |
+| `d` | Describe |
 | `w` | Describe service events |
-| `a` | Show service auto scaling |
-| `m` | Show service metrics(CPUUtilization/MemoryUtilization) |
+| `a` | Describe service auto scaling |
+| `t` | Show task definition |
+| `m` | Show metrics(CPU/Memory) |
 | `l` | Show cloudwatch logs(Only support awslogs logDriver) |
 | `r` | Realtime log streaming(Only support one log group) |
-| `v` | List task definition revisions |
 | `f` | Toggle full screen |
-| `e` | Edit resource |
-| `b` | Open selected resource in AWS web console |
+| `b` | Open in browser |
+| `e` | Open in default editor |
 | `ctrl` + `c` | Quit |
+| `shift` + `u` | Update service |
 | `ctrl` + `d` | Exit from container |
 | `ctrl` + `r` | Reload resources |
 | `shift` + `f` | Start port forwarding session |

@@ -17,17 +17,12 @@ type TaskView struct {
 
 func newTaskView(tasks []types.Task, app *App) *TaskView {
 	keys := append(basicKeyInputs, []KeyInput{
-		{key: string(tKey), description: describeTaskDefinition},
-		{key: string(vKey), description: describeTaskDefinitionRevisions},
-		{key: string(eKey), description: editTaskDefinition},
-		{key: string(lKey), description: showLogs},
+		{key: string(tKey), description: showTaskDefinitions},
 	}...)
 	return &TaskView{
 		View: *newView(app, keys, secondaryPageKeyMap{
-			DescriptionKind:             descriptionPageKeys,
-			LogKind:                     logPageKeys,
-			TaskDefinitionKind:          descriptionPageKeys,
-			TaskDefinitionRevisionsKind: descriptionPageKeys,
+			DescriptionKind: describePageKeys,
+			LogKind:         logPageKeys,
 		}),
 		tasks: tasks,
 	}
@@ -160,12 +155,12 @@ func (v *TaskView) tableParam() (title string, headers []string, dataBuilder fun
 		"Last status",
 		"Desired status",
 		"Task definition",
-		"Started at",
 		"Containers",
 		"Health status",
 		"Launch type",
 		"CPU",
 		"Memory",
+		"Age",
 	}
 	dataBuilder = func() (data [][]string) {
 		for _, t := range v.tasks {
@@ -177,12 +172,12 @@ func (v *TaskView) tableParam() (title string, headers []string, dataBuilder fun
 			row = append(row, util.ShowGreenGrey(t.LastStatus, "running"))
 			row = append(row, util.ShowGreenGrey(t.DesiredStatus, "running"))
 			row = append(row, util.ArnToName(t.TaskDefinitionArn))
-			row = append(row, util.ShowTime(t.StartedAt))
 			row = append(row, strconv.Itoa(len(t.Containers)))
 			row = append(row, util.ShowGreenGrey(&health, "healthy"))
 			row = append(row, string(t.LaunchType))
 			row = append(row, util.ShowString(t.Cpu))
 			row = append(row, util.ShowString(t.Memory))
+			row = append(row, util.Age(t.StartedAt))
 			data = append(data, row)
 		}
 		return data

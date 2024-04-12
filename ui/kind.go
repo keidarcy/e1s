@@ -8,7 +8,6 @@ const (
 	TaskKind
 	ContainerKind
 	TaskDefinitionKind
-	TaskDefinitionRevisionsKind
 	DescriptionKind
 	ServiceEventsKind
 	LogKind
@@ -30,11 +29,9 @@ func (k Kind) String() string {
 	case DescriptionKind:
 		return "description"
 	case TaskDefinitionKind:
-		return "taskDefinition"
-	case TaskDefinitionRevisionsKind:
-		return "taskDefinitionRevisions"
+		return "task definitions"
 	case ServiceEventsKind:
-		return "serviceEvents"
+		return "service events"
 	case LogKind:
 		return "logs"
 	case AutoScalingKind:
@@ -65,7 +62,7 @@ func (k Kind) prevKind() Kind {
 		return ClusterKind
 	case ServiceKind:
 		return ClusterKind
-	case TaskKind:
+	case TaskKind, TaskDefinitionKind:
 		return ServiceKind
 	case ContainerKind:
 		return TaskKind
@@ -104,7 +101,14 @@ func (k Kind) getContentPageName(name string) string {
 
 type secondaryPageKeyMap = map[Kind][]KeyInput
 
-var descriptionPageKeys = []KeyInput{
+var describePageKeys = []KeyInput{
+	{key: string(fKey), description: toggleFullScreen},
+	{key: string(bKey), description: openInBrowser},
+	{key: string(eKey), description: openInEditor},
+	{key: ctrlZ, description: backToPrevious},
+}
+
+var otherDescribePageKeys = []KeyInput{
 	{key: string(fKey), description: toggleFullScreen},
 	{key: string(bKey), description: openInBrowser},
 	{key: ctrlZ, description: backToPrevious},
