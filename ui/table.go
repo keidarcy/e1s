@@ -190,7 +190,7 @@ func (v *View) changeSelectedValues() {
 		cluster := selected.cluster
 		if cluster != nil {
 			v.app.cluster = cluster
-			v.app.entityName = *selected.cluster.ClusterArn
+			v.app.entityName = *cluster.ClusterArn
 		} else {
 			logger.Warnf("unexpected in changeSelectedValues kind: %s", v.app.kind)
 			return
@@ -199,7 +199,7 @@ func (v *View) changeSelectedValues() {
 		service := selected.service
 		if service != nil {
 			v.app.service = service
-			v.app.entityName = *selected.service.ServiceArn
+			v.app.entityName = *service.ServiceArn
 		} else {
 			logger.Warnf("unexpected in changeSelectedValues kind: %s", v.app.kind)
 			return
@@ -209,7 +209,7 @@ func (v *View) changeSelectedValues() {
 		if task != nil {
 
 			v.app.task = task
-			v.app.entityName = *selected.task.TaskArn
+			v.app.entityName = *task.TaskArn
 		} else {
 			logger.Warnf("unexpected in changeSelectedValues kind: %s", v.app.kind)
 			return
@@ -218,7 +218,7 @@ func (v *View) changeSelectedValues() {
 		container := selected.container
 		if container != nil {
 			v.app.container = selected.container
-			v.app.entityName = *selected.container.ContainerArn
+			v.app.entityName = *container.ContainerArn
 		} else {
 			logger.Warnf("unexpected in changeSelectedValues kind: %s", v.app.kind)
 			return
@@ -227,7 +227,7 @@ func (v *View) changeSelectedValues() {
 		taskDefinition := selected.taskDefinition
 		if taskDefinition != nil {
 			v.app.taskDefinition = selected.taskDefinition
-			v.app.entityName = *selected.taskDefinition.TaskDefinitionArn
+			v.app.entityName = *taskDefinition.TaskDefinitionArn
 		} else {
 			logger.Warnf("unexpected in changeSelectedValues kind: %s", v.app.kind)
 			return
