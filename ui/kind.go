@@ -82,6 +82,8 @@ func (k Kind) getAppPageName(name string) string {
 		return k.String() + "." + name
 	case ContainerKind:
 		return k.String() + "." + name
+	case TaskDefinitionKind:
+		return k.String() + "." + name
 	case DescriptionKind:
 		return k.String() + "." + name
 	default:

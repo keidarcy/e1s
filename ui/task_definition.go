@@ -2,6 +2,7 @@ package ui
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
 	"github.com/keidarcy/e1s/util"
@@ -154,11 +155,33 @@ func (v *TaskDefinitionView) tableParam() (title string, headers []string, dataB
 				inUse = "True"
 			}
 
+			var cpu string
+			if t.Cpu == nil {
+				sum := 0
+				for _, c := range t.ContainerDefinitions {
+					sum += int(c.Cpu)
+				}
+				cpu = strconv.Itoa(sum)
+			} else {
+				cpu = *t.Cpu
+			}
+
+			var memory string
+			if t.Memory == nil {
+				sum := 0
+				for _, c := range t.ContainerDefinitions {
+					sum += int(*c.Memory)
+				}
+				memory = strconv.Itoa(sum)
+			} else {
+				memory = *t.Memory
+			}
+
 			row := []string{}
 			row = append(row, util.ArnToName(t.TaskDefinitionArn))
 			row = append(row, util.ShowGreenGrey(&inUse, "true"))
-			row = append(row, util.ShowString(t.Cpu))
-			row = append(row, util.ShowString(t.Memory))
+			row = append(row, cpu)
+			row = append(row, memory)
 			row = append(row, util.Age(t.RegisteredAt))
 			data = append(data, row)
 		}

@@ -166,6 +166,18 @@ resource "aws_iam_role" "task_role" {
             Resource = "*"
             Sid      = "UseECSExec"
           },
+          {
+            Action = [
+              "ssm:GetParameters",
+              "ssm:GetParameter",
+              "logs:PutLogEvents",
+              "logs:CreateLogStream",
+              "logs:CreateLogGroup",
+              "kms:Decrypt",
+            ],
+            Effect = "Allow",
+            Resource : "*",
+          }
         ])
         Version = "2012-10-17"
       }
