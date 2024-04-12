@@ -214,7 +214,7 @@ func (v *View) ssh(containerName string) {
 		containerName,
 		"--interactive",
 		"--command",
-		shell,
+		v.app.Option.Shell,
 	}
 
 	logger.Infof("Exec: `%s %s`", awsCli, strings.Join(args, " "))

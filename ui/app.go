@@ -39,6 +39,8 @@ type Option struct {
 	Logger *logrus.Logger
 	// Reload resources every x second(s), -1 is stop auto refresh
 	Refresh int
+	// ECS exec ssh shell
+	Shell string
 }
 
 // tview App
