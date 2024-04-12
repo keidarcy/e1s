@@ -17,6 +17,7 @@ var (
 	logFilePath string
 	json        bool
 	refresh     int
+	shell       string
 )
 
 func init() {
@@ -27,6 +28,7 @@ func init() {
 	rootCmd.Flags().StringVarP(&logFilePath, "log-file-path", "l", defaultLogFilePath, "specify the log file path")
 	rootCmd.Flags().BoolVar(&readOnly, "readonly", false, "sets readOnly mode")
 	rootCmd.Flags().IntVarP(&refresh, "refresh", "r", 30, "specify the default refresh rate as an integer (sec) (default 30, set -1 to stop auto refresh)")
+	rootCmd.Flags().StringVarP(&shell, "shell", "s", "/bin/sh", "specify ecs exec ssh shell")
 }
 
 var rootCmd = &cobra.Command{
@@ -42,6 +44,7 @@ Check https://github.com/keidarcy/e1s for more details.`,
 			ReadOnly: readOnly,
 			Logger:   logger,
 			Refresh:  refresh,
+			Shell:    shell,
 		}
 
 		if err := e1s.Start(option); err != nil {

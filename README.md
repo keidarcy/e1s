@@ -106,6 +106,7 @@ Use `ctrl` + `d` to exit ssh session.
 | `--log-file-path` | `-l` | custom e1s log file path | ${TMPDIR}e1s.log |
 | `--readonly` |  | sets read only mode | false |
 | `--refresh` | `-r` | specify the default refresh rate as an integer (sec) (default 30, set -1 to stop auto refresh) | 30 |
+| `--shell` | `-s` | specify ecs exec ssh shell | /bin/sh |
 
 
 Make sure you have the AWS CLI installed and properly configured with the necessary permissions to access your ECS resources.
