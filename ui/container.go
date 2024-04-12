@@ -23,10 +23,11 @@ func newContainerView(containers []types.Container, app *App) *ContainerView {
 		{key: "shift-f", description: portForwarding},
 		{key: "shift-t", description: terminatePortForwardingSession},
 		{key: "enter", description: sshContainer},
+		{key: "ctrl-d", description: exitContainer},
 	}...)
 	return &ContainerView{
 		View: *newView(app, keys, secondaryPageKeyMap{
-			DescriptionKind: descriptionPageKeys,
+			DescriptionKind: describePageKeys,
 		}),
 		containers: containers,
 	}
@@ -136,7 +137,8 @@ func (v *ContainerView) tableParam() (title string, headers []string, dataBuilde
 		"Health status ▾",
 		"PF",
 		"Container runtime id",
-		"Image URI",
+		"Registry",
+		"Image name",
 	}
 
 	dataBuilder = func() (data [][]string) {
@@ -154,13 +156,16 @@ func (v *ContainerView) tableParam() (title string, headers []string, dataBuilde
 			}
 			health := string(c.HealthStatus)
 
+			registry, imageName := util.ImageInfo(c.Image)
+
 			row := []string{}
 			row = append(row, util.ShowString(c.Name))
 			row = append(row, util.ShowGreenGrey(c.LastStatus, "running"))
 			row = append(row, util.ShowGreenGrey(&health, "healthy"))
 			row = append(row, portText)
 			row = append(row, util.ShowString(c.RuntimeId))
-			row = append(row, util.ShowString(c.Image))
+			row = append(row, registry)
+			row = append(row, imageName)
 			data = append(data, row)
 		}
 		return data

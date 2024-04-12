@@ -68,8 +68,6 @@ func (store *Store) ListFullTaskDefinition(taskDefinition *string) ([]types.Task
 		return []types.TaskDefinition{}, err
 	}
 
-	logger.Info(list)
-
 	results := []types.TaskDefinition{}
 	g := new(errgroup.Group)
 

@@ -101,10 +101,16 @@ func (k Kind) getContentPageName(name string) string {
 
 type secondaryPageKeyMap = map[Kind][]KeyInput
 
-var descriptionPageKeys = []KeyInput{
+var describePageKeys = []KeyInput{
 	{key: string(fKey), description: toggleFullScreen},
 	{key: string(bKey), description: openInBrowser},
 	{key: string(eKey), description: openInEditor},
+	{key: ctrlZ, description: backToPrevious},
+}
+
+var otherDescribePageKeys = []KeyInput{
+	{key: string(fKey), description: toggleFullScreen},
+	{key: string(bKey), description: openInBrowser},
 	{key: ctrlZ, description: backToPrevious},
 }
 

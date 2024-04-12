@@ -19,32 +19,29 @@ const (
 	serviceTasksFmt = "%d/%d Tasks running"
 	colorJSONFmt    = `%s"[steelblue::b]%s[-:-:-]": %s`
 
-	backToPrevious        = "Back"
-	describe              = "Describe selected resource"
-	describeServiceEvents = "Describe service events"
-	describeAutoScaling   = "Describe service auto scaling"
-	showTaskDefinitions   = "Show task definitions"
-	showMetrics           = "Show metrics(CPUUtilization/MemoryUtilization)"
-	showLogs              = "Show cloudwatch logs"
-
-	updateService                  = "Update Service"
-	reloadResource                 = "Reload Resources"
-	openInBrowser                  = "Open in browser"
-	openInEditor                   = "Open in default editor"
-	sshContainer                   = "SSH container"
-	portForwarding                 = "Port forwarding session"
-	terminatePortForwardingSession = "Terminate port forwarding session"
+	backToPrevious                 = "Back"
+	describe                       = "Describe"
+	describeServiceEvents          = "Describe service events"
+	describeAutoScaling            = "Describe service auto scaling"
+	showTaskDefinitions            = "Show task definitions"
+	showMetrics                    = "Show metrics(CPU/Memory)"
+	showLogs                       = "Show cloudwatch logs(Only support awslogs logDriver)"
+	realtimeLog                    = "Realtime log streaming(Only support one log group)"
 	toggleFullScreen               = "Toggle full screen"
-	realtimeLog                    = "Cloudwatch realtime logs(only support one log group)"
+	updateService                  = "Update service"
+	openInEditor                   = "Open in default editor"
+	openInBrowser                  = "Open in browser"
+	reloadResource                 = "Reload resources"
+	portForwarding                 = "Start port forwarding session"
+	terminatePortForwardingSession = "Terminate port forwarding session"
+	sshContainer                   = "SSH container"
+	exitContainer                  = "Exit from container"
 
-	// shell        = "/bin/sh -c \"if [ -x /bin/bash ]; then exec /bin/bash; else exec /bin/sh; fi\""
 	shell          = "/bin/sh"
 	awsCli         = "aws"
 	smpCi          = "session-manager-plugin"
 	sshBannerFmt   = "\033[1;31m<<E1S-ECS-EXEC>>\033[0m: \n#######################################\n\033[1;32mCluster\033[0m: \"%s\" \n\033[1;32mService\033[0m: \"%s\" \n\033[1;32mTask\033[0m: \"%s\" \n\033[1;32mContainer\033[0m: \"%s\"\n#######################################\n"
 	realtimeLogFmt = "\033[1;31m<<E1S-LOGS-TAIL>>\033[0m: \n#######################################\n\033[1;32mCluster\033[0m: \"%s\" \n\033[1;32mService\033[0m: \"%s\" \n\033[1;32mLogGroup\033[0m: \"%s\"\n#######################################\n"
-
-	reloadText = "Reloaded"
 )
 
 const (
@@ -153,7 +150,7 @@ func (v *View) getCurrentSelection() (Entity, error) {
 // Reload current resource
 func (v *View) reloadResource(reloadNotice bool) error {
 	if reloadNotice {
-		v.app.Notice.Info(reloadText)
+		v.app.Notice.Info("Reloaded")
 	}
 	v.showKindPage(v.app.kind, true)
 	return nil
@@ -229,7 +226,7 @@ func (v *View) handleContentPageSwitch(entity Entity, colorizedJsonString string
 				v.realtimeAwsLog(entity)
 			}
 		case eKey:
-			if v.app.secondaryKind == DescriptionKind {
+			if v.app.secondaryKind == DescriptionKind || v.app.secondaryKind == AutoScalingKind {
 				v.openInEditor(jsonBytes)
 			}
 		}

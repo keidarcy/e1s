@@ -218,6 +218,7 @@ func (app *App) start() error {
 				<-ticker.C
 				if app.secondaryKind == EmptyKind {
 					app.showPrimaryKindPage(app.kind, true)
+					logger.Debug("Auto refresh")
 					app.Application.Draw()
 				}
 			}
@@ -252,7 +253,7 @@ func (app *App) showPrimaryKindPage(k Kind, reload bool) error {
 	if !reload {
 		app.Notice.Infof("Viewing %s...", app.kind.String())
 	} else {
-		logger.Debugf("Reload in showPrimaryKindPage: %v", reload)
+		logger.Debug("Reload in showPrimaryKindPage")
 	}
 	return nil
 }

@@ -17,7 +17,7 @@ func newTaskDefinitionView(taskDefinitions []types.TaskDefinition, app *App) *Ta
 	keys := append(basicKeyInputs, []KeyInput{}...)
 	return &TaskDefinitionView{
 		View: *newView(app, keys, secondaryPageKeyMap{
-			DescriptionKind: descriptionPageKeys,
+			DescriptionKind: describePageKeys,
 		}),
 		taskDefinitions: taskDefinitions,
 	}
@@ -102,11 +102,29 @@ func (v *TaskDefinitionView) infoPagesParam(t types.TaskDefinition) (items []Inf
 		requiresCompatibilities = append(requiresCompatibilities, string(r))
 	}
 
+	volumes := []string{}
+	for _, v := range t.Volumes {
+		volumes = append(volumes, *v.Name)
+	}
+
+	containers := []string{}
+	for _, c := range t.ContainerDefinitions {
+		containers = append(containers, *c.Name)
+	}
+
+	placements := []string{}
+	for _, p := range t.PlacementConstraints {
+		placements = append(placements, string(p.Type))
+	}
+
 	items = []InfoItem{
 		{name: "Revision", value: util.ArnToName(t.TaskDefinitionArn)},
-		{name: "Task Role", value: util.ShowString(t.TaskRoleArn)},
-		{name: "Execution Role", value: util.ShowString(t.ExecutionRoleArn)},
-		{name: "Network Mode", value: string(t.NetworkMode)},
+		{name: "Task role", value: util.ShowString(t.TaskRoleArn)},
+		{name: "Execution role", value: util.ShowString(t.ExecutionRoleArn)},
+		{name: "Network mode", value: string(t.NetworkMode)},
+		{name: "Volumes", value: util.ShowArray(volumes)},
+		{name: "Containers", value: util.ShowArray(containers)},
+		{name: "Placement constraints", value: util.ShowArray(placements)},
 		{name: "Status", value: string(t.Status)},
 		{name: "Compatibilities", value: util.ShowArray(compatibilities)},
 		{name: "Requires Compatibilities", value: util.ShowArray(requiresCompatibilities)},
@@ -123,10 +141,10 @@ func (v *TaskDefinitionView) tableParam() (title string, headers []string, dataB
 	title = fmt.Sprintf(nsTitleFmt, v.app.kind, *v.app.service.ServiceName, len(v.taskDefinitions))
 	headers = []string{
 		"Revision ▾",
-		"In Use",
+		"In use",
 		"Cpu",
 		"Memory",
-		"Registered At",
+		"Age",
 	}
 
 	dataBuilder = func() (data [][]string) {
@@ -141,7 +159,7 @@ func (v *TaskDefinitionView) tableParam() (title string, headers []string, dataB
 			row = append(row, util.ShowGreenGrey(&inUse, "true"))
 			row = append(row, util.ShowString(t.Cpu))
 			row = append(row, util.ShowString(t.Memory))
-			row = append(row, util.ShowTime(t.RegisteredAt))
+			row = append(row, util.Age(t.RegisteredAt))
 			data = append(data, row)
 		}
 		return data

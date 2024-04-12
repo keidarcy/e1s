@@ -18,19 +18,19 @@ type ServiceView struct {
 
 func newServiceView(services []types.Service, app *App) *ServiceView {
 	keys := append(basicKeyInputs, []KeyInput{
+		{key: string("shift-u"), description: updateService},
 		{key: string(wKey), description: describeServiceEvents},
 		{key: string(tKey), description: showTaskDefinitions},
 		{key: string(mKey), description: showMetrics},
 		{key: string(aKey), description: describeAutoScaling},
 		{key: string(lKey), description: showLogs},
-		{key: string("shift-u"), description: updateService},
 	}...)
 	return &ServiceView{
 		View: *newView(app, keys, secondaryPageKeyMap{
-			DescriptionKind:   descriptionPageKeys,
+			DescriptionKind:   describePageKeys,
 			LogKind:           logPageKeys,
-			AutoScalingKind:   descriptionPageKeys,
-			ServiceEventsKind: descriptionPageKeys,
+			AutoScalingKind:   describePageKeys,
+			ServiceEventsKind: otherDescribePageKeys,
 		}),
 		services: services,
 	}
@@ -192,6 +192,7 @@ func (v *ServiceView) tableParam() (title string, headers []string, dataBuilder 
 		"Last deployment",
 		"Execute command",
 		"Task definition",
+		"Age",
 	}
 	dataBuilder = func() (data [][]string) {
 		for _, s := range v.services {
@@ -202,9 +203,20 @@ func (v *ServiceView) tableParam() (title string, headers []string, dataBuilder 
 
 			// last deployment
 			lastDeployment := ""
+			// last update time
+			var lastUpdateTime *time.Time
+
 			if len(s.Deployments) > 0 {
 				rollout := string(s.Deployments[0].RolloutState)
 				lastDeployment += fmt.Sprintf("%s - %s", util.ShowGreenGrey(&rollout, "completed"), s.Deployments[0].UpdatedAt.Format(time.RFC3339))
+
+				lastUpdateTime = s.Deployments[0].UpdatedAt
+			}
+
+			// enable execute command
+			enableExecuteCommand := "False"
+			if s.EnableExecuteCommand {
+				enableExecuteCommand = "True"
 			}
 
 			row = append(row, util.ShowString(s.ServiceName))
@@ -212,8 +224,9 @@ func (v *ServiceView) tableParam() (title string, headers []string, dataBuilder 
 			row = append(row, tasks)
 			row = append(row, util.ShowInt(&s.PendingCount))
 			row = append(row, lastDeployment)
-			row = append(row, strconv.FormatBool(s.EnableExecuteCommand))
-			row = append(row, util.ShowString(s.TaskDefinition))
+			row = append(row, util.ShowGreenGrey(&enableExecuteCommand, "true"))
+			row = append(row, util.ArnToName(s.TaskDefinition))
+			row = append(row, util.Age(lastUpdateTime))
 			data = append(data, row)
 		}
 		return data
