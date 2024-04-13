@@ -21,7 +21,7 @@ type want struct {
 	containerName string
 }
 
-func getClusterViews() []ClusterView {
+func getClusterViews() []clusterView {
 	cluster1 := types.Cluster{}
 	cluster1.ClusterName = aws.String(clusterName1)
 
@@ -32,7 +32,7 @@ func getClusterViews() []ClusterView {
 	clusterView1 := newClusterView([]types.Cluster{cluster1}, app)
 	clusterView2 := newClusterView([]types.Cluster{cluster2}, app)
 
-	return []ClusterView{*clusterView1, *clusterView2}
+	return []clusterView{*clusterView1, *clusterView2}
 }
 
 func TestClusterPageParams(t *testing.T) {
@@ -40,7 +40,7 @@ func TestClusterPageParams(t *testing.T) {
 
 	testCases := []struct {
 		name string
-		view ClusterView
+		view clusterView
 		want want
 	}{
 		{
@@ -78,7 +78,7 @@ func TestClusterTableParam(t *testing.T) {
 
 	testCases := []struct {
 		name string
-		view ClusterView
+		view clusterView
 		want want
 	}{
 		{

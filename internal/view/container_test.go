@@ -12,7 +12,7 @@ var (
 	containerName2 = "container2"
 )
 
-func getContainerViews() []ContainerView {
+func getContainerViews() []containerView {
 	newContainer := func() types.Container {
 		return types.Container{}
 	}
@@ -35,7 +35,7 @@ func getContainerViews() []ContainerView {
 	ContainerView1 := newContainerView([]types.Container{container1}, app)
 	ContainerView2 := newContainerView([]types.Container{container2}, app)
 
-	return []ContainerView{*ContainerView1, *ContainerView2}
+	return []containerView{*ContainerView1, *ContainerView2}
 }
 
 func TestContainerPageParams(t *testing.T) {
@@ -43,7 +43,7 @@ func TestContainerPageParams(t *testing.T) {
 
 	testCases := []struct {
 		name string
-		view ContainerView
+		view containerView
 		want want
 	}{
 		{
@@ -79,7 +79,7 @@ func TestContainerTableParam(t *testing.T) {
 
 	testCases := []struct {
 		name string
-		view ContainerView
+		view containerView
 		want want
 	}{
 		{

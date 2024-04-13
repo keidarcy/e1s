@@ -10,17 +10,17 @@ import (
 	"github.com/rivo/tview"
 )
 
-type TaskView struct {
-	View
+type taskView struct {
+	view
 	tasks []types.Task
 }
 
-func newTaskView(tasks []types.Task, app *App) *TaskView {
+func newTaskView(tasks []types.Task, app *App) *taskView {
 	keys := append(basicKeyInputs, []keyInput{
 		{key: string(tKey), description: showTaskDefinitions},
 	}...)
-	return &TaskView{
-		View: *newView(app, keys, secondaryPageKeyMap{
+	return &taskView{
+		view: *newView(app, keys, secondaryPageKeyMap{
 			DescriptionKind: describePageKeys,
 			LogKind:         logPageKeys,
 		}),
@@ -29,7 +29,7 @@ func newTaskView(tasks []types.Task, app *App) *TaskView {
 }
 
 func (app *App) showTasksPages(reload bool) error {
-	if switched := app.SwitchPage(reload); switched {
+	if switched := app.switchPage(reload); switched {
 		return nil
 	}
 
@@ -55,7 +55,7 @@ func (app *App) showTasksPages(reload bool) error {
 }
 
 // Build info pages for task page
-func (v *TaskView) infoBuilder() *tview.Pages {
+func (v *taskView) infoBuilder() *tview.Pages {
 	for _, t := range v.tasks {
 		title := utils.ArnToName(t.TaskArn)
 		entityName := *t.TaskArn
@@ -73,7 +73,7 @@ func (v *TaskView) infoBuilder() *tview.Pages {
 }
 
 // Build table for task page
-func (v *TaskView) tableBuilder() *tview.Pages {
+func (v *taskView) tableBuilder() *tview.Pages {
 	title, headers, dataBuilder := v.tableParam()
 	v.buildTable(title, headers, dataBuilder)
 	v.tableHandler()
@@ -81,14 +81,14 @@ func (v *TaskView) tableBuilder() *tview.Pages {
 }
 
 // Build footer for task page
-func (v *TaskView) footerBuilder() *tview.Flex {
+func (v *taskView) footerBuilder() *tview.Flex {
 	v.footer.task.SetText(fmt.Sprintf(footerSelectedItemFmt, v.app.kind))
 	v.addFooterItems()
-	return v.footer.footer
+	return v.footer.footerFlex
 }
 
 // Handlers for task table
-func (v *TaskView) tableHandler() {
+func (v *taskView) tableHandler() {
 	for row, task := range v.tasks {
 		t := task
 		v.table.GetCell(row+1, 0).SetReference(Entity{task: &t, entityName: *t.TaskArn})
@@ -96,7 +96,7 @@ func (v *TaskView) tableHandler() {
 }
 
 // Generate info pages params
-func (v *TaskView) infoPagesParam(t types.Task) (items []infoItem) {
+func (v *taskView) infoPagesParam(t types.Task) (items []infoItem) {
 	// containers
 	containers := []string{}
 	for _, c := range t.Containers {
@@ -148,7 +148,7 @@ func (v *TaskView) infoPagesParam(t types.Task) (items []infoItem) {
 }
 
 // Generate table params
-func (v *TaskView) tableParam() (title string, headers []string, dataBuilder func() [][]string) {
+func (v *taskView) tableParam() (title string, headers []string, dataBuilder func() [][]string) {
 	title = fmt.Sprintf(nsTitleFmt, v.app.kind, *v.app.service.ServiceName, len(v.tasks))
 	headers = []string{
 		"Task ID ▾",

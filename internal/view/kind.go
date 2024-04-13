@@ -1,9 +1,9 @@
 package view
 
-type Kind int
+type kind int
 
 const (
-	ClusterKind Kind = iota
+	ClusterKind kind = iota
 	ServiceKind
 	TaskKind
 	ContainerKind
@@ -16,7 +16,7 @@ const (
 	EmptyKind
 )
 
-func (k Kind) String() string {
+func (k kind) String() string {
 	switch k {
 	case ClusterKind:
 		return "clusters"
@@ -43,7 +43,7 @@ func (k Kind) String() string {
 	}
 }
 
-func (k Kind) nextKind() Kind {
+func (k kind) nextKind() kind {
 	switch k {
 	case ClusterKind:
 		return ServiceKind
@@ -56,7 +56,7 @@ func (k Kind) nextKind() Kind {
 	}
 }
 
-func (k Kind) prevKind() Kind {
+func (k kind) prevKind() kind {
 	switch k {
 	case ClusterKind:
 		return ClusterKind
@@ -72,7 +72,7 @@ func (k Kind) prevKind() Kind {
 }
 
 // App page name is kind string + "." + cluster arn
-func (k Kind) getAppPageName(name string) string {
+func (k kind) getAppPageName(name string) string {
 	switch k {
 	case ClusterKind:
 		return k.String()
@@ -91,12 +91,12 @@ func (k Kind) getAppPageName(name string) string {
 	}
 }
 
-func (k Kind) getTablePageName(name string) string {
+func (k kind) getTablePageName(name string) string {
 	pageName := k.getAppPageName(name)
 	return pageName + ".table"
 }
 
-func (k Kind) getContentPageName(name string) string {
+func (k kind) getContentPageName(name string) string {
 	pageName := k.getAppPageName(name)
 	return pageName + "." + DescriptionKind.String()
 }

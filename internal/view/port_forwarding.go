@@ -18,7 +18,7 @@ type PortForwardingSession struct {
 }
 
 // Get port forward form content
-func (v *View) portForwardingForm() (*tview.Form, string) {
+func (v *view) portForwardingForm() (*tview.Form, string) {
 	selected, err := v.getCurrentSelection()
 	if err != nil {
 		return nil, ""
@@ -137,7 +137,7 @@ func (v *View) portForwardingForm() (*tview.Form, string) {
 }
 
 // Show task definition register confirm modal
-func (v *View) showTerminatePortForwardingModal() {
+func (v *view) showTerminatePortForwardingModal() {
 	if v.app.kind != ContainerKind {
 		return
 	}
@@ -149,7 +149,7 @@ func (v *View) showTerminatePortForwardingModal() {
 }
 
 // Get task definition register content
-func (v *View) terminatePortForwardingContent() (*tview.Form, string) {
+func (v *view) terminatePortForwardingContent() (*tview.Form, string) {
 	selected, err := v.getCurrentSelection()
 	if err != nil {
 		return nil, ""

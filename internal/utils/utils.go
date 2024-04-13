@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -27,7 +28,7 @@ const (
 	serviceURLFmt = clusterFmt + serviceFmt + regionFmt
 	taskURLFmt    = clusterFmt + serviceFmt + taskFmt + regionFmt
 
-	AppVersion = "1.0.26"
+	AppVersion = "v1.0.26"
 	AppName    = "e1s"
 )
 
@@ -197,7 +198,10 @@ func BuildMeterText(f float64) string {
 }
 
 func ShowVersion() string {
-	resp, err := http.Get("https://raw.githubusercontent.com/keidarcy/e1s/master/app-version")
+	type ghRes struct {
+		Name string `json:"name"`
+	}
+	resp, err := http.Get("https://api.github.com/repos/keidarcy/e1s/releases/latest")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -207,14 +211,18 @@ func ShowVersion() string {
 	if err != nil {
 		log.Fatal(err)
 	}
-	latestVersion := strings.TrimSpace(string(body))
+	var rsp ghRes
+	if err := json.Unmarshal(body, &rsp); err != nil {
+		log.Fatal(err)
+	}
+	latestVersion := rsp.Name
 
 	message := ""
 	if latestVersion != AppVersion {
 		message = "\nPlease upgrade e1s to latest version on https://github.com/keidarcy/e1s/releases"
 	}
 
-	return fmt.Sprintf("\nCurrent: v%s\nLatest: v%s%s", AppVersion, latestVersion, message)
+	return fmt.Sprintf("\nCurrent: %s\nLatest: %s%s", AppVersion, latestVersion, message)
 }
 
 func Age(t *time.Time) string {

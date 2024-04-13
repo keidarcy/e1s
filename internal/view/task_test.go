@@ -14,7 +14,7 @@ var (
 	taskArn2 = "arn:aws/124"
 )
 
-func getTaskViews() []TaskView {
+func getTaskViews() []taskView {
 	now := time.Now()
 	newTask := func() types.Task {
 		return types.Task{
@@ -40,7 +40,7 @@ func getTaskViews() []TaskView {
 	TaskView1 := newTaskView([]types.Task{task1}, app)
 	TaskView2 := newTaskView([]types.Task{task2}, app)
 
-	return []TaskView{*TaskView1, *TaskView2}
+	return []taskView{*TaskView1, *TaskView2}
 }
 
 func TestTaskPageParams(t *testing.T) {
@@ -48,7 +48,7 @@ func TestTaskPageParams(t *testing.T) {
 
 	testCases := []struct {
 		name string
-		view TaskView
+		view taskView
 		want want
 	}{
 		{
@@ -84,7 +84,7 @@ func TestTaskTableParam(t *testing.T) {
 
 	testCases := []struct {
 		name string
-		view TaskView
+		view taskView
 		want want
 	}{
 		{

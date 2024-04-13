@@ -20,7 +20,7 @@ const (
 )
 
 // Show modal with form
-func (v *View) showFormModal(formContentFn func() (*tview.Form, string), height int) {
+func (v *view) showFormModal(formContentFn func() (*tview.Form, string), height int) {
 	content, title := formContentFn()
 	if content == nil {
 		return
@@ -29,7 +29,7 @@ func (v *View) showFormModal(formContentFn func() (*tview.Form, string), height 
 }
 
 // Show task definition register confirm modal
-func (v *View) showTaskDefinitionConfirm(fn func()) {
+func (v *view) showTaskDefinitionConfirm(fn func()) {
 	if v.app.kind != TaskKind {
 		return
 	}
@@ -41,7 +41,7 @@ func (v *View) showTaskDefinitionConfirm(fn func()) {
 }
 
 // Get task definition register content
-func (v *View) taskDefinitionRegisterForm(fn func()) (*tview.Form, string) {
+func (v *view) taskDefinitionRegisterForm(fn func()) (*tview.Form, string) {
 	if v.app.kind != TaskKind {
 		return nil, ""
 	}
@@ -72,7 +72,7 @@ func (v *View) taskDefinitionRegisterForm(fn func()) (*tview.Form, string) {
 }
 
 // Get service update form
-func (v *View) serviceUpdateForm() (*tview.Form, string) {
+func (v *view) serviceUpdateForm() (*tview.Form, string) {
 	const latest = "(LATEST)"
 
 	selected, err := v.getCurrentSelection()
@@ -244,7 +244,7 @@ func (v *View) serviceUpdateForm() (*tview.Form, string) {
 }
 
 // Get service metrics charts
-func (v *View) serviceMetricsForm() (*tview.Form, string) {
+func (v *view) serviceMetricsForm() (*tview.Form, string) {
 	if v.app.kind != ServiceKind {
 		return nil, ""
 	}

@@ -62,7 +62,7 @@ const (
 )
 
 // Base struct of different views
-type View struct {
+type view struct {
 	app        *App
 	table      *tview.Table
 	infoPages  *tview.Pages
@@ -72,8 +72,8 @@ type View struct {
 	pageKeyMap secondaryPageKeyMap
 }
 
-func newView(app *App, keys []keyInput, pageKeys secondaryPageKeyMap) *View {
-	return &View{
+func newView(app *App, keys []keyInput, pageKeys secondaryPageKeyMap) *view {
+	return &view{
 		app:        app,
 		infoPages:  tview.NewPages(),
 		tablePages: tview.NewPages(),
@@ -106,7 +106,7 @@ func buildAppPage(v dataView) *tview.Flex {
 }
 
 // Get current table selection and return as entity
-func (v *View) getCurrentSelection() (Entity, error) {
+func (v *view) getCurrentSelection() (Entity, error) {
 	row, _ := v.table.GetSelection()
 	if row == 0 {
 		row++
@@ -124,7 +124,7 @@ func (v *View) getCurrentSelection() (Entity, error) {
 }
 
 // Reload current resource
-func (v *View) reloadResource(reloadNotice bool) error {
+func (v *view) reloadResource(reloadNotice bool) error {
 	if reloadNotice {
 		v.app.Notice.Info("Reloaded")
 	}
@@ -133,7 +133,7 @@ func (v *View) reloadResource(reloadNotice bool) error {
 }
 
 // Show kind page including primary kind, secondary kind
-func (v *View) showKindPage(k Kind, reload bool) {
+func (v *view) showKindPage(k kind, reload bool) {
 	if v.app.secondaryKind != EmptyKind {
 		v.showSecondaryKindPage(reload)
 		return
@@ -141,7 +141,7 @@ func (v *View) showKindPage(k Kind, reload bool) {
 	v.app.showPrimaryKindPage(k, reload)
 }
 
-func (v *View) showSecondaryKindPage(reload bool) {
+func (v *view) showSecondaryKindPage(reload bool) {
 	switch v.app.secondaryKind {
 	case AutoScalingKind:
 		v.switchToAutoScalingJson()
@@ -160,7 +160,7 @@ func (v *View) showSecondaryKindPage(reload bool) {
 }
 
 // Go current page based on current kind
-func (v *View) closeModal() {
+func (v *view) closeModal() {
 	v.app.secondaryKind = EmptyKind
 	if v.app.cluster == nil {
 		v.app.Stop()
@@ -172,7 +172,7 @@ func (v *View) closeModal() {
 }
 
 // Content page builder
-func (v *View) handleContentPageSwitch(entity Entity, colorizedJsonString string, jsonBytes []byte) {
+func (v *view) handleContentPageSwitch(entity Entity, colorizedJsonString string, jsonBytes []byte) {
 	contentTitle := fmt.Sprintf(contentTitleFmt, v.app.kind, entity.entityName)
 	contentPageName := v.app.kind.getContentPageName(entity.entityName + "." + v.app.secondaryKind.String())
 
@@ -230,7 +230,7 @@ func (v *View) handleContentPageSwitch(entity Entity, colorizedJsonString string
 	v.tablePages.AddPage(contentPageName, contentTextItem, true, true)
 }
 
-func (v *View) handleInfoPageSwitch(entity Entity) {
+func (v *view) handleInfoPageSwitch(entity Entity) {
 	pageName := fmt.Sprintf("%s.%s", entity.entityName, v.app.secondaryKind)
 
 	logger.WithFields(logrus.Fields{
@@ -245,13 +245,7 @@ func (v *View) handleInfoPageSwitch(entity Entity) {
 	v.infoPages.SwitchToPage(pageName)
 }
 
-func getContentTextItem(contentStr string, title string) *tview.TextView {
-	contentText := tview.NewTextView().SetDynamicColors(true).SetText(contentStr)
-	contentText.SetBorder(true).SetTitle(title).SetBorderPadding(0, 0, 1, 1)
-	return contentText
-}
-
-func (v *View) buildInfoPages(items []infoItem, title, entityName string) {
+func (v *view) buildInfoPages(items []infoItem, title, entityName string) {
 	infoFlex := v.buildInfoFlex(title, items, v.keys)
 	v.infoPages.AddPage(entityName, infoFlex, true, true)
 
@@ -259,4 +253,10 @@ func (v *View) buildInfoPages(items []infoItem, title, entityName string) {
 		infoJsonFlex := v.buildInfoFlex(title, items, k)
 		v.infoPages.AddPage(fmt.Sprintf("%s.%s", entityName, p), infoJsonFlex, true, false)
 	}
+}
+
+func getContentTextItem(contentStr string, title string) *tview.TextView {
+	contentText := tview.NewTextView().SetDynamicColors(true).SetText(contentStr)
+	contentText.SetBorder(true).SetTitle(title).SetBorderPadding(0, 0, 1, 1)
+	return contentText
 }

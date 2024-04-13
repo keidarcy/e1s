@@ -16,7 +16,7 @@ import (
 )
 
 // Switch to current kind description JSON page
-func (v *View) switchToDescriptionJson() {
+func (v *view) switchToDescriptionJson() {
 	selected, err := v.getCurrentSelection()
 	if err != nil {
 		return
@@ -25,7 +25,7 @@ func (v *View) switchToDescriptionJson() {
 }
 
 // Get td family
-func (v *View) getTaskDefinitionDetail() (string, string, string) {
+func (v *view) getTaskDefinitionDetail() (string, string, string) {
 	selected, err := v.getCurrentSelection()
 	if err != nil {
 		return "", "", ""
@@ -46,7 +46,7 @@ func (v *View) getTaskDefinitionDetail() (string, string, string) {
 }
 
 // Switch to auto scaling get by applicationautoscaling
-func (v *View) switchToAutoScalingJson() {
+func (v *view) switchToAutoScalingJson() {
 	selected, err := v.getCurrentSelection()
 	if err != nil {
 		return
@@ -68,7 +68,7 @@ func (v *View) switchToAutoScalingJson() {
 }
 
 // Show new page from JSON content in table area and handle done event to go back
-func (v *View) showJsonPages(entity Entity) {
+func (v *view) showJsonPages(entity Entity) {
 	colorizedJsonString, rawJsonString, err := v.getJsonString(entity)
 	if err != nil {
 		return
@@ -77,7 +77,7 @@ func (v *View) showJsonPages(entity Entity) {
 	v.handleInfoPageSwitch(entity)
 }
 
-func (v *View) handleFullScreenContentInput(event *tcell.EventKey) *tcell.EventKey {
+func (v *view) handleFullScreenContentInput(event *tcell.EventKey) *tcell.EventKey {
 	switch event.Rune() {
 	case fKey:
 		pageName := v.app.kind.getAppPageName(v.app.getPageHandle())
@@ -91,7 +91,7 @@ func (v *View) handleFullScreenContentInput(event *tcell.EventKey) *tcell.EventK
 	return event
 }
 
-func (v *View) handleTableContentDone(key tcell.Key) {
+func (v *view) handleTableContentDone(key tcell.Key) {
 	pageName := v.app.kind.getTablePageName(v.app.getPageHandle())
 	v.app.secondaryKind = EmptyKind
 
@@ -123,12 +123,12 @@ func (v *View) handleTableContentDone(key tcell.Key) {
 	v.infoPages.SwitchToPage(selected.entityName)
 }
 
-func (v *View) handleFullScreenContentDone() {
+func (v *view) handleFullScreenContentDone() {
 	pageName := v.app.kind.getAppPageName(v.app.getPageHandle())
 	v.app.Pages.SwitchToPage(pageName)
 }
 
-func (v *View) openInEditor(beforeJson []byte) {
+func (v *view) openInEditor(beforeJson []byte) {
 	selected, err := v.getCurrentSelection()
 	if err != nil {
 		logger.Warnf("Failed to get current selection")
@@ -222,7 +222,7 @@ func (v *View) openInEditor(beforeJson []byte) {
 	})
 }
 
-func (v *View) getJsonString(entity Entity) (string, []byte, error) {
+func (v *view) getJsonString(entity Entity) (string, []byte, error) {
 	var data any
 
 	switch {

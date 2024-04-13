@@ -29,7 +29,7 @@ var basicKeyInputs = []keyInput{
 	{key: ctrlR, description: reloadResource},
 }
 
-type secondaryPageKeyMap = map[Kind][]keyInput
+type secondaryPageKeyMap = map[kind][]keyInput
 
 var describePageKeys = []keyInput{
 	{key: string(fKey), description: toggleFullScreen},
@@ -53,7 +53,7 @@ var logPageKeys = []keyInput{
 }
 
 // Build info flex show on top of view, will change when selection change
-func (v *View) buildInfoFlex(title string, items []infoItem, keys []keyInput) *tview.Flex {
+func (v *view) buildInfoFlex(title string, items []infoItem, keys []keyInput) *tview.Flex {
 	infoFlex := tview.NewFlex().SetDirection(tview.FlexColumn)
 
 	columnCount := len(items)/oneColumnCount + 1

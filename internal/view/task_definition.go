@@ -9,15 +9,15 @@ import (
 	"github.com/rivo/tview"
 )
 
-type TaskDefinitionView struct {
-	View
+type taskDefinitionView struct {
+	view
 	taskDefinitions []types.TaskDefinition
 }
 
-func newTaskDefinitionView(taskDefinitions []types.TaskDefinition, app *App) *TaskDefinitionView {
+func newTaskDefinitionView(taskDefinitions []types.TaskDefinition, app *App) *taskDefinitionView {
 	keys := append(basicKeyInputs, []keyInput{}...)
-	return &TaskDefinitionView{
-		View: *newView(app, keys, secondaryPageKeyMap{
+	return &taskDefinitionView{
+		view: *newView(app, keys, secondaryPageKeyMap{
 			DescriptionKind: describePageKeys,
 		}),
 		taskDefinitions: taskDefinitions,
@@ -25,7 +25,7 @@ func newTaskDefinitionView(taskDefinitions []types.TaskDefinition, app *App) *Ta
 }
 
 func (app *App) showTaskDefinitionPage(reload bool) error {
-	if switched := app.SwitchPage(reload); switched {
+	if switched := app.switchPage(reload); switched {
 		return nil
 	}
 
@@ -51,7 +51,7 @@ func (app *App) showTaskDefinitionPage(reload bool) error {
 }
 
 // Build info pages for task page
-func (v *TaskDefinitionView) infoBuilder() *tview.Pages {
+func (v *taskDefinitionView) infoBuilder() *tview.Pages {
 	for _, t := range v.taskDefinitions {
 		title := utils.ArnToName(t.TaskDefinitionArn)
 		entityName := *t.TaskDefinitionArn
@@ -69,7 +69,7 @@ func (v *TaskDefinitionView) infoBuilder() *tview.Pages {
 }
 
 // Build table for task page
-func (v *TaskDefinitionView) tableBuilder() *tview.Pages {
+func (v *taskDefinitionView) tableBuilder() *tview.Pages {
 	title, headers, dataBuilder := v.tableParam()
 	v.buildTable(title, headers, dataBuilder)
 	v.tableHandler()
@@ -77,14 +77,14 @@ func (v *TaskDefinitionView) tableBuilder() *tview.Pages {
 }
 
 // Build footer for task page
-func (v *TaskDefinitionView) footerBuilder() *tview.Flex {
+func (v *taskDefinitionView) footerBuilder() *tview.Flex {
 	v.footer.taskDefinition.SetText(fmt.Sprintf(footerSelectedItemFmt, v.app.kind))
 	v.addFooterItems()
-	return v.footer.footer
+	return v.footer.footerFlex
 }
 
 // Handlers for task table
-func (v *TaskDefinitionView) tableHandler() {
+func (v *taskDefinitionView) tableHandler() {
 	for row, task := range v.taskDefinitions {
 		t := task
 		v.table.GetCell(row+1, 0).SetReference(Entity{taskDefinition: &t, entityName: *t.TaskDefinitionArn})
@@ -92,7 +92,7 @@ func (v *TaskDefinitionView) tableHandler() {
 }
 
 // Generate info pages params
-func (v *TaskDefinitionView) infoPagesParam(t types.TaskDefinition) (items []infoItem) {
+func (v *taskDefinitionView) infoPagesParam(t types.TaskDefinition) (items []infoItem) {
 	compatibilities := []string{}
 	for _, c := range t.Compatibilities {
 		compatibilities = append(compatibilities, string(c))
@@ -138,7 +138,7 @@ func (v *TaskDefinitionView) infoPagesParam(t types.TaskDefinition) (items []inf
 }
 
 // Generate table params
-func (v *TaskDefinitionView) tableParam() (title string, headers []string, dataBuilder func() [][]string) {
+func (v *taskDefinitionView) tableParam() (title string, headers []string, dataBuilder func() [][]string) {
 	title = fmt.Sprintf(nsTitleFmt, v.app.kind, *v.app.service.ServiceName, len(v.taskDefinitions))
 	headers = []string{
 		"Revision ▾",

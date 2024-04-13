@@ -13,7 +13,7 @@ const (
 )
 
 // Build common table
-func (v *View) buildTable(title string, headers []string, dataBuilder func() [][]string) {
+func (v *view) buildTable(title string, headers []string, dataBuilder func() [][]string) {
 	// init with first column width
 	expansions := []int{2}
 	alignment := []int{L}
@@ -57,7 +57,7 @@ func (v *View) buildTable(title string, headers []string, dataBuilder func() [][
 }
 
 // Handler common table events
-func (v *View) handleTableEvents() {
+func (v *view) handleTableEvents() {
 	v.table.SetSelectionChangedFunc(v.handleSelectionChanged)
 
 	v.table.SetSelectedFunc(v.handleSelected)
@@ -69,7 +69,7 @@ func (v *View) handleTableEvents() {
 
 // Handle selected event for table when press up and down
 // Detail page will switch
-func (v *View) handleSelectionChanged(row, column int) {
+func (v *view) handleSelectionChanged(row, column int) {
 	v.changeSelectedValues()
 	selected, err := v.getCurrentSelection()
 	if err != nil {
@@ -82,7 +82,7 @@ func (v *View) handleSelectionChanged(row, column int) {
 }
 
 // Handle selected event for table when press Enter
-func (v *View) handleSelected(row, column int) {
+func (v *view) handleSelected(row, column int) {
 	if v.app.kind == TaskDefinitionKind {
 		return
 	}
@@ -101,7 +101,7 @@ func (v *View) handleSelected(row, column int) {
 }
 
 // Handle keyboard input
-func (v *View) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
+func (v *view) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 	// If it's single keystroke, event.Rune() is ascii code
 	switch event.Rune() {
 	case aKey:
@@ -176,7 +176,7 @@ func (v *View) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 }
 
 // Handle done event for table when press ESC
-func (v *View) handleDone(key tcell.Key) {
+func (v *view) handleDone(key tcell.Key) {
 	if v.app.kind == ClusterKind {
 		return
 	}
@@ -184,7 +184,7 @@ func (v *View) handleDone(key tcell.Key) {
 }
 
 // Handle common values changing for selected event for table when pressed Enter
-func (v *View) changeSelectedValues() {
+func (v *view) changeSelectedValues() {
 	selected, err := v.getCurrentSelection()
 	if err != nil {
 		v.app.Notice.Warn("Failed to changeSelectedValues")
@@ -244,7 +244,7 @@ func (v *View) changeSelectedValues() {
 }
 
 // Open selected resource in browser only support cluster and service
-func (v *View) openInBrowser() {
+func (v *view) openInBrowser() {
 	selected, err := v.getCurrentSelection()
 	if err != nil {
 		v.app.Notice.Warn("Failed to openInBrowser")

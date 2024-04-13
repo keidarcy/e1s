@@ -14,7 +14,7 @@ import (
 
 var logger *logrus.Logger
 
-// Entity contains ECS resources to show
+// Entity contains ECS resources to show, use uppercase to make items like app.cluster easy to access
 type Entity struct {
 	cluster        *types.Cluster
 	service        *types.Service
@@ -46,18 +46,18 @@ type App struct {
 	*tview.Pages
 	// Notice text UI in MainScreen footer
 	Notice *ui.Notice
-	// MainScreen content UI
-	MainScreen *tview.Flex
+	// mainScreen content UI
+	mainScreen *tview.Flex
 	// API client
 	*api.Store
 	// Option from cli args
 	Option
-	// Current screen item content
+	// Current screen item content, use uppercase to make items like app.cluster easy to access
 	Entity
 	// Current page primary kind ex: cluster, service
-	kind Kind
+	kind kind
 	// Current secondary kind like json, list
-	secondaryKind Kind
+	secondaryKind kind
 	// Port forwarding ssm session Id
 	sessions []*PortForwardingSession
 	// Current primary kind table row index for auto refresh to keep row selected
@@ -87,7 +87,7 @@ func newApp(option Option) (*App, error) {
 		Application:   app,
 		Pages:         pages,
 		Notice:        notice,
-		MainScreen:    main,
+		mainScreen:    main,
 		Store:         store,
 		Option:        option,
 		kind:          ClusterKind,
@@ -121,7 +121,7 @@ func Start(option Option) error {
 		return err
 	}
 
-	if err := app.Application.SetRoot(app.MainScreen, true).Run(); err != nil {
+	if err := app.Application.SetRoot(app.mainScreen, true).Run(); err != nil {
 		return err
 	}
 	app.onClose()
@@ -154,7 +154,7 @@ func (app *App) addAppPage(page *tview.Flex) {
 }
 
 // Switch app.Pages page
-func (app *App) SwitchPage(reload bool) bool {
+func (app *App) switchPage(reload bool) bool {
 	pageName := app.kind.getAppPageName(app.getPageHandle())
 	if app.Pages.HasPage(pageName) && app.Refresh < 0 && !reload {
 
@@ -225,7 +225,7 @@ func (app *App) start() error {
 }
 
 // Show Primary kind page
-func (app *App) showPrimaryKindPage(k Kind, reload bool) error {
+func (app *App) showPrimaryKindPage(k kind, reload bool) error {
 	var err error
 	app.kind = k
 	switch k {

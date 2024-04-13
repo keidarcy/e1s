@@ -13,7 +13,7 @@ var (
 	serviceName2 = "service2"
 )
 
-func getServiceViews() []ServiceView {
+func getServiceViews() []serviceView {
 	now := time.Now()
 	service1 := types.Service{
 		CreatedAt: &now,
@@ -32,7 +32,7 @@ func getServiceViews() []ServiceView {
 	serviceView1 := newServiceView([]types.Service{service1}, app)
 	serviceView2 := newServiceView([]types.Service{service2}, app)
 
-	return []ServiceView{*serviceView1, *serviceView2}
+	return []serviceView{*serviceView1, *serviceView2}
 }
 
 func TestServicePageParams(t *testing.T) {
@@ -40,7 +40,7 @@ func TestServicePageParams(t *testing.T) {
 
 	testCases := []struct {
 		name string
-		view ServiceView
+		view serviceView
 		want want
 	}{
 		{
@@ -76,7 +76,7 @@ func TestServiceTableParam(t *testing.T) {
 
 	testCases := []struct {
 		name string
-		view ServiceView
+		view serviceView
 		want want
 	}{
 		{

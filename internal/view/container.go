@@ -13,20 +13,20 @@ import (
 	"github.com/rivo/tview"
 )
 
-type ContainerView struct {
-	View
+type containerView struct {
+	view
 	containers []types.Container
 }
 
-func newContainerView(containers []types.Container, app *App) *ContainerView {
+func newContainerView(containers []types.Container, app *App) *containerView {
 	keys := append(basicKeyInputs, []keyInput{
 		{key: "shift-f", description: portForwarding},
 		{key: "shift-t", description: terminatePortForwardingSession},
 		{key: "enter", description: sshContainer},
 		{key: "ctrl-d", description: exitContainer},
 	}...)
-	return &ContainerView{
-		View: *newView(app, keys, secondaryPageKeyMap{
+	return &containerView{
+		view: *newView(app, keys, secondaryPageKeyMap{
 			DescriptionKind: describePageKeys,
 		}),
 		containers: containers,
@@ -34,7 +34,7 @@ func newContainerView(containers []types.Container, app *App) *ContainerView {
 }
 
 func (app *App) showContainersPage(reload bool) error {
-	if switched := app.SwitchPage(reload); switched {
+	if switched := app.switchPage(reload); switched {
 		return nil
 	}
 
@@ -51,7 +51,7 @@ func (app *App) showContainersPage(reload bool) error {
 }
 
 // Build info pages for container page
-func (v *ContainerView) infoBuilder() *tview.Pages {
+func (v *containerView) infoBuilder() *tview.Pages {
 	for _, c := range v.containers {
 		title := utils.ArnToName(c.ContainerArn)
 		entityName := *c.ContainerArn
@@ -69,7 +69,7 @@ func (v *ContainerView) infoBuilder() *tview.Pages {
 }
 
 // Build table for container page
-func (v *ContainerView) tableBuilder() *tview.Pages {
+func (v *containerView) tableBuilder() *tview.Pages {
 	title, headers, dataBuilder := v.tableParam()
 	v.buildTable(title, headers, dataBuilder)
 	v.tableHandler()
@@ -77,14 +77,14 @@ func (v *ContainerView) tableBuilder() *tview.Pages {
 }
 
 // Build footer for container page
-func (v *ContainerView) footerBuilder() *tview.Flex {
+func (v *containerView) footerBuilder() *tview.Flex {
 	v.footer.container.SetText(fmt.Sprintf(footerSelectedItemFmt, v.app.kind))
 	v.addFooterItems()
-	return v.footer.footer
+	return v.footer.footerFlex
 }
 
 // Handlers for container table
-func (v *ContainerView) tableHandler() {
+func (v *containerView) tableHandler() {
 	for row, container := range v.containers {
 		c := container
 		v.table.GetCell(row+1, 0).SetReference(Entity{container: &c, entityName: *c.ContainerArn})
@@ -99,7 +99,7 @@ func (v *ContainerView) tableHandler() {
 }
 
 // Generate info pages params
-func (v *ContainerView) infoPagesParam(c types.Container) (items []infoItem) {
+func (v *containerView) infoPagesParam(c types.Container) (items []infoItem) {
 	// Managed agents
 	mas := []string{}
 	for _, m := range c.ManagedAgents {
@@ -129,7 +129,7 @@ func (v *ContainerView) infoPagesParam(c types.Container) (items []infoItem) {
 }
 
 // Generate table params
-func (v *ContainerView) tableParam() (title string, headers []string, dataBuilder func() [][]string) {
+func (v *containerView) tableParam() (title string, headers []string, dataBuilder func() [][]string) {
 	title = fmt.Sprintf(nsTitleFmt, v.app.kind, utils.ArnToName(v.app.task.TaskArn), len(v.containers))
 	headers = []string{
 		"Name",
@@ -175,7 +175,7 @@ func (v *ContainerView) tableParam() (title string, headers []string, dataBuilde
 }
 
 // SSH into selected container
-func (v *View) ssh(containerName string) {
+func (v *view) ssh(containerName string) {
 	if v.app.kind != ContainerKind {
 		v.app.Notice.Warn("Invalid operation")
 		return

@@ -10,14 +10,14 @@ import (
 	"github.com/rivo/tview"
 )
 
-type ClusterView struct {
-	View
+type clusterView struct {
+	view
 	clusters []types.Cluster
 }
 
-func newClusterView(clusters []types.Cluster, app *App) *ClusterView {
-	return &ClusterView{
-		View: *newView(app, basicKeyInputs, secondaryPageKeyMap{
+func newClusterView(clusters []types.Cluster, app *App) *clusterView {
+	return &clusterView{
+		view: *newView(app, basicKeyInputs, secondaryPageKeyMap{
 			DescriptionKind: describePageKeys,
 		}),
 		clusters: clusters,
@@ -26,7 +26,7 @@ func newClusterView(clusters []types.Cluster, app *App) *ClusterView {
 
 func (app *App) showClustersPage(reload bool) error {
 	app.kind = ClusterKind
-	if switched := app.SwitchPage(reload); switched {
+	if switched := app.switchPage(reload); switched {
 		return nil
 	}
 
@@ -51,7 +51,7 @@ func (app *App) showClustersPage(reload bool) error {
 }
 
 // Build info pages for cluster page
-func (v *ClusterView) infoBuilder() *tview.Pages {
+func (v *clusterView) infoBuilder() *tview.Pages {
 	for _, c := range v.clusters {
 		title := *c.ClusterName
 		entityName := *c.ClusterArn
@@ -69,7 +69,7 @@ func (v *ClusterView) infoBuilder() *tview.Pages {
 }
 
 // Build table for cluster page
-func (v *ClusterView) tableBuilder() *tview.Pages {
+func (v *clusterView) tableBuilder() *tview.Pages {
 	title, headers, dataBuilder := v.tableParam()
 	v.buildTable(title, headers, dataBuilder)
 	v.tableHandler()
@@ -77,14 +77,14 @@ func (v *ClusterView) tableBuilder() *tview.Pages {
 }
 
 // Build footer for cluster page
-func (v *ClusterView) footerBuilder() *tview.Flex {
+func (v *clusterView) footerBuilder() *tview.Flex {
 	v.footer.cluster.SetText(fmt.Sprintf(footerSelectedItemFmt, v.app.kind))
 	v.addFooterItems()
-	return v.footer.footer
+	return v.footer.footerFlex
 }
 
 // Handlers for cluster table
-func (v *ClusterView) tableHandler() {
+func (v *clusterView) tableHandler() {
 	for row, cluster := range v.clusters {
 		c := cluster
 		v.table.GetCell(row+1, 0).SetReference(Entity{cluster: &c, entityName: *c.ClusterArn})
@@ -92,7 +92,7 @@ func (v *ClusterView) tableHandler() {
 }
 
 // Generate info pages params
-func (v *ClusterView) infoPagesParam(c types.Cluster) (items []infoItem) {
+func (v *clusterView) infoPagesParam(c types.Cluster) (items []infoItem) {
 	containerInsights := "disabled"
 	if len(c.Settings) > 0 && c.Settings[0].Name == "containerInsights" {
 		containerInsights = *c.Settings[0].Value
@@ -137,7 +137,7 @@ func (v *ClusterView) infoPagesParam(c types.Cluster) (items []infoItem) {
 }
 
 // Generate table params
-func (v *ClusterView) tableParam() (title string, headers []string, dataBuilder func() [][]string) {
+func (v *clusterView) tableParam() (title string, headers []string, dataBuilder func() [][]string) {
 	title = fmt.Sprintf(nsTitleFmt, v.app.kind, "all", len(v.clusters))
 	headers = []string{
 		"Name",

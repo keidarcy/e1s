@@ -11,12 +11,12 @@ import (
 	"github.com/rivo/tview"
 )
 
-type ServiceView struct {
-	View
+type serviceView struct {
+	view
 	services []types.Service
 }
 
-func newServiceView(services []types.Service, app *App) *ServiceView {
+func newServiceView(services []types.Service, app *App) *serviceView {
 	keys := append(basicKeyInputs, []keyInput{
 		{key: string("shift-u"), description: updateService},
 		{key: string(wKey), description: describeServiceEvents},
@@ -25,8 +25,8 @@ func newServiceView(services []types.Service, app *App) *ServiceView {
 		{key: string(aKey), description: describeAutoScaling},
 		{key: string(lKey), description: showLogs},
 	}...)
-	return &ServiceView{
-		View: *newView(app, keys, secondaryPageKeyMap{
+	return &serviceView{
+		view: *newView(app, keys, secondaryPageKeyMap{
 			DescriptionKind:   describePageKeys,
 			LogKind:           logPageKeys,
 			AutoScalingKind:   describePageKeys,
@@ -37,7 +37,7 @@ func newServiceView(services []types.Service, app *App) *ServiceView {
 }
 
 func (app *App) showServicesPage(reload bool) error {
-	if switched := app.SwitchPage(reload); switched {
+	if switched := app.switchPage(reload); switched {
 		return nil
 	}
 
@@ -63,7 +63,7 @@ func (app *App) showServicesPage(reload bool) error {
 }
 
 // Build info pages for service page
-func (v *ServiceView) infoBuilder() *tview.Pages {
+func (v *serviceView) infoBuilder() *tview.Pages {
 	for _, s := range v.services {
 		title := *s.ServiceName
 		entityName := *s.ServiceArn
@@ -81,7 +81,7 @@ func (v *ServiceView) infoBuilder() *tview.Pages {
 }
 
 // Build table for service page
-func (v *ServiceView) tableBuilder() *tview.Pages {
+func (v *serviceView) tableBuilder() *tview.Pages {
 	title, headers, dataBuilder := v.tableParam()
 	v.buildTable(title, headers, dataBuilder)
 	v.tableHandler()
@@ -89,14 +89,14 @@ func (v *ServiceView) tableBuilder() *tview.Pages {
 }
 
 // Build footer for service page
-func (v *ServiceView) footerBuilder() *tview.Flex {
+func (v *serviceView) footerBuilder() *tview.Flex {
 	v.footer.service.SetText(fmt.Sprintf(footerSelectedItemFmt, v.app.kind))
 	v.addFooterItems()
-	return v.footer.footer
+	return v.footer.footerFlex
 }
 
 // Handlers for service table
-func (v *ServiceView) tableHandler() {
+func (v *serviceView) tableHandler() {
 	for row, service := range v.services {
 		s := service
 		// Events are too long show in separate view
@@ -107,7 +107,7 @@ func (v *ServiceView) tableHandler() {
 }
 
 // Generate info pages params
-func (v *ServiceView) infoPagesParam(s types.Service) (items []infoItem) {
+func (v *serviceView) infoPagesParam(s types.Service) (items []infoItem) {
 	// publicIP
 	ip := utils.EmptyText
 	// security groups
@@ -182,7 +182,7 @@ func (v *ServiceView) infoPagesParam(s types.Service) (items []infoItem) {
 }
 
 // Generate table params
-func (v *ServiceView) tableParam() (title string, headers []string, dataBuilder func() [][]string) {
+func (v *serviceView) tableParam() (title string, headers []string, dataBuilder func() [][]string) {
 	title = fmt.Sprintf(nsTitleFmt, "Services", *v.app.cluster.ClusterName, len(v.services))
 	headers = []string{
 		"Name",
