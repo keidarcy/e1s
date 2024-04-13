@@ -38,5 +38,4 @@ _cgo_export.*
 _testmain.go
 
 *.log
-e1s*
 dist

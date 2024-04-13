@@ -1,4 +1,7 @@
-VERSION := $(shell cat app-version)
+VERSION := $(shell grep -o 'AppVersion = "[^"]*"' internal/utils/utils.go | cut -d '"' -f 2)
+
+run:
+	go run ./cmd/e1s/main.go
 
 dep:
 	go mod download
@@ -17,15 +20,15 @@ vet:
 
 tag:
 	echo "Tagging version $(VERSION)"
-	git tag -a v$(VERSION) -m "Release v$(VERSION)"
-	git push origin v$(VERSION)
+	git tag -a $(VERSION) -m "Release $(VERSION)"
+	git push origin $(VERSION)
 
 
 plan:
-	cd tests && terraform plan -var="cluster_count=10" -var="service_count=10" -var="task_count=10"
+	cd tests && terraform plan -var="cluster_count=10" -var="service_count=10" -var="task_count=1"
 
 apply:
-	cd tests && terraform apply -var="cluster_count=10" -var="service_count=10" -var="task_count=10"
+	cd tests && terraform apply -var="cluster_count=10" -var="service_count=10" -var="task_count=1"
 
 .PHONY: \
 	dep \

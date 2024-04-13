@@ -3,6 +3,7 @@ before:
     - go mod download
 builds:
   - binary: e1s
+    dir: cmd/e1s
     goos:
       - linux
       - windows
@@ -27,6 +28,7 @@ changelog:
       - '^bump:'
       - '^refactor:'
       - '^Merge pull request'
+      - '^Merge branch'
 
 universal_binaries:
   - replace: true
