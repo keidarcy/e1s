@@ -54,7 +54,7 @@ func (v *view) portForwardingForm() (*tview.Form, string) {
 	title := " Port Forward [purple::b]" + name + readOnly
 
 	f := ui.StyledForm(title)
-	remoteForwardLabel := "Remote Forward"
+	remoteForwardLabel := "Remote forward"
 	hostLabel := "Host"
 	portLabel := "Port number"
 	localPortLabel := "Local port number"
@@ -136,20 +136,8 @@ func (v *view) portForwardingForm() (*tview.Form, string) {
 	return f, title
 }
 
-// Show task definition register confirm modal
-func (v *view) showTerminatePortForwardingModal() {
-	if v.app.kind != ContainerKind {
-		return
-	}
-	content, title := v.terminatePortForwardingContent()
-	if content == nil {
-		return
-	}
-	v.app.Pages.AddPage(title, ui.Modal(content, 100, 6, v.closeModal), true, true)
-}
-
 // Get task definition register content
-func (v *view) terminatePortForwardingContent() (*tview.Form, string) {
+func (v *view) terminatePortForwardingForm() (*tview.Form, string) {
 	selected, err := v.getCurrentSelection()
 	if err != nil {
 		return nil, ""

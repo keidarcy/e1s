@@ -34,6 +34,7 @@ const (
 	reloadResource                 = "Reload resources"
 	portForwarding                 = "Start port forwarding session"
 	terminatePortForwardingSession = "Terminate port forwarding session"
+	fileTransfer                   = "File transfer"
 	sshContainer                   = "SSH container"
 	exitContainer                  = "Exit from container"
 
@@ -54,6 +55,7 @@ const (
 	rKey  = 'r'
 	tKey  = 't'
 	wKey  = 'w'
+	CKey  = 'C'
 	FKey  = 'F'
 	TKey  = 'T'
 	UKey  = 'U'
