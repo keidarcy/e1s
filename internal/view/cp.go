@@ -1,7 +1,9 @@
 package view
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"os/signal"
@@ -60,22 +62,34 @@ func (v *view) cpForm() (*tview.Form, string) {
 		path := f.GetFormItemByLabel(pathLabel).(*tview.InputField).GetText()
 		remotePath := f.GetFormItemByLabel(remotePathLabel).(*tview.InputField).GetText()
 		delete := f.GetFormItemByLabel(deleteLabel).(*tview.Checkbox).IsChecked()
+		baseDir := "e1s"
 
-		logger.Info(remote, bucket, path, remotePath, delete)
-
-		fileInfo, err := os.Stat(path)
-		if err != nil {
-			v.app.Notice.Errorf("Path error %v", err)
-			v.closeModal()
-			return
+		isDir := false
+		dirname := ""
+		if !remote {
+			fileInfo, err := os.Stat(path)
+			if err != nil {
+				v.app.Notice.Errorf("Path error %v", err)
+				v.closeModal()
+				return
+			}
+			isDir = fileInfo.IsDir()
+			dirname = filepath.Base(path)
 		}
-		isDir := fileInfo.IsDir()
-		dirname := filepath.Base(path)
 
-		remotePath = strings.TrimSuffix(remotePath, "/")
-
-		interrupt := make(chan os.Signal, 1)
-		signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM)
+		if remotePath == "" {
+			remotePath = "."
+		} else if remotePath == "/" {
+		} else {
+			remotePath = strings.TrimSuffix(remotePath, "/")
+		}
+		if remote {
+			ext := filepath.Ext(remotePath)
+			if ext == "" {
+				isDir = true
+			}
+			dirname = filepath.Base(remotePath)
+		}
 
 		bin, err := exec.LookPath(awsCli)
 		if err != nil {
@@ -83,39 +97,79 @@ func (v *view) cpForm() (*tview.Form, string) {
 			v.app.Notice.Warnf("Failed to find aws cli binary, error: %v", err)
 			v.app.back()
 		}
-		baseDir := "hello-world"
-		uploadArgs := []string{
-			"s3",
-			"cp",
-			path,
-		}
 
-		if isDir {
-			uploadArgs = append(uploadArgs, fmt.Sprintf("s3://%s/%s/%s", bucket, baseDir, dirname))
-			uploadArgs = append(uploadArgs, "--recursive")
+		uploadArgs, downloadArgs := []string{}, []string{}
+
+		// cp objects to s3
+		if remote {
+			uploadArgs = append(uploadArgs, []string{
+				"ecs",
+				"execute-command",
+				"--cluster",
+				*v.app.cluster.ClusterName,
+				"--task",
+				*v.app.task.TaskArn,
+				"--container",
+				containerName,
+				"--interactive",
+				"--command",
+			}...)
+			if isDir {
+				uploadArgs = append(uploadArgs, fmt.Sprintf("aws s3 cp %s/ s3://%s/%s/%s --recursive", remotePath, bucket, baseDir, dirname))
+			} else {
+				uploadArgs = append(uploadArgs, fmt.Sprintf("aws s3 cp %s s3://%s/%s/", remotePath, bucket, baseDir))
+			}
 		} else {
-			uploadArgs = append(uploadArgs, fmt.Sprintf("s3://%s/%s/", bucket, baseDir))
+			uploadArgs = append(uploadArgs, []string{
+				"s3",
+				"cp",
+				path,
+			}...)
+
+			if isDir {
+				uploadArgs = append(uploadArgs, fmt.Sprintf("s3://%s/%s/%s", bucket, baseDir, dirname))
+				uploadArgs = append(uploadArgs, "--recursive")
+			} else {
+				uploadArgs = append(uploadArgs, fmt.Sprintf("s3://%s/%s/", bucket, baseDir))
+			}
 		}
 
-		downloadArgs := []string{
-			"ecs",
-			"execute-command",
-			"--cluster",
-			*v.app.cluster.ClusterName,
-			"--task",
-			*v.app.task.TaskArn,
-			"--container",
-			containerName,
-			"--interactive",
-			"--command",
-		}
+		// cp objects from s3
+		if remote {
+			downloadArgs = append(downloadArgs, []string{
+				"s3",
+				"cp",
+			}...)
 
-		if isDir {
-			downloadArgs = append(downloadArgs, fmt.Sprintf("aws s3 cp s3://%s/%s/%s %s/%s --recursive", bucket, baseDir, dirname, remotePath, dirname))
+			if isDir {
+				downloadArgs = append(downloadArgs, fmt.Sprintf("s3://%s/%s", bucket, baseDir))
+			} else {
+				downloadArgs = append(downloadArgs, fmt.Sprintf("s3://%s/%s/", bucket, baseDir))
+			}
+			downloadArgs = append(downloadArgs, path)
+			downloadArgs = append(downloadArgs, "--recursive")
 		} else {
-			downloadArgs = append(downloadArgs, fmt.Sprintf("aws s3 cp s3://%s/%s/ %s/ --recursive", bucket, baseDir, remotePath))
+			downloadArgs = append(downloadArgs, []string{
+				"ecs",
+				"execute-command",
+				"--cluster",
+				*v.app.cluster.ClusterName,
+				"--task",
+				*v.app.task.TaskArn,
+				"--container",
+				containerName,
+				"--interactive",
+				"--command",
+			}...)
+
+			if isDir {
+				downloadArgs = append(downloadArgs, fmt.Sprintf("aws s3 cp s3://%s/%s/%s %s/%s --recursive", bucket, baseDir, dirname, remotePath, dirname))
+			} else {
+				downloadArgs = append(downloadArgs, fmt.Sprintf("aws s3 cp s3://%s/%s/ %s/ --recursive", bucket, baseDir, remotePath))
+			}
 		}
 
+		// delete s3 objects
 		deleteArgs := []string{
 			"s3",
 			"rm",
@@ -123,35 +177,58 @@ func (v *view) cpForm() (*tview.Form, string) {
 			"--recursive",
 		}
 
+		var stderr bytes.Buffer
+		interrupt := make(chan os.Signal, 1)
+		signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM)
+
 		v.app.Suspend(func() {
 			logger.Infof("Exec: `%s %s`", awsCli, strings.Join(uploadArgs, " "))
 			uploadCmd := exec.Command(bin, uploadArgs...)
-			uploadCmd.Stdin, uploadCmd.Stdout, uploadCmd.Stderr = os.Stdin, os.Stdout, os.Stderr
-			uploadCmd.Run()
+			uploadCmd.Stdin, uploadCmd.Stdout = os.Stdin, os.Stdout
+			uploadCmd.Stderr = io.MultiWriter(os.Stderr, &stderr)
+			uploadCmd.Stdout.Write([]byte("\nUpload...\n"))
+			err = uploadCmd.Run()
+			if err != nil {
+				return
+			}
 
 			time.Sleep(time.Second)
 
 			logger.Infof("Exec: `%s %s`", awsCli, strings.Join(downloadArgs, " "))
 			downloadCmd := exec.Command(bin, downloadArgs...)
-			downloadCmd.Stdin, downloadCmd.Stdout, downloadCmd.Stderr = os.Stdin, os.Stdout, os.Stderr
-			downloadCmd.Run()
+			downloadCmd.Stdin, downloadCmd.Stdout = os.Stdin, os.Stdout
+			downloadCmd.Stderr = io.MultiWriter(os.Stderr, &stderr)
+			downloadCmd.Stdout.Write([]byte("\nDownload...\n"))
+			err = downloadCmd.Run()
+			if err != nil {
+				return
+			}
 
 			time.Sleep(time.Second)
 
 			if delete {
 				logger.Infof("Exec: `%s %s`", awsCli, strings.Join(deleteArgs, " "))
 				deleteCmd := exec.Command(bin, deleteArgs...)
-				deleteCmd.Stdin, deleteCmd.Stdout, deleteCmd.Stderr = os.Stdin, os.Stdout, os.Stderr
-				deleteCmd.Run()
+				deleteCmd.Stdin, deleteCmd.Stdout = os.Stdin, os.Stdout
+				deleteCmd.Stderr = io.MultiWriter(os.Stderr, &stderr)
+				deleteCmd.Stdout.Write([]byte("\nDelete...\n"))
+				err = deleteCmd.Run()
+				if err != nil {
+					return
+				}
 
-				time.Sleep(time.Second)
+				time.Sleep(2 * time.Second)
 			}
 
 			signal.Stop(interrupt)
 			close(interrupt)
 		})
 
-		v.app.Notice.Info("File transfer done")
+		if err != nil {
+			v.app.Notice.Errorf("Failed to transfer file, %s", stderr.String())
+		} else {
+			v.app.Notice.Info("File transfer done")
+		}
 
 		v.closeModal()
 		v.reloadResource(false)

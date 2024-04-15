@@ -177,6 +177,18 @@ resource "aws_iam_role" "task_role" {
             ],
             Effect = "Allow",
             Resource : "*",
+          },
+          {
+            Effect = "Allow",
+            Resource = [
+              aws_s3_bucket.test_bucket.arn,
+              "${aws_s3_bucket.test_bucket.arn}/${local.name}/*"
+            ],
+            Action = [
+              "s3:GetObject",
+              "s3:PutObject",
+              "s3:ListBucket",
+            ],
           }
         ])
         Version = "2012-10-17"

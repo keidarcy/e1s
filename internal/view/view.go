@@ -55,7 +55,7 @@ const (
 	rKey  = 'r'
 	tKey  = 't'
 	wKey  = 'w'
-	CKey  = 'C'
+	PKey  = 'P'
 	FKey  = 'F'
 	TKey  = 'T'
 	UKey  = 'U'

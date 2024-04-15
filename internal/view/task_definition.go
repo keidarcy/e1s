@@ -129,7 +129,7 @@ func (v *taskDefinitionView) infoPagesParam(t types.TaskDefinition) (items []inf
 		{name: "Status", value: string(t.Status)},
 		{name: "Compatibilities", value: utils.ShowArray(compatibilities)},
 		{name: "Requires Compatibilities", value: utils.ShowArray(requiresCompatibilities)},
-		{name: "Cpu", value: utils.ShowString(t.Cpu)},
+		{name: "CPU", value: utils.ShowString(t.Cpu)},
 		{name: "Memory", value: utils.ShowString(t.Memory)},
 		{name: "Registered At", value: utils.ShowTime(t.RegisteredAt)},
 		{name: "Registered By", value: utils.ShowString(t.RegisteredBy)},
@@ -143,7 +143,7 @@ func (v *taskDefinitionView) tableParam() (title string, headers []string, dataB
 	headers = []string{
 		"Revision ▾",
 		"In use",
-		"Cpu",
+		"CPU",
 		"Memory",
 		"Age",
 	}
