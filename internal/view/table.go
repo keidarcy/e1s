@@ -153,7 +153,13 @@ func (v *view) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 	case TKey:
 		if v.app.kind == ContainerKind {
 			v.app.secondaryKind = ModalKind
-			v.showTerminatePortForwardingModal()
+			v.showFormModal(v.terminatePortForwardingForm, 6)
+			return event
+		}
+	case PKey:
+		if v.app.kind == ContainerKind {
+			v.app.secondaryKind = ModalKind
+			v.showFormModal(v.cpForm, 15)
 			return event
 		}
 	}

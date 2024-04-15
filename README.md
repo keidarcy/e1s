@@ -52,8 +52,9 @@ brew install keidarcy/tap/e1s
   - [x] Task definition family
   - [x] Task definition revision
 - [x] Register new task definition
-- [x] [Start port forwarding session](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-sessions-start.html#sessions-start-port-forwarding)
-- [x] [Start port forwarding to remote host session](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-sessions-start.html#sessions-remote-port-forwarding)
+- [x] Start port forwarding session
+- [x] Start remote host port forwarding session
+- [x] Transfer files to and from your local machine and a remote host like `aws s3 cp`
 
 ### SSH into container ([ECS Exec](https://docs.aws.amazon.com/AmazonECS/latest/userguide/ecs-exec.html))
 
@@ -93,6 +94,21 @@ Use `ctrl` + `d` to exit ssh session.
 
   ![register-task-definition-demo](./assets/e1s-register-task-definition-demo.gif)
 </details>
+
+
+### Start port forwarding session([Docs](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-sessions-start.html#sessions-start-port-forwarding))
+
+With a specified task and container, to start port forwarding session you need to specify a port and a local port. The local port is the port on your local machine that you want to use to access the container port.
+
+
+### Start remote host port forwarding session([Docs](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-sessions-start.html#sessions-remote-port-forwarding))
+
+With a specified task and container, to start a remote host port forwarding session you need to specify a port, a host and a local port. The local port is the port on your local machine that you want to use to access the remote host port though container.
+
+### File transfer
+
+Since file transfer though a S3 Bucket and aws-cli in container, you need a S3 bucket and add permissions S3 bucket permission to the task role and e1s role, and also need a aws-cli installed container.
+
 
 ## Usage
 

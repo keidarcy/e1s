@@ -22,6 +22,7 @@ func newContainerView(containers []types.Container, app *App) *containerView {
 	keys := append(basicKeyInputs, []keyInput{
 		{key: "shift-f", description: portForwarding},
 		{key: "shift-t", description: terminatePortForwardingSession},
+		{key: "shift-p", description: fileTransfer},
 		{key: "enter", description: sshContainer},
 		{key: "ctrl-d", description: exitContainer},
 	}...)
@@ -136,7 +137,6 @@ func (v *containerView) tableParam() (title string, headers []string, dataBuilde
 		"Status",
 		"Health status ▾",
 		"PF",
-		"Container runtime id",
 		"Registry",
 		"Image name",
 	}
@@ -163,7 +163,6 @@ func (v *containerView) tableParam() (title string, headers []string, dataBuilde
 			row = append(row, utils.ShowGreenGrey(c.LastStatus, "running"))
 			row = append(row, utils.ShowGreenGrey(&health, "healthy"))
 			row = append(row, portText)
-			row = append(row, utils.ShowString(c.RuntimeId))
 			row = append(row, registry)
 			row = append(row, imageName)
 			data = append(data, row)
