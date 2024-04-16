@@ -74,12 +74,12 @@ Use `ctrl` + `d` to exit ssh session.
 
 *Session Manager plugin not found* - [document](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-troubleshooting.html#plugin-not-found).
 
-### Edit service([Docs](https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_UpdateService.html))
+### Update service([Docs](https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_UpdateService.html))
 
 <details>
-  <summary>edit service demo</summary>
+  <summary>update service demo</summary>
 
-  ![edit-service-demo](./assets/e1s-edit-service-demo.gif)
+  ![update-service-demo](./assets/e1s-update-service-demo.gif)
 </details>
 
 - Force new deployment
@@ -100,15 +100,31 @@ Use `ctrl` + `d` to exit ssh session.
 
 With a specified task and container, to start port forwarding session you need to specify a port and a local port. The local port is the port on your local machine that you want to use to access the container port.
 
+<details>
+  <summary>Port forwarding session</summary>
+
+  ![port-forwarding-session-demo](./assets/e1s-port-forwarding-session-demo.gif)
+</details>
 
 ### Start remote host port forwarding session([Docs](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-sessions-start.html#sessions-remote-port-forwarding))
 
 With a specified task and container, to start a remote host port forwarding session you need to specify a port, a host and a local port. The local port is the port on your local machine that you want to use to access the remote host port though container.
 
+<details>
+  <summary>Remote host port forwarding session</summary>
+
+  ![remote-host-port-forwarding-session-demo](./assets/e1s-remote-host-port-forwarding-session-demo.gif)
+</details>
+
 ### File transfer
 
 Since file transfer though a S3 Bucket and aws-cli in container, you need a S3 bucket and add permissions S3 bucket permission to the task role and e1s role, and also need a aws-cli installed container.
 
+<details>
+  <summary>File transfer</summary>
+
+  ![file-transfer-demo](./assets/e1s-file-transfer-demo.gif)
+</details>
 
 ## Usage
 
@@ -169,6 +185,7 @@ $ e1s --readonly --debug --refresh -1 --log-file-path /tmp/e1s.log --json
 | `ctrl` + `r` | Reload resources |
 | `shift` + `f` | Start port forwarding session |
 | `shift` + `t` | Terminate port forwarding session |
+| `shift` + `p` | File Transfer |
 
 ### Development
 

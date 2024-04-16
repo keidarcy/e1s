@@ -2,25 +2,25 @@
 # ElastiCache for port forwarding test
 #######################
 resource "aws_elasticache_subnet_group" "test_redis" {
-  name       = "${local.ec2_name}-redis-subnet-group"
+  name       = "${local.name}-redis-subnet-group"
   subnet_ids = aws_subnet.private[*].id
 }
 
 # allow all traffic from private subnet
 resource "aws_security_group" "test_redis" {
-  name        = "${local.ec2_name}-redis-sg"
-  description = "Security group for ${local.ec2_name} test environment"
+  name        = "${local.name}-redis-sg"
+  description = "Security group for ${local.name} test environment"
   vpc_id      = aws_vpc.main.id
   ingress {
     from_port   = 6379
     to_port     = 6379
     protocol    = "tcp"
-    cidr_blocks = [cidrsubnet(aws_vpc.main.cidr_block, 8, 1)]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 }
 
 resource "aws_elasticache_cluster" "test_redis" {
-  cluster_id           = "${local.ec2_name}-redis"
+  cluster_id           = "${local.name}-redis"
   engine               = "redis"
   engine_version       = "6.x"
   node_type            = "cache.t3.micro"

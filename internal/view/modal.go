@@ -67,6 +67,7 @@ func (v *view) taskDefinitionRegisterForm(fn func()) (*tview.Form, string) {
 	// handle form submit
 	f.AddButton("Register", func() {
 		fn()
+		v.closeModal()
 	})
 	return f, title
 }
