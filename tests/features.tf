@@ -15,7 +15,7 @@ resource "aws_security_group" "test_redis" {
     from_port   = 6379
     to_port     = 6379
     protocol    = "tcp"
-    cidr_blocks = [cidrsubnet(aws_vpc.main.cidr_block, 8, 1)]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 }
 
