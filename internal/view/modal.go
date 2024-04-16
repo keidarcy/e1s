@@ -30,22 +30,18 @@ func (v *view) showFormModal(formContentFn func() (*tview.Form, string), height 
 
 // Show task definition register confirm modal
 func (v *view) showTaskDefinitionConfirm(fn func()) {
-	if v.app.kind != TaskKind {
+	if v.app.kind != TaskDefinitionKind {
 		return
 	}
 	content, title := v.taskDefinitionRegisterForm(fn)
 	if content == nil {
 		return
 	}
-	v.app.Pages.AddPage(title, ui.Modal(content, 100, 10, v.closeModal), true, true)
+	v.app.Pages.AddPage(title, ui.Modal(content, 100, 7, v.closeModal), true, true)
 }
 
 // Get task definition register content
 func (v *view) taskDefinitionRegisterForm(fn func()) (*tview.Form, string) {
-	if v.app.kind != TaskKind {
-		return nil, ""
-	}
-
 	readonly := ""
 	if v.app.ReadOnly {
 		readonly = readonlyLabel
