@@ -73,8 +73,8 @@ func (v *view) showJsonPages(entity Entity) {
 	if err != nil {
 		return
 	}
-	v.handleContentPageSwitch(entity, colorizedJsonString, rawJsonString)
-	v.handleInfoPageSwitch(entity)
+	v.handleSecondaryPageSwitch(entity, colorizedJsonString, rawJsonString)
+	v.handleHeaderPageSwitch(entity)
 }
 
 func (v *view) handleFullScreenContentInput(event *tcell.EventKey) *tcell.EventKey {
@@ -104,7 +104,7 @@ func (v *view) handleTableContentDone(key tcell.Key) {
 		"Service":       *v.app.service.ServiceName,
 	}).Debug("SwitchToPage v.tablePages")
 
-	v.tablePages.SwitchToPage(pageName)
+	v.bodyPages.SwitchToPage(pageName)
 
 	selected, err := v.getCurrentSelection()
 	if err != nil {
@@ -120,7 +120,7 @@ func (v *view) handleTableContentDone(key tcell.Key) {
 		"Service":       *v.app.service.ServiceName,
 	}).Debug("SwitchToPage v.infoPages")
 
-	v.infoPages.SwitchToPage(selected.entityName)
+	v.headerPages.SwitchToPage(selected.entityName)
 }
 
 func (v *view) handleFullScreenContentDone() {

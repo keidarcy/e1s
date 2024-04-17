@@ -51,29 +51,29 @@ func (app *App) showClustersPage(reload bool) error {
 }
 
 // Build info pages for cluster page
-func (v *clusterView) infoBuilder() *tview.Pages {
+func (v *clusterView) headerBuilder() *tview.Pages {
 	for _, c := range v.clusters {
 		title := *c.ClusterName
 		entityName := *c.ClusterArn
 		items := v.infoPagesParam(c)
 
-		v.buildInfoPages(items, title, entityName)
+		v.buildHeaderPages(items, title, entityName)
 	}
 	// prevent empty clusters
 	if len(v.clusters) > 0 && v.clusters[0].ClusterArn != nil {
 		// show first when enter
-		v.infoPages.SwitchToPage(*v.clusters[0].ClusterArn)
+		v.headerPages.SwitchToPage(*v.clusters[0].ClusterArn)
 		v.changeSelectedValues()
 	}
-	return v.infoPages
+	return v.headerPages
 }
 
 // Build table for cluster page
-func (v *clusterView) tableBuilder() *tview.Pages {
+func (v *clusterView) bodyBuilder() *tview.Pages {
 	title, headers, dataBuilder := v.tableParam()
 	v.buildTable(title, headers, dataBuilder)
 	v.tableHandler()
-	return v.tablePages
+	return v.bodyPages
 }
 
 // Build footer for cluster page
@@ -92,7 +92,7 @@ func (v *clusterView) tableHandler() {
 }
 
 // Generate info pages params
-func (v *clusterView) infoPagesParam(c types.Cluster) (items []infoItem) {
+func (v *clusterView) infoPagesParam(c types.Cluster) (items []headerItem) {
 	containerInsights := "disabled"
 	if len(c.Settings) > 0 && c.Settings[0].Name == "containerInsights" {
 		containerInsights = *c.Settings[0].Value
@@ -121,7 +121,7 @@ func (v *clusterView) infoPagesParam(c types.Cluster) (items []infoItem) {
 			pending += v
 		}
 	}
-	items = []infoItem{
+	items = []headerItem{
 		{name: "Name", value: *c.ClusterName},
 		{name: "Active services count", value: strconv.Itoa(active)},
 		{name: "Draining services count", value: strconv.Itoa(draining)},

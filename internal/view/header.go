@@ -12,7 +12,7 @@ const (
 )
 
 // Info item name and value
-type infoItem struct {
+type headerItem struct {
 	name  string
 	value string
 }
@@ -53,7 +53,7 @@ var logPageKeys = []keyInput{
 }
 
 // Build info flex show on top of view, will change when selection change
-func (v *view) buildInfoFlex(title string, items []infoItem, keys []keyInput) *tview.Flex {
+func (v *view) buildHeaderFlex(title string, items []headerItem, keys []keyInput) *tview.Flex {
 	infoFlex := tview.NewFlex().SetDirection(tview.FlexColumn)
 
 	columnCount := len(items)/oneColumnCount + 1
@@ -70,7 +70,7 @@ func (v *view) buildInfoFlex(title string, items []infoItem, keys []keyInput) *t
 			columnCount++
 		}
 
-		t := tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(infoItemFmt, item.name, item.value))
+		t := tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(headerItemFmt, item.name, item.value))
 		columns[columnCount].AddItem(t, 1, 1, false)
 	}
 	keysColumn := tview.NewFlex().SetDirection(tview.FlexRow)
@@ -85,7 +85,7 @@ func (v *view) buildInfoFlex(title string, items []infoItem, keys []keyInput) *t
 	}
 
 	for _, c := range columns {
-		infoFlex.AddItem(c, 0, 1, false).SetTitle(fmt.Sprintf(infoTitleFmt, title))
+		infoFlex.AddItem(c, 0, 1, false).SetTitle(fmt.Sprintf(headerTitleFmt, title))
 		infoFlex.SetBorder(true)
 	}
 

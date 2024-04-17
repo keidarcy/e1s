@@ -53,7 +53,7 @@ func (v *view) buildTable(title string, headers []string, dataBuilder func() [][
 	v.handleTableEvents()
 
 	pageName := v.app.kind.getTablePageName(v.app.getPageHandle())
-	v.tablePages.AddPage(pageName, v.table, true, true)
+	v.bodyPages.AddPage(pageName, v.table, true, true)
 }
 
 // Handler common table events
@@ -78,7 +78,7 @@ func (v *view) handleSelectionChanged(row, column int) {
 		return
 	}
 	v.app.rowIndex = row
-	v.infoPages.SwitchToPage(selected.entityName)
+	v.headerPages.SwitchToPage(selected.entityName)
 }
 
 // Handle selected event for table when press Enter

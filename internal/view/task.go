@@ -55,29 +55,29 @@ func (app *App) showTasksPages(reload bool) error {
 }
 
 // Build info pages for task page
-func (v *taskView) infoBuilder() *tview.Pages {
+func (v *taskView) headerBuilder() *tview.Pages {
 	for _, t := range v.tasks {
 		title := utils.ArnToName(t.TaskArn)
 		entityName := *t.TaskArn
 		items := v.infoPagesParam(t)
 
-		v.buildInfoPages(items, title, entityName)
+		v.buildHeaderPages(items, title, entityName)
 	}
 	// prevent empty tasks
 	if len(v.tasks) > 0 && v.tasks[0].TaskArn != nil {
 		// show first when enter
-		v.infoPages.SwitchToPage(*v.tasks[0].TaskArn)
+		v.headerPages.SwitchToPage(*v.tasks[0].TaskArn)
 		v.changeSelectedValues()
 	}
-	return v.infoPages
+	return v.headerPages
 }
 
 // Build table for task page
-func (v *taskView) tableBuilder() *tview.Pages {
+func (v *taskView) bodyBuilder() *tview.Pages {
 	title, headers, dataBuilder := v.tableParam()
 	v.buildTable(title, headers, dataBuilder)
 	v.tableHandler()
-	return v.tablePages
+	return v.bodyPages
 }
 
 // Build footer for task page
@@ -96,7 +96,7 @@ func (v *taskView) tableHandler() {
 }
 
 // Generate info pages params
-func (v *taskView) infoPagesParam(t types.Task) (items []infoItem) {
+func (v *taskView) infoPagesParam(t types.Task) (items []headerItem) {
 	// containers
 	containers := []string{}
 	for _, c := range t.Containers {
@@ -122,7 +122,7 @@ func (v *taskView) infoPagesParam(t types.Task) (items []infoItem) {
 			}
 		}
 	}
-	items = []infoItem{
+	items = []headerItem{
 		{name: "Task ID", value: utils.ArnToName(t.TaskArn)},
 		{name: "Task definition", value: utils.ArnToName(t.TaskDefinitionArn)},
 		{name: "Containers", value: strings.Join(containers, ",")},

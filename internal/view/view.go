@@ -9,15 +9,15 @@ import (
 )
 
 const (
-	titleFmt        = "[aqua::b]%s[aqua::-]([purple::b]%d[aqua::-]) "
-	nsTitleFmt      = " [aqua::-]<[purple::b]%s[aqua::-]>" + titleFmt
-	contentTitleFmt = " [blue]%s([purple::b]%s[blue:-:-]) "
-	infoTitleFmt    = " [blue]info([purple::b]%s[blue:-:-]) "
-	keyFmt          = " [purple::b]<%s> [green:-:-]%s "
-	infoItemFmt     = " %s:[aqua::b] %s "
-	clusterTasksFmt = "[blue]%d Pending[-] | [green]%d Running"
-	serviceTasksFmt = "%d/%d Tasks running"
-	colorJSONFmt    = `%s"[steelblue::b]%s[-:-:-]": %s`
+	titleFmt          = "[aqua::b]%s[aqua::-]([purple::b]%d[aqua::-]) "
+	nsTitleFmt        = " [aqua::-]<[purple::b]%s[aqua::-]>" + titleFmt
+	secondaryTitleFmt = " [blue]%s([purple::b]%s[blue:-:-]) "
+	headerTitleFmt    = " [blue]info([purple::b]%s[blue:-:-]) "
+	keyFmt            = " [purple::b]<%s> [green:-:-]%s "
+	headerItemFmt     = " %s:[aqua::b] %s "
+	clusterTasksFmt   = "[blue]%d Pending[-] | [green]%d Running"
+	serviceTasksFmt   = "%d/%d Tasks running"
+	colorJSONFmt      = `%s"[steelblue::b]%s[-:-:-]": %s`
 
 	backToPrevious                 = "Back"
 	describe                       = "Describe"
@@ -65,39 +65,39 @@ const (
 
 // Base struct of different views
 type view struct {
-	app        *App
-	table      *tview.Table
-	infoPages  *tview.Pages
-	tablePages *tview.Pages
-	keys       []keyInput
-	footer     *footer
-	pageKeyMap secondaryPageKeyMap
+	app         *App
+	table       *tview.Table
+	headerPages *tview.Pages
+	bodyPages   *tview.Pages
+	keys        []keyInput
+	footer      *footer
+	pageKeyMap  secondaryPageKeyMap
 }
 
 func newView(app *App, keys []keyInput, pageKeys secondaryPageKeyMap) *view {
 	return &view{
-		app:        app,
-		infoPages:  tview.NewPages(),
-		tablePages: tview.NewPages(),
-		table:      tview.NewTable(),
-		keys:       keys,
-		footer:     newFooter(),
-		pageKeyMap: pageKeys,
+		app:         app,
+		headerPages: tview.NewPages(),
+		bodyPages:   tview.NewPages(),
+		table:       tview.NewTable(),
+		keys:        keys,
+		footer:      newFooter(),
+		pageKeyMap:  pageKeys,
 	}
 }
 
 // Interface to show each view
 type dataView interface {
-	infoBuilder() *tview.Pages
-	tableBuilder() *tview.Pages
+	headerBuilder() *tview.Pages
+	bodyBuilder() *tview.Pages
 	footerBuilder() *tview.Flex
 }
 
 // Common function to build page for each view
 func buildAppPage(v dataView) *tview.Flex {
 	// build table reference first
-	tablePages := v.tableBuilder()
-	infoPages := v.infoBuilder()
+	tablePages := v.bodyBuilder()
+	infoPages := v.headerBuilder()
 	footer := v.footerBuilder()
 
 	flex := tview.NewFlex().SetDirection(tview.FlexRow).
@@ -174,15 +174,15 @@ func (v *view) closeModal() {
 }
 
 // Content page builder
-func (v *view) handleContentPageSwitch(entity Entity, colorizedJsonString string, jsonBytes []byte) {
-	contentTitle := fmt.Sprintf(contentTitleFmt, v.app.kind, entity.entityName)
-	contentPageName := v.app.kind.getContentPageName(entity.entityName + "." + v.app.secondaryKind.String())
+func (v *view) handleSecondaryPageSwitch(entity Entity, colorizedJsonString string, jsonBytes []byte) {
+	contentTitle := fmt.Sprintf(secondaryTitleFmt, v.app.kind, entity.entityName)
+	contentPageName := v.app.kind.getSecondaryPageName(entity.entityName + "." + v.app.secondaryKind.String())
 
-	contentTextItem := getContentTextItem(colorizedJsonString, contentTitle)
+	contentTextItem := getSecondaryTextItem(colorizedJsonString, contentTitle)
 
 	// press f toggle json
 	contentTextItem.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		fullScreenContent := getContentTextItem(colorizedJsonString, contentTitle)
+		fullScreenContent := getSecondaryTextItem(colorizedJsonString, contentTitle)
 
 		// full screen json press ESC close full screen json and back to table
 		fullScreenContent.SetDoneFunc(func(key tcell.Key) {
@@ -229,10 +229,10 @@ func (v *view) handleContentPageSwitch(entity Entity, colorizedJsonString string
 		"Service":       *v.app.service.ServiceName,
 	}).Debug("AddPage v.tablePages")
 
-	v.tablePages.AddPage(contentPageName, contentTextItem, true, true)
+	v.bodyPages.AddPage(contentPageName, contentTextItem, true, true)
 }
 
-func (v *view) handleInfoPageSwitch(entity Entity) {
+func (v *view) handleHeaderPageSwitch(entity Entity) {
 	pageName := fmt.Sprintf("%s.%s", entity.entityName, v.app.secondaryKind)
 
 	logger.WithFields(logrus.Fields{
@@ -244,20 +244,20 @@ func (v *view) handleInfoPageSwitch(entity Entity) {
 		"Service":       *v.app.service.ServiceName,
 	}).Debug("SwitchToPage v.infoPages")
 
-	v.infoPages.SwitchToPage(pageName)
+	v.headerPages.SwitchToPage(pageName)
 }
 
-func (v *view) buildInfoPages(items []infoItem, title, entityName string) {
-	infoFlex := v.buildInfoFlex(title, items, v.keys)
-	v.infoPages.AddPage(entityName, infoFlex, true, true)
+func (v *view) buildHeaderPages(items []headerItem, title, entityName string) {
+	infoFlex := v.buildHeaderFlex(title, items, v.keys)
+	v.headerPages.AddPage(entityName, infoFlex, true, true)
 
 	for p, k := range v.pageKeyMap {
-		infoJsonFlex := v.buildInfoFlex(title, items, k)
-		v.infoPages.AddPage(fmt.Sprintf("%s.%s", entityName, p), infoJsonFlex, true, false)
+		infoJsonFlex := v.buildHeaderFlex(title, items, k)
+		v.headerPages.AddPage(fmt.Sprintf("%s.%s", entityName, p), infoJsonFlex, true, false)
 	}
 }
 
-func getContentTextItem(contentStr string, title string) *tview.TextView {
+func getSecondaryTextItem(contentStr string, title string) *tview.TextView {
 	contentText := tview.NewTextView().SetDynamicColors(true).SetText(contentStr)
 	contentText.SetBorder(true).SetTitle(title).SetBorderPadding(0, 0, 1, 1)
 	return contentText

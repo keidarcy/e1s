@@ -96,7 +96,7 @@ func (k kind) getTablePageName(name string) string {
 	return pageName + ".table"
 }
 
-func (k kind) getContentPageName(name string) string {
+func (k kind) getSecondaryPageName(name string) string {
 	pageName := k.getAppPageName(name)
 	return pageName + "." + DescriptionKind.String()
 }

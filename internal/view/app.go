@@ -123,6 +123,8 @@ func Start(option Option) error {
 		return err
 	}
 
+	app.SetInputCapture(app.globalInputHandle)
+
 	if err := app.Application.SetRoot(app.mainScreen, true).Run(); err != nil {
 		return err
 	}
@@ -280,4 +282,13 @@ func (app *App) onClose() {
 
 	logger.Debug(`
 **************** Exited e1s ************************************`)
+}
+
+func (app *App) globalInputHandle(event *tcell.EventKey) *tcell.EventKey {
+	switch event.Rune() {
+	case '?':
+		logger.Info("QUESTION MARK")
+
+	}
+	return event
 }
