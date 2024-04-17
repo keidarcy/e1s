@@ -62,7 +62,7 @@ func TestServicePageParams(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			for _, c := range tc.view.services {
-				items := tc.view.infoPagesParam(c)
+				items := tc.view.headerPagesParam(c)
 				if items[0].value != tc.want.serviceName {
 					t.Errorf("%s Got: %s, Want: %s\n", items[0].name, items[0].value, tc.want.serviceName)
 				}

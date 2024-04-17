@@ -55,7 +55,7 @@ func (v *clusterView) headerBuilder() *tview.Pages {
 	for _, c := range v.clusters {
 		title := *c.ClusterName
 		entityName := *c.ClusterArn
-		items := v.infoPagesParam(c)
+		items := v.headerPagesParam(c)
 
 		v.buildHeaderPages(items, title, entityName)
 	}
@@ -92,7 +92,7 @@ func (v *clusterView) tableHandler() {
 }
 
 // Generate info pages params
-func (v *clusterView) infoPagesParam(c types.Cluster) (items []headerItem) {
+func (v *clusterView) headerPagesParam(c types.Cluster) (items []headerItem) {
 	containerInsights := "disabled"
 	if len(c.Settings) > 0 && c.Settings[0].Name == "containerInsights" {
 		containerInsights = *c.Settings[0].Value

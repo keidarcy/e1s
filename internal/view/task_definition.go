@@ -55,7 +55,7 @@ func (v *taskDefinitionView) headerBuilder() *tview.Pages {
 	for _, t := range v.taskDefinitions {
 		title := utils.ArnToName(t.TaskDefinitionArn)
 		entityName := *t.TaskDefinitionArn
-		items := v.infoPagesParam(t)
+		items := v.headerPagesParam(t)
 
 		v.buildHeaderPages(items, title, entityName)
 	}
@@ -92,7 +92,7 @@ func (v *taskDefinitionView) tableHandler() {
 }
 
 // Generate info pages params
-func (v *taskDefinitionView) infoPagesParam(t types.TaskDefinition) (items []headerItem) {
+func (v *taskDefinitionView) headerPagesParam(t types.TaskDefinition) (items []headerItem) {
 	compatibilities := []string{}
 	for _, c := range t.Compatibilities {
 		compatibilities = append(compatibilities, string(c))

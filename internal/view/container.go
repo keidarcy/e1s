@@ -56,7 +56,7 @@ func (v *containerView) headerBuilder() *tview.Pages {
 	for _, c := range v.containers {
 		title := utils.ArnToName(c.ContainerArn)
 		entityName := *c.ContainerArn
-		items := v.infoPagesParam(c)
+		items := v.headerPagesParam(c)
 
 		v.buildHeaderPages(items, title, entityName)
 	}
@@ -100,7 +100,7 @@ func (v *containerView) tableHandler() {
 }
 
 // Generate info pages params
-func (v *containerView) infoPagesParam(c types.Container) (items []headerItem) {
+func (v *containerView) headerPagesParam(c types.Container) (items []headerItem) {
 	// Managed agents
 	mas := []string{}
 	for _, m := range c.ManagedAgents {

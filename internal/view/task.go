@@ -59,7 +59,7 @@ func (v *taskView) headerBuilder() *tview.Pages {
 	for _, t := range v.tasks {
 		title := utils.ArnToName(t.TaskArn)
 		entityName := *t.TaskArn
-		items := v.infoPagesParam(t)
+		items := v.headerPagesParam(t)
 
 		v.buildHeaderPages(items, title, entityName)
 	}
@@ -96,7 +96,7 @@ func (v *taskView) tableHandler() {
 }
 
 // Generate info pages params
-func (v *taskView) infoPagesParam(t types.Task) (items []headerItem) {
+func (v *taskView) headerPagesParam(t types.Task) (items []headerItem) {
 	// containers
 	containers := []string{}
 	for _, c := range t.Containers {

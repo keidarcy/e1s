@@ -67,7 +67,7 @@ func (v *serviceView) headerBuilder() *tview.Pages {
 	for _, s := range v.services {
 		title := *s.ServiceName
 		entityName := *s.ServiceArn
-		items := v.infoPagesParam(s)
+		items := v.headerPagesParam(s)
 
 		v.buildHeaderPages(items, title, entityName)
 	}
@@ -107,7 +107,7 @@ func (v *serviceView) tableHandler() {
 }
 
 // Generate info pages params
-func (v *serviceView) infoPagesParam(s types.Service) (items []headerItem) {
+func (v *serviceView) headerPagesParam(s types.Service) (items []headerItem) {
 	// publicIP
 	ip := utils.EmptyText
 	// security groups

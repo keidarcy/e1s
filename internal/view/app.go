@@ -151,7 +151,6 @@ func (app *App) addAppPage(page *tview.Flex) {
 		"SecondaryKind": app.secondaryKind.String(),
 		"Cluster":       *app.cluster.ClusterName,
 		"Service":       *app.service.ServiceName,
-		// "RowIndex":      app.rowIndex,
 	}).Debug("AddPage app.Pages")
 
 	app.Pages.AddPage(pageName, page, true, true)
@@ -169,7 +168,6 @@ func (app *App) switchPage(reload bool) bool {
 			"PageName":      pageName,
 			"Cluster":       *app.cluster.ClusterName,
 			"Service":       *app.service.ServiceName,
-			// "RowIndex":      app.rowIndex,
 		}).Debug("SwitchToPage app.Pages")
 
 		app.Pages.SwitchToPage(pageName)
@@ -285,10 +283,16 @@ func (app *App) onClose() {
 }
 
 func (app *App) globalInputHandle(event *tcell.EventKey) *tcell.EventKey {
+	pageName, _ := app.Pages.GetFrontPage()
 	switch event.Rune() {
 	case '?':
-		logger.Info("QUESTION MARK")
-
+		app.showHelpPage(pageName)
+	case 'n':
+		if app.Pages.HasPage("clusters") {
+			app.Pages.SwitchToPage("clusters")
+		} else {
+			logger.Info("WHY")
+		}
 	}
 	return event
 }
