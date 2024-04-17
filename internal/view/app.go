@@ -58,6 +58,8 @@ type App struct {
 	kind kind
 	// Current secondary kind like json, list
 	secondaryKind kind
+	// Track back kind when necessary
+	backKind kind
 	// Port forwarding ssm session Id
 	sessions []*PortForwardingSession
 	// Current primary kind table row index for auto refresh to keep row selected
@@ -177,6 +179,10 @@ func (app *App) switchPage(reload bool) bool {
 // Go back page based on current kind
 func (app *App) back() {
 	prevKind := app.kind.prevKind()
+	if app.backKind != EmptyKind {
+		prevKind = app.backKind
+		app.backKind = EmptyKind
+	}
 	app.kind = prevKind
 	app.secondaryKind = EmptyKind
 	pageName := prevKind.getAppPageName(app.getPageHandle())
@@ -188,7 +194,6 @@ func (app *App) back() {
 		"SecondaryKind": app.secondaryKind.String(),
 		"Cluster":       *app.cluster.ClusterName,
 		"Service":       *app.service.ServiceName,
-		// "RowIndex":      app.rowIndex,
 	}).Debug("Back app.Pages")
 
 	app.Pages.SwitchToPage(pageName)
@@ -227,6 +232,9 @@ func (app *App) start() error {
 // Show Primary kind page
 func (app *App) showPrimaryKindPage(k kind, reload bool) error {
 	var err error
+	if k == TaskDefinitionKind {
+		app.backKind = app.kind
+	}
 	app.kind = k
 	switch k {
 	case ClusterKind:
