@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	footerSelectedItemFmt = " [black:aqua:b] <%s> [-:-:-] "
-	footerItemFmt         = " [black:grey:] <%s> [-:-:-] "
+	footerSelectedItemFmt = "[black:aqua:b] <%s> [-:-:-]"
+	footerItemFmt         = "[black:grey:] <%s> [-:-:-]"
 )
 
 // View footer struct
@@ -40,16 +40,20 @@ func (v *view) addFooterItems() {
 		AddItem(v.footer.container, 15, 0, false)
 
 	// keep middle space
-	v.footer.footerFlex.
-		AddItem(tview.NewTextView(), 5, 0, false).
-		AddItem(v.footer.taskDefinition, 0, 1, false)
+	if v.app.kind == TaskDefinitionKind {
+		v.footer.footerFlex.
+			AddItem(tview.NewTextView(), 5, 0, false).
+			AddItem(v.footer.taskDefinition, 0, 1, false)
+	} else {
+		v.footer.footerFlex.
+			AddItem(tview.NewTextView(), 0, 1, false)
+	}
 
 	// right labels
 	// name version label
 	regionLabel := tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf("[black:yellow:bi] %s ", v.app.Region))
 	v.footer.footerFlex.AddItem(regionLabel, len(v.app.Region)+3, 0, false)
 
-	appLabel := fmt.Sprintf("[black:blue:bi] %s:%s ", utils.AppName, utils.AppVersion)
-	t := tview.NewTextView().SetTextAlign(L).SetDynamicColors(true).SetText(appLabel)
-	v.footer.footerFlex.AddItem(t, 15, 1, false)
+	t := tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf("[black:blue:bi] %s:%s ", utils.AppName, utils.AppVersion))
+	v.footer.footerFlex.AddItem(t, 14, 0, false)
 }
