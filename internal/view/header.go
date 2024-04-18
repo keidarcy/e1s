@@ -12,29 +12,38 @@ const (
 	headerTitleFmt = " [blue]info([purple::b]%s[blue:-:-]) "
 	headerKeyFmt   = " [purple::b]<%s> [green:-:-]%s "
 	headerItemFmt  = " %s:[aqua::b] %s "
-
-	backToPrevious                 = "Back"
-	describe                       = "Describe"
-	describeServiceEvents          = "Describe service events"
-	describeAutoScaling            = "Describe service auto scaling"
-	showTaskDefinitions            = "Show task definitions"
-	showMetrics                    = "Show metrics(CPU/Memory)"
-	showLogs                       = "Show cloudwatch logs(Only support awslogs logDriver)"
-	realtimeLog                    = "Realtime log streaming(Only support one log group)"
-	toggleFullScreen               = "Toggle full screen"
-	updateService                  = "Update service"
-	openInEditor                   = "Open in default editor"
-	openInBrowser                  = "Open in browser"
-	reloadResource                 = "Reload resources"
-	portForwarding                 = "Start port forwarding session"
-	terminatePortForwardingSession = "Terminate port forwarding session"
-	fileTransfer                   = "File transfer"
-	sshContainer                   = "SSH container"
-	exitContainer                  = "Exit from container"
 )
 
-var KeystrokeMap = map[string]keyInput{
-	"aKey": {key: string('a'), description: describeAutoScaling},
+var hotKeyMap = map[string]keyInput{
+	"a":     {key: "a", description: "Describe service auto scaling"},
+	"f":     {key: "f", description: "Toggle full screen"},
+	"l":     {key: "l", description: "Show cloudwatch logs(Only support awslogs logDriver)"},
+	"m":     {key: "m", description: "Show metrics(CPU/Memory)"},
+	"r":     {key: "r", description: "Realtime log streaming(Only support one log group)"},
+	"t":     {key: "t", description: "Show task definitions"},
+	"w":     {key: "w", description: "Describe service events"},
+	"P":     {key: "shift-p", description: "File transfer"},
+	"F":     {key: "shift-f", description: "Start port forwarding session"},
+	"T":     {key: "shift-t", description: "Terminate port forwarding session"},
+	"U":     {key: "shift-u", description: "Update service"},
+	"ctrlD": {key: "ctrl-d", description: "Exit from container"},
+
+	"enter": {key: "enter", description: "Select / SSH"},
+	"esc":   {key: "esc", description: "Back"},
+	"ctrlZ": {key: "ctrl-z", description: "Back"},
+	"ctrlC": {key: "ctrl-c", description: "Exit"},
+	"ctrlR": {key: "ctrl-r", description: "Refresh"},
+	"?":     {key: "?", description: "Help"},
+	"b":     {key: "b", description: "Open in browser"},
+	"d":     {key: "d", description: "Describe"},
+	"e":     {key: "e", description: "Open in default editor"},
+
+	"j":     {key: "j", description: "Down"},
+	"k":     {key: "k", description: "Up"},
+	"G":     {key: "shift-g", description: "Go to bottom"},
+	"g":     {key: "g", description: "Go to top"},
+	"ctrlF": {key: "ctrl+f", description: "Page down"},
+	"ctrlB": {key: "ctrl+b", description: "Page up"},
 }
 
 // Info item name and value
@@ -50,32 +59,32 @@ type keyInput struct {
 }
 
 var basicKeyInputs = []keyInput{
-	{key: string(bKey), description: openInBrowser},
-	{key: string(dKey), description: describe},
-	{key: ctrlR, description: reloadResource},
+	hotKeyMap["b"],
+	hotKeyMap["d"],
+	hotKeyMap["ctrlR"],
 }
 
 type secondaryPageKeyMap = map[kind][]keyInput
 
 var describePageKeys = []keyInput{
-	{key: string(fKey), description: toggleFullScreen},
-	{key: string(bKey), description: openInBrowser},
-	{key: string(eKey), description: openInEditor},
-	{key: ctrlZ, description: backToPrevious},
+	hotKeyMap["f"],
+	hotKeyMap["b"],
+	hotKeyMap["e"],
+	hotKeyMap["ctrlZ"],
 }
 
 var otherDescribePageKeys = []keyInput{
-	{key: string(fKey), description: toggleFullScreen},
-	{key: string(bKey), description: openInBrowser},
-	{key: ctrlZ, description: backToPrevious},
+	hotKeyMap["f"],
+	hotKeyMap["b"],
+	hotKeyMap["ctrlZ"],
 }
 
 var logPageKeys = []keyInput{
-	{key: string(fKey), description: toggleFullScreen},
-	{key: string(bKey), description: openInBrowser},
-	{key: string(rKey), description: realtimeLog},
-	{key: ctrlR, description: reloadResource},
-	{key: ctrlZ, description: backToPrevious},
+	hotKeyMap["f"],
+	hotKeyMap["b"],
+	hotKeyMap["r"],
+	hotKeyMap["ctrlR"],
+	hotKeyMap["ctrlZ"],
 }
 
 // Build header flex show on top of view, will change when selection change

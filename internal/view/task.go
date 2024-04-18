@@ -17,7 +17,7 @@ type taskView struct {
 
 func newTaskView(tasks []types.Task, app *App) *taskView {
 	keys := append(basicKeyInputs, []keyInput{
-		{key: string(tKey), description: showTaskDefinitions},
+		hotKeyMap["t"],
 	}...)
 	return &taskView{
 		view: *newView(app, keys, secondaryPageKeyMap{

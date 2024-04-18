@@ -20,11 +20,11 @@ type containerView struct {
 
 func newContainerView(containers []types.Container, app *App) *containerView {
 	keys := append(basicKeyInputs, []keyInput{
-		{key: "shift-f", description: portForwarding},
-		{key: "shift-t", description: terminatePortForwardingSession},
-		{key: "shift-p", description: fileTransfer},
-		{key: "enter", description: sshContainer},
-		{key: "ctrl-d", description: exitContainer},
+		hotKeyMap["F"],
+		hotKeyMap["T"],
+		hotKeyMap["P"],
+		hotKeyMap["enter"],
+		hotKeyMap["ctrlD"],
 	}...)
 	return &containerView{
 		view: *newView(app, keys, secondaryPageKeyMap{

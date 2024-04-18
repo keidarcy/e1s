@@ -104,59 +104,59 @@ func (v *view) handleSelected(row, column int) {
 func (v *view) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 	// If it's single keystroke, event.Rune() is ascii code
 	switch event.Rune() {
-	case aKey:
+	case 'a':
 		if v.app.kind == ServiceKind {
 			v.app.secondaryKind = AutoScalingKind
 			v.showSecondaryKindPage(false)
 			return event
 		}
-	case bKey:
+	case 'b':
 		v.openInBrowser()
-	case dKey:
+	case 'd':
 		v.app.secondaryKind = DescriptionKind
 		v.showSecondaryKindPage(false)
-	case lKey:
+	case 'l':
 		if v.app.kind == ServiceKind || v.app.kind == TaskKind {
 			v.app.secondaryKind = LogKind
 			v.showSecondaryKindPage(false)
 			return event
 		}
-	case mKey:
+	case 'm':
 		if v.app.kind == ServiceKind {
 			v.app.secondaryKind = ModalKind
 			v.showFormModal(v.serviceMetricsForm, 15)
 			return event
 		}
-	case tKey:
+	case 't':
 		if v.app.kind == ServiceKind || v.app.kind == TaskKind {
 			v.showKindPage(TaskDefinitionKind, false)
 			return event
 		}
-	case wKey:
+	case 'w':
 		if v.app.kind == ServiceKind {
 			v.app.secondaryKind = ServiceEventsKind
 			v.showSecondaryKindPage(false)
 			return event
 		}
-	case FKey:
+	case 'F':
 		if v.app.kind == ContainerKind {
 			v.app.secondaryKind = ModalKind
 			v.showFormModal(v.portForwardingForm, 15)
 			return event
 		}
-	case UKey:
+	case 'U':
 		if v.app.kind == ServiceKind {
 			v.app.secondaryKind = ModalKind
 			v.showFormModal(v.serviceUpdateForm, 15)
 			return event
 		}
-	case TKey:
+	case 'T':
 		if v.app.kind == ContainerKind {
 			v.app.secondaryKind = ModalKind
 			v.showFormModal(v.terminatePortForwardingForm, 6)
 			return event
 		}
-	case PKey:
+	case 'P':
 		if v.app.kind == ContainerKind {
 			v.app.secondaryKind = ModalKind
 			v.showFormModal(v.cpForm, 15)

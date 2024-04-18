@@ -18,12 +18,12 @@ type serviceView struct {
 
 func newServiceView(services []types.Service, app *App) *serviceView {
 	keys := append(basicKeyInputs, []keyInput{
-		{key: string("shift-u"), description: updateService},
-		{key: string(wKey), description: describeServiceEvents},
-		{key: string(tKey), description: showTaskDefinitions},
-		{key: string(mKey), description: showMetrics},
-		{key: string(aKey), description: describeAutoScaling},
-		{key: string(lKey), description: showLogs},
+		hotKeyMap["U"],
+		hotKeyMap["w"],
+		hotKeyMap["t"],
+		hotKeyMap["m"],
+		hotKeyMap["a"],
+		hotKeyMap["l"],
 	}...)
 	return &serviceView{
 		view: *newView(app, keys, secondaryPageKeyMap{

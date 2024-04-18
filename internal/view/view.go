@@ -21,25 +21,6 @@ const (
 	realtimeLogFmt = "\033[1;31m<<E1S-LOGS-TAIL>>\033[0m: \n#######################################\n\033[1;32mCluster\033[0m: \"%s\" \n\033[1;32mService\033[0m: \"%s\" \n\033[1;32mLogGroup\033[0m: \"%s\"\n#######################################\n"
 )
 
-const (
-	aKey  = 'a'
-	bKey  = 'b'
-	dKey  = 'd'
-	eKey  = 'e'
-	fKey  = 'f'
-	lKey  = 'l'
-	mKey  = 'm'
-	rKey  = 'r'
-	tKey  = 't'
-	wKey  = 'w'
-	PKey  = 'P'
-	FKey  = 'F'
-	TKey  = 'T'
-	UKey  = 'U'
-	ctrlR = "ctrl-r"
-	ctrlZ = "ctrl-z"
-)
-
 // Base struct of different views
 type view struct {
 	app         *App
@@ -172,15 +153,15 @@ func (v *view) handleSecondaryPageSwitch(entity Entity, colorizedJsonString stri
 
 		// contentTextComponent press f open in full screen
 		switch event.Rune() {
-		case fKey:
+		case 'f':
 			v.app.Pages.AddPage(contentPageName, fullScreenContent, true, true)
-		case bKey:
+		case 'b':
 			v.openInBrowser()
-		case rKey:
+		case 'r':
 			if v.app.secondaryKind == LogKind {
 				v.realtimeAwsLog(entity)
 			}
-		case eKey:
+		case 'e':
 			if v.app.secondaryKind == DescriptionKind || v.app.secondaryKind == AutoScalingKind {
 				v.openInEditor(jsonBytes)
 			}
