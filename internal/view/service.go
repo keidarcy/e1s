@@ -18,12 +18,12 @@ type serviceView struct {
 
 func newServiceView(services []types.Service, app *App) *serviceView {
 	keys := append(basicKeyInputs, []keyInput{
-		{key: string("shift-u"), description: updateService},
-		{key: string(wKey), description: describeServiceEvents},
-		{key: string(tKey), description: showTaskDefinitions},
-		{key: string(mKey), description: showMetrics},
-		{key: string(aKey), description: describeAutoScaling},
-		{key: string(lKey), description: showLogs},
+		hotKeyMap["U"],
+		hotKeyMap["w"],
+		hotKeyMap["t"],
+		hotKeyMap["m"],
+		hotKeyMap["a"],
+		hotKeyMap["l"],
 	}...)
 	return &serviceView{
 		view: *newView(app, keys, secondaryPageKeyMap{
@@ -63,29 +63,29 @@ func (app *App) showServicesPage(reload bool) error {
 }
 
 // Build info pages for service page
-func (v *serviceView) infoBuilder() *tview.Pages {
+func (v *serviceView) headerBuilder() *tview.Pages {
 	for _, s := range v.services {
 		title := *s.ServiceName
 		entityName := *s.ServiceArn
-		items := v.infoPagesParam(s)
+		items := v.headerPagesParam(s)
 
-		v.buildInfoPages(items, title, entityName)
+		v.buildHeaderPages(items, title, entityName)
 	}
 	// prevent empty services
 	if len(v.services) > 0 && v.services[0].ServiceArn != nil {
 		// show first when enter
-		v.infoPages.SwitchToPage(*v.services[0].ServiceArn)
+		v.headerPages.SwitchToPage(*v.services[0].ServiceArn)
 		v.changeSelectedValues()
 	}
-	return v.infoPages
+	return v.headerPages
 }
 
 // Build table for service page
-func (v *serviceView) tableBuilder() *tview.Pages {
+func (v *serviceView) bodyBuilder() *tview.Pages {
 	title, headers, dataBuilder := v.tableParam()
 	v.buildTable(title, headers, dataBuilder)
 	v.tableHandler()
-	return v.tablePages
+	return v.bodyPages
 }
 
 // Build footer for service page
@@ -107,7 +107,7 @@ func (v *serviceView) tableHandler() {
 }
 
 // Generate info pages params
-func (v *serviceView) infoPagesParam(s types.Service) (items []infoItem) {
+func (v *serviceView) headerPagesParam(s types.Service) (items []headerItem) {
 	// publicIP
 	ip := utils.EmptyText
 	// security groups
@@ -157,7 +157,7 @@ func (v *serviceView) infoPagesParam(s types.Service) (items []infoItem) {
 		dc = string(s.DeploymentController.Type)
 	}
 
-	items = []infoItem{
+	items = []headerItem{
 		{name: "Name", value: utils.ShowString(s.ServiceName)},
 		{name: "Cluster", value: utils.ArnToName(s.ClusterArn)},
 		{name: "Capacity provider strategy", value: cpsString},

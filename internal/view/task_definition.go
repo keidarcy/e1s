@@ -51,29 +51,29 @@ func (app *App) showTaskDefinitionPage(reload bool) error {
 }
 
 // Build info pages for task page
-func (v *taskDefinitionView) infoBuilder() *tview.Pages {
+func (v *taskDefinitionView) headerBuilder() *tview.Pages {
 	for _, t := range v.taskDefinitions {
 		title := utils.ArnToName(t.TaskDefinitionArn)
 		entityName := *t.TaskDefinitionArn
-		items := v.infoPagesParam(t)
+		items := v.headerPagesParam(t)
 
-		v.buildInfoPages(items, title, entityName)
+		v.buildHeaderPages(items, title, entityName)
 	}
 	// prevent empty tasks
 	if len(v.taskDefinitions) > 0 && v.taskDefinitions[0].TaskDefinitionArn != nil {
 		// show first when enter
-		v.infoPages.SwitchToPage(*v.taskDefinitions[0].TaskDefinitionArn)
+		v.headerPages.SwitchToPage(*v.taskDefinitions[0].TaskDefinitionArn)
 		v.changeSelectedValues()
 	}
-	return v.infoPages
+	return v.headerPages
 }
 
 // Build table for task page
-func (v *taskDefinitionView) tableBuilder() *tview.Pages {
+func (v *taskDefinitionView) bodyBuilder() *tview.Pages {
 	title, headers, dataBuilder := v.tableParam()
 	v.buildTable(title, headers, dataBuilder)
 	v.tableHandler()
-	return v.tablePages
+	return v.bodyPages
 }
 
 // Build footer for task page
@@ -92,7 +92,7 @@ func (v *taskDefinitionView) tableHandler() {
 }
 
 // Generate info pages params
-func (v *taskDefinitionView) infoPagesParam(t types.TaskDefinition) (items []infoItem) {
+func (v *taskDefinitionView) headerPagesParam(t types.TaskDefinition) (items []headerItem) {
 	compatibilities := []string{}
 	for _, c := range t.Compatibilities {
 		compatibilities = append(compatibilities, string(c))
@@ -118,7 +118,7 @@ func (v *taskDefinitionView) infoPagesParam(t types.TaskDefinition) (items []inf
 		placements = append(placements, string(p.Type))
 	}
 
-	items = []infoItem{
+	items = []headerItem{
 		{name: "Revision", value: utils.ArnToName(t.TaskDefinitionArn)},
 		{name: "Task role", value: utils.ShowString(t.TaskRoleArn)},
 		{name: "Execution role", value: utils.ShowString(t.ExecutionRoleArn)},

@@ -20,6 +20,7 @@ type footer struct {
 	task           *tview.TextView
 	container      *tview.TextView
 	taskDefinition *tview.TextView
+	help           *tview.TextView
 }
 
 func newFooter() *footer {
@@ -30,6 +31,7 @@ func newFooter() *footer {
 		task:           tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(footerItemFmt, TaskKind)),
 		container:      tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(footerItemFmt, ContainerKind)),
 		taskDefinition: tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(footerItemFmt, TaskDefinitionKind)).SetTextAlign(L),
+		help:           tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(footerItemFmt, HelpKind)).SetTextAlign(L),
 	}
 }
 func (v *view) addFooterItems() {
@@ -44,6 +46,10 @@ func (v *view) addFooterItems() {
 		v.footer.footerFlex.
 			AddItem(tview.NewTextView(), 5, 0, false).
 			AddItem(v.footer.taskDefinition, 0, 1, false)
+	} else if v.app.kind == HelpKind {
+		v.footer.footerFlex.
+			AddItem(tview.NewTextView(), 5, 0, false).
+			AddItem(v.footer.help, 0, 1, false)
 	} else {
 		v.footer.footerFlex.
 			AddItem(tview.NewTextView(), 0, 1, false)

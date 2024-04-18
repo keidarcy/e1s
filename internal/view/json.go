@@ -15,6 +15,10 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+const (
+	colorJSONFmt = `%s"[steelblue::b]%s[-:-:-]": %s`
+)
+
 // Switch to current kind description JSON page
 func (v *view) switchToDescriptionJson() {
 	selected, err := v.getCurrentSelection()
@@ -73,13 +77,13 @@ func (v *view) showJsonPages(entity Entity) {
 	if err != nil {
 		return
 	}
-	v.handleContentPageSwitch(entity, colorizedJsonString, rawJsonString)
-	v.handleInfoPageSwitch(entity)
+	v.handleSecondaryPageSwitch(entity, colorizedJsonString, rawJsonString)
+	v.handleHeaderPageSwitch(entity)
 }
 
 func (v *view) handleFullScreenContentInput(event *tcell.EventKey) *tcell.EventKey {
 	switch event.Rune() {
-	case fKey:
+	case 'f':
 		pageName := v.app.kind.getAppPageName(v.app.getPageHandle())
 		v.app.Pages.SwitchToPage(pageName)
 	}
@@ -104,7 +108,7 @@ func (v *view) handleTableContentDone(key tcell.Key) {
 		"Service":       *v.app.service.ServiceName,
 	}).Debug("SwitchToPage v.tablePages")
 
-	v.tablePages.SwitchToPage(pageName)
+	v.bodyPages.SwitchToPage(pageName)
 
 	selected, err := v.getCurrentSelection()
 	if err != nil {
@@ -120,7 +124,7 @@ func (v *view) handleTableContentDone(key tcell.Key) {
 		"Service":       *v.app.service.ServiceName,
 	}).Debug("SwitchToPage v.infoPages")
 
-	v.infoPages.SwitchToPage(selected.entityName)
+	v.headerPages.SwitchToPage(selected.entityName)
 }
 
 func (v *view) handleFullScreenContentDone() {

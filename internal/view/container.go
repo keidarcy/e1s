@@ -20,11 +20,11 @@ type containerView struct {
 
 func newContainerView(containers []types.Container, app *App) *containerView {
 	keys := append(basicKeyInputs, []keyInput{
-		{key: "shift-f", description: portForwarding},
-		{key: "shift-t", description: terminatePortForwardingSession},
-		{key: "shift-p", description: fileTransfer},
-		{key: "enter", description: sshContainer},
-		{key: "ctrl-d", description: exitContainer},
+		hotKeyMap["F"],
+		hotKeyMap["T"],
+		hotKeyMap["P"],
+		hotKeyMap["enter"],
+		hotKeyMap["ctrlD"],
 	}...)
 	return &containerView{
 		view: *newView(app, keys, secondaryPageKeyMap{
@@ -52,29 +52,29 @@ func (app *App) showContainersPage(reload bool) error {
 }
 
 // Build info pages for container page
-func (v *containerView) infoBuilder() *tview.Pages {
+func (v *containerView) headerBuilder() *tview.Pages {
 	for _, c := range v.containers {
 		title := utils.ArnToName(c.ContainerArn)
 		entityName := *c.ContainerArn
-		items := v.infoPagesParam(c)
+		items := v.headerPagesParam(c)
 
-		v.buildInfoPages(items, title, entityName)
+		v.buildHeaderPages(items, title, entityName)
 	}
 	// prevent empty containers
 	if len(v.containers) > 0 && v.containers[0].ContainerArn != nil {
 		// show first when enter
-		v.infoPages.SwitchToPage(*v.containers[0].ContainerArn)
+		v.headerPages.SwitchToPage(*v.containers[0].ContainerArn)
 		v.changeSelectedValues()
 	}
-	return v.infoPages
+	return v.headerPages
 }
 
 // Build table for container page
-func (v *containerView) tableBuilder() *tview.Pages {
+func (v *containerView) bodyBuilder() *tview.Pages {
 	title, headers, dataBuilder := v.tableParam()
 	v.buildTable(title, headers, dataBuilder)
 	v.tableHandler()
-	return v.tablePages
+	return v.bodyPages
 }
 
 // Build footer for container page
@@ -100,7 +100,7 @@ func (v *containerView) tableHandler() {
 }
 
 // Generate info pages params
-func (v *containerView) infoPagesParam(c types.Container) (items []infoItem) {
+func (v *containerView) headerPagesParam(c types.Container) (items []headerItem) {
 	// Managed agents
 	mas := []string{}
 	for _, m := range c.ManagedAgents {
@@ -111,7 +111,7 @@ func (v *containerView) infoPagesParam(c types.Container) (items []infoItem) {
 		masString = utils.EmptyText
 	}
 
-	items = []infoItem{
+	items = []headerItem{
 		{name: "Name", value: utils.ShowString(c.Name)},
 		{name: "Task", value: utils.ShowString(c.TaskArn)},
 		{name: "Image url", value: utils.ShowString(c.Image)},

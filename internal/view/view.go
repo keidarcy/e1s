@@ -9,34 +9,11 @@ import (
 )
 
 const (
-	titleFmt        = "[aqua::b]%s[aqua::-]([purple::b]%d[aqua::-]) "
-	nsTitleFmt      = " [aqua::-]<[purple::b]%s[aqua::-]>" + titleFmt
-	contentTitleFmt = " [blue]%s([purple::b]%s[blue:-:-]) "
-	infoTitleFmt    = " [blue]info([purple::b]%s[blue:-:-]) "
-	keyFmt          = " [purple::b]<%s> [green:-:-]%s "
-	infoItemFmt     = " %s:[aqua::b] %s "
-	clusterTasksFmt = "[blue]%d Pending[-] | [green]%d Running"
-	serviceTasksFmt = "%d/%d Tasks running"
-	colorJSONFmt    = `%s"[steelblue::b]%s[-:-:-]": %s`
-
-	backToPrevious                 = "Back"
-	describe                       = "Describe"
-	describeServiceEvents          = "Describe service events"
-	describeAutoScaling            = "Describe service auto scaling"
-	showTaskDefinitions            = "Show task definitions"
-	showMetrics                    = "Show metrics(CPU/Memory)"
-	showLogs                       = "Show cloudwatch logs(Only support awslogs logDriver)"
-	realtimeLog                    = "Realtime log streaming(Only support one log group)"
-	toggleFullScreen               = "Toggle full screen"
-	updateService                  = "Update service"
-	openInEditor                   = "Open in default editor"
-	openInBrowser                  = "Open in browser"
-	reloadResource                 = "Reload resources"
-	portForwarding                 = "Start port forwarding session"
-	terminatePortForwardingSession = "Terminate port forwarding session"
-	fileTransfer                   = "File transfer"
-	sshContainer                   = "SSH container"
-	exitContainer                  = "Exit from container"
+	titleFmt          = "[aqua::b]%s[aqua::-]([purple::b]%d[aqua::-]) "
+	nsTitleFmt        = " [aqua::-]<[purple::b]%s[aqua::-]>" + titleFmt
+	secondaryTitleFmt = " [blue]%s([purple::b]%s[blue:-:-]) "
+	clusterTasksFmt   = "[blue]%d Pending[-] | [green]%d Running"
+	serviceTasksFmt   = "%d/%d Tasks running"
 
 	awsCli         = "aws"
 	smpCi          = "session-manager-plugin"
@@ -44,60 +21,41 @@ const (
 	realtimeLogFmt = "\033[1;31m<<E1S-LOGS-TAIL>>\033[0m: \n#######################################\n\033[1;32mCluster\033[0m: \"%s\" \n\033[1;32mService\033[0m: \"%s\" \n\033[1;32mLogGroup\033[0m: \"%s\"\n#######################################\n"
 )
 
-const (
-	aKey  = 'a'
-	bKey  = 'b'
-	dKey  = 'd'
-	eKey  = 'e'
-	fKey  = 'f'
-	lKey  = 'l'
-	mKey  = 'm'
-	rKey  = 'r'
-	tKey  = 't'
-	wKey  = 'w'
-	PKey  = 'P'
-	FKey  = 'F'
-	TKey  = 'T'
-	UKey  = 'U'
-	ctrlR = "ctrl-r"
-	ctrlZ = "ctrl-z"
-)
-
 // Base struct of different views
 type view struct {
-	app        *App
-	table      *tview.Table
-	infoPages  *tview.Pages
-	tablePages *tview.Pages
-	keys       []keyInput
-	footer     *footer
-	pageKeyMap secondaryPageKeyMap
+	app         *App
+	table       *tview.Table
+	headerPages *tview.Pages
+	bodyPages   *tview.Pages
+	keys        []keyInput
+	footer      *footer
+	pageKeyMap  secondaryPageKeyMap
 }
 
 func newView(app *App, keys []keyInput, pageKeys secondaryPageKeyMap) *view {
 	return &view{
-		app:        app,
-		infoPages:  tview.NewPages(),
-		tablePages: tview.NewPages(),
-		table:      tview.NewTable(),
-		keys:       keys,
-		footer:     newFooter(),
-		pageKeyMap: pageKeys,
+		app:         app,
+		headerPages: tview.NewPages(),
+		bodyPages:   tview.NewPages(),
+		table:       tview.NewTable(),
+		keys:        keys,
+		footer:      newFooter(),
+		pageKeyMap:  pageKeys,
 	}
 }
 
 // Interface to show each view
 type dataView interface {
-	infoBuilder() *tview.Pages
-	tableBuilder() *tview.Pages
+	headerBuilder() *tview.Pages
+	bodyBuilder() *tview.Pages
 	footerBuilder() *tview.Flex
 }
 
 // Common function to build page for each view
 func buildAppPage(v dataView) *tview.Flex {
 	// build table reference first
-	tablePages := v.tableBuilder()
-	infoPages := v.infoBuilder()
+	tablePages := v.bodyBuilder()
+	infoPages := v.headerBuilder()
 	footer := v.footerBuilder()
 
 	flex := tview.NewFlex().SetDirection(tview.FlexRow).
@@ -174,15 +132,15 @@ func (v *view) closeModal() {
 }
 
 // Content page builder
-func (v *view) handleContentPageSwitch(entity Entity, colorizedJsonString string, jsonBytes []byte) {
-	contentTitle := fmt.Sprintf(contentTitleFmt, v.app.kind, entity.entityName)
-	contentPageName := v.app.kind.getContentPageName(entity.entityName + "." + v.app.secondaryKind.String())
+func (v *view) handleSecondaryPageSwitch(entity Entity, colorizedJsonString string, jsonBytes []byte) {
+	contentTitle := fmt.Sprintf(secondaryTitleFmt, v.app.kind, entity.entityName)
+	contentPageName := v.app.kind.getSecondaryPageName(entity.entityName + "." + v.app.secondaryKind.String())
 
-	contentTextItem := getContentTextItem(colorizedJsonString, contentTitle)
+	contentTextItem := getSecondaryTextItem(colorizedJsonString, contentTitle)
 
 	// press f toggle json
 	contentTextItem.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		fullScreenContent := getContentTextItem(colorizedJsonString, contentTitle)
+		fullScreenContent := getSecondaryTextItem(colorizedJsonString, contentTitle)
 
 		// full screen json press ESC close full screen json and back to table
 		fullScreenContent.SetDoneFunc(func(key tcell.Key) {
@@ -195,15 +153,15 @@ func (v *view) handleContentPageSwitch(entity Entity, colorizedJsonString string
 
 		// contentTextComponent press f open in full screen
 		switch event.Rune() {
-		case fKey:
+		case 'f':
 			v.app.Pages.AddPage(contentPageName, fullScreenContent, true, true)
-		case bKey:
+		case 'b':
 			v.openInBrowser()
-		case rKey:
+		case 'r':
 			if v.app.secondaryKind == LogKind {
 				v.realtimeAwsLog(entity)
 			}
-		case eKey:
+		case 'e':
 			if v.app.secondaryKind == DescriptionKind || v.app.secondaryKind == AutoScalingKind {
 				v.openInEditor(jsonBytes)
 			}
@@ -229,10 +187,10 @@ func (v *view) handleContentPageSwitch(entity Entity, colorizedJsonString string
 		"Service":       *v.app.service.ServiceName,
 	}).Debug("AddPage v.tablePages")
 
-	v.tablePages.AddPage(contentPageName, contentTextItem, true, true)
+	v.bodyPages.AddPage(contentPageName, contentTextItem, true, true)
 }
 
-func (v *view) handleInfoPageSwitch(entity Entity) {
+func (v *view) handleHeaderPageSwitch(entity Entity) {
 	pageName := fmt.Sprintf("%s.%s", entity.entityName, v.app.secondaryKind)
 
 	logger.WithFields(logrus.Fields{
@@ -244,20 +202,20 @@ func (v *view) handleInfoPageSwitch(entity Entity) {
 		"Service":       *v.app.service.ServiceName,
 	}).Debug("SwitchToPage v.infoPages")
 
-	v.infoPages.SwitchToPage(pageName)
+	v.headerPages.SwitchToPage(pageName)
 }
 
-func (v *view) buildInfoPages(items []infoItem, title, entityName string) {
-	infoFlex := v.buildInfoFlex(title, items, v.keys)
-	v.infoPages.AddPage(entityName, infoFlex, true, true)
+func (v *view) buildHeaderPages(items []headerItem, title, entityName string) {
+	infoFlex := v.buildHeaderFlex(title, items, v.keys)
+	v.headerPages.AddPage(entityName, infoFlex, true, true)
 
 	for p, k := range v.pageKeyMap {
-		infoJsonFlex := v.buildInfoFlex(title, items, k)
-		v.infoPages.AddPage(fmt.Sprintf("%s.%s", entityName, p), infoJsonFlex, true, false)
+		infoJsonFlex := v.buildHeaderFlex(title, items, k)
+		v.headerPages.AddPage(fmt.Sprintf("%s.%s", entityName, p), infoJsonFlex, true, false)
 	}
 }
 
-func getContentTextItem(contentStr string, title string) *tview.TextView {
+func getSecondaryTextItem(contentStr string, title string) *tview.TextView {
 	contentText := tview.NewTextView().SetDynamicColors(true).SetText(contentStr)
 	contentText.SetBorder(true).SetTitle(title).SetBorderPadding(0, 0, 1, 1)
 	return contentText

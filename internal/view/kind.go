@@ -8,6 +8,7 @@ const (
 	TaskKind
 	ContainerKind
 	TaskDefinitionKind
+	HelpKind
 	DescriptionKind
 	ServiceEventsKind
 	LogKind
@@ -26,6 +27,8 @@ func (k kind) String() string {
 		return "tasks"
 	case ContainerKind:
 		return "containers"
+	case HelpKind:
+		return "help"
 	case DescriptionKind:
 		return "description"
 	case TaskDefinitionKind:
@@ -96,7 +99,7 @@ func (k kind) getTablePageName(name string) string {
 	return pageName + ".table"
 }
 
-func (k kind) getContentPageName(name string) string {
+func (k kind) getSecondaryPageName(name string) string {
 	pageName := k.getAppPageName(name)
 	return pageName + "." + DescriptionKind.String()
 }

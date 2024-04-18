@@ -163,29 +163,7 @@ $ e1s --readonly --debug --refresh -1 --log-file-path /tmp/e1s.log --json
 
 ### Key Bindings
 
-| Key | Description |
-| --- | --- |
-| `↓`, `j`  | Select next item |
-| `↑`, `k`  | Select previous item |
-| `→`, `Enter` | Enter current resource/SSH |
-| `←`, `Esc`, `ctrl` + `z` | Back |
-| `d` | Describe |
-| `w` | Describe service events |
-| `a` | Describe service auto scaling |
-| `t` | Show task definition |
-| `m` | Show metrics(CPU/Memory) |
-| `l` | Show cloudwatch logs(Only support awslogs logDriver) |
-| `r` | Realtime log streaming(Only support one log group) |
-| `f` | Toggle full screen |
-| `b` | Open in browser |
-| `e` | Open in default editor |
-| `ctrl` + `c` | Quit |
-| `shift` + `u` | Update service |
-| `ctrl` + `d` | Exit from container |
-| `ctrl` + `r` | Reload resources |
-| `shift` + `f` | Start port forwarding session |
-| `shift` + `t` | Terminate port forwarding session |
-| `shift` + `p` | File Transfer |
+Press `?` to check overall key bindings, top right corner to check current resource specific hot keys.
 
 ### Development
 

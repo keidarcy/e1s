@@ -12,7 +12,7 @@ func TestGetJsonData(t *testing.T) {
 	app, _ := newApp(Option{})
 	view := newView(app, []keyInput{}, secondaryPageKeyMap{
 		DescriptionKind: []keyInput{
-			{key: string(fKey), description: toggleFullScreen},
+			hotKeyMap["f"],
 		},
 	})
 	type input struct {
