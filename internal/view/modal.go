@@ -1,6 +1,7 @@
 package view
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -15,8 +16,8 @@ import (
 const (
 	// any form need at least one field
 	placeholder = " (form placeholder) "
-	// readonly label for form
-	readonlyLabel = " [-:-:-] (readonly) "
+	// read only label for form
+	readOnlyLabel = " [-:-:-] (read only) "
 )
 
 // Show modal with form
@@ -42,12 +43,12 @@ func (v *view) showTaskDefinitionConfirm(fn func()) {
 
 // Get task definition register content
 func (v *view) taskDefinitionRegisterForm(fn func()) (*tview.Form, string) {
-	readonly := ""
+	readOnly := ""
 	if v.app.ReadOnly {
-		readonly = readonlyLabel
+		readOnly = readOnlyLabel
 	}
 
-	title := " Register edited [purple::b]task definition?" + readonly
+	title := " Register edited [purple::b]task definition?" + readOnly
 	f := ui.StyledForm(title)
 
 	// handle form close
@@ -68,6 +69,55 @@ func (v *view) taskDefinitionRegisterForm(fn func()) (*tview.Form, string) {
 	return f, title
 }
 
+// Get task definition register content
+func (v *view) serviceUpdateWithSpecificTaskDefinitionForm() (*tview.Form, string) {
+	readOnly := ""
+	if v.app.ReadOnly {
+		readOnly = readOnlyLabel
+	}
+
+	if v.app.service == nil || v.app.taskDefinition == nil {
+		logger.Warn("Unexpected nil to update service with task definition")
+		return nil, ""
+	}
+	serviceName := *v.app.service.ServiceName
+	td := utils.ArnToName(v.app.taskDefinition.TaskDefinitionArn)
+
+	title := fmt.Sprintf(" Update [purple::b] %s [-:-:-] with task definition [aqua::b] %s [-:-:-]%s?", serviceName, td, readOnly)
+	f := ui.StyledForm(title)
+
+	// handle form close
+	f.AddButton("Cancel", func() {
+		v.closeModal()
+	})
+
+	// readonly mode has no submit button
+	if v.app.ReadOnly {
+		return f, title
+	}
+
+	// handle form submit
+	f.AddButton("Update", func() {
+		input := &ecs.UpdateServiceInput{
+			Service:        aws.String(serviceName),
+			Cluster:        v.app.cluster.ClusterName,
+			TaskDefinition: aws.String(td),
+		}
+		s, err := v.app.Store.UpdateService(input)
+
+		if err != nil {
+			v.app.Notice.Error(err.Error())
+			logger.Error(err.Error())
+		} else {
+			v.app.Notice.Infof("Updated %s service with %s task definition", *s.ServiceName, *s.TaskDefinition)
+			logger.Infof("Updated %s with %s task definition", *s.ServiceName, *s.TaskDefinition)
+		}
+		v.closeModal()
+		v.showKindPage(ServiceKind, true)
+	})
+	return f, title
+}
+
 // Get service update form
 func (v *view) serviceUpdateForm() (*tview.Form, string) {
 	const latest = "(LATEST)"
@@ -80,7 +130,7 @@ func (v *view) serviceUpdateForm() (*tview.Form, string) {
 
 	readOnly := ""
 	if v.app.ReadOnly {
-		readOnly = readonlyLabel
+		readOnly = readOnlyLabel
 	}
 
 	title := " Update [purple::b]" + name + readOnly
@@ -232,8 +282,8 @@ func (v *view) serviceUpdateForm() (*tview.Form, string) {
 				v.app.Application.Draw()
 			}()
 
-			v.app.Notice.Infof("Success: DesiredCount: %d, TaskDefinition: %s", s.DesiredCount, *s.TaskDefinition)
-			logger.Infof("Success: DesiredCount: %d, TaskDefinition: %s", s.DesiredCount, *s.TaskDefinition)
+			v.app.Notice.Infof("Update %s service with %d count tasks, %s task definition", *s.ServiceName, s.DesiredCount, *s.TaskDefinition)
+			logger.Infof("Update %s service with %d count tasks, %s task definition", *s.ServiceName, s.DesiredCount, *s.TaskDefinition)
 			v.reloadResource(false)
 		}
 	})
@@ -253,7 +303,7 @@ func (v *view) serviceMetricsForm() (*tview.Form, string) {
 	cluster := v.app.cluster.ClusterName
 	service := *selected.service.ServiceName
 
-	title := " Metrics [purple::b](" + service + ")" + readonlyLabel
+	title := " Metrics [purple::b](" + service + ")" + readOnlyLabel
 
 	f := ui.StyledForm(title)
 	f.AddInputField("Service ", service+placeholder, len(service)+len(placeholder)+1, nil, nil)

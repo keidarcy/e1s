@@ -50,6 +50,7 @@ func (app *App) showHelpPage() {
 
 func genColumn(title string, keys []keyInput) tview.Primitive {
 	t := tview.NewTable()
+	t.SetBorderPadding(1, 0, 2, 0)
 	adjust := 2
 	t.SetCell(0, 0, tview.NewTableCell(fmt.Sprintf("[aqua::b]%s", title)).SetAlign(L))
 	for i, k := range keys {

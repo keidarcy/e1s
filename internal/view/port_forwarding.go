@@ -48,7 +48,7 @@ func (v *view) portForwardingForm() (*tview.Form, string) {
 
 	readOnly := ""
 	if v.app.ReadOnly {
-		readOnly = readonlyLabel
+		readOnly = readOnlyLabel
 	}
 
 	title := " Port Forward [purple::b]" + name + readOnly
@@ -164,7 +164,7 @@ func (v *view) terminatePortForwardingForm() (*tview.Form, string) {
 
 	readonly := ""
 	if v.app.ReadOnly {
-		readonly = readonlyLabel
+		readonly = readOnlyLabel
 	}
 
 	title := fmt.Sprintf(" There is no port forwarding session on [purple::b]%s[-:-:-] ", name)

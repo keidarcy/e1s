@@ -150,9 +150,9 @@ func (v *taskDefinitionView) tableParam() (title string, headers []string, dataB
 
 	dataBuilder = func() (data [][]string) {
 		for _, t := range v.taskDefinitions {
-			inUse := "False"
+			inUse := "-"
 			if *v.app.service.TaskDefinition == *t.TaskDefinitionArn {
-				inUse = "True"
+				inUse = "Yes"
 			}
 
 			var cpu string
@@ -179,7 +179,7 @@ func (v *taskDefinitionView) tableParam() (title string, headers []string, dataB
 
 			row := []string{}
 			row = append(row, utils.ArnToName(t.TaskDefinitionArn))
-			row = append(row, utils.ShowGreenGrey(&inUse, "true"))
+			row = append(row, utils.ShowGreenGrey(&inUse, "yes"))
 			row = append(row, cpu)
 			row = append(row, memory)
 			row = append(row, utils.Age(t.RegisteredAt))
