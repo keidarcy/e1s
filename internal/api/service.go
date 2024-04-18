@@ -116,10 +116,15 @@ func (store *Store) UpdateService(input *ecs.UpdateServiceInput) (*types.Service
 		taskDefinition = *input.TaskDefinition
 	}
 
+	desiredCount := -1
+	if input.DesiredCount != nil {
+		desiredCount = int(*input.DesiredCount)
+	}
+
 	logger.WithFields(logrus.Fields{
 		"Cluster":            *input.Cluster,
 		"Service":            *input.Service,
-		"DesiredCount":       *input.DesiredCount,
+		"DesiredCount":       desiredCount,
 		"TaskDefinition":     taskDefinition,
 		"ForceNewDeployment": input.ForceNewDeployment,
 	}).Info("Update service with following parameters")

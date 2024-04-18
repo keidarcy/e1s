@@ -27,7 +27,7 @@ func (v *view) cpForm() (*tview.Form, string) {
 
 	readOnly := ""
 	if v.app.ReadOnly {
-		readOnly = readonlyLabel
+		readOnly = readOnlyLabel
 	}
 
 	title := " File transfer though S3 bucket [purple::b]" + containerName + readOnly

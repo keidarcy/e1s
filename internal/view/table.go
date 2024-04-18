@@ -150,6 +150,11 @@ func (v *view) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 			v.showFormModal(v.serviceUpdateForm, 15)
 			return event
 		}
+		if v.app.kind == TaskDefinitionKind {
+			v.app.secondaryKind = ModalKind
+			v.showFormModal(v.serviceUpdateWithSpecificTaskDefinitionForm, 6)
+			return event
+		}
 	case 'T':
 		if v.app.kind == ContainerKind {
 			v.app.secondaryKind = ModalKind
