@@ -9,7 +9,33 @@ import (
 const (
 	// column height in info page
 	oneColumnCount = 11
+	headerTitleFmt = " [blue]info([purple::b]%s[blue:-:-]) "
+	headerKeyFmt   = " [purple::b]<%s> [green:-:-]%s "
+	headerItemFmt  = " %s:[aqua::b] %s "
+
+	backToPrevious                 = "Back"
+	describe                       = "Describe"
+	describeServiceEvents          = "Describe service events"
+	describeAutoScaling            = "Describe service auto scaling"
+	showTaskDefinitions            = "Show task definitions"
+	showMetrics                    = "Show metrics(CPU/Memory)"
+	showLogs                       = "Show cloudwatch logs(Only support awslogs logDriver)"
+	realtimeLog                    = "Realtime log streaming(Only support one log group)"
+	toggleFullScreen               = "Toggle full screen"
+	updateService                  = "Update service"
+	openInEditor                   = "Open in default editor"
+	openInBrowser                  = "Open in browser"
+	reloadResource                 = "Reload resources"
+	portForwarding                 = "Start port forwarding session"
+	terminatePortForwardingSession = "Terminate port forwarding session"
+	fileTransfer                   = "File transfer"
+	sshContainer                   = "SSH container"
+	exitContainer                  = "Exit from container"
 )
+
+var KeystrokeMap = map[string]keyInput{
+	"aKey": {key: string('a'), description: describeAutoScaling},
+}
 
 // Info item name and value
 type headerItem struct {
@@ -52,9 +78,9 @@ var logPageKeys = []keyInput{
 	{key: ctrlZ, description: backToPrevious},
 }
 
-// Build info flex show on top of view, will change when selection change
+// Build header flex show on top of view, will change when selection change
 func (v *view) buildHeaderFlex(title string, items []headerItem, keys []keyInput) *tview.Flex {
-	infoFlex := tview.NewFlex().SetDirection(tview.FlexColumn)
+	headerFlex := tview.NewFlex().SetDirection(tview.FlexColumn)
 
 	columnCount := len(items)/oneColumnCount + 1
 	var columns []*tview.Flex
@@ -75,7 +101,7 @@ func (v *view) buildHeaderFlex(title string, items []headerItem, keys []keyInput
 	}
 	keysColumn := tview.NewFlex().SetDirection(tview.FlexRow)
 	for _, k := range keys {
-		t := tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(keyFmt, k.key, k.description))
+		t := tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(headerKeyFmt, k.key, k.description))
 		keysColumn.AddItem(t, 1, 1, false)
 	}
 	columns = append(columns, keysColumn)
@@ -85,9 +111,9 @@ func (v *view) buildHeaderFlex(title string, items []headerItem, keys []keyInput
 	}
 
 	for _, c := range columns {
-		infoFlex.AddItem(c, 0, 1, false).SetTitle(fmt.Sprintf(headerTitleFmt, title))
-		infoFlex.SetBorder(true)
+		headerFlex.AddItem(c, 0, 1, false).SetTitle(fmt.Sprintf(headerTitleFmt, title))
+		headerFlex.SetBorder(true)
 	}
 
-	return infoFlex
+	return headerFlex
 }

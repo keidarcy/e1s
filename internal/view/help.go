@@ -3,7 +3,7 @@ package view
 import (
 	"fmt"
 
-	"github.com/gdamore/tcell/v2"
+	"github.com/keidarcy/e1s/internal/ui"
 	"github.com/rivo/tview"
 )
 
@@ -20,29 +20,35 @@ func newHelpView(app *App) *helpView {
 	}
 }
 
-func (app *App) showHelpPage(pageName string) error {
+var keys = []keyInput{
+	{key: string("shift-u"), description: updateService},
+	{key: string(wKey), description: describeServiceEvents},
+	{key: string(tKey), description: showTaskDefinitions},
+	{key: string(mKey), description: showMetrics},
+	{key: string(aKey), description: describeAutoScaling},
+	{key: string(lKey), description: showLogs},
+}
+
+func (app *App) showHelpPage() {
 	view := newHelpView(app)
-	page := buildAppPage(view)
-	app.addAppPage(page)
-	view.bodyPages.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		if event.Key() == tcell.KeyCtrlZ {
-			if app.Pages.HasPage(pageName) {
-				logger.Info(pageName)
-				app.Pages.SwitchToPage("clusters")
-				go func() {
-					app.Application.Draw()
-				}()
-				logger.Info(pageName)
-			} else {
-				logger.Info("WHY")
-			}
-		}
-		if event.Rune() == 12 {
-			app.Pages.SwitchToPage(pageName)
-		}
-		return event
-	})
-	return nil
+	t1 := tview.NewTable()
+	resource := tview.NewTableCell("[aqua::b]Resource").SetAlign(L)
+	t1.SetCell(0, 0, resource)
+	for i, k := range keys {
+		key := tview.NewTableCell(fmt.Sprintf("[purple]<%s>", k.key)).SetAlign(L).SetExpansion(7)
+		description := tview.NewTableCell(fmt.Sprintf("[green]%s", k.description)).SetAlign(L)
+		t1.SetCell(i+1, 0, key)
+		t1.SetCell(i+1, 1, description)
+	}
+	flex := tview.NewFlex().
+		AddItem(t1, 0, 1, false).
+		// AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
+		// 	AddItem(tview.NewTextView().SetText("HHH").SetBorder(true).SetTitle("Top"), 0, 1, false).
+		// 	AddItem(tview.NewTextView().SetBorder(true).SetTitle("Middle (3 x height of Top)"), 0, 3, false).
+		// 	AddItem(tview.NewTextView().SetBorder(true).SetTitle("Bottom (5 rows)"), 5, 1, false), 0, 2, false).
+		AddItem(tview.NewTextView().SetBorder(true).SetTitle(" Navigation "), 0, 1, false)
+	flex.SetBorder(true).SetTitle(" Help ")
+	app.Pages.AddPage("HELP", ui.Modal(flex, 150, 30, view.closeModal), true, true)
 }
 
 // Build info pages for task page

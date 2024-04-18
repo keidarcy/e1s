@@ -283,10 +283,9 @@ func (app *App) onClose() {
 }
 
 func (app *App) globalInputHandle(event *tcell.EventKey) *tcell.EventKey {
-	pageName, _ := app.Pages.GetFrontPage()
 	switch event.Rune() {
 	case '?':
-		app.showHelpPage(pageName)
+		app.showHelpPage()
 	case 'n':
 		if app.Pages.HasPage("clusters") {
 			app.Pages.SwitchToPage("clusters")

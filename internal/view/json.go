@@ -15,6 +15,10 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+const (
+	colorJSONFmt = `%s"[steelblue::b]%s[-:-:-]": %s`
+)
+
 // Switch to current kind description JSON page
 func (v *view) switchToDescriptionJson() {
 	selected, err := v.getCurrentSelection()
