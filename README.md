@@ -11,6 +11,7 @@
 
 <details>
   <summary>A quick video demo</summary>
+      
   ![e1s-demo](./assets/e1s-top-demo.gif)
 </details>
 
