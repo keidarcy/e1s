@@ -5,10 +5,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/spf13/cobra"
-
 	"github.com/keidarcy/e1s/internal/utils"
 	e1s "github.com/keidarcy/e1s/internal/view"
+	"github.com/spf13/cobra"
 )
 
 var (
@@ -18,6 +17,8 @@ var (
 	json        bool
 	refresh     int
 	shell       string
+	profile     string
+	region      string
 )
 
 func init() {
@@ -26,9 +27,11 @@ func init() {
 	rootCmd.Flags().BoolVarP(&debug, "debug", "d", false, "sets debug mode")
 	rootCmd.Flags().BoolVarP(&json, "json", "j", false, "log output json format")
 	rootCmd.Flags().StringVarP(&logFilePath, "log-file-path", "l", defaultLogFilePath, "specify the log file path")
-	rootCmd.Flags().BoolVar(&readOnly, "readonly", false, "sets readOnly mode")
+	rootCmd.Flags().BoolVar(&readOnly, "readonly", false, "sets read only mode")
 	rootCmd.Flags().IntVarP(&refresh, "refresh", "r", 30, "specify the default refresh rate as an integer (sec) (default 30, set -1 to stop auto refresh)")
 	rootCmd.Flags().StringVarP(&shell, "shell", "s", "/bin/sh", "specify ecs exec ssh shell")
+	rootCmd.Flags().StringVarP(&profile, "profile", "", "", "specify the AWS profile")
+	rootCmd.Flags().StringVarP(&region, "region", "", "", "specify the AWS region")
 }
 
 var rootCmd = &cobra.Command{
@@ -37,6 +40,19 @@ var rootCmd = &cobra.Command{
 	Long: `E1s is a terminal application to easily browse and manage AWS ECS resources 🐱. 
 Check https://github.com/keidarcy/e1s for more details.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		if profile != "" {
+			os.Setenv("AWS_PROFILE", profile)
+			defer func() {
+				os.Unsetenv("AWS_PROFILE")
+			}()
+		}
+		if region != "" {
+			os.Setenv("AWS_REGION", region)
+			defer func() {
+				os.Unsetenv("AWS_REGION")
+			}()
+		}
+
 		logger, file := utils.GetLogger(logFilePath, json, debug)
 		defer file.Close()
 
