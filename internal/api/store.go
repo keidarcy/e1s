@@ -27,7 +27,10 @@ type Store struct {
 
 func NewStore(logr *logrus.Logger) (*Store, error) {
 	logger = logr
-	cfg, err := config.LoadDefaultConfig(context.Background(), config.WithRegion(os.Getenv("AWS_REGION")))
+	profile := os.Getenv("AWS_PROFILE")
+	region := os.Getenv("AWS_REGION")
+	logger.Debugf("Load aws sdk with AWS_PROFILE: %s, AWS_REGION: %s", profile, region)
+	cfg, err := config.LoadDefaultConfig(context.Background(), config.WithRegion(region))
 	if err != nil {
 		logger.Errorf("Failed to load aws SDK config, error: %v\n", err)
 		return nil, err

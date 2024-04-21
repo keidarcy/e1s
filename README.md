@@ -11,13 +11,13 @@
 
 <details>
   <summary>A quick video demo</summary>
-      
+
   ![e1s-demo](./assets/e1s-top-demo.gif)
 </details>
 
 ## AWS credentials and configuration
 
-`e1s` uses the default [aws-cli configuration](https://github.com/aws/aws-cli/blob/develop/README.rst#configuration). It does not store or send your access and secret key anywhere. The access and secret key are used only to securely connect to AWS API via AWS SDK. Both profile and region are overridable via the `AWS_PROFILE` and `AWS_REGION`.
+`e1s` uses the default [aws-cli configuration](https://github.com/aws/aws-cli/blob/develop/README.rst#configuration). It does not store or send your access and secret key anywhere. The access and secret key are used only to securely connect to AWS API via AWS SDK. Both profile and region are overridable via the `AWS_PROFILE`, `AWS_REGION` prepend environment variable or `--profile`, `--region` option.
 
 ## Installation
 
@@ -44,14 +44,14 @@ brew install keidarcy/tap/e1s
 - [x] Describe containers
 - [x] Describe task definitions
 - [x] Describe service autoscaling
-- [x] Show cloudwatch logs(Only support awslogs logDriver)
-  - [x] Realtime log streaming(Only support one log group)
+- [x] Show cloudwatch logs(only support awslogs logDriver)
+  - [x] Realtime log streaming(only support one log group)
 - [x] Show Metrics
   - [x] CPUUtilization
   - [x] MemoryUtilization
 - [x] Show autoscaling target and policy
-- [x] Open selected resource in browser(Support new UI(v2))
-- [x] SSH into container
+- [x] Open selected resource in browser(support new UI(v2))
+- [x] Interactively exec towards containers(like ssh)
 - [x] Edit service
   - [x] Desired count
   - [x] Force new deployment
@@ -62,17 +62,17 @@ brew install keidarcy/tap/e1s
 - [x] Start remote host port forwarding session
 - [x] Transfer files to and from your local machine and a remote host like `aws s3 cp`
 
-### SSH into container ([ECS Exec](https://docs.aws.amazon.com/AmazonECS/latest/userguide/ecs-exec.html))
+### Interactively exec towards containers([ECS Exec](https://docs.aws.amazon.com/AmazonECS/latest/userguide/ecs-exec.html))
 
 Use [aws-ecs-exec-checker](https://github.com/aws-containers/amazon-ecs-exec-checker) to check for the pre-requisites to use ECS exec.
 
 <details>
-  <summary>ssh demo</summary>
+  <summary>interactive exec demo</summary>
 
-  ![ssh-demo](./assets/e1s-ssh-demo.gif)
+  ![ssh-demo](./assets/e1s-interactive-exec-demo.gif)
 </details>
 
-Use `ctrl` + `d` to exit ssh session.
+Use `ctrl` + `d` to exit interactive-exec session.
 
 #### Troubleshooting
 
@@ -145,7 +145,8 @@ Since file transfer though a S3 Bucket and aws-cli in container, you need a S3 b
 | `--readonly` |  | sets read only mode | false |
 | `--refresh` | `-r` | specify the default refresh rate as an integer (sec) (default 30, set -1 to stop auto refresh) | 30 |
 | `--shell` | `-s` | specify ecs exec ssh shell | /bin/sh |
-
+| `--profile` |  | specify the AWS profile | "" |
+| `--region` |  | specify the AWS profile | "" |
 
 Make sure you have the AWS CLI installed and properly configured with the necessary permissions to access your ECS resources.
 
@@ -155,10 +156,18 @@ Using default profile
 $ e1s
 ```
 
+Help
+
+```bash
+$ e1s --help
+```
+
 Using my-profile profile, us-east-1 region
 
 ```bash
 $ AWS_PROFILE=my-profile AWS_REGION=us-east-1 e1s
+# OR
+$ e1s --profile my-profile --region us-east-1
 ```
 
 Using read only, debug, stop auto refresh with a custom log path json output

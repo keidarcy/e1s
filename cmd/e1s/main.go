@@ -36,8 +36,8 @@ func init() {
 
 var rootCmd = &cobra.Command{
 	Use:   "e1s",
-	Short: "E1s - Easily Manage AWS ECS Resources in Terminal 🐱",
-	Long: `E1s is a terminal application to easily browse and manage AWS ECS resources 🐱. 
+	Short: "e1s - Easily Manage AWS ECS Resources in Terminal 🐱",
+	Long: `e1s is a terminal application to easily browse and manage AWS ECS resources 🐱. 
 Check https://github.com/keidarcy/e1s for more details.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if profile != "" {
