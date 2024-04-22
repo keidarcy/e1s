@@ -2,11 +2,7 @@ package view
 
 import (
 	"fmt"
-	"os"
-	"os/exec"
-	"os/signal"
 	"strings"
-	"syscall"
 
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
 	"github.com/keidarcy/e1s/internal/utils"
@@ -23,6 +19,7 @@ func newContainerView(containers []types.Container, app *App) *containerView {
 		hotKeyMap["F"],
 		hotKeyMap["T"],
 		hotKeyMap["P"],
+		hotKeyMap["E"],
 		hotKeyMap["enter"],
 		hotKeyMap["ctrlD"],
 	}...)
@@ -92,11 +89,8 @@ func (v *containerView) tableHandler() {
 	}
 
 	v.table.SetSelectedFunc(func(row int, column int) {
-		containerName := v.table.GetCell(row, column).Text
-		v.ssh(containerName)
+		v.execShell()
 	})
-
-	// v.table.SetInputCapture(v.handleInputCapture)
 }
 
 // Generate info pages params
@@ -171,61 +165,4 @@ func (v *containerView) tableParam() (title string, headers []string, dataBuilde
 	}
 
 	return
-}
-
-// SSH into selected container
-func (v *view) ssh(containerName string) {
-	if v.app.kind != ContainerKind {
-		v.app.Notice.Warn("Invalid operation")
-		return
-	}
-	if v.app.ReadOnly {
-		v.app.Notice.Warn("No ecs exec permission in read only e1s mode")
-		return
-	}
-
-	// catch ctrl+C & SIGTERM
-	interrupt := make(chan os.Signal, 1)
-	signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM)
-
-	bin, err := exec.LookPath(awsCli)
-	if err != nil {
-		logger.Warnf("Failed to find %s path, please check %s", awsCli, "https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html")
-		v.app.Notice.Warnf("Failed to find %s path, please check %s", awsCli, "https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html")
-		v.app.back()
-	}
-
-	_, err = exec.LookPath(smpCi)
-	if err != nil {
-		logger.Warnf("Failed to find %s path, please check %s", smpCi, "https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html")
-		v.app.Notice.Warnf("Failed to find %s path, please check %s", smpCi, "https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html")
-		v.app.back()
-	}
-
-	args := []string{
-		"ecs",
-		"execute-command",
-		"--cluster",
-		*v.app.cluster.ClusterName,
-		"--task",
-		*v.app.task.TaskArn,
-		"--container",
-		containerName,
-		"--interactive",
-		"--command",
-		v.app.Option.Shell,
-	}
-
-	logger.Infof("Exec: `%s %s`", awsCli, strings.Join(args, " "))
-
-	v.app.Suspend(func() {
-		cmd := exec.Command(bin, args...)
-		cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, os.Stderr
-		// ignore the stderr from ssh server
-		_, err = cmd.Stdout.Write([]byte(fmt.Sprintf(sshBannerFmt, *v.app.cluster.ClusterName, *v.app.service.ServiceName, utils.ArnToName(v.app.task.TaskArn), containerName)))
-		err = cmd.Run()
-		// return signal
-		signal.Stop(interrupt)
-		close(interrupt)
-	})
 }

@@ -69,7 +69,7 @@ Use [aws-ecs-exec-checker](https://github.com/aws-containers/amazon-ecs-exec-che
 <details>
   <summary>interactive exec demo</summary>
 
-  ![ssh-demo](./assets/e1s-interactive-exec-demo.gif)
+  ![e1s-interactive-exec-demo](./assets/e1s-interactive-exec-demo.gif)
 </details>
 
 Use `ctrl` + `d` to exit interactive-exec session.
@@ -134,35 +134,38 @@ Since file transfer though a S3 Bucket and aws-cli in container, you need a S3 b
 
 ## Usage
 
-### Run `e1s`
+Make sure you have the AWS CLI installed and properly configured with the necessary permissions to access your ECS resources, and [session manager plugin](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html) installed if you want to use the interactive exec or port forwarding features.
 
+- Usage of `e1s`:
 
-| Long | Short | Description | Default Value |
-| ---- | ----- | ---- | ---- |
-| `--debug` | `-d` | sets debug mode | false |
-| `--json` | `-j` | log output json format | false |
-| `--log-file-path` | `-l` | custom e1s log file path | ${TMPDIR}e1s.log |
-| `--readonly` |  | sets read only mode | false |
-| `--refresh` | `-r` | specify the default refresh rate as an integer (sec) (default 30, set -1 to stop auto refresh) | 30 |
-| `--shell` | `-s` | specify ecs exec ssh shell | /bin/sh |
-| `--profile` |  | specify the AWS profile | "" |
-| `--region` |  | specify the AWS profile | "" |
+```bash
+$ e1s -h
+e1s is a terminal application to easily browse and manage AWS ECS resources 🐱.
+Check https://github.com/keidarcy/e1s for more details.
 
-Make sure you have the AWS CLI installed and properly configured with the necessary permissions to access your ECS resources.
+Usage:
+  e1s [flags]
 
-Using default profile
+Flags:
+  -d, --debug                  sets debug mode
+  -h, --help                   help for e1s
+  -j, --json                   log output json format
+  -l, --log-file-path string   specify the log file path (default "${TMPDIR}e1s.log")
+      --profile string         specify the AWS profile
+      --readonly               sets read only mode
+  -r, --refresh int            specify the default refresh rate as an integer (sec) (default 30, set -1 to stop auto refresh) (default 30)
+      --region string          specify the AWS region
+  -s, --shell string           specify interactive ecs exec shell (default "/bin/sh")
+  -v, --version                version for e1s
+```
+
+- Using default profile
 
 ```bash
 $ e1s
 ```
 
-Help
-
-```bash
-$ e1s --help
-```
-
-Using my-profile profile, us-east-1 region
+- Using my-profile profile, us-east-1 region
 
 ```bash
 $ AWS_PROFILE=my-profile AWS_REGION=us-east-1 e1s
@@ -170,7 +173,7 @@ $ AWS_PROFILE=my-profile AWS_REGION=us-east-1 e1s
 $ e1s --profile my-profile --region us-east-1
 ```
 
-Using read only, debug, stop auto refresh with a custom log path json output
+- Using read only, debug, stop auto refresh with a custom log path json output
 
 ```bash
 $ e1s --readonly --debug --refresh -1 --log-file-path /tmp/e1s.log --json
@@ -183,7 +186,7 @@ Press `?` to check overall key bindings, top right corner to check current resou
 ### Development
 
 ```bash
-go run main.go --debug --log-file-path /tmp/e1s.log
+go run cmd/e1s/main.go --debug --log-file-path /tmp/e1s.log
 ```
 
 ```bash

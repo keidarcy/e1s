@@ -18,10 +18,10 @@ type PortForwardingSession struct {
 }
 
 // Get port forward form content
-func (v *view) portForwardingForm() (*tview.Form, string) {
+func (v *view) portForwardingForm() (*tview.Form, *string) {
 	selected, err := v.getCurrentSelection()
 	if err != nil {
-		return nil, ""
+		return nil, nil
 	}
 	// container name
 	name := *selected.container.Name
@@ -31,7 +31,7 @@ func (v *view) portForwardingForm() (*tview.Form, string) {
 
 	td, err := v.app.Store.DescribeTaskDefinition(v.app.task.TaskDefinitionArn)
 	if err != nil {
-		return nil, ""
+		return nil, nil
 	}
 
 	for _, c := range td.ContainerDefinitions {
@@ -71,7 +71,7 @@ func (v *view) portForwardingForm() (*tview.Form, string) {
 
 	// readonly mode has no submit button
 	if v.app.ReadOnly {
-		return f, title
+		return f, &title
 	}
 
 	// handle form submit
@@ -133,14 +133,14 @@ func (v *view) portForwardingForm() (*tview.Form, string) {
 			v.reloadResource(false)
 		}
 	})
-	return f, title
+	return f, &title
 }
 
 // Get task definition register content
-func (v *view) terminatePortForwardingForm() (*tview.Form, string) {
+func (v *view) terminatePortForwardingForm() (*tview.Form, *string) {
 	selected, err := v.getCurrentSelection()
 	if err != nil {
-		return nil, ""
+		return nil, nil
 	}
 
 	// container name
@@ -159,7 +159,7 @@ func (v *view) terminatePortForwardingForm() (*tview.Form, string) {
 	}
 
 	if v.app.kind != ContainerKind {
-		return nil, ""
+		return nil, nil
 	}
 
 	readonly := ""
@@ -182,7 +182,7 @@ func (v *view) terminatePortForwardingForm() (*tview.Form, string) {
 
 	// readonly mode has no submit button
 	if v.app.ReadOnly || len(sessionIds) == 0 {
-		return f, title
+		return f, &title
 	}
 
 	// handle form submit
@@ -216,5 +216,5 @@ func (v *view) terminatePortForwardingForm() (*tview.Form, string) {
 		}
 		v.reloadResource(false)
 	})
-	return f, title
+	return f, &title
 }

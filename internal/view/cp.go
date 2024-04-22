@@ -17,10 +17,10 @@ import (
 )
 
 // Get cp form content
-func (v *view) cpForm() (*tview.Form, string) {
+func (v *view) cpForm() (*tview.Form, *string) {
 	selected, err := v.getCurrentSelection()
 	if err != nil {
-		return nil, ""
+		return nil, nil
 	}
 	// container containerName
 	containerName := *selected.container.Name
@@ -52,7 +52,7 @@ func (v *view) cpForm() (*tview.Form, string) {
 
 	// readonly mode has no submit button
 	if v.app.ReadOnly {
-		return f, title
+		return f, &title
 	}
 
 	// handle form submit
@@ -233,5 +233,5 @@ func (v *view) cpForm() (*tview.Form, string) {
 		v.closeModal()
 		v.reloadResource(false)
 	})
-	return f, title
+	return f, &title
 }

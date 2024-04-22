@@ -4,7 +4,7 @@
 - Example ECS service that utilizes
   - Load balancer target group attachment
   - Security group for access to the example service
-  - Task role for SSH access to the containers
+  - Task role for exec shell access to the containers
   - Task definition using FluentBit sidecar container definition
 
 ## Usage
