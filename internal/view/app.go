@@ -64,6 +64,8 @@ type App struct {
 	sessions []*PortForwardingSession
 	// Current primary kind table row index for auto refresh to keep row selected
 	rowIndex int
+	// Specify in tview app suspend or not
+	isSuspended bool
 }
 
 func newApp(option Option) (*App, error) {
@@ -218,7 +220,7 @@ func (app *App) start() error {
 		go func() {
 			for {
 				<-ticker.C
-				if app.secondaryKind == EmptyKind {
+				if app.secondaryKind == EmptyKind && !app.isSuspended {
 					app.showPrimaryKindPage(app.kind, true)
 					logger.Debug("Auto refresh")
 					app.Application.Draw()

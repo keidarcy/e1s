@@ -160,6 +160,7 @@ func (v *view) realtimeAwsLog(entity Entity) {
 		logger.Infof("Exec: `%s %s`", awsCli, strings.Join(args, " "))
 
 		v.app.Suspend(func() {
+			v.app.isSuspended = true
 			cmd := exec.Command(bin, args...)
 			cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, os.Stderr
 
@@ -169,6 +170,7 @@ func (v *view) realtimeAwsLog(entity Entity) {
 			// return signal
 			signal.Stop(interrupt)
 			close(interrupt)
+			v.app.isSuspended = false
 		})
 	}
 }
