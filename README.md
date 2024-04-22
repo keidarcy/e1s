@@ -134,11 +134,9 @@ Since file transfer though a S3 Bucket and aws-cli in container, you need a S3 b
 
 ## Usage
 
-Make sure you have the AWS CLI installed and properly configured with the necessary permissions to access your ECS resources.
+Make sure you have the AWS CLI installed and properly configured with the necessary permissions to access your ECS resources, and [session manager plugin](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html) installed if you want to use the interactive exec or port forwarding features.
 
-### Run `e1s`
-
-Usage of `e1s`:
+- Usage of `e1s`:
 
 ```bash
 $ e1s -h
@@ -152,7 +150,7 @@ Flags:
   -d, --debug                  sets debug mode
   -h, --help                   help for e1s
   -j, --json                   log output json format
-  -l, --log-file-path string   specify the log file path (default "/var/folders/x4/f0klp6ld4994kb_y_2t81z880000gn/T/e1s.log")
+  -l, --log-file-path string   specify the log file path (default "${TMPDIR}e1s.log")
       --profile string         specify the AWS profile
       --readonly               sets read only mode
   -r, --refresh int            specify the default refresh rate as an integer (sec) (default 30, set -1 to stop auto refresh) (default 30)
@@ -167,7 +165,7 @@ Flags:
 $ e1s
 ```
 
-Using my-profile profile, us-east-1 region
+- Using my-profile profile, us-east-1 region
 
 ```bash
 $ AWS_PROFILE=my-profile AWS_REGION=us-east-1 e1s
@@ -175,7 +173,7 @@ $ AWS_PROFILE=my-profile AWS_REGION=us-east-1 e1s
 $ e1s --profile my-profile --region us-east-1
 ```
 
-Using read only, debug, stop auto refresh with a custom log path json output
+- Using read only, debug, stop auto refresh with a custom log path json output
 
 ```bash
 $ e1s --readonly --debug --refresh -1 --log-file-path /tmp/e1s.log --json
