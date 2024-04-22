@@ -69,7 +69,7 @@ Use [aws-ecs-exec-checker](https://github.com/aws-containers/amazon-ecs-exec-che
 <details>
   <summary>interactive exec demo</summary>
 
-  ![ssh-demo](./assets/e1s-interactive-exec-demo.gif)
+  ![e1s-interactive-exec-demo](./assets/e1s-interactive-exec-demo.gif)
 </details>
 
 Use `ctrl` + `d` to exit interactive-exec session.
@@ -134,32 +134,37 @@ Since file transfer though a S3 Bucket and aws-cli in container, you need a S3 b
 
 ## Usage
 
-### Run `e1s`
-
-
-| Long | Short | Description | Default Value |
-| ---- | ----- | ---- | ---- |
-| `--debug` | `-d` | sets debug mode | false |
-| `--json` | `-j` | log output json format | false |
-| `--log-file-path` | `-l` | custom e1s log file path | ${TMPDIR}e1s.log |
-| `--readonly` |  | sets read only mode | false |
-| `--refresh` | `-r` | specify the default refresh rate as an integer (sec) (default 30, set -1 to stop auto refresh) | 30 |
-| `--shell` | `-s` | specify ecs exec ssh shell | /bin/sh |
-| `--profile` |  | specify the AWS profile | "" |
-| `--region` |  | specify the AWS profile | "" |
-
 Make sure you have the AWS CLI installed and properly configured with the necessary permissions to access your ECS resources.
 
-Using default profile
+### Run `e1s`
+
+Usage of `e1s`:
+
+```bash
+$ e1s -h
+e1s is a terminal application to easily browse and manage AWS ECS resources 🐱.
+Check https://github.com/keidarcy/e1s for more details.
+
+Usage:
+  e1s [flags]
+
+Flags:
+  -d, --debug                  sets debug mode
+  -h, --help                   help for e1s
+  -j, --json                   log output json format
+  -l, --log-file-path string   specify the log file path (default "/var/folders/x4/f0klp6ld4994kb_y_2t81z880000gn/T/e1s.log")
+      --profile string         specify the AWS profile
+      --readonly               sets read only mode
+  -r, --refresh int            specify the default refresh rate as an integer (sec) (default 30, set -1 to stop auto refresh) (default 30)
+      --region string          specify the AWS region
+  -s, --shell string           specify interactive ecs exec shell (default "/bin/sh")
+  -v, --version                version for e1s
+```
+
+- Using default profile
 
 ```bash
 $ e1s
-```
-
-Help
-
-```bash
-$ e1s --help
 ```
 
 Using my-profile profile, us-east-1 region

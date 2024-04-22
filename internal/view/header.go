@@ -26,9 +26,10 @@ var hotKeyMap = map[string]keyInput{
 	"F":     {key: "shift-f", description: "Start port forwarding session"},
 	"T":     {key: "shift-t", description: "Terminate port forwarding session"},
 	"U":     {key: "shift-u", description: "Update service"},
+	"E":     {key: "shift-e", description: "Exec command"},
 	"ctrlD": {key: "ctrl-d", description: "Exit from container"},
 
-	"enter": {key: "enter", description: "Select / SSH"},
+	"enter": {key: "enter", description: "Select"},
 	"esc":   {key: "esc", description: "Back"},
 	"ctrlZ": {key: "ctrl-z", description: "Back"},
 	"ctrlC": {key: "ctrl-c", description: "Exit"},

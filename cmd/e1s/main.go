@@ -29,7 +29,7 @@ func init() {
 	rootCmd.Flags().StringVarP(&logFilePath, "log-file-path", "l", defaultLogFilePath, "specify the log file path")
 	rootCmd.Flags().BoolVar(&readOnly, "readonly", false, "sets read only mode")
 	rootCmd.Flags().IntVarP(&refresh, "refresh", "r", 30, "specify the default refresh rate as an integer (sec) (default 30, set -1 to stop auto refresh)")
-	rootCmd.Flags().StringVarP(&shell, "shell", "s", "/bin/sh", "specify ecs exec ssh shell")
+	rootCmd.Flags().StringVarP(&shell, "shell", "s", "/bin/sh", "specify interactive ecs exec shell")
 	rootCmd.Flags().StringVarP(&profile, "profile", "", "", "specify the AWS profile")
 	rootCmd.Flags().StringVarP(&region, "region", "", "", "specify the AWS region")
 }

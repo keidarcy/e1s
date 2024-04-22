@@ -21,12 +21,12 @@ const (
 )
 
 // Show modal with form
-func (v *view) showFormModal(formContentFn func() (*tview.Form, string), height int) {
+func (v *view) showFormModal(formContentFn func() (*tview.Form, *string), height int) {
 	content, title := formContentFn()
 	if content == nil {
 		return
 	}
-	v.app.Pages.AddPage(title, ui.Modal(content, 100, height, v.closeModal), true, true)
+	v.app.Pages.AddPage(*title, ui.Modal(content, 100, height, v.closeModal), true, true)
 }
 
 // Show task definition register confirm modal
@@ -70,7 +70,7 @@ func (v *view) taskDefinitionRegisterForm(fn func()) (*tview.Form, string) {
 }
 
 // Get task definition register content
-func (v *view) serviceUpdateWithSpecificTaskDefinitionForm() (*tview.Form, string) {
+func (v *view) serviceUpdateWithSpecificTaskDefinitionForm() (*tview.Form, *string) {
 	readOnly := ""
 	if v.app.ReadOnly {
 		readOnly = readOnlyLabel
@@ -78,7 +78,7 @@ func (v *view) serviceUpdateWithSpecificTaskDefinitionForm() (*tview.Form, strin
 
 	if v.app.service == nil || v.app.taskDefinition == nil {
 		logger.Warn("Unexpected nil to update service with task definition")
-		return nil, ""
+		return nil, nil
 	}
 	serviceName := *v.app.service.ServiceName
 	td := utils.ArnToName(v.app.taskDefinition.TaskDefinitionArn)
@@ -93,7 +93,7 @@ func (v *view) serviceUpdateWithSpecificTaskDefinitionForm() (*tview.Form, strin
 
 	// readonly mode has no submit button
 	if v.app.ReadOnly {
-		return f, title
+		return f, &title
 	}
 
 	// handle form submit
@@ -115,16 +115,16 @@ func (v *view) serviceUpdateWithSpecificTaskDefinitionForm() (*tview.Form, strin
 		v.closeModal()
 		v.showKindPage(ServiceKind, true)
 	})
-	return f, title
+	return f, &title
 }
 
 // Get service update form
-func (v *view) serviceUpdateForm() (*tview.Form, string) {
+func (v *view) serviceUpdateForm() (*tview.Form, *string) {
 	const latest = "(LATEST)"
 
 	selected, err := v.getCurrentSelection()
 	if err != nil {
-		return nil, ""
+		return nil, nil
 	}
 	name := *selected.service.ServiceName
 
@@ -215,7 +215,7 @@ func (v *view) serviceUpdateForm() (*tview.Form, string) {
 
 	// readonly mode has no submit button
 	if v.app.ReadOnly {
-		return f, title
+		return f, &title
 	}
 
 	// handle form submit
@@ -287,18 +287,18 @@ func (v *view) serviceUpdateForm() (*tview.Form, string) {
 			v.reloadResource(false)
 		}
 	})
-	return f, title
+	return f, &title
 }
 
 // Get service metrics charts
-func (v *view) serviceMetricsForm() (*tview.Form, string) {
+func (v *view) serviceMetricsForm() (*tview.Form, *string) {
 	if v.app.kind != ServiceKind {
-		return nil, ""
+		return nil, nil
 	}
 
 	selected, err := v.getCurrentSelection()
 	if err != nil {
-		return nil, ""
+		return nil, nil
 	}
 	cluster := v.app.cluster.ClusterName
 	service := *selected.service.ServiceName
@@ -312,7 +312,7 @@ func (v *view) serviceMetricsForm() (*tview.Form, string) {
 
 	// empty Metrics or empty
 	if err != nil || (len(metrics.CPUUtilization) == 0 && len(metrics.MemoryUtilization) == 0) {
-		return f, title
+		return f, &title
 	}
 	if len(metrics.CPUUtilization) > 0 {
 		cpuLabel := "CPUUtilization"
@@ -324,5 +324,5 @@ func (v *view) serviceMetricsForm() (*tview.Form, string) {
 		f.AddTextView(memLabel, utils.BuildMeterText(*metrics.MemoryUtilization[0].Average), 50, 1, true, false)
 	}
 
-	return f, title
+	return f, &title
 }

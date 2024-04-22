@@ -162,8 +162,10 @@ func (v *view) realtimeAwsLog(entity Entity) {
 		v.app.Suspend(func() {
 			cmd := exec.Command(bin, args...)
 			cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, os.Stderr
+
 			_, err = cmd.Stdout.Write([]byte(fmt.Sprintf(realtimeLogFmt, *v.app.cluster.ClusterName, *v.app.service.ServiceName, logGroup)))
 			err = cmd.Run()
+
 			// return signal
 			signal.Stop(interrupt)
 			close(interrupt)

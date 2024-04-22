@@ -87,16 +87,6 @@ func (v *view) handleSelected(row, column int) {
 		return
 	}
 	v.app.rowIndex = 0
-	if v.app.kind == ContainerKind {
-		selected, err := v.getCurrentSelection()
-		if err != nil {
-			v.app.Notice.Warn("Failed to handleSelected")
-			logger.Warnf("Failed to handleSelected, err: %v", err)
-			return
-		}
-		containerName := *selected.container.Name
-		v.ssh(containerName)
-	}
 	v.app.showPrimaryKindPage(v.app.kind.nextKind(), false)
 }
 
@@ -165,6 +155,12 @@ func (v *view) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 		if v.app.kind == ContainerKind {
 			v.app.secondaryKind = ModalKind
 			v.showFormModal(v.cpForm, 15)
+			return event
+		}
+	case 'E':
+		if v.app.kind == ContainerKind {
+			v.app.secondaryKind = ModalKind
+			v.showFormModal(v.execCommandForm, 7)
 			return event
 		}
 	}

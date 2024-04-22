@@ -34,7 +34,7 @@ type Option struct {
 	Logger *logrus.Logger
 	// Reload resources every x second(s), -1 is stop auto refresh
 	Refresh int
-	// ECS exec ssh shell
+	// ECS exec shell
 	Shell string
 }
 
@@ -286,12 +286,6 @@ func (app *App) globalInputHandle(event *tcell.EventKey) *tcell.EventKey {
 	switch event.Rune() {
 	case '?':
 		app.showHelpPage()
-	case 'n':
-		if app.Pages.HasPage("clusters") {
-			app.Pages.SwitchToPage("clusters")
-		} else {
-			logger.Info("WHY")
-		}
 	}
 	return event
 }
