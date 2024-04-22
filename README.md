@@ -186,7 +186,7 @@ Press `?` to check overall key bindings, top right corner to check current resou
 ### Development
 
 ```bash
-go run main.go --debug --log-file-path /tmp/e1s.log
+go run cmd/e1s/main.go --debug --log-file-path /tmp/e1s.log
 ```
 
 ```bash
