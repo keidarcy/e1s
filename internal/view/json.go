@@ -166,6 +166,7 @@ func (v *view) openInEditor(beforeJson []byte) {
 
 	logger.Infof("%s open %s", bin, tmpfile.Name())
 	v.app.Suspend(func() {
+		v.app.isSuspended = true
 		cmd := exec.Command(bin, tmpfile.Name())
 		cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, os.Stderr
 
@@ -223,6 +224,7 @@ func (v *view) openInEditor(beforeJson []byte) {
 		}
 
 		v.showTaskDefinitionConfirm(register)
+		v.app.isSuspended = false
 	})
 }
 

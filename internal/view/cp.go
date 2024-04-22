@@ -182,6 +182,7 @@ func (v *view) cpForm() (*tview.Form, *string) {
 		signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM)
 
 		v.app.Suspend(func() {
+			v.app.isSuspended = true
 			logger.Infof("Exec: `%s %s`", awsCli, strings.Join(uploadArgs, " "))
 			uploadCmd := exec.Command(bin, uploadArgs...)
 			uploadCmd.Stdin, uploadCmd.Stdout = os.Stdin, os.Stdout
@@ -222,6 +223,7 @@ func (v *view) cpForm() (*tview.Form, *string) {
 
 			signal.Stop(interrupt)
 			close(interrupt)
+			v.app.isSuspended = false
 		})
 
 		if err != nil {

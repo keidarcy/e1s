@@ -29,6 +29,7 @@ func (v *view) execShell() {
 	signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM)
 
 	v.app.Suspend(func() {
+		v.app.isSuspended = true
 		bin, _ := exec.LookPath(awsCli)
 		cmdArgs := append(*args, v.app.Option.Shell)
 		logger.Infof("Exec: `%s %s`", bin, strings.Join(cmdArgs, " "))
@@ -42,6 +43,7 @@ func (v *view) execShell() {
 		// return signal
 		signal.Stop(interrupt)
 		close(interrupt)
+		v.app.isSuspended = false
 	})
 }
 
@@ -76,6 +78,7 @@ func (v *view) execCommandForm() (*tview.Form, *string) {
 		interrupt := make(chan os.Signal, 1)
 		signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM)
 		v.app.Suspend(func() {
+			v.app.isSuspended = true
 			bin, _ := exec.LookPath(awsCli)
 			cmdArgs := append(*args, execCmd)
 			logger.Infof("Exec: `%s %s`", bin, strings.Join(cmdArgs, " "))
@@ -83,16 +86,20 @@ func (v *view) execCommandForm() (*tview.Form, *string) {
 			cmd := exec.Command(bin, cmdArgs...)
 			cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, os.Stderr
 			_, err = cmd.Stdout.Write([]byte(fmt.Sprintf(execBannerFmt, *v.app.cluster.ClusterName, *v.app.service.ServiceName, utils.ArnToName(v.app.task.TaskArn), containerName)))
+			time.Sleep(1 * time.Second)
+
+			cmd.Stdout.Write([]byte(fmt.Sprintf("\nExecute: \"%s\"\n", execCmd)))
 			err = cmd.Run()
 
 			cmd.Stdout.Write([]byte("\nDone...\n"))
-			time.Sleep(2 * time.Second)
+			time.Sleep(3 * time.Second)
 
 			signal.Stop(interrupt)
 			close(interrupt)
 
 			v.closeModal()
 			v.reloadResource(false)
+			v.app.isSuspended = false
 		})
 	})
 	return f, &title
