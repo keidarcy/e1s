@@ -109,8 +109,8 @@ func (v *view) serviceUpdateWithSpecificTaskDefinitionForm() (*tview.Form, *stri
 			v.app.Notice.Error(err.Error())
 			logger.Error(err.Error())
 		} else {
-			v.app.Notice.Infof("Updated %s service with %s task definition", *s.ServiceName, utils.ArnToName(s.TaskDefinition))
-			logger.Infof("Updated %s with %s task definition", *s.ServiceName, utils.ArnToName(s.TaskDefinition))
+			v.app.Notice.Infof("Update service:\"%s\" with \"%d\" task definition:\"%s\" task(s)", *s.ServiceName, s.DesiredCount, utils.ArnToName(s.TaskDefinition))
+			logger.Infof("Update service:\"%s\" with \"%d\" task definition:\"%s\" task(s)", *s.ServiceName, s.DesiredCount, utils.ArnToName(s.TaskDefinition))
 		}
 		v.closeModal()
 		v.showKindPage(ServiceKind, true)
@@ -282,8 +282,8 @@ func (v *view) serviceUpdateForm() (*tview.Form, *string) {
 				v.app.Application.Draw()
 			}()
 
-			v.app.Notice.Infof("Update %s service with %d count tasks, %s task definition", *s.ServiceName, s.DesiredCount, *s.TaskDefinition)
-			logger.Infof("Update %s service with %d count tasks, %s task definition", *s.ServiceName, s.DesiredCount, *s.TaskDefinition)
+			v.app.Notice.Infof("Update service:\"%s\" with \"%d\" task definition:\"%s\" task(s)", *s.ServiceName, s.DesiredCount, utils.ArnToName(s.TaskDefinition))
+			logger.Infof("Update service:\"%s\" with \"%d\" task definition:\"%s\" task(s)", *s.ServiceName, s.DesiredCount, utils.ArnToName(s.TaskDefinition))
 			v.reloadResource(false)
 		}
 	})
