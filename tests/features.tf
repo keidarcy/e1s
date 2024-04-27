@@ -20,6 +20,7 @@ resource "aws_security_group" "test_redis" {
 }
 
 resource "aws_elasticache_cluster" "test_redis" {
+  count                = local.side_resource ? 1 : 0
   cluster_id           = "${local.name}-redis"
   engine               = "redis"
   engine_version       = "6.x"

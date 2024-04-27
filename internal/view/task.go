@@ -33,7 +33,17 @@ func (app *App) showTasksPages(reload bool) error {
 		return nil
 	}
 
-	tasks, err := app.Store.ListTasks(app.cluster.ClusterName, app.service.ServiceName)
+	var serviceName *string = nil
+	if app.service != nil {
+		serviceName = app.service.ServiceName
+	}
+
+	// true when show tasks from cluster
+	if app.backKind == ClusterKind {
+		serviceName = nil
+	}
+
+	tasks, err := app.Store.ListTasks(app.cluster.ClusterName, serviceName)
 
 	if err != nil {
 		logger.Warnf("Failed to show tasks pages, error: %v", err)
@@ -122,6 +132,7 @@ func (v *taskView) headerPagesParam(t types.Task) (items []headerItem) {
 			}
 		}
 	}
+
 	items = []headerItem{
 		{name: "Task ID", value: utils.ArnToName(t.TaskArn)},
 		{name: "Task definition", value: utils.ArnToName(t.TaskDefinitionArn)},
@@ -129,7 +140,7 @@ func (v *taskView) headerPagesParam(t types.Task) (items []headerItem) {
 		{name: "Cluster", value: utils.ArnToName(t.ClusterArn)},
 		{name: "Launch type", value: string(t.LaunchType)},
 		{name: "Capacity provider", value: utils.ShowString(t.CapacityProviderName)},
-		{name: "Group", value: utils.ShowString(t.Group)},
+		{name: "Health status", value: string(t.HealthStatus)},
 		{name: "Subnet ID", value: subnetID},
 		{name: "ENI ID", value: eniID},
 		{name: "Private IP", value: privateIP},
@@ -154,27 +165,22 @@ func (v *taskView) tableParam() (title string, headers []string, dataBuilder fun
 		"Task ID ▾",
 		"Last status",
 		"Desired status",
+		"Service",
 		"Task definition",
 		"Containers",
-		"Health status",
-		"Launch type",
 		"CPU",
 		"Memory",
 		"Age",
 	}
 	dataBuilder = func() (data [][]string) {
 		for _, t := range v.tasks {
-			// healthy status
-			health := string(t.HealthStatus)
-
 			row := []string{}
 			row = append(row, utils.ArnToName(t.TaskArn))
 			row = append(row, utils.ShowGreenGrey(t.LastStatus, "running"))
 			row = append(row, utils.ShowGreenGrey(t.DesiredStatus, "running"))
+			row = append(row, utils.ShowServiceByGroup(t.Group))
 			row = append(row, utils.ArnToName(t.TaskDefinitionArn))
 			row = append(row, strconv.Itoa(len(t.Containers)))
-			row = append(row, utils.ShowGreenGrey(&health, "healthy"))
-			row = append(row, string(t.LaunchType))
 			row = append(row, utils.ShowString(t.Cpu))
 			row = append(row, utils.ShowString(t.Memory))
 			row = append(row, utils.Age(t.StartedAt))

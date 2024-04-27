@@ -10,6 +10,8 @@ import (
 
 // Equivalent to
 // aws ecs list-tasks --cluster ${cluster} --service ${service}
+// OR
+// aws ecs list-tasks --cluster ${cluster}
 // aws ecs describe-tasks --cluster ${cluster} --tasks ${taskID}
 func (store *Store) ListTasks(clusterName, serviceName *string) ([]types.Task, error) {
 	limit := int32(100)

@@ -96,12 +96,13 @@ func newApp(option Option) (*App, error) {
 		Option:        option,
 		kind:          ClusterKind,
 		secondaryKind: EmptyKind,
+		backKind:      EmptyKind,
 		Entity: Entity{
 			cluster: &types.Cluster{
-				ClusterName: aws.String("placeholder cluster"),
+				ClusterName: aws.String("no cluster"),
 			},
 			service: &types.Service{
-				ServiceName: aws.String("placeholder service"),
+				ServiceName: aws.String("no service"),
 			},
 		},
 	}, nil
@@ -181,10 +182,11 @@ func (app *App) switchPage(reload bool) bool {
 // Go back page based on current kind
 func (app *App) back() {
 	prevKind := app.kind.prevKind()
-	if app.backKind != EmptyKind {
+	if app.backKind != EmptyKind && (app.kind == TaskKind || app.kind == TaskDefinitionKind) {
 		prevKind = app.backKind
 		app.backKind = EmptyKind
 	}
+
 	app.kind = prevKind
 	app.secondaryKind = EmptyKind
 	pageName := prevKind.getAppPageName(app.getPageHandle())
@@ -206,6 +208,10 @@ func (app *App) getPageHandle() string {
 	name := ""
 	if app.kind != ClusterKind {
 		name = *app.cluster.ClusterArn
+	}
+	// true when show tasks in cluster
+	if app.backKind == ClusterKind && app.kind == TaskKind {
+		name = name + ".cluster"
 	}
 	return name
 }

@@ -109,8 +109,8 @@ func (v *view) serviceUpdateWithSpecificTaskDefinitionForm() (*tview.Form, *stri
 			v.app.Notice.Error(err.Error())
 			logger.Error(err.Error())
 		} else {
-			v.app.Notice.Infof("Updated %s service with %s task definition", *s.ServiceName, *s.TaskDefinition)
-			logger.Infof("Updated %s with %s task definition", *s.ServiceName, *s.TaskDefinition)
+			v.app.Notice.Infof("Updated %s service with %s task definition", *s.ServiceName, utils.ArnToName(s.TaskDefinition))
+			logger.Infof("Updated %s with %s task definition", *s.ServiceName, utils.ArnToName(s.TaskDefinition))
 		}
 		v.closeModal()
 		v.showKindPage(ServiceKind, true)
