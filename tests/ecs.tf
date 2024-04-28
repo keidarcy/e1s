@@ -5,6 +5,7 @@ locals {
   cluster_count                         = var.cluster_count
   service_count                         = var.service_count
   task_count                            = var.task_count
+  side_resource                         = var.side_resource
   container_name                        = "nginx"
   container_port                        = "80"
   container_definitions_with_fluent_bit = <<EOL

@@ -50,7 +50,6 @@ func (app *App) showServicesPage(reload bool) error {
 
 	// no services exists do nothing
 	if len(services) == 0 {
-		app.Notice.Warn("No valid service")
 		app.back()
 		return fmt.Errorf("no valid service")
 	}

@@ -81,18 +81,24 @@ func (v *view) showJsonPages(entity Entity) {
 	v.handleHeaderPageSwitch(entity)
 }
 
-func (v *view) handleFullScreenContentInput(event *tcell.EventKey) *tcell.EventKey {
-	switch event.Rune() {
-	case 'f':
-		pageName := v.app.kind.getAppPageName(v.app.getPageHandle())
-		v.app.Pages.SwitchToPage(pageName)
-	}
+func (v *view) handleFullScreenContentInput(jsonBytes []byte) func(event *tcell.EventKey) *tcell.EventKey {
+	return func(event *tcell.EventKey) *tcell.EventKey {
+		switch event.Rune() {
+		case 'f':
+			pageName := v.app.kind.getAppPageName(v.app.getPageHandle())
+			v.app.Pages.SwitchToPage(pageName)
+		case 'e':
+			if v.app.secondaryKind == DescriptionKind || v.app.secondaryKind == AutoScalingKind {
+				v.openInEditor(jsonBytes)
+			}
+		}
 
-	switch event.Key() {
-	case tcell.KeyCtrlR:
-		v.reloadResource(true)
+		switch event.Key() {
+		case tcell.KeyCtrlR:
+			v.reloadResource(true)
+		}
+		return event
 	}
-	return event
 }
 
 func (v *view) handleTableContentDone(key tcell.Key) {

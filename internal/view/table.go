@@ -122,6 +122,12 @@ func (v *view) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 			v.showKindPage(TaskDefinitionKind, false)
 			return event
 		}
+	case 'n':
+		if v.app.kind == ClusterKind {
+			v.app.backKind = ClusterKind
+			v.showKindPage(TaskKind, false)
+			return event
+		}
 	case 'w':
 		if v.app.kind == ServiceKind {
 			v.app.secondaryKind = ServiceEventsKind

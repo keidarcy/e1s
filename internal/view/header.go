@@ -21,6 +21,7 @@ var hotKeyMap = map[string]keyInput{
 	"m":     {key: "m", description: "Show metrics(CPU/Memory)"},
 	"r":     {key: "r", description: "Realtime log streaming(Only support one log group)"},
 	"t":     {key: "t", description: "Show task definitions"},
+	"n":     {key: "n", description: "Show all cluster tasks"},
 	"w":     {key: "w", description: "Describe service events"},
 	"P":     {key: "shift-p", description: "File transfer"},
 	"F":     {key: "shift-f", description: "Start port forwarding session"},

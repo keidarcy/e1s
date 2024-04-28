@@ -149,7 +149,7 @@ func (v *view) handleSecondaryPageSwitch(entity Entity, colorizedJsonString stri
 		})
 
 		// full screen json press f close full screen json
-		fullScreenContent.SetInputCapture(v.handleFullScreenContentInput)
+		fullScreenContent.SetInputCapture(v.handleFullScreenContentInput(jsonBytes))
 
 		// contentTextComponent press f open in full screen
 		switch event.Rune() {

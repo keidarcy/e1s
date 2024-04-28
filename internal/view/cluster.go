@@ -16,8 +16,11 @@ type clusterView struct {
 }
 
 func newClusterView(clusters []types.Cluster, app *App) *clusterView {
+	keys := append(basicKeyInputs, []keyInput{
+		hotKeyMap["n"],
+	}...)
 	return &clusterView{
-		view: *newView(app, basicKeyInputs, secondaryPageKeyMap{
+		view: *newView(app, keys, secondaryPageKeyMap{
 			DescriptionKind: describePageKeys,
 		}),
 		clusters: clusters,

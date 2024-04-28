@@ -18,5 +18,5 @@ output "s3_name" {
 }
 
 output "redis_host" {
-  value = aws_elasticache_cluster.test_redis.cache_nodes[0].address
+  value = aws_elasticache_cluster.test_redis[*].cache_nodes[0].address
 }

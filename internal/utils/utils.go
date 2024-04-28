@@ -312,3 +312,17 @@ func ImageInfo(imageURL *string) (string, string) {
 	// Return the registry short name and the image name with tag
 	return registryShortName, path
 }
+
+// Get service name by describe task group name
+func ShowServiceByGroup(group *string) string {
+	if group == nil {
+		return EmptyText
+	}
+
+	if !strings.HasPrefix(*group, "service") {
+		return EmptyText
+	}
+
+	parts := strings.Split(*group, ":")
+	return parts[1]
+}
