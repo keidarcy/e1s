@@ -1,6 +1,7 @@
 package view
 
 import (
+	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
 	"github.com/gdamore/tcell/v2"
 	"github.com/keidarcy/e1s/internal/utils"
 	"github.com/rivo/tview"
@@ -122,9 +123,21 @@ func (v *view) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 			v.showKindPage(TaskDefinitionKind, false)
 			return event
 		}
+	case 'p':
+		if v.app.kind == TaskKind {
+			v.app.taskStatus = types.DesiredStatusPending
+			v.showKindPage(TaskKind, false)
+			return event
+		}
+	case 's':
+		if v.app.kind == TaskKind {
+			v.app.taskStatus = types.DesiredStatusStopped
+			v.showKindPage(TaskKind, false)
+			return event
+		}
 	case 'n':
 		if v.app.kind == ClusterKind {
-			v.app.backKind = ClusterKind
+			v.app.fromCluster = true
 			v.showKindPage(TaskKind, false)
 			return event
 		}

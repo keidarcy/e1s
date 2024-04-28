@@ -18,6 +18,9 @@ type taskView struct {
 func newTaskView(tasks []types.Task, app *App) *taskView {
 	keys := append(basicKeyInputs, []keyInput{
 		hotKeyMap["t"],
+		hotKeyMap["l"],
+		hotKeyMap["p"],
+		hotKeyMap["s"],
 	}...)
 	return &taskView{
 		view: *newView(app, keys, secondaryPageKeyMap{
@@ -39,11 +42,11 @@ func (app *App) showTasksPages(reload bool) error {
 	}
 
 	// true when show tasks from cluster
-	if app.backKind == ClusterKind {
+	if app.fromCluster {
 		serviceName = nil
 	}
 
-	tasks, err := app.Store.ListTasks(app.cluster.ClusterName, serviceName)
+	tasks, err := app.Store.ListTasks(app.cluster.ClusterName, serviceName, app.taskStatus)
 
 	if err != nil {
 		logger.Warnf("Failed to show tasks pages, error: %v", err)
@@ -53,8 +56,9 @@ func (app *App) showTasksPages(reload bool) error {
 
 	// no tasks exists do nothing
 	if len(tasks) == 0 {
+		err := fmt.Errorf("no valid %s task", strings.ToLower(string(app.taskStatus)))
 		app.back()
-		return fmt.Errorf("no valid task")
+		return err
 	}
 
 	view := newTaskView(tasks, app)
@@ -140,7 +144,6 @@ func (v *taskView) headerPagesParam(t types.Task) (items []headerItem) {
 		{name: "Cluster", value: utils.ArnToName(t.ClusterArn)},
 		{name: "Launch type", value: string(t.LaunchType)},
 		{name: "Capacity provider", value: utils.ShowString(t.CapacityProviderName)},
-		{name: "Health status", value: string(t.HealthStatus)},
 		{name: "Subnet ID", value: subnetID},
 		{name: "ENI ID", value: eniID},
 		{name: "Private IP", value: privateIP},
@@ -160,11 +163,11 @@ func (v *taskView) headerPagesParam(t types.Task) (items []headerItem) {
 
 // Generate table params
 func (v *taskView) tableParam() (title string, headers []string, dataBuilder func() [][]string) {
-	title = fmt.Sprintf(nsTitleFmt, v.app.kind, *v.app.service.ServiceName, len(v.tasks))
+	title = fmt.Sprintf(nsTitleFmt, fmt.Sprintf("%s.%s", v.app.kind, strings.ToLower(string(v.app.taskStatus))), *v.app.service.ServiceName, len(v.tasks))
 	headers = []string{
 		"Task ID ▾",
 		"Last status",
-		"Desired status",
+		"Health",
 		"Service",
 		"Task definition",
 		"Containers",
@@ -174,10 +177,13 @@ func (v *taskView) tableParam() (title string, headers []string, dataBuilder fun
 	}
 	dataBuilder = func() (data [][]string) {
 		for _, t := range v.tasks {
+			// healthy status
+			health := string(t.HealthStatus)
+
 			row := []string{}
 			row = append(row, utils.ArnToName(t.TaskArn))
 			row = append(row, utils.ShowGreenGrey(t.LastStatus, "running"))
-			row = append(row, utils.ShowGreenGrey(t.DesiredStatus, "running"))
+			row = append(row, utils.ShowGreenGrey(&health, "healthy"))
 			row = append(row, utils.ShowServiceByGroup(t.Group))
 			row = append(row, utils.ArnToName(t.TaskDefinitionArn))
 			row = append(row, strconv.Itoa(len(t.Containers)))

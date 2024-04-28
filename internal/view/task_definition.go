@@ -31,7 +31,15 @@ func (app *App) showTaskDefinitionPage(reload bool) error {
 		return nil
 	}
 
-	taskDefinitions, err := app.Store.ListFullTaskDefinition(app.service.TaskDefinition)
+	td := app.service.TaskDefinition
+	if td != nil {
+		logger.Infof("service td %s", *td)
+	}
+	if td == nil {
+		td = app.task.TaskDefinitionArn
+		logger.Infof("task td %s", *td)
+	}
+	taskDefinitions, err := app.Store.ListFullTaskDefinition(td)
 
 	if err != nil {
 		logger.Warnf("Failed to show taskDefinition pages, error: %v", err)
@@ -141,7 +149,17 @@ func (v *taskDefinitionView) headerPagesParam(t types.TaskDefinition) (items []h
 
 // Generate table params
 func (v *taskDefinitionView) tableParam() (title string, headers []string, dataBuilder func() [][]string) {
-	title = fmt.Sprintf(nsTitleFmt, v.app.kind, *v.app.service.ServiceName, len(v.taskDefinitions))
+	serviceName, td := "", ""
+	if v.app.service.ServiceName != nil {
+		serviceName = *v.app.service.ServiceName
+	}
+	if v.app.service.TaskDefinition != nil {
+		td = *v.app.service.TaskDefinition
+	}
+	if v.app.task.TaskDefinitionArn != nil {
+		td = *v.app.task.TaskDefinitionArn
+	}
+	title = fmt.Sprintf(nsTitleFmt, v.app.kind, serviceName, len(v.taskDefinitions))
 	headers = []string{
 		"Revision ▾",
 		"In use",
@@ -153,7 +171,7 @@ func (v *taskDefinitionView) tableParam() (title string, headers []string, dataB
 	dataBuilder = func() (data [][]string) {
 		for _, t := range v.taskDefinitions {
 			inUse := "-"
-			if *v.app.service.TaskDefinition == *t.TaskDefinitionArn {
+			if td == *t.TaskDefinitionArn {
 				inUse = "Yes"
 			}
 
