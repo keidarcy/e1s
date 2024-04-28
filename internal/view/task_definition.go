@@ -32,12 +32,8 @@ func (app *App) showTaskDefinitionPage(reload bool) error {
 	}
 
 	td := app.service.TaskDefinition
-	if td != nil {
-		logger.Infof("service td %s", *td)
-	}
 	if td == nil {
 		td = app.task.TaskDefinitionArn
-		logger.Infof("task td %s", *td)
 	}
 	taskDefinitions, err := app.Store.ListFullTaskDefinition(td)
 
