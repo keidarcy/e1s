@@ -129,7 +129,7 @@ func (v *containerView) tableParam() (title string, headers []string, dataBuilde
 	headers = []string{
 		"Name",
 		"Status",
-		"Health status ▾",
+		"Health ▾",
 		"PF",
 		"Registry",
 		"Image name",

@@ -72,6 +72,7 @@ func (store *Store) ListFullTaskDefinition(taskDefinition *string) ([]types.Task
 	g := new(errgroup.Group)
 
 	for _, t := range list {
+		t := t
 		g.Go(func() error {
 			d, err := store.DescribeTaskDefinition(&t)
 			if err != nil {

@@ -13,12 +13,13 @@ import (
 // OR
 // aws ecs list-tasks --cluster ${cluster}
 // aws ecs describe-tasks --cluster ${cluster} --tasks ${taskID}
-func (store *Store) ListTasks(clusterName, serviceName *string) ([]types.Task, error) {
+func (store *Store) ListTasks(clusterName, serviceName *string, status types.DesiredStatus) ([]types.Task, error) {
 	limit := int32(100)
 	listTasksOutput, err := store.ecs.ListTasks(context.Background(), &ecs.ListTasksInput{
-		Cluster:     clusterName,
-		ServiceName: serviceName,
-		MaxResults:  &limit,
+		Cluster:       clusterName,
+		ServiceName:   serviceName,
+		DesiredStatus: status,
+		MaxResults:    &limit,
 	})
 	if err != nil {
 		logger.Warnf("Failed to run aws api to list tasks, err: %v", err)

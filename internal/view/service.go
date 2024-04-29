@@ -21,9 +21,9 @@ func newServiceView(services []types.Service, app *App) *serviceView {
 		hotKeyMap["U"],
 		hotKeyMap["w"],
 		hotKeyMap["t"],
+		hotKeyMap["l"],
 		hotKeyMap["m"],
 		hotKeyMap["a"],
-		hotKeyMap["l"],
 	}...)
 	return &serviceView{
 		view: *newView(app, keys, secondaryPageKeyMap{

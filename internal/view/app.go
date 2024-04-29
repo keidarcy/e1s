@@ -1,6 +1,7 @@
 package view
 
 import (
+	"strings"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -66,6 +67,10 @@ type App struct {
 	rowIndex int
 	// Specify in tview app suspend or not
 	isSuspended bool
+	// Show selected status tasks
+	taskStatus types.DesiredStatus
+	// Show resources from cluster
+	fromCluster bool
 }
 
 func newApp(option Option) (*App, error) {
@@ -97,6 +102,7 @@ func newApp(option Option) (*App, error) {
 		kind:          ClusterKind,
 		secondaryKind: EmptyKind,
 		backKind:      EmptyKind,
+		taskStatus:    types.DesiredStatusRunning,
 		Entity: Entity{
 			cluster: &types.Cluster{
 				ClusterName: aws.String("no cluster"),
@@ -181,10 +187,17 @@ func (app *App) switchPage(reload bool) bool {
 
 // Go back page based on current kind
 func (app *App) back() {
+	app.taskStatus = types.DesiredStatusRunning
+
 	prevKind := app.kind.prevKind()
-	if app.backKind != EmptyKind && (app.kind == TaskKind || app.kind == TaskDefinitionKind) {
+	if app.backKind != EmptyKind {
 		prevKind = app.backKind
 		app.backKind = EmptyKind
+	}
+
+	if app.fromCluster && prevKind == ServiceKind {
+		app.fromCluster = false
+		prevKind = ClusterKind
 	}
 
 	app.kind = prevKind
@@ -209,8 +222,13 @@ func (app *App) getPageHandle() string {
 	if app.kind != ClusterKind {
 		name = *app.cluster.ClusterArn
 	}
+	// based on different task status different name
+	if app.kind == TaskKind {
+		name = name + "." + strings.ToLower(string((app.taskStatus)))
+	}
+
 	// true when show tasks in cluster
-	if app.backKind == ClusterKind && app.kind == TaskKind {
+	if app.fromCluster {
 		name = name + ".cluster"
 	}
 	return name
