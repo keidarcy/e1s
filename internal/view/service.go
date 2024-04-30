@@ -161,7 +161,8 @@ func (v *serviceView) headerPagesParam(s types.Service) (items []headerItem) {
 		{name: "Cluster", value: utils.ArnToName(s.ClusterArn)},
 		{name: "Capacity provider strategy", value: cpsString},
 		{name: "RoleArn", value: utils.ArnToName(s.RoleArn)},
-		{name: "Task Definition", value: utils.ArnToName(s.TaskDefinition)},
+		{name: "Task definition", value: utils.ArnToName(s.TaskDefinition)},
+		{name: "Propagate tags", value: string(s.PropagateTags)},
 		{name: "Scheduling strategy", value: string(s.SchedulingStrategy)},
 		{name: "Deployment controller", value: dc},
 		{name: "Deployment circuitBreaker enable", value: dcbe},
@@ -176,6 +177,7 @@ func (v *serviceView) headerPagesParam(s types.Service) (items []headerItem) {
 		{name: "Created by", value: utils.ArnToName(s.CreatedBy)},
 		{name: "Platform family", value: utils.ShowString(s.PlatformFamily)},
 		{name: "Platform version", value: utils.ShowString(s.PlatformVersion)},
+		{name: "Tags count", value: strconv.Itoa(len(s.Tags))},
 	}
 	return
 }

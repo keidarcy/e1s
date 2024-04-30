@@ -13,6 +13,8 @@ import (
 // OR
 // aws ecs list-tasks --cluster ${cluster}
 // aws ecs describe-tasks --cluster ${cluster} --tasks ${taskID}
+// OR
+// aws ecs list-tasks --cluster ${cluster} --desired-status STOPPED
 func (store *Store) ListTasks(clusterName, serviceName *string, status types.DesiredStatus) ([]types.Task, error) {
 	limit := int32(100)
 	listTasksOutput, err := store.ecs.ListTasks(context.Background(), &ecs.ListTasksInput{

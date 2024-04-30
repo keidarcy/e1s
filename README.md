@@ -40,7 +40,7 @@ brew install keidarcy/tap/e1s
 - [x] Auto refresh
 - [x] Describe clusters
 - [x] Describe services
-- [x] Describe tasks(running, stopped, pending)
+- [x] Describe tasks(running, stopped)
 - [x] Describe containers
 - [x] Describe task definitions
 - [x] Describe service autoscaling

@@ -123,15 +123,13 @@ func (v *view) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 			v.showKindPage(TaskDefinitionKind, false)
 			return event
 		}
-	case 'p':
-		if v.app.kind == TaskKind {
-			v.app.taskStatus = types.DesiredStatusPending
-			v.showKindPage(TaskKind, false)
-			return event
-		}
 	case 's':
 		if v.app.kind == TaskKind {
-			v.app.taskStatus = types.DesiredStatusStopped
+			if v.app.taskStatus == types.DesiredStatusRunning {
+				v.app.taskStatus = types.DesiredStatusStopped
+			} else {
+				v.app.taskStatus = types.DesiredStatusRunning
+			}
 			v.showKindPage(TaskKind, false)
 			return event
 		}
