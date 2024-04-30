@@ -18,6 +18,8 @@ var logger *logrus.Logger
 
 type Store struct {
 	*aws.Config
+	Region         string
+	Profile        string
 	ecs            *ecs.Client
 	cloudwatch     *cloudwatch.Client
 	cloudwatchlogs *cloudwatchlogs.Client
@@ -27,16 +29,20 @@ type Store struct {
 
 func NewStore(logr *logrus.Logger) (*Store, error) {
 	logger = logr
-	logger.Infof("e1s load default config with AWS_PROFILE: %q, AWS_REGION: %q", os.Getenv("AWS_PROFILE"), os.Getenv("AWS_REGION"))
-	cfg, err := config.LoadDefaultConfig(context.Background(), config.WithRegion(os.Getenv("AWS_REGION")))
+	profile := os.Getenv("AWS_PROFILE")
+	region := os.Getenv("AWS_REGION")
+	logger.Infof("e1s load default config with AWS_PROFILE: %q, AWS_REGION: %q", profile, region)
+	cfg, err := config.LoadDefaultConfig(context.Background(), config.WithRegion(region))
 	if err != nil {
 		logger.Errorf("Failed to load aws SDK config, error: %v\n", err)
 		return nil, err
 	}
 	ecsClient := ecs.NewFromConfig(cfg)
 	return &Store{
-		Config: &cfg,
-		ecs:    ecsClient,
+		Config:  &cfg,
+		Region:  cfg.Region,
+		Profile: profile,
+		ecs:     ecsClient,
 	}, nil
 }
 
