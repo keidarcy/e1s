@@ -19,7 +19,6 @@ func newTaskView(tasks []types.Task, app *App) *taskView {
 	keys := append(basicKeyInputs, []keyInput{
 		hotKeyMap["t"],
 		hotKeyMap["l"],
-		hotKeyMap["p"],
 		hotKeyMap["s"],
 	}...)
 	return &taskView{
@@ -43,6 +42,11 @@ func (app *App) showTasksPages(reload bool) error {
 
 	// true when show tasks from cluster
 	if app.fromCluster {
+		serviceName = nil
+	}
+
+	// true when show desiredStatus:stopped tasks
+	if app.taskStatus == types.DesiredStatusStopped {
 		serviceName = nil
 	}
 
@@ -157,13 +161,18 @@ func (v *taskView) headerPagesParam(t types.Task) (items []headerItem) {
 		{name: "StoppingAt", value: utils.ShowTime(t.StoppingAt)},
 		{name: "Platform family", value: utils.ShowString(t.PlatformFamily)},
 		{name: "Platform version", value: utils.ShowString(t.PlatformVersion)},
+		{name: "Tags count", value: strconv.Itoa(len(t.Tags))},
 	}
 	return
 }
 
 // Generate table params
 func (v *taskView) tableParam() (title string, headers []string, dataBuilder func() [][]string) {
-	title = fmt.Sprintf(nsTitleFmt, fmt.Sprintf("%s.%s", v.app.kind, strings.ToLower(string(v.app.taskStatus))), *v.app.service.ServiceName, len(v.tasks))
+	parent := *v.app.service.ServiceName
+	if v.app.taskStatus == types.DesiredStatusStopped {
+		parent = *v.app.cluster.ClusterName
+	}
+	title = fmt.Sprintf(nsTitleFmt, fmt.Sprintf("%s.%s", v.app.kind, strings.ToLower(string(v.app.taskStatus))), parent, len(v.tasks))
 	headers = []string{
 		"Task ID ▾",
 		"Last status",

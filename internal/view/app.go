@@ -110,6 +110,9 @@ func newApp(option Option) (*App, error) {
 			service: &types.Service{
 				ServiceName: aws.String("no service"),
 			},
+			task:           &types.Task{},
+			container:      &types.Container{},
+			taskDefinition: &types.TaskDefinition{},
 		},
 	}, nil
 }

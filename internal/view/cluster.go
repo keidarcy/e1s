@@ -135,6 +135,7 @@ func (v *clusterView) headerPagesParam(c types.Cluster) (items []headerItem) {
 		{name: "Service connect defaults", value: scd},
 		{name: "Attachments status", value: utils.ShowString(c.AttachmentsStatus)},
 		{name: "Registered containers", value: utils.ShowInt(&c.RegisteredContainerInstancesCount)},
+		{name: "Tags count", value: strconv.Itoa(len(c.Tags))},
 	}
 	return
 }
