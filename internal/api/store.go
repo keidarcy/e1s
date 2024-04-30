@@ -31,13 +31,13 @@ func NewStore(logr *logrus.Logger) (*Store, error) {
 	logger = logr
 	profile := os.Getenv("AWS_PROFILE")
 	region := os.Getenv("AWS_REGION")
-	logger.Infof("e1s load default config with AWS_PROFILE: %q, AWS_REGION: %q", profile, region)
 	cfg, err := config.LoadDefaultConfig(context.Background(), config.WithRegion(region))
 	if err != nil {
 		logger.Errorf("Failed to load aws SDK config, error: %v\n", err)
 		return nil, err
 	}
 	ecsClient := ecs.NewFromConfig(cfg)
+	logger.Infof("e1s load config with AWS_PROFILE: %q, AWS_REGION: %q", profile, cfg.Region)
 	return &Store{
 		Config:  &cfg,
 		Region:  cfg.Region,
