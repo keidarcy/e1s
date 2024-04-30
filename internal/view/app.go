@@ -71,16 +71,16 @@ type App struct {
 	taskStatus types.DesiredStatus
 	// Show resources from cluster
 	fromCluster bool
+	// AWS region
+	region string
+	// AWS profile
+	profile string
 }
 
 func newApp(option Option) (*App, error) {
 	store, err := api.NewStore(option.Logger)
 	if err != nil {
 		return nil, err
-	}
-	region := store.Config.Region
-	if len(region) == 0 {
-		region = "unknown"
 	}
 	app := tview.NewApplication()
 	pages := tview.NewPages()
@@ -103,6 +103,8 @@ func newApp(option Option) (*App, error) {
 		secondaryKind: EmptyKind,
 		backKind:      EmptyKind,
 		taskStatus:    types.DesiredStatusRunning,
+		region:        store.Region,
+		profile:       store.Profile,
 		Entity: Entity{
 			cluster: &types.Cluster{
 				ClusterName: aws.String("no cluster"),

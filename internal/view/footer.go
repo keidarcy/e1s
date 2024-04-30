@@ -56,10 +56,15 @@ func (v *view) addFooterItems() {
 	}
 
 	// right labels
-	// name version label
-	regionLabel := tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf("[black:yellow:bi] %s ", v.app.Region))
-	v.footer.footerFlex.AddItem(regionLabel, len(v.app.Region)+3, 0, false)
+	// aws cli info label
+	info := v.app.region
+	if v.app.profile != "" {
+		info = fmt.Sprintf("%s:%s", v.app.profile, v.app.region)
+	}
+	cliInfo := tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf("[black:yellow:bi] %s ", info))
+	v.footer.footerFlex.AddItem(cliInfo, len(info)+3, 0, false)
 
+	// e1s info label
 	t := tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf("[black:blue:bi] %s:%s ", utils.AppName, utils.AppVersion))
 	v.footer.footerFlex.AddItem(t, 14, 0, false)
 }
