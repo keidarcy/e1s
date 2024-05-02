@@ -147,37 +147,37 @@ Usage:
   e1s [flags]
 
 Flags:
-  -d, --debug                  sets debug mode
-  -h, --help                   help for e1s
-  -j, --json                   log output json format
-  -l, --log-file-path string   specify the log file path (default "${TMPDIR}e1s.log")
-      --profile string         specify the AWS profile
-      --readonly               sets read only mode
-  -r, --refresh int            specify the default refresh rate as an integer (sec) (default 30, set -1 to stop auto refresh) (default 30)
-      --region string          specify the AWS region
-  -s, --shell string           specify interactive ecs exec shell (default "/bin/sh")
-  -v, --version                version for e1s
+  -c, --config-file string   config file (default "$HOME/.config/e1s/config.yml")
+  -d, --debug                sets debug mode
+  -h, --help                 help for e1s
+  -j, --json                 log output json format
+  -l, --log-file string   specify the log file path (default "${TMPDIR}e1s.log")
+      --profile string       specify the AWS profile
+      --read-only            sets read only mode
+  -r, --refresh int          specify the default refresh rate as an integer, sets -1 to stop auto refresh (sec) (default 30)
+      --region string        specify the AWS region
+  -s, --shell string         specify interactive ecs exec shell (default "/bin/sh")
+  -v, --version              version for e1s
+
 ```
 
-- Using default profile
+- Examples
 
 ```bash
+# use all default config
 $ e1s
-```
-
-- Using my-profile profile, us-east-1 region
-
-```bash
-$ AWS_PROFILE=my-profile AWS_REGION=us-east-1 e1s
-# OR
-$ e1s --profile my-profile --region us-east-1
-```
-
-- Using read only, debug, stop auto refresh with a custom log path json output
-
-```bash
+# use custom-profile profile, us-east-2 region
+$ AWS_PROFILE=custom-profile AWS_REGION=us-east-2 e1s
+# use custom-profile profile, us-east-2 region
+$ e1s --profile custom-profile --region us-east-2
+# use command line to set read only, debug, stop auto refresh with a custom log path json output
 $ e1s --readonly --debug --refresh -1 --log-file-path /tmp/e1s.log --json
 ```
+
+- Config file([sample](https://github.com/keidarcy/dotfiles/blob/master/other-dot-config/.config/e1s/config.yml))
+
+Default config file path is `$HOME/.config/e1s/config.yml`, you can specify the config file that [viper](https://github.com/spf13/viper?tab=readme-ov-file#what-is-viper) supports path with `--config-file` option.
+
 
 ### Key Bindings
 

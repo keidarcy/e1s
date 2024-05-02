@@ -15,7 +15,7 @@ type containerView struct {
 }
 
 func newContainerView(containers []types.Container, app *App) *containerView {
-	keys := append(basicKeyInputs, []keyInput{
+	keys := append(basicKeyInputs, []keyDescriptionPair{
 		hotKeyMap["F"],
 		hotKeyMap["T"],
 		hotKeyMap["P"],

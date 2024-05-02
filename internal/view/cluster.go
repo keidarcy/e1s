@@ -16,7 +16,7 @@ type clusterView struct {
 }
 
 func newClusterView(clusters []types.Cluster, app *App) *clusterView {
-	keys := append(basicKeyInputs, []keyInput{
+	keys := append(basicKeyInputs, []keyDescriptionPair{
 		hotKeyMap["n"],
 	}...)
 	return &clusterView{

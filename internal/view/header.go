@@ -14,7 +14,7 @@ const (
 	headerItemFmt  = " %s:[aqua::b] %s "
 )
 
-var hotKeyMap = map[string]keyInput{
+var hotKeyMap = map[string]keyDescriptionPair{
 	"a":     {key: "a", description: "Describe service auto scaling"},
 	"f":     {key: "f", description: "Toggle full screen"},
 	"l":     {key: "l", description: "Show cloudwatch logs(Only support awslogs logDriver)"},
@@ -56,33 +56,33 @@ type headerItem struct {
 }
 
 // Keyboard key and description
-type keyInput struct {
+type keyDescriptionPair struct {
 	key         string
 	description string
 }
 
-var basicKeyInputs = []keyInput{
+var basicKeyInputs = []keyDescriptionPair{
 	hotKeyMap["b"],
 	hotKeyMap["d"],
 	hotKeyMap["ctrlR"],
 }
 
-type secondaryPageKeyMap = map[kind][]keyInput
+type secondaryPageKeyMap = map[kind][]keyDescriptionPair
 
-var describePageKeys = []keyInput{
+var describePageKeys = []keyDescriptionPair{
 	hotKeyMap["f"],
 	hotKeyMap["b"],
 	hotKeyMap["e"],
 	hotKeyMap["ctrlZ"],
 }
 
-var otherDescribePageKeys = []keyInput{
+var otherDescribePageKeys = []keyDescriptionPair{
 	hotKeyMap["f"],
 	hotKeyMap["b"],
 	hotKeyMap["ctrlZ"],
 }
 
-var logPageKeys = []keyInput{
+var logPageKeys = []keyDescriptionPair{
 	hotKeyMap["f"],
 	hotKeyMap["b"],
 	hotKeyMap["r"],
@@ -91,7 +91,7 @@ var logPageKeys = []keyInput{
 }
 
 // Build header flex show on top of view, will change when selection change
-func (v *view) buildHeaderFlex(title string, items []headerItem, keys []keyInput) *tview.Flex {
+func (v *view) buildHeaderFlex(title string, items []headerItem, keys []keyDescriptionPair) *tview.Flex {
 	headerFlex := tview.NewFlex().SetDirection(tview.FlexColumn)
 
 	columnCount := len(items)/oneColumnCount + 1

@@ -2,6 +2,7 @@ package view
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/keidarcy/e1s/internal/ui"
 	"github.com/rivo/tview"
@@ -12,7 +13,7 @@ type helpView struct {
 }
 
 func newHelpView(app *App) *helpView {
-	keys := append(basicKeyInputs, []keyInput{}...)
+	keys := append(basicKeyInputs, []keyDescriptionPair{}...)
 	return &helpView{
 		view: *newView(app, keys, secondaryPageKeyMap{
 			DescriptionKind: describePageKeys,
@@ -22,7 +23,7 @@ func newHelpView(app *App) *helpView {
 
 func (app *App) showHelpPage() {
 	view := newHelpView(app)
-	left := genColumn("Resource", []keyInput{
+	resource := genColumn("Resource", []keyDescriptionPair{
 		hotKeyMap["enter"],
 		hotKeyMap["esc"],
 		hotKeyMap["ctrlZ"],
@@ -33,7 +34,7 @@ func (app *App) showHelpPage() {
 		hotKeyMap["d"],
 		hotKeyMap["e"],
 	})
-	right := genColumn("Navigation", []keyInput{
+	navigation := genColumn("Navigation", []keyDescriptionPair{
 		hotKeyMap["j"],
 		hotKeyMap["k"],
 		hotKeyMap["G"],
@@ -41,14 +42,24 @@ func (app *App) showHelpPage() {
 		hotKeyMap["ctrlF"],
 		hotKeyMap["ctrlB"],
 	})
+	info := genColumn("Info", []keyDescriptionPair{
+		{key: "debug", description: strconv.FormatBool(app.Option.Debug)},
+		{key: "json", description: strconv.FormatBool(app.Option.JSON)},
+		{key: "read-only", description: strconv.FormatBool(app.Option.ReadOnly)},
+		{key: "log-file", description: app.Option.LogFile},
+		{key: "config-file", description: app.Option.ConfigFile},
+		{key: "shell", description: app.Option.Shell},
+		{key: "refresh", description: strconv.Itoa(app.Option.Refresh)},
+	})
 	flex := tview.NewFlex().
-		AddItem(left, 0, 1, false).
-		AddItem(right, 0, 1, false)
+		AddItem(resource, 0, 1, false).
+		AddItem(navigation, 0, 1, false).
+		AddItem(info, 0, 1, false)
 	flex.SetBorder(true).SetTitle(" Help ")
 	app.Pages.AddPage("help", ui.Modal(flex, 150, 30, view.closeModal), true, true)
 }
 
-func genColumn(title string, keys []keyInput) tview.Primitive {
+func genColumn(title string, keys []keyDescriptionPair) tview.Primitive {
 	t := tview.NewTable()
 	t.SetBorderPadding(1, 0, 2, 0)
 	adjust := 2

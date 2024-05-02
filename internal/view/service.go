@@ -17,7 +17,7 @@ type serviceView struct {
 }
 
 func newServiceView(services []types.Service, app *App) *serviceView {
-	keys := append(basicKeyInputs, []keyInput{
+	keys := append(basicKeyInputs, []keyDescriptionPair{
 		hotKeyMap["U"],
 		hotKeyMap["w"],
 		hotKeyMap["t"],

@@ -48,7 +48,7 @@ func GetLogger(path string, json bool, debug bool) (*logrus.Logger, *os.File) {
 	if err == nil {
 		logger.SetOutput(file)
 	} else {
-		logger.Error("Failed to log to file, using default stderr")
+		logger.Errorf("Failed to log to file, using default stderr, err: %v", err)
 	}
 
 	if json {
