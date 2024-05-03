@@ -151,7 +151,7 @@ Flags:
   -d, --debug                sets debug mode
   -h, --help                 help for e1s
   -j, --json                 log output json format
-  -l, --log-file string   specify the log file path (default "${TMPDIR}e1s.log")
+  -l, --log-file string      specify the log file path (default "${TMPDIR}e1s.log")
       --profile string       specify the AWS profile
       --read-only            sets read only mode
   -r, --refresh int          specify the default refresh rate as an integer, sets -1 to stop auto refresh (sec) (default 30)
@@ -171,7 +171,7 @@ $ AWS_PROFILE=custom-profile AWS_REGION=us-east-2 e1s
 # use custom-profile profile, us-east-2 region
 $ e1s --profile custom-profile --region us-east-2
 # use command line to set read only, debug, stop auto refresh with a custom log path json output
-$ e1s --readonly --debug --refresh -1 --log-file-path /tmp/e1s.log --json
+$ e1s --readonly --debug --refresh -1 --log-file /tmp/e1s.log --json
 ```
 
 - Config file([sample](https://github.com/keidarcy/dotfiles/blob/master/other-dot-config/.config/e1s/config.yml))
@@ -186,7 +186,7 @@ Press `?` to check overall key bindings, top right corner to check current resou
 ### Development
 
 ```bash
-go run cmd/e1s/main.go --debug --log-file-path /tmp/e1s.log
+go run cmd/e1s/main.go --debug --log-file /tmp/e1s.log
 ```
 
 ```bash
