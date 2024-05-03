@@ -15,7 +15,7 @@ type taskDefinitionView struct {
 }
 
 func newTaskDefinitionView(taskDefinitions []types.TaskDefinition, app *App) *taskDefinitionView {
-	keys := append(basicKeyInputs, []keyInput{
+	keys := append(basicKeyInputs, []keyDescriptionPair{
 		hotKeyMap["U"],
 	}...)
 	return &taskDefinitionView{

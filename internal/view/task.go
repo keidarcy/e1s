@@ -16,7 +16,7 @@ type taskView struct {
 }
 
 func newTaskView(tasks []types.Task, app *App) *taskView {
-	keys := append(basicKeyInputs, []keyInput{
+	keys := append(basicKeyInputs, []keyDescriptionPair{
 		hotKeyMap["t"],
 		hotKeyMap["l"],
 		hotKeyMap["s"],

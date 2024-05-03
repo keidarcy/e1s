@@ -37,6 +37,14 @@ type Option struct {
 	Refresh int
 	// ECS exec shell
 	Shell string
+	// Here for help view
+	Debug bool
+	// Here for help view
+	JSON bool
+	// Here for help view
+	LogFile string
+	// Here for help view
+	ConfigFile string
 }
 
 // tview App

@@ -27,12 +27,12 @@ type view struct {
 	table       *tview.Table
 	headerPages *tview.Pages
 	bodyPages   *tview.Pages
-	keys        []keyInput
+	keys        []keyDescriptionPair
 	footer      *footer
 	pageKeyMap  secondaryPageKeyMap
 }
 
-func newView(app *App, keys []keyInput, pageKeys secondaryPageKeyMap) *view {
+func newView(app *App, keys []keyDescriptionPair, pageKeys secondaryPageKeyMap) *view {
 	return &view{
 		app:         app,
 		headerPages: tview.NewPages(),

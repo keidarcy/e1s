@@ -10,8 +10,8 @@ import (
 
 func TestGetJsonData(t *testing.T) {
 	app, _ := newApp(Option{})
-	view := newView(app, []keyInput{}, secondaryPageKeyMap{
-		DescriptionKind: []keyInput{
+	view := newView(app, []keyDescriptionPair{}, secondaryPageKeyMap{
+		DescriptionKind: []keyDescriptionPair{
 			hotKeyMap["f"],
 		},
 	})
