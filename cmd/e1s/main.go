@@ -19,7 +19,7 @@ func initConfig() {
 		useFlag = false
 		home, err := os.UserHomeDir()
 		if err != nil {
-			home = utils.EmptyText
+			home = "."
 		}
 		configFile = filepath.Join(home, ".config", "e1s", "config.yml")
 	}
@@ -51,11 +51,15 @@ func init() {
 	rootCmd.Flags().Bool("read-only", false, "sets read only mode")
 	rootCmd.Flags().StringP("log-file", "l", defaultLogFile, "specify the log file path")
 	rootCmd.Flags().StringP("shell", "s", "/bin/sh", "specify interactive ecs exec shell")
-	rootCmd.Flags().IntP("refresh", "r", 30, "specify the default refresh rate as an integer, sets -1 to stop auto refresh (sec)")
+	rootCmd.Flags().IntP("refresh", "r", 30, "specify the default refresh rate as an integer (sec), sets -1 to stop auto refresh")
 	rootCmd.Flags().String("profile", "", "specify the AWS profile")
 	rootCmd.Flags().String("region", "", "specify the AWS region")
 
-	viper.BindPFlags(rootCmd.Flags())
+	err := viper.BindPFlags(rootCmd.Flags())
+	if err != nil {
+		fmt.Printf("failed to bind flags, err: %v", err)
+	}
+
 }
 
 var rootCmd = &cobra.Command{
@@ -101,7 +105,6 @@ Check https://github.com/keidarcy/e1s for more details.`,
 		}
 
 		logger.Debugf("ConfigFile: %s, LogFile: %s, Debug: %t, JSON: %t, ReadOnly: %t, Refresh: %d, Shell: %s", configFile, logFile, debug, json, readOnly, refresh, shell)
-
 		if err := e1s.Start(option); err != nil {
 			fmt.Printf("e1s failed to start, please check your aws cli credential and permission. error: %v\n", err)
 			logger.Fatalf("Failed to start, error: %v\n", err)
@@ -113,7 +116,7 @@ Check https://github.com/keidarcy/e1s for more details.`,
 
 func main() {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
+		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 }
