@@ -194,7 +194,7 @@ Color theme can be specified by using colors from W3C color names, hex values, o
 
   - [config](https://github.com/keidarcy/dotfiles/blob/master/other-dot-config/.config/e1s/config.yml#L30-L43)
 
-  ![theme-hex](./assets/e1s-theme-hex.gif)
+  ![theme-hex](./assets/e1s-theme-hex.png)
 </details>
 
 <details>
@@ -208,6 +208,12 @@ Color theme can be specified by using colors from W3C color names, hex values, o
 ### Key bindings
 
 Press `?` to check overall key bindings, top right corner to check current resource specific hot keys.
+
+<details>
+  <summary>help</summary>
+
+  ![help](./assets/e1s-help.png)
+</details>
 
 ### Development
 
