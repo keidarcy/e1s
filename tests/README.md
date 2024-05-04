@@ -36,3 +36,5 @@ Following resources are created in this example:
 - [ALB Target Group](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_target_group)
 - [VPC](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc)
 - [Subnet](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/subnet)
+- S3
+- ElastiCache

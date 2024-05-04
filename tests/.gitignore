@@ -1,2 +1,5 @@
 terraform.tfstate*
 .terraform*
+
+# localstack volume
+volume
