@@ -187,7 +187,23 @@ Default config file path is `$HOME/.config/e1s/config.yml`, it's possible specif
 
 ### Color theme
 
-Color theme can be specified by using colors from W3C color names, hex values, or RGB values in the config file with the `--config-file` option. Take a look at the [full example](https://github.com/keidarcy/dotfiles/blob/master/other-dot-config/.config/e1s/config.yml#L30-L57) in config file.
+Color theme can be specified by using colors from W3C color names, hex values, or RGB values in the config file with the `--config-file` option. Take a look at the examples below.
+
+<details>
+  <summary>hex example</summary>
+
+  - [config](https://github.com/keidarcy/dotfiles/blob/master/other-dot-config/.config/e1s/config.yml#L30-L43)
+
+  ![theme-hex](./assets/e1s-theme-hex.gif)
+</details>
+
+<details>
+  <summary>w3c example</summary>
+
+  - [config](https://github.com/keidarcy/dotfiles/blob/master/other-dot-config/.config/e1s/config.yml#L45-L56)
+
+  ![theme-w3c](./assets/e1s-theme-w3c.png)
+</details>
 
 ### Key bindings
 
