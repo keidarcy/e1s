@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
+	"github.com/keidarcy/e1s/internal/color"
 	"github.com/keidarcy/e1s/internal/utils"
 	"github.com/rivo/tview"
 )
@@ -81,7 +82,7 @@ func (v *clusterView) bodyBuilder() *tview.Pages {
 
 // Build footer for cluster page
 func (v *clusterView) footerBuilder() *tview.Flex {
-	v.footer.cluster.SetText(fmt.Sprintf(footerSelectedItemFmt, v.app.kind))
+	v.footer.cluster.SetText(fmt.Sprintf(color.FooterSelectedItemFmt, v.app.kind))
 	v.addFooterItems()
 	return v.footer.footerFlex
 }
@@ -142,7 +143,7 @@ func (v *clusterView) headerPagesParam(c types.Cluster) (items []headerItem) {
 
 // Generate table params
 func (v *clusterView) tableParam() (title string, headers []string, dataBuilder func() [][]string) {
-	title = fmt.Sprintf(nsTitleFmt, v.app.kind, "all", len(v.clusters))
+	title = fmt.Sprintf(color.TableTitleFmt, v.app.kind, "all", len(v.clusters))
 	headers = []string{
 		"Name",
 		"Status",
@@ -154,7 +155,7 @@ func (v *clusterView) tableParam() (title string, headers []string, dataBuilder 
 	dataBuilder = func() (data [][]string) {
 		for _, c := range v.clusters {
 			// calculate tasks
-			tasks := fmt.Sprintf(clusterTasksFmt, c.PendingTasksCount, c.RunningTasksCount)
+			tasks := fmt.Sprintf(color.TableClusterTasksFmt, c.PendingTasksCount, c.RunningTasksCount)
 
 			row := []string{}
 			row = append(row, utils.ShowString(c.ClusterName))

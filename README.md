@@ -34,33 +34,40 @@ brew install keidarcy/tap/e1s
 
 ## Features
 
-### Basic
+### Full features list
 
-- [x] Read only mode
-- [x] Auto refresh
-- [x] Describe clusters
-- [x] Describe services
-- [x] Describe tasks(running, stopped)
-- [x] Describe containers
-- [x] Describe task definitions
-- [x] Describe service autoscaling
-- [x] Show cloudwatch logs(only support awslogs logDriver)
-  - [x] Realtime log streaming(only support one log group)
-- [x] Show Metrics
-  - [x] CPUUtilization
-  - [x] MemoryUtilization
-- [x] Show autoscaling target and policy
-- [x] Open selected resource in browser(support new UI(v2))
-- [x] Interactively exec towards containers(like ssh)
-- [x] Edit service
-  - [x] Desired count
-  - [x] Force new deployment
-  - [x] Task definition family
-  - [x] Task definition revision
-- [x] Register new task definition
-- [x] Start port forwarding session
-- [x] Start remote host port forwarding session
-- [x] Transfer files to and from your local machine and a remote host like `aws s3 cp`
+<details>
+  <summary>full features list</summary>
+
+  - [x] Read only mode
+  - [x] Auto refresh
+  - [x] Describe clusters
+  - [x] Describe services
+  - [x] Describe tasks(running, stopped)
+  - [x] Describe containers
+  - [x] Describe task definitions
+  - [x] Describe service autoscaling
+  - [x] Show cloudwatch logs(only support awslogs logDriver)
+    - [x] Realtime log streaming(only support one log group)
+  - [x] Show Metrics
+    - [x] CPUUtilization
+    - [x] MemoryUtilization
+  - [x] Show autoscaling target and policy
+  - [x] Open selected resource in browser(support new UI(v2))
+  - [x] Interactively exec towards containers(like ssh)
+  - [x] Edit service
+    - [x] Desired count
+    - [x] Force new deployment
+    - [x] Task definition family
+    - [x] Task definition revision
+  - [x] Register new task definition
+  - [x] Start port forwarding session
+  - [x] Start remote host port forwarding session
+  - [x] Transfer files to and from your local machine and a remote host like `aws s3 cp`
+  - [x] Custom config file
+  - [x] Custom color theme
+</details>
+
 
 ### Interactively exec towards containers([ECS Exec](https://docs.aws.amazon.com/AmazonECS/latest/userguide/ecs-exec.html))
 
@@ -174,12 +181,15 @@ $ e1s --profile custom-profile --region us-east-2
 $ e1s --readonly --debug --refresh -1 --log-file /tmp/e1s.log --json
 ```
 
-- Config file([sample](https://github.com/keidarcy/dotfiles/blob/master/other-dot-config/.config/e1s/config.yml))
+### Config file([sample](https://github.com/keidarcy/dotfiles/blob/master/other-dot-config/.config/e1s/config.yml))
 
-Default config file path is `$HOME/.config/e1s/config.yml`, you can specify the config file that [viper](https://github.com/spf13/viper?tab=readme-ov-file#what-is-viper) supports path with `--config-file` option.
+Default config file path is `$HOME/.config/e1s/config.yml`, it's possible specify the config file that [viper](https://github.com/spf13/viper?tab=readme-ov-file#what-is-viper) supports with `--config-file` option.
 
+### Color theme
 
-### Key Bindings
+Color theme can be specified by using colors from W3C color names, hex values, or RGB values in the config file with the `--config-file` option. Take a look at the [full example](https://github.com/keidarcy/dotfiles/blob/master/other-dot-config/.config/e1s/config.yml#L30-L57) in config file.
+
+### Key bindings
 
 Press `?` to check overall key bindings, top right corner to check current resource specific hot keys.
 
@@ -193,7 +203,7 @@ go run cmd/e1s/main.go --debug --log-file /tmp/e1s.log
 tail -f /tmp/e1s.log
 ```
 
-## Feature Requests & Bug Reports
+## Feature requests & bug reports
 
 If you have any feature requests or bug reports, please submit them through GitHub [Issues](https://github.com/keidarcy/e1s/issues).
 

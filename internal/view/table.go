@@ -3,6 +3,7 @@ package view
 import (
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
 	"github.com/gdamore/tcell/v2"
+	"github.com/keidarcy/e1s/internal/color"
 	"github.com/keidarcy/e1s/internal/utils"
 	"github.com/rivo/tview"
 )
@@ -44,7 +45,7 @@ func (v *view) buildTable(title string, headers []string, dataBuilder func() [][
 				SetExpansion(expansions[x]).
 				SetMaxWidth(30)
 			if y == 0 {
-				cell.SetTextColor(tcell.ColorYellow)
+				cell.SetTextColor(color.Color(theme.Yellow))
 				cell.SetSelectable(false)
 			}
 			v.table.SetCell(y, x, cell)

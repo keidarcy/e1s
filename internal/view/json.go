@@ -15,10 +15,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-const (
-	colorJSONFmt = `%s"[steelblue::b]%s[-:-:-]": %s`
-)
-
 // Switch to current kind description JSON page
 func (v *view) switchToDescriptionJson() {
 	selected, err := v.getCurrentSelection()
@@ -288,7 +284,7 @@ func colorizeJSON(raw []byte) string {
 	for _, l := range lines {
 		res := keyValRX.FindStringSubmatch(l)
 		if len(res) == 4 {
-			buff = append(buff, fmt.Sprintf(colorJSONFmt, res[1], res[2], res[3]))
+			buff = append(buff, fmt.Sprintf(`%s"[%s::b]%s[-:-:-]": %s`, res[1], theme.Blue, res[2], res[3]))
 		} else {
 			buff = append(buff, l)
 		}
