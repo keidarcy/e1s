@@ -3,13 +3,9 @@ package view
 import (
 	"fmt"
 
+	"github.com/keidarcy/e1s/internal/color"
 	"github.com/keidarcy/e1s/internal/utils"
 	"github.com/rivo/tview"
-)
-
-const (
-	footerSelectedItemFmt = "[black:aqua:b] <%s> [-:-:-]"
-	footerItemFmt         = "[black:grey:] <%s> [-:-:-]"
 )
 
 // View footer struct
@@ -24,14 +20,16 @@ type footer struct {
 }
 
 func newFooter() *footer {
+	footerFlex := tview.NewFlex().SetDirection(tview.FlexColumn)
+	footerFlex.SetBackgroundColor(color.Color(theme.BgColor))
 	return &footer{
-		footerFlex:     tview.NewFlex().SetDirection(tview.FlexColumn),
-		cluster:        tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(footerItemFmt, ClusterKind)),
-		service:        tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(footerItemFmt, ServiceKind)),
-		task:           tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(footerItemFmt, TaskKind)),
-		container:      tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(footerItemFmt, ContainerKind)),
-		taskDefinition: tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(footerItemFmt, TaskDefinitionKind)).SetTextAlign(L),
-		help:           tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(footerItemFmt, HelpKind)).SetTextAlign(L),
+		footerFlex:     footerFlex,
+		cluster:        tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(color.FooterItemFmt, ClusterKind)),
+		service:        tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(color.FooterItemFmt, ServiceKind)),
+		task:           tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(color.FooterItemFmt, TaskKind)),
+		container:      tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(color.FooterItemFmt, ContainerKind)),
+		taskDefinition: tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(color.FooterItemFmt, TaskDefinitionKind)).SetTextAlign(L),
+		help:           tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(color.FooterItemFmt, HelpKind)).SetTextAlign(L),
 	}
 }
 func (v *view) addFooterItems() {
@@ -56,15 +54,15 @@ func (v *view) addFooterItems() {
 	}
 
 	// right labels
-	// aws cli info label
-	info := v.app.region
+	// aws cli awsInfo label
+	awsInfo := v.app.region
 	if v.app.profile != "" {
-		info = fmt.Sprintf("%s:%s", v.app.profile, v.app.region)
+		awsInfo = fmt.Sprintf("%s:%s", v.app.profile, v.app.region)
 	}
-	cliInfo := tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf("[black:yellow:bi] %s ", info))
-	v.footer.footerFlex.AddItem(cliInfo, len(info)+3, 0, false)
+	awsInfoView := tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(color.FooterAwsFmt, awsInfo))
+	v.footer.footerFlex.AddItem(awsInfoView, len(awsInfo)+3, 0, false)
 
 	// e1s info label
-	t := tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf("[black:blue:bi] %s:%s ", utils.AppName, utils.AppVersion))
+	t := tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(color.FooterE1sFmt, utils.AppName, utils.AppVersion))
 	v.footer.footerFlex.AddItem(t, 14, 0, false)
 }

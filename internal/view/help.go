@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/keidarcy/e1s/internal/color"
 	"github.com/keidarcy/e1s/internal/ui"
 	"github.com/rivo/tview"
 )
@@ -56,17 +57,17 @@ func (app *App) showHelpPage() {
 		AddItem(navigation, 0, 1, false).
 		AddItem(info, 0, 1, false)
 	flex.SetBorder(true).SetTitle(" Help ")
-	app.Pages.AddPage("help", ui.Modal(flex, 150, 30, view.closeModal), true, true)
+	app.Pages.AddPage("help", ui.Modal(flex, 150, 25, view.closeModal), true, true)
 }
 
 func genColumn(title string, keys []keyDescriptionPair) tview.Primitive {
 	t := tview.NewTable()
 	t.SetBorderPadding(1, 0, 2, 0)
 	adjust := 2
-	t.SetCell(0, 0, tview.NewTableCell(fmt.Sprintf("[aqua::b]%s", title)).SetAlign(L))
+	t.SetCell(0, 0, tview.NewTableCell(fmt.Sprintf(color.HelpTitleFmt, title)).SetAlign(L))
 	for i, k := range keys {
-		key := tview.NewTableCell(fmt.Sprintf("[purple]<%s>", k.key)).SetAlign(L).SetExpansion(1)
-		description := tview.NewTableCell(fmt.Sprintf("[green]%s", k.description)).SetAlign(L).SetExpansion(5)
+		key := tview.NewTableCell(fmt.Sprintf(color.HelpKeyFmt, k.key)).SetAlign(L).SetExpansion(1)
+		description := tview.NewTableCell(fmt.Sprintf(color.HelpDescriptionFmt, k.description)).SetAlign(L).SetExpansion(5)
 		t.SetCell(i+adjust, 0, key)
 		t.SetCell(i+adjust, 1, description)
 	}

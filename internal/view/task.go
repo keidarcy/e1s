@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
+	"github.com/keidarcy/e1s/internal/color"
 	"github.com/keidarcy/e1s/internal/utils"
 	"github.com/rivo/tview"
 )
@@ -100,7 +101,7 @@ func (v *taskView) bodyBuilder() *tview.Pages {
 
 // Build footer for task page
 func (v *taskView) footerBuilder() *tview.Flex {
-	v.footer.task.SetText(fmt.Sprintf(footerSelectedItemFmt, v.app.kind))
+	v.footer.task.SetText(fmt.Sprintf(color.FooterSelectedItemFmt, v.app.kind))
 	v.addFooterItems()
 	return v.footer.footerFlex
 }
@@ -172,7 +173,7 @@ func (v *taskView) tableParam() (title string, headers []string, dataBuilder fun
 	if v.app.taskStatus == types.DesiredStatusStopped {
 		parent = *v.app.cluster.ClusterName
 	}
-	title = fmt.Sprintf(nsTitleFmt, fmt.Sprintf("%s.%s", v.app.kind, strings.ToLower(string(v.app.taskStatus))), parent, len(v.tasks))
+	title = fmt.Sprintf(color.TableTitleFmt, fmt.Sprintf("%s.%s", v.app.kind, strings.ToLower(string(v.app.taskStatus))), parent, len(v.tasks))
 	headers = []string{
 		"Task ID ▾",
 		"Last status",

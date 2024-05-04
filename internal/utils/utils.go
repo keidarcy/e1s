@@ -13,13 +13,12 @@ import (
 	"strings"
 	"time"
 
+	"github.com/keidarcy/e1s/internal/color"
 	"github.com/sirupsen/logrus"
 )
 
 const (
 	EmptyText     = "<empty>"
-	greenFmt      = "[green]%s[-:-:-]"
-	greyFmt       = "[grey]%s[-:-:-]"
 	clusterFmt    = "https://%s.console.aws.amazon.com/ecs/v2/clusters/%s"
 	regionFmt     = "?region=%s"
 	serviceFmt    = "/services/%s"
@@ -125,9 +124,9 @@ func ShowGreenGrey(inputStr *string, greenStr string) string {
 	}
 	outputStr := strings.ToUpper(string(str[0])) + strings.ToLower(string(str[1:]))
 	if strings.ToLower(str) == greenStr {
-		return fmt.Sprintf(greenFmt, outputStr)
+		return fmt.Sprintf(color.GreenFmt, outputStr)
 	}
-	return fmt.Sprintf(greyFmt, outputStr)
+	return fmt.Sprintf(color.GrayFmt, outputStr)
 }
 
 // Convert ARN to AWS web console URL

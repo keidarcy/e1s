@@ -8,12 +8,14 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
 	"github.com/gdamore/tcell/v2"
 	"github.com/keidarcy/e1s/internal/api"
+	"github.com/keidarcy/e1s/internal/color"
 	"github.com/keidarcy/e1s/internal/ui"
 	"github.com/rivo/tview"
 	"github.com/sirupsen/logrus"
 )
 
 var logger *logrus.Logger
+var theme color.Theme
 
 // Entity contains ECS resources to show, use uppercase to make items like app.cluster easy to access
 type Entity struct {
@@ -138,8 +140,7 @@ func Start(option Option) error {
 	if err != nil {
 		return err
 	}
-
-	app.initStyles()
+	theme = color.InitStyles()
 
 	if err := app.start(); err != nil {
 		return err
@@ -152,14 +153,6 @@ func Start(option Option) error {
 	}
 	app.onClose()
 	return nil
-}
-
-// Init basic tview styles
-func (app App) initStyles() {
-	tview.Styles.PrimitiveBackgroundColor = tcell.ColorBlack
-	tview.Styles.ContrastBackgroundColor = tcell.ColorBlack
-	tview.Styles.PrimaryTextColor = tcell.ColorWhite
-	tview.Styles.BorderColor = tcell.ColorDarkCyan
 }
 
 // Add new page to app.Pages

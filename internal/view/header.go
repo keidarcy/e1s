@@ -3,6 +3,7 @@ package view
 import (
 	"fmt"
 
+	"github.com/keidarcy/e1s/internal/color"
 	"github.com/rivo/tview"
 )
 
@@ -10,8 +11,8 @@ const (
 	// column height in info page
 	oneColumnCount = 11
 	headerTitleFmt = " [blue]info([purple::b]%s[blue:-:-]) "
-	headerKeyFmt   = " [purple::b]<%s> [green:-:-]%s "
 	headerItemFmt  = " %s:[aqua::b] %s "
+	headerKeyFmt   = " [purple::b]<%s> [green:-:-]%s "
 )
 
 var hotKeyMap = map[string]keyDescriptionPair{
@@ -108,12 +109,12 @@ func (v *view) buildHeaderFlex(title string, items []headerItem, keys []keyDescr
 			columnCount++
 		}
 
-		t := tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(headerItemFmt, item.name, item.value))
+		t := tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(color.HeaderItemFmt, item.name, item.value))
 		columns[columnCount].AddItem(t, 1, 1, false)
 	}
 	keysColumn := tview.NewFlex().SetDirection(tview.FlexRow)
 	for _, k := range keys {
-		t := tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(headerKeyFmt, k.key, k.description))
+		t := tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(color.HeaderKeyFmt, k.key, k.description))
 		keysColumn.AddItem(t, 1, 1, false)
 	}
 	columns = append(columns, keysColumn)
@@ -123,7 +124,7 @@ func (v *view) buildHeaderFlex(title string, items []headerItem, keys []keyDescr
 	}
 
 	for _, c := range columns {
-		headerFlex.AddItem(c, 0, 1, false).SetTitle(fmt.Sprintf(headerTitleFmt, title))
+		headerFlex.AddItem(c, 0, 1, false).SetTitle(fmt.Sprintf(color.HeaderTitleFmt, title))
 		headerFlex.SetBorder(true)
 	}
 

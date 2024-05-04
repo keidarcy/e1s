@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/keidarcy/e1s/internal/color"
 	"github.com/rivo/tview"
 )
 
@@ -62,29 +63,29 @@ func (n *Notice) forceClear() {
 }
 
 func (n *Notice) Info(s string) {
-	m := infoFmt + s + closeFmt
+	m := fmt.Sprintf(color.NoticeInfoFmt, s)
 	n.sendMessage(m)
 }
 
 func (n *Notice) Warn(s string) {
-	m := warnFmt + s + closeFmt
+	m := fmt.Sprintf(color.NoticeWarnFmt, s)
 	n.sendMessage(m)
 }
 func (n *Notice) Error(s string) {
-	m := errorFmt + s + closeFmt
+	m := fmt.Sprintf(color.NoticeErrorFmt, s)
 	n.sendMessage(m)
 }
 
 func (n *Notice) Infof(s string, args ...interface{}) {
-	m := fmt.Sprintf(infoFmt+s+closeFmt, args...)
+	m := fmt.Sprintf(fmt.Sprintf(color.NoticeInfoFmt, s), args...)
 	n.sendMessage(m)
 }
 
 func (n *Notice) Warnf(s string, args ...interface{}) {
-	m := fmt.Sprintf(warnFmt+s+closeFmt, args...)
+	m := fmt.Sprintf(fmt.Sprintf(color.NoticeWarnFmt, s), args...)
 	n.sendMessage(m)
 }
 func (n *Notice) Errorf(s string, args ...interface{}) {
-	m := fmt.Sprintf(errorFmt+s+closeFmt, args...)
+	m := fmt.Sprintf(fmt.Sprintf(color.NoticeErrorFmt, s), args...)
 	n.sendMessage(m)
 }

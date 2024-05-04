@@ -61,6 +61,8 @@ brew install keidarcy/tap/e1s
 - [x] Start port forwarding session
 - [x] Start remote host port forwarding session
 - [x] Transfer files to and from your local machine and a remote host like `aws s3 cp`
+- [x] Custom config file
+- [x] Custom color theme
 
 ### Interactively exec towards containers([ECS Exec](https://docs.aws.amazon.com/AmazonECS/latest/userguide/ecs-exec.html))
 
@@ -178,8 +180,11 @@ $ e1s --readonly --debug --refresh -1 --log-file /tmp/e1s.log --json
 
 Default config file path is `$HOME/.config/e1s/config.yml`, you can specify the config file that [viper](https://github.com/spf13/viper?tab=readme-ov-file#what-is-viper) supports path with `--config-file` option.
 
+### Color theme
 
-### Key Bindings
+Color theme can be used to created colors from W3C color names, RGB hex values, or RGB percentage values. You can specify the color theme in the config file or use the `--config-file` option.
+
+### Key bindings
 
 Press `?` to check overall key bindings, top right corner to check current resource specific hot keys.
 
@@ -193,7 +198,7 @@ go run cmd/e1s/main.go --debug --log-file /tmp/e1s.log
 tail -f /tmp/e1s.log
 ```
 
-## Feature Requests & Bug Reports
+## Feature requests & bug reports
 
 If you have any feature requests or bug reports, please submit them through GitHub [Issues](https://github.com/keidarcy/e1s/issues).
 

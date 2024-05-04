@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
+	"github.com/keidarcy/e1s/internal/color"
 	"github.com/keidarcy/e1s/internal/utils"
 	"github.com/rivo/tview"
 )
@@ -76,7 +77,7 @@ func (v *containerView) bodyBuilder() *tview.Pages {
 
 // Build footer for container page
 func (v *containerView) footerBuilder() *tview.Flex {
-	v.footer.container.SetText(fmt.Sprintf(footerSelectedItemFmt, v.app.kind))
+	v.footer.container.SetText(fmt.Sprintf(color.FooterSelectedItemFmt, v.app.kind))
 	v.addFooterItems()
 	return v.footer.footerFlex
 }
@@ -125,7 +126,7 @@ func (v *containerView) headerPagesParam(c types.Container) (items []headerItem)
 
 // Generate table params
 func (v *containerView) tableParam() (title string, headers []string, dataBuilder func() [][]string) {
-	title = fmt.Sprintf(nsTitleFmt, v.app.kind, utils.ArnToName(v.app.task.TaskArn), len(v.containers))
+	title = fmt.Sprintf(color.TableTitleFmt, v.app.kind, utils.ArnToName(v.app.task.TaskArn), len(v.containers))
 	headers = []string{
 		"Name",
 		"Status",

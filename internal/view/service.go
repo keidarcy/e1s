@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
+	"github.com/keidarcy/e1s/internal/color"
 	"github.com/keidarcy/e1s/internal/utils"
 	"github.com/rivo/tview"
 )
@@ -89,7 +90,7 @@ func (v *serviceView) bodyBuilder() *tview.Pages {
 
 // Build footer for service page
 func (v *serviceView) footerBuilder() *tview.Flex {
-	v.footer.service.SetText(fmt.Sprintf(footerSelectedItemFmt, v.app.kind))
+	v.footer.service.SetText(fmt.Sprintf(color.FooterSelectedItemFmt, v.app.kind))
 	v.addFooterItems()
 	return v.footer.footerFlex
 }
@@ -184,7 +185,7 @@ func (v *serviceView) headerPagesParam(s types.Service) (items []headerItem) {
 
 // Generate table params
 func (v *serviceView) tableParam() (title string, headers []string, dataBuilder func() [][]string) {
-	title = fmt.Sprintf(nsTitleFmt, "Services", *v.app.cluster.ClusterName, len(v.services))
+	title = fmt.Sprintf(color.TableTitleFmt, "Services", *v.app.cluster.ClusterName, len(v.services))
 	headers = []string{
 		"Name",
 		"Status",
@@ -200,7 +201,7 @@ func (v *serviceView) tableParam() (title string, headers []string, dataBuilder 
 			row := []string{}
 
 			// tasks
-			tasks := fmt.Sprintf(serviceTasksFmt, s.RunningCount, s.DesiredCount)
+			tasks := fmt.Sprintf("%d/%d Tasks running", s.RunningCount, s.DesiredCount)
 
 			// last deployment
 			lastDeployment := ""

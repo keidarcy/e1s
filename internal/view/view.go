@@ -4,17 +4,12 @@ import (
 	"fmt"
 
 	"github.com/gdamore/tcell/v2"
+	"github.com/keidarcy/e1s/internal/color"
 	"github.com/rivo/tview"
 	"github.com/sirupsen/logrus"
 )
 
 const (
-	titleFmt          = "[aqua::b]%s[aqua::-]([purple::b]%d[aqua::-]) "
-	nsTitleFmt        = " [aqua::-]<[purple::b]%s[aqua::-]>" + titleFmt
-	secondaryTitleFmt = " [blue]%s([purple::b]%s[blue:-:-]) "
-	clusterTasksFmt   = "[blue]%d Pending[-] | [green]%d Running"
-	serviceTasksFmt   = "%d/%d Tasks running"
-
 	awsCli         = "aws"
 	smpCi          = "session-manager-plugin"
 	execBannerFmt  = "\n\033[1;31m<<E1S-ECS-EXEC>>\033[0m: \n#######################################\n\033[1;32mCluster\033[0m: \"%s\" \n\033[1;32mService\033[0m: \"%s\" \n\033[1;32mTask\033[0m: \"%s\" \n\033[1;32mContainer\033[0m: \"%s\"\n#######################################\n"
@@ -133,7 +128,7 @@ func (v *view) closeModal() {
 
 // Content page builder
 func (v *view) handleSecondaryPageSwitch(entity Entity, colorizedJsonString string, jsonBytes []byte) {
-	contentTitle := fmt.Sprintf(secondaryTitleFmt, v.app.kind, entity.entityName)
+	contentTitle := fmt.Sprintf(color.TableSecondaryTitleFmt, v.app.kind, entity.entityName)
 	contentPageName := v.app.kind.getSecondaryPageName(entity.entityName + "." + v.app.secondaryKind.String())
 
 	contentTextItem := getSecondaryTextItem(colorizedJsonString, contentTitle)

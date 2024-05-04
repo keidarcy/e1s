@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
+	"github.com/keidarcy/e1s/internal/color"
 	"github.com/keidarcy/e1s/internal/utils"
 	"github.com/rivo/tview"
 )
@@ -84,7 +85,7 @@ func (v *taskDefinitionView) bodyBuilder() *tview.Pages {
 
 // Build footer for task page
 func (v *taskDefinitionView) footerBuilder() *tview.Flex {
-	v.footer.taskDefinition.SetText(fmt.Sprintf(footerSelectedItemFmt, v.app.kind))
+	v.footer.taskDefinition.SetText(fmt.Sprintf(color.FooterSelectedItemFmt, v.app.kind))
 	v.addFooterItems()
 	return v.footer.footerFlex
 }
@@ -155,7 +156,7 @@ func (v *taskDefinitionView) tableParam() (title string, headers []string, dataB
 	if v.app.task.TaskDefinitionArn != nil {
 		td = *v.app.task.TaskDefinitionArn
 	}
-	title = fmt.Sprintf(nsTitleFmt, v.app.kind, serviceName, len(v.taskDefinitions))
+	title = fmt.Sprintf(color.TableTitleFmt, v.app.kind, serviceName, len(v.taskDefinitions))
 	headers = []string{
 		"Revision ▾",
 		"In use",
