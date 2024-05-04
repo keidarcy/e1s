@@ -27,7 +27,7 @@ const (
 	serviceURLFmt = clusterFmt + serviceFmt + regionFmt
 	taskURLFmt    = clusterFmt + serviceFmt + taskFmt + regionFmt
 
-	AppVersion = "v1.0.30"
+	AppVersion = "v1.0.31"
 	AppName    = "e1s"
 )
 
