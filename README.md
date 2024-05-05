@@ -60,6 +60,7 @@ brew install keidarcy/tap/e1s
     - [x] Force new deployment
     - [x] Task definition family
     - [x] Task definition revision
+  - [x] Stop task
   - [x] Register new task definition
   - [x] Start port forwarding session
   - [x] Start remote host port forwarding session
@@ -87,7 +88,7 @@ Use `ctrl` + `d` to exit interactive-exec session.
 
 *Session Manager plugin not found* - [document](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-troubleshooting.html#plugin-not-found).
 
-### Update service([Docs](https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_UpdateService.html))
+### [Update service](https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_UpdateService.html)
 
 <details>
   <summary>update service demo</summary>
@@ -100,7 +101,7 @@ Use `ctrl` + `d` to exit interactive-exec session.
 - Task definition family
 - Task definition revision
 
-### Register task definition([Docs](https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_RegisterTaskDefinition.html))
+### [Register task definition](https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_RegisterTaskDefinition.html)
 
 <details>
   <summary>Register task definition</summary>
@@ -109,7 +110,7 @@ Use `ctrl` + `d` to exit interactive-exec session.
 </details>
 
 
-### Start port forwarding session([Docs](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-sessions-start.html#sessions-start-port-forwarding))
+### [Start port forwarding session](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-sessions-start.html#sessions-start-port-forwarding)
 
 With a specified task and container, to start port forwarding session you need to specify a port and a local port. The local port is the port on your local machine that you want to use to access the container port.
 
@@ -119,7 +120,7 @@ With a specified task and container, to start port forwarding session you need t
   ![port-forwarding-session-demo](./assets/e1s-port-forwarding-session-demo.gif)
 </details>
 
-### Start remote host port forwarding session([Docs](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-sessions-start.html#sessions-remote-port-forwarding))
+### [Start remote host port forwarding session](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-sessions-start.html#sessions-remote-port-forwarding)
 
 With a specified task and container, to start a remote host port forwarding session you need to specify a port, a host and a local port. The local port is the port on your local machine that you want to use to access the remote host port though container.
 
@@ -131,7 +132,7 @@ With a specified task and container, to start a remote host port forwarding sess
 
 ### File transfer
 
-Since file transfer though a S3 Bucket and aws-cli in container, you need a S3 bucket and add permissions S3 bucket permission to the task role and e1s role, and also need a aws-cli installed container.
+Implemented by a S3 bucket. Since file transfer though a S3 bucket and aws-cli in container, you need a S3 bucket and add permissions S3 bucket permission to the task role and e1s role, and also need a aws-cli installed container.
 
 <details>
   <summary>File transfer</summary>
@@ -190,17 +191,19 @@ Default config file path is `$HOME/.config/e1s/config.yml`, it's possible specif
 Color theme can be specified by using colors from W3C color names, hex values, or RGB values in the config file with the `--config-file` option. Take a look at the examples below.
 
 <details>
-  <summary>hex example</summary>
+  <summary>hex config example</summary>
 
   - [config](https://github.com/keidarcy/dotfiles/blob/master/other-dot-config/.config/e1s/config.yml#L30-L43)
+  - screenshot
 
   ![theme-hex](./assets/e1s-theme-hex.png)
 </details>
 
 <details>
-  <summary>w3c example</summary>
+  <summary>w3c config example</summary>
 
   - [config](https://github.com/keidarcy/dotfiles/blob/master/other-dot-config/.config/e1s/config.yml#L45-L56)
+  - screenshot
 
   ![theme-w3c](./assets/e1s-theme-w3c.png)
 </details>

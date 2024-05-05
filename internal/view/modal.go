@@ -69,7 +69,50 @@ func (v *view) taskDefinitionRegisterForm(fn func()) (*tview.Form, string) {
 	return f, title
 }
 
-// Get task definition register content
+// Stop selected task
+func (v *view) stopTaskForm() (*tview.Form, *string) {
+	readOnly := ""
+	if v.app.ReadOnly {
+		readOnly = readOnlyLabel
+	}
+
+	taskId := utils.ArnToName(v.app.task.TaskArn)
+	clusterName := *v.app.cluster.ClusterName
+	title := fmt.Sprintf(" Stop task [%s::b]%s[-:-:-] in [%s::b]%s[-:-:-] cluster %s? ", theme.Magenta, taskId, theme.Cyan, clusterName, readOnly)
+	f := ui.StyledForm(title)
+
+	// handle form close
+	f.AddButton("Cancel", func() {
+		v.closeModal()
+	})
+
+	// readonly mode has no submit button
+	if v.app.ReadOnly {
+		return f, &title
+	}
+
+	// handle form submit
+	f.AddButton("Stop", func() {
+		input := &ecs.StopTaskInput{
+			Task:    aws.String(taskId),
+			Cluster: aws.String(clusterName),
+		}
+		err := v.app.Store.StopTask(input)
+
+		if err != nil {
+			v.app.Notice.Error(err.Error())
+			logger.Error(err.Error())
+		} else {
+			v.app.Notice.Infof("Task %s in %s cluster stopped", taskId, clusterName)
+			logger.Infof("Task %s in %s cluster stopped", taskId, clusterName)
+		}
+		v.closeModal()
+		v.showKindPage(TaskKind, true)
+	})
+	return f, &title
+}
+
+// Update service with selected task definition
 func (v *view) serviceUpdateWithSpecificTaskDefinitionForm() (*tview.Form, *string) {
 	readOnly := ""
 	if v.app.ReadOnly {
@@ -83,7 +126,7 @@ func (v *view) serviceUpdateWithSpecificTaskDefinitionForm() (*tview.Form, *stri
 	serviceName := *v.app.service.ServiceName
 	td := utils.ArnToName(v.app.taskDefinition.TaskDefinitionArn)
 
-	title := fmt.Sprintf(" Update [purple::b] %s [-:-:-] with task definition [aqua::b] %s [-:-:-]%s?", serviceName, td, readOnly)
+	title := fmt.Sprintf(" Update [%s::b]%s[-:-:-] with task definition [%s::b]%s[-:-:-]%s? ", theme.Magenta, serviceName, theme.Cyan, td, readOnly)
 	f := ui.StyledForm(title)
 
 	// handle form close
