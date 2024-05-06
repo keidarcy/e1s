@@ -54,6 +54,7 @@ func init() {
 	rootCmd.Flags().IntP("refresh", "r", 30, "specify the default refresh rate as an integer (sec), sets -1 to stop auto refresh")
 	rootCmd.Flags().String("profile", "", "specify the AWS profile")
 	rootCmd.Flags().String("region", "", "specify the AWS region")
+	rootCmd.Flags().String("theme", "", "specify color theme")
 
 	err := viper.BindPFlags(rootCmd.Flags())
 	if err != nil {
@@ -89,6 +90,7 @@ Check https://github.com/keidarcy/e1s for more details.`,
 		readOnly := viper.GetBool("read-only")
 		refresh := viper.GetInt("refresh")
 		shell := viper.GetString("shell")
+		theme := viper.GetString("theme")
 
 		logger, file := utils.GetLogger(logFile, json, debug)
 		defer file.Close()
@@ -102,6 +104,7 @@ Check https://github.com/keidarcy/e1s for more details.`,
 			ReadOnly:   readOnly,
 			Refresh:    refresh,
 			Shell:      shell,
+			Theme:      theme,
 		}
 
 		logger.Debugf("ConfigFile: %s, LogFile: %s, Debug: %t, JSON: %t, ReadOnly: %t, Refresh: %d, Shell: %s", configFile, logFile, debug, json, readOnly, refresh, shell)

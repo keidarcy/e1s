@@ -15,7 +15,7 @@ import (
 )
 
 var logger *logrus.Logger
-var theme color.Theme
+var theme color.Colors
 
 // Entity contains ECS resources to show, use uppercase to make items like app.cluster easy to access
 type Entity struct {
@@ -47,6 +47,8 @@ type Option struct {
 	LogFile string
 	// Here for help view
 	ConfigFile string
+	// Here for help view
+	Theme string
 }
 
 // tview App
@@ -140,7 +142,7 @@ func Start(option Option) error {
 	if err != nil {
 		return err
 	}
-	theme = color.InitStyles()
+	theme = color.InitStyles(option.Theme)
 
 	if err := app.start(); err != nil {
 		return err
