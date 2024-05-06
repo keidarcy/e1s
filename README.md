@@ -31,13 +31,6 @@ brew install keidarcy/tap/e1s
 # upgrade
 # brew upgrade keidarcy/tap/e1s
 ```
-- Docker image
-
-```bash
-docker run -it --rm -v ~/.aws:/root/.aws e1s:latest e1s --profile YOUR_PROFILE
-```
-
-> Note: If you are using the Docker image, you need to mount the `~/.aws` directory to the container to access your AWS credentials and configuration.
 
 ## Features
 
