@@ -26,9 +26,6 @@ const (
 	clusterURLFmt = clusterFmt + regionFmt
 	serviceURLFmt = clusterFmt + serviceFmt + regionFmt
 	taskURLFmt    = clusterFmt + serviceFmt + taskFmt + regionFmt
-
-	AppVersion = "v1.0.32"
-	AppName    = "e1s"
 )
 
 // GetLogger returns a *logrus.Logger configured to write to the specified file path.
