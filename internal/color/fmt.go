@@ -28,28 +28,28 @@ var (
 	TableClusterTasksFmt   = ""
 )
 
-func (t Theme) initFmt() {
-	GreenFmt = fmt.Sprintf("[%s]%%s[-:-:-]", t.Green)
-	GrayFmt = fmt.Sprintf("[%s]%%s[-:-:-]", t.Gray)
+func (c Colors) initFmt() {
+	GreenFmt = fmt.Sprintf("[%s]%%s[-:-:-]", c.Green)
+	GrayFmt = fmt.Sprintf("[%s]%%s[-:-:-]", c.Gray)
 
-	FooterSelectedItemFmt = fmt.Sprintf("[%s:%s:b] <%%s> [-:-:-]", t.Black, t.Cyan)
-	FooterItemFmt = fmt.Sprintf("[%s:%s:] <%%s> [-:-:-]", t.Black, t.Gray)
-	FooterAwsFmt = fmt.Sprintf("[%s:%s:bi] %%s ", t.Black, t.Yellow)
-	FooterE1sFmt = fmt.Sprintf("[%s:%s:bi] %%s:%%s ", t.Black, t.Cyan)
+	FooterSelectedItemFmt = fmt.Sprintf("[%s:%s:b] <%%s> [-:-:-]", c.Black, c.Cyan)
+	FooterItemFmt = fmt.Sprintf("[%s:%s:] <%%s> [-:-:-]", c.Black, c.Gray)
+	FooterAwsFmt = fmt.Sprintf("[%s:%s:bi] %%s ", c.Black, c.Yellow)
+	FooterE1sFmt = fmt.Sprintf("[%s:%s:bi] %%s:%%s ", c.Black, c.Cyan)
 
-	HeaderTitleFmt = fmt.Sprintf(" [%s]info([%s::b]%%s[%s:-:-]) ", t.Blue, t.Magenta, t.Blue)
-	HeaderItemFmt = fmt.Sprintf(" %%s:[%s::b] %%s ", t.Cyan)
-	HeaderKeyFmt = fmt.Sprintf(" [%s::b]<%%s> [%s:-:-]%%s ", t.Magenta, t.Green)
+	HeaderTitleFmt = fmt.Sprintf(" [%s]info([%s::b]%%s[%s:-:-]) ", c.Blue, c.Magenta, c.Blue)
+	HeaderItemFmt = fmt.Sprintf(" %%s:[%s::b] %%s ", c.Cyan)
+	HeaderKeyFmt = fmt.Sprintf(" [%s::b]<%%s> [%s:-:-]%%s ", c.Magenta, c.Green)
 
-	HelpTitleFmt = fmt.Sprintf("[%s::b]%%s", t.Cyan)
-	HelpKeyFmt = fmt.Sprintf("[%s::b]<%%s>", t.Magenta)
-	HelpDescriptionFmt = fmt.Sprintf("[%s]%%s", t.Green)
+	HelpTitleFmt = fmt.Sprintf("[%s::b]%%s", c.Cyan)
+	HelpKeyFmt = fmt.Sprintf("[%s::b]<%%s>", c.Magenta)
+	HelpDescriptionFmt = fmt.Sprintf("[%s]%%s", c.Green)
 
-	NoticeInfoFmt = fmt.Sprintf("✅ [%s::]%%s[-:-:-]", t.Green)
-	NoticeWarnFmt = fmt.Sprintf("😔 [%s::]%%s[-:-:-]", t.Yellow)
-	NoticeErrorFmt = fmt.Sprintf("💥 [%s::]%%s[-:-:-]", t.Red)
+	NoticeInfoFmt = fmt.Sprintf("✅ [%s::]%%s[-:-:-]", c.Green)
+	NoticeWarnFmt = fmt.Sprintf("😔 [%s::]%%s[-:-:-]", c.Yellow)
+	NoticeErrorFmt = fmt.Sprintf("💥 [%s::]%%s[-:-:-]", c.Red)
 
-	TableTitleFmt = fmt.Sprintf(" [%s::-]<[%s::b]%%s[%s::-]>[%s::b]%%s[%s::-]([%s::b]%%d[%s::-]) ", t.Cyan, t.Magenta, t.Cyan, t.Cyan, t.Cyan, t.Magenta, t.Cyan)
-	TableSecondaryTitleFmt = fmt.Sprintf(" [%s]%%s([%s::b]%%s[%s:-:-]) ", t.Blue, t.Magenta, t.Blue)
-	TableClusterTasksFmt = fmt.Sprintf("[%s]%%d Pending[-] | [%s]%%d Running", t.Blue, t.Green)
+	TableTitleFmt = fmt.Sprintf(" [%s::-]<[%s::b]%%s[%s::-]>[%s::b]%%s[%s::-]([%s::b]%%d[%s::-]) ", c.Cyan, c.Magenta, c.Cyan, c.Cyan, c.Cyan, c.Magenta, c.Cyan)
+	TableSecondaryTitleFmt = fmt.Sprintf(" [%s]%%s([%s::b]%%s[%s:-:-]) ", c.Blue, c.Magenta, c.Blue)
+	TableClusterTasksFmt = fmt.Sprintf("[%s]%%d Pending[-] | [%s]%%d Running", c.Blue, c.Green)
 }

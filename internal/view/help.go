@@ -51,6 +51,7 @@ func (app *App) showHelpPage() {
 		{key: "config-file", description: app.Option.ConfigFile},
 		{key: "shell", description: app.Option.Shell},
 		{key: "refresh", description: strconv.Itoa(app.Option.Refresh)},
+		{key: "theme", description: app.Option.Theme},
 	})
 	flex := tview.NewFlex().
 		AddItem(resource, 0, 1, false).
