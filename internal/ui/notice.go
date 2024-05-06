@@ -8,13 +8,6 @@ import (
 	"github.com/rivo/tview"
 )
 
-const (
-	infoFmt  = "✅ [green::]"
-	warnFmt  = "😔 [orange::]"
-	errorFmt = "💥 [red::]"
-	closeFmt = "[-:-:-]"
-)
-
 type Notice struct {
 	*tview.TextView
 	app        *tview.Application
@@ -22,10 +15,11 @@ type Notice struct {
 	forceTimer *time.Timer
 }
 
-func NewNotice(app *tview.Application) *Notice {
+func NewNotice(app *tview.Application, theme color.Colors) *Notice {
 	t := tview.NewTextView().
 		SetTextAlign(tview.AlignCenter).
 		SetDynamicColors(true)
+	t.SetBackgroundColor(color.Color(theme.BgColor))
 	return &Notice{
 		TextView:   t,
 		app:        app,
