@@ -134,6 +134,12 @@ func (v *view) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 			v.showKindPage(TaskKind, false)
 			return event
 		}
+	case 'S':
+		if v.app.kind == TaskKind {
+			v.app.secondaryKind = ModalKind
+			v.showFormModal(v.stopTaskForm, 6)
+			return event
+		}
 	case 'n':
 		if v.app.kind == ClusterKind {
 			v.app.fromCluster = true

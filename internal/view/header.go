@@ -25,6 +25,7 @@ var hotKeyMap = map[string]keyDescriptionPair{
 	"n":     {key: "n", description: "Show all cluster tasks"},
 	"s":     {key: "s", description: "Toggle running/stopped tasks"},
 	"w":     {key: "w", description: "Describe service events"},
+	"S":     {key: "shift-s", description: "Stop task"},
 	"P":     {key: "shift-p", description: "File transfer"},
 	"F":     {key: "shift-f", description: "Start port forwarding session"},
 	"T":     {key: "shift-t", description: "Terminate port forwarding session"},
