@@ -98,7 +98,7 @@ func newApp(option Option) (*App, error) {
 	pages := tview.NewPages()
 	footer := tview.NewFlex()
 
-	notice := ui.NewNotice(app)
+	notice := ui.NewNotice(app, theme)
 	footer.AddItem(notice, 0, 1, false)
 	main := tview.NewFlex().SetDirection(tview.FlexRow).
 		AddItem(pages, 0, 2, true).
@@ -138,11 +138,12 @@ func Start(option Option) error {
 ****************************************************************
 **************** Started e1s
 ****************************************************************`)
+	theme = color.InitStyles(option.Theme)
+
 	app, err := newApp(option)
 	if err != nil {
 		return err
 	}
-	theme = color.InitStyles(option.Theme)
 
 	if err := app.start(); err != nil {
 		return err

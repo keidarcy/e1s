@@ -44,9 +44,6 @@ type tomlConfig struct {
 			Cyan    string `toml:"cyan"`
 			White   string `toml:"white"`
 		} `toml:"normal"`
-		Dim struct {
-			White string `toml:"white"`
-		} `toml:"dim"`
 	} `toml:"colors"`
 }
 
@@ -96,7 +93,6 @@ func InitStyles(theme string) Colors {
 			Blue:        config.Colors.Normal.Blue,
 			Magenta:     config.Colors.Normal.Magenta,
 			Cyan:        config.Colors.Normal.Cyan,
-			Gray:        config.Colors.Dim.White, // Assuming dim white is considered gray
 		}
 	} else {
 		// Default theme gruvbox_dark
@@ -112,9 +108,10 @@ func InitStyles(theme string) Colors {
 			Blue:        "#458588",
 			Magenta:     "#b16286",
 			Cyan:        "#689d6a",
-			Gray:        "#808080",
 		}
 	}
+
+	colors.Gray = "#808080"
 
 	viper.UnmarshalKey("colors", &colors)
 	tview.Styles.PrimitiveBackgroundColor = Color(colors.BgColor)
