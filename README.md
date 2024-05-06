@@ -37,8 +37,9 @@ brew install keidarcy/tap/e1s
 ### Full features list
 
 <details>
-  <summary>full features list</summary>
+  <summary>features</summary>
 
+  - [x] Specify config file
   - [x] Read only mode
   - [x] Auto refresh
   - [x] Describe clusters
@@ -65,8 +66,8 @@ brew install keidarcy/tap/e1s
   - [x] Start port forwarding session
   - [x] Start remote host port forwarding session
   - [x] Transfer files to and from your local machine and a remote host like `aws s3 cp`
-  - [x] Custom config file
-  - [x] Custom color theme
+  - [x] Customize theme
+  - [x] Customize colors
 </details>
 
 
@@ -165,6 +166,7 @@ Flags:
   -r, --refresh int          specify the default refresh rate as an integer, sets -1 to stop auto refresh (sec) (default 30)
       --region string        specify the AWS region
   -s, --shell string         specify interactive ecs exec shell (default "/bin/sh")
+      --theme string         specify color theme
   -v, --version              version for e1s
 
 ```
@@ -178,22 +180,38 @@ $ e1s
 $ AWS_PROFILE=custom-profile AWS_REGION=us-east-2 e1s
 # use custom-profile profile, us-east-2 region
 $ e1s --profile custom-profile --region us-east-2
-# use command line to set read only, debug, stop auto refresh with a custom log path json output
-$ e1s --readonly --debug --refresh -1 --log-file /tmp/e1s.log --json
+# use command line to set read only, debug, stop auto refresh with a custom log path json output and dracula theme
+$ e1s --readonly --debug --refresh -1 --log-file /tmp/e1s.log --json --theme dracula
 ```
 
 ### Config file([sample](https://github.com/keidarcy/dotfiles/blob/master/other-dot-config/.config/e1s/config.yml))
 
 Default config file path is `$HOME/.config/e1s/config.yml`, it's possible specify the config file that [viper](https://github.com/spf13/viper?tab=readme-ov-file#what-is-viper) supports with `--config-file` option.
 
-### Color theme
+### Theme and colors
 
-Color theme can be specified by using colors from W3C color names, hex values, or RGB values in the config file with the `--config-file` option. Take a look at the examples below.
+Theme and colors can be specified by options or config file. Full themes list can be found [here](https://github.com/keidarcy/alacritty-theme/tree/master/themes). If you prefer to use your own color theme, you can specify the colors in the [config file](https://github.com/keidarcy/dotfiles/blob/master/other-dot-config/.config/e1s/config.yml).
 
 <details>
   <summary>hex config example</summary>
 
-  - [config](https://github.com/keidarcy/dotfiles/blob/master/other-dot-config/.config/e1s/config.yml#L30-L43)
+  - config
+
+```yml
+colors:
+  BgColor: "#272822"
+  FgColor: "#f8f8f2"
+  BorderColor: "#a1efe4"
+  Black: "#272822"
+  Red: "#f92672"
+  Green: "#a6e22e"
+  Yellow: "#f4bf75"
+  Blue: "#66d9ef"
+  Magenta: "#ae81ff"
+  Cyan: "#a1efe4"
+  Gray: "#808080"
+```
+
   - screenshot
 
   ![theme-hex](./assets/e1s-theme-hex.png)
@@ -202,7 +220,23 @@ Color theme can be specified by using colors from W3C color names, hex values, o
 <details>
   <summary>w3c config example</summary>
 
-  - [config](https://github.com/keidarcy/dotfiles/blob/master/other-dot-config/.config/e1s/config.yml#L45-L56)
+  - config
+
+```yml
+colors:
+  BgColor: black
+  FgColor: cadeblue
+  BorderColor: dodgerblue
+  Black: black
+  Red: orangered
+  Green: palegreen
+  Yellow: greenyellow
+  Blue: darkslateblue
+  Magenta: mediumpurple
+  Cyan: lightskyblue
+  Gray: lightslategray
+```
+
   - screenshot
 
   ![theme-w3c](./assets/e1s-theme-w3c.png)
