@@ -76,3 +76,12 @@ func (store *Store) RegisterTaskDefinition(input *ecs.RegisterTaskDefinitionInpu
 	revision := registeredTdOutput.TaskDefinition.Revision
 	return family, revision, nil
 }
+
+// aws ecs stop-task --cluster ${cluster} --task ${taskId}
+func (store *Store) StopTask(input *ecs.StopTaskInput) error {
+	_, err := store.ecs.StopTask(context.Background(), input)
+	if err != nil {
+		return err
+	}
+	return nil
+}
