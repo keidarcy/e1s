@@ -1,4 +1,4 @@
-VERSION := $(shell grep -o 'AppVersion = "[^"]*"' internal/utils/utils.go | cut -d '"' -f 2)
+VERSION := $(shell grep -o 'AppVersion = "[^"]*"' internal/utils/info.go | cut -d '"' -f 2)
 
 run:
 	go run ./cmd/e1s/main.go
