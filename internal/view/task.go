@@ -21,6 +21,7 @@ func newTaskView(tasks []types.Task, app *App) *taskView {
 		hotKeyMap["t"],
 		hotKeyMap["l"],
 		hotKeyMap["s"],
+		hotKeyMap["S"],
 	}...)
 	return &taskView{
 		view: *newView(app, keys, secondaryPageKeyMap{
