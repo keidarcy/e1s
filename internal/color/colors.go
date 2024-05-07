@@ -12,8 +12,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-var logger *logrus.Logger
-
 type Colors struct {
 	BgColor     string `toml:"background"`
 	FgColor     string `toml:"foreground"`
@@ -55,7 +53,7 @@ func Color(c string) tcell.Color {
 }
 
 // Init basic styles
-func InitStyles(theme string) Colors {
+func InitStyles(theme string, logger *logrus.Logger) Colors {
 	var colors Colors
 	if theme != "" {
 		// Fetch the TOML content from the URL
