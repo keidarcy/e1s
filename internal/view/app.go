@@ -138,7 +138,7 @@ func Start(option Option) error {
 ****************************************************************
 **************** Started e1s
 ****************************************************************`)
-	theme = color.InitStyles(option.Theme)
+	theme = color.InitStyles(option.Theme, logger)
 
 	app, err := newApp(option)
 	if err != nil {
