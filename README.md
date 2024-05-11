@@ -25,14 +25,24 @@
 
 - Binaries for Linux, Windows and Mac are available in the [release](https://github.com/keidarcy/e1s/releases) page.
 - Homebrew for maxOS or Linux
-- Docker image
 
 ```bash
 brew install keidarcy/tap/e1s
 # brew upgrade
 # brew upgrade keidarcy/tap/e1s
+```
+
+- Docker image
+
+```bash
 # docker image
-# docker pull ghcr.io/keidarcy/e1s:latest
+docker pull ghcr.io/keidarcy/e1s:latest
+```
+
+- AWS CloudShell(Good for quick tryout)
+
+```bash
+curl -sL https://raw.githubusercontent.com/keidarcy/e1s-install/master/cloudshell-install.sh | bash
 ```
 
 ## Usage
@@ -41,7 +51,7 @@ Make sure you have the AWS CLI installed and properly configured with the necess
 
 - Usage of `e1s`:
 
-```bash
+```
 $ e1s -h
 e1s is a terminal application to easily browse and manage AWS ECS resources 🐱.
 Check https://github.com/keidarcy/e1s for more details.
