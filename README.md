@@ -39,7 +39,7 @@ brew install keidarcy/tap/e1s
 docker pull ghcr.io/keidarcy/e1s:latest
 ```
 
-- AWS CloudShell(Good for quick tryout)
+- AWS [CloudShell](https://aws.amazon.com/cloudshell/)(Good for quick tryout)
 
 ```bash
 curl -sL https://raw.githubusercontent.com/keidarcy/e1s-install/master/cloudshell-install.sh | bash
