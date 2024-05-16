@@ -12,7 +12,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/ecs"
 	"github.com/gdamore/tcell/v2"
 	"github.com/keidarcy/e1s/internal/utils"
-	"github.com/sirupsen/logrus"
 )
 
 // Switch to current kind description JSON page
@@ -101,15 +100,7 @@ func (v *view) handleTableContentDone(key tcell.Key) {
 	pageName := v.app.kind.getTablePageName(v.app.getPageHandle())
 	v.app.secondaryKind = EmptyKind
 
-	logger.WithFields(logrus.Fields{
-		"Action":        "SwitchToPage",
-		"PageName":      pageName,
-		"Kind":          v.app.kind.String(),
-		"SecondaryKind": v.app.secondaryKind.String(),
-		"Cluster":       *v.app.cluster.ClusterName,
-		"Service":       *v.app.service.ServiceName,
-	}).Debug("SwitchToPage v.tablePages")
-
+	logger.Debug("v.tablePages navigation", "action", "SwitchToPage", "pageName", pageName, "app", v.app)
 	v.bodyPages.SwitchToPage(pageName)
 
 	selected, err := v.getCurrentSelection()
@@ -117,15 +108,7 @@ func (v *view) handleTableContentDone(key tcell.Key) {
 		v.app.back()
 	}
 
-	logger.WithFields(logrus.Fields{
-		"Action":        "SwitchToPage",
-		"PageName":      selected.entityName,
-		"Kind":          v.app.kind.String(),
-		"SecondaryKind": v.app.secondaryKind.String(),
-		"Cluster":       *v.app.cluster.ClusterName,
-		"Service":       *v.app.service.ServiceName,
-	}).Debug("SwitchToPage v.infoPages")
-
+	logger.Debug("v.headerPages navigation", "action", "SwitchToPage", "pageName", pageName, "app", v.app)
 	v.headerPages.SwitchToPage(selected.entityName)
 }
 
@@ -137,7 +120,7 @@ func (v *view) handleFullScreenContentDone() {
 func (v *view) openInEditor(beforeJson []byte) {
 	selected, err := v.getCurrentSelection()
 	if err != nil {
-		logger.Warnf("Failed to get current selection")
+		logger.Warn("failed to get current selection", "error", err)
 		return
 	}
 	names := strings.Split(selected.entityName, "/")
@@ -148,14 +131,12 @@ func (v *view) openInEditor(beforeJson []byte) {
 	defer tmpfile.Close()
 
 	if err != nil {
-		logger.Warnf("Failed to read temporary file, err: %v", err)
-		v.app.Notice.Warnf("Failed to read temporary file, err: %v", err)
+		v.app.Notice.Warnf("failed to read temporary file, err: %v", err)
 		return
 	}
 
 	if _, err := tmpfile.Write(beforeJson); err != nil {
-		logger.Warnf("Failed to write to temporary file, err: %v", err)
-		v.app.Notice.Warnf("Failed to write to temporary file, err: %v", err)
+		v.app.Notice.Warnf("failed to write to temporary file, err: %v", err)
 		return
 	}
 
@@ -166,22 +147,20 @@ func (v *view) openInEditor(beforeJson []byte) {
 		bin = "vi"
 	}
 
-	logger.Infof("%s open %s", bin, tmpfile.Name())
+	logger.Info("open", "bin", bin, "name", tmpfile.Name())
 	v.app.Suspend(func() {
 		v.app.isSuspended = true
 		cmd := exec.Command(bin, tmpfile.Name())
 		cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, os.Stderr
 
 		if err := cmd.Run(); err != nil {
-			logger.Warnf("Failed to open editor, err: %v", err)
-			v.app.Notice.Warnf("Failed to open editor, err: %v", err)
+			v.app.Notice.Warnf("failed to open editor, err: %v", err)
 			return
 		}
 
 		afterJson, err := os.ReadFile(tmpfile.Name())
 		if err != nil {
-			logger.Warnf("Failed to read temporary file, err: %v", err)
-			v.app.Notice.Warnf("Failed to read temporary file, err: %v", err)
+			v.app.Notice.Warnf("failed to read temporary file, err: %v", err)
 			return
 		}
 
@@ -202,15 +181,13 @@ func (v *view) openInEditor(beforeJson []byte) {
 		// if not task definition do nothing
 		if v.app.kind != TaskDefinitionKind {
 			v.app.Notice.Warnf("Not support to update %s", v.app.kind)
-			logger.Warnf("Not support to update %s", v.app.kind)
 			return
 		}
 
 		// only task definition and edited json register task definition
 		var updatedTd ecs.RegisterTaskDefinitionInput
 		if err := json.Unmarshal(afterJson, &updatedTd); err != nil {
-			logger.Warnf("Failed to unmarshal JSON, err: %v", err)
-			v.app.Notice.Warnf("Failed to unmarshal JSON, err: %v", err)
+			v.app.Notice.Warnf("failed to unmarshal JSON, err: %v", err)
 			return
 		}
 
@@ -218,8 +195,7 @@ func (v *view) openInEditor(beforeJson []byte) {
 			family, revision, err := v.app.Store.RegisterTaskDefinition(&updatedTd)
 
 			if err != nil {
-				logger.Warnf("Failed to register new task definition, err: %v", err)
-				v.app.Notice.Warnf("Failed to register new task definition, err: %v", err)
+				v.app.Notice.Warnf("failed to register new task definition, err: %v", err)
 				return
 			}
 			v.app.Notice.Infof("Success TaskDefinition Family: %s, Revision: %d", family, revision)
@@ -252,7 +228,7 @@ func (v *view) getJsonString(entity Entity) (string, []byte, error) {
 	case entity.autoScaling != nil:
 		data = entity.autoScaling
 	default:
-		logger.Errorf("Failed to get json string data: %v", data)
+		logger.Error("failed to get json string", "data", data)
 		data = struct {
 			Message     string
 			IssueReport string
@@ -266,8 +242,7 @@ func (v *view) getJsonString(entity Entity) (string, []byte, error) {
 	jsonBytes, err := json.MarshalIndent(data, "", "  ")
 
 	if err != nil {
-		logger.Warnf("Failed to json marshal indent, error: %v", err)
-		v.app.Notice.Warnf("Failed to json marshal indent, error: %v", err)
+		v.app.Notice.Warnf("failed to json marshal indent, error: %v", err)
 		return "", []byte{}, err
 	}
 

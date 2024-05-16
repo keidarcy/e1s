@@ -57,7 +57,7 @@ func (store *Store) getCPU(cluster, service *string) ([]types.Datapoint, error) 
 	metricOutput, err := store.cloudwatch.GetMetricStatistics(context.TODO(), statisticsInput)
 
 	if err != nil {
-		logger.Warnf("Failed to run aws api to %s, cluster: \"%s\", service: \"%s\", err: %v", CPU, *cluster, *service, err)
+		logger.Warn("failed to run aws api", "metrics", CPU, "cluster", *cluster, "service", *service, "error", err)
 		return nil, err
 	}
 
@@ -82,7 +82,7 @@ func (store *Store) getMemory(cluster, service *string) ([]types.Datapoint, erro
 	metricOutput, err := store.cloudwatch.GetMetricStatistics(context.TODO(), statisticsInput)
 
 	if err != nil {
-		logger.Warnf("Failed to run aws api to %s, cluster: \"%s\", service: \"%s\", err: %v", Memory, *cluster, *service, err)
+		logger.Warn("failed to run aws api", "metrics", Memory, "cluster", *cluster, "service", *service, "error", err)
 		return nil, err
 	}
 

@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"log/slog"
 	"os"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -11,10 +12,9 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs"
 	"github.com/aws/aws-sdk-go-v2/service/ecs"
 	"github.com/aws/aws-sdk-go-v2/service/ssm"
-	"github.com/sirupsen/logrus"
 )
 
-var logger *logrus.Logger
+var logger *slog.Logger
 
 type Store struct {
 	*aws.Config
@@ -27,17 +27,17 @@ type Store struct {
 	ssm            *ssm.Client
 }
 
-func NewStore(logr *logrus.Logger) (*Store, error) {
-	logger = logr
+func NewStore(appLogger *slog.Logger) (*Store, error) {
+	logger = appLogger
 	profile := os.Getenv("AWS_PROFILE")
 	region := os.Getenv("AWS_REGION")
 	cfg, err := config.LoadDefaultConfig(context.Background(), config.WithRegion(region))
 	if err != nil {
-		logger.Errorf("Failed to load aws SDK config, error: %v\n", err)
+		logger.Error("failed to load aws SDK config", "error", err)
 		return nil, err
 	}
 	ecsClient := ecs.NewFromConfig(cfg)
-	logger.Infof("e1s load config with AWS_PROFILE: %q, AWS_REGION: %q", profile, cfg.Region)
+	logger.Info("load config", slog.String("AWS_PROFILE", profile), slog.String("AWS_REGION", cfg.Region))
 	return &Store{
 		Config:  &cfg,
 		Region:  cfg.Region,

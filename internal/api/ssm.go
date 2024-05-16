@@ -68,8 +68,9 @@ func (store *Store) StartSession(input *SsmStartSessionInput) (*string, error) {
 
 	bin, err := exec.LookPath(smpCi)
 	if err != nil {
-		logger.Warnf("Failed to find %s path, please check %s", smpCi, "https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html")
-		return nil, fmt.Errorf("failed to find %s path, please check %s", smpCi, "https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html")
+		m := fmt.Sprintf("failed to find %s path, please check %s", smpCi, "https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html")
+		logger.Warn(m)
+		return nil, fmt.Errorf(m)
 	}
 
 	region := store.Config.Region
@@ -92,7 +93,7 @@ func (store *Store) StartSession(input *SsmStartSessionInput) (*string, error) {
 		fmt.Sprintf("https://ssm.%v.amazonaws.com", region),
 	}
 
-	logger.Infof("Exec: `%s %s`", bin, strings.Join(args, " "))
+	logger.Info("exec", "command", bin+" "+strings.Join(args, " "))
 	// start process
 	cmd := exec.Command(bin, args...)
 	err = cmd.Start()
@@ -104,6 +105,7 @@ func (store *Store) TerminateSessions(sessionIds []*string) error {
 	g := new(errgroup.Group)
 
 	for _, id := range sessionIds {
+		id := id
 		g.Go(func() error {
 			input := &ssm.TerminateSessionInput{
 				SessionId: id,

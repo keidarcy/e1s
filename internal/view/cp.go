@@ -93,8 +93,7 @@ func (v *view) cpForm() (*tview.Form, *string) {
 
 		bin, err := exec.LookPath(awsCli)
 		if err != nil {
-			logger.Warnf("Failed to find aws cli binary, error: %v", err)
-			v.app.Notice.Warnf("Failed to find aws cli binary, error: %v", err)
+			v.app.Notice.Warnf("failed to find aws cli binary, error: %v", err)
 			v.app.back()
 		}
 
@@ -183,7 +182,7 @@ func (v *view) cpForm() (*tview.Form, *string) {
 
 		v.app.Suspend(func() {
 			v.app.isSuspended = true
-			logger.Infof("Exec: `%s %s`", awsCli, strings.Join(uploadArgs, " "))
+			logger.Info("exec", "command", bin+" "+strings.Join(uploadArgs, " "))
 			uploadCmd := exec.Command(bin, uploadArgs...)
 			uploadCmd.Stdin, uploadCmd.Stdout = os.Stdin, os.Stdout
 			uploadCmd.Stderr = io.MultiWriter(os.Stderr, &stderr)
@@ -195,7 +194,7 @@ func (v *view) cpForm() (*tview.Form, *string) {
 
 			time.Sleep(time.Second)
 
-			logger.Infof("Exec: `%s %s`", awsCli, strings.Join(downloadArgs, " "))
+			logger.Info("exec", "command", bin+" "+strings.Join(downloadArgs, " "))
 			downloadCmd := exec.Command(bin, downloadArgs...)
 			downloadCmd.Stdin, downloadCmd.Stdout = os.Stdin, os.Stdout
 			downloadCmd.Stderr = io.MultiWriter(os.Stderr, &stderr)
@@ -208,7 +207,7 @@ func (v *view) cpForm() (*tview.Form, *string) {
 			time.Sleep(time.Second)
 
 			if delete {
-				logger.Infof("Exec: `%s %s`", awsCli, strings.Join(deleteArgs, " "))
+				logger.Info("exec", "command", bin+" "+strings.Join(deleteArgs, " "))
 				deleteCmd := exec.Command(bin, deleteArgs...)
 				deleteCmd.Stdin, deleteCmd.Stdout = os.Stdin, os.Stdout
 				deleteCmd.Stderr = io.MultiWriter(os.Stderr, &stderr)

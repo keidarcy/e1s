@@ -75,8 +75,7 @@ func (v *view) handleSelectionChanged(row, column int) {
 	v.changeSelectedValues()
 	selected, err := v.getCurrentSelection()
 	if err != nil {
-		v.app.Notice.Warn("Failed to handleSelectionChanged")
-		logger.Warnf("Failed to handleSelectionChanged, err: %v", err)
+		v.app.Notice.Warnf("failed to handleSelectionChanged")
 		return
 	}
 	v.app.rowIndex = row
@@ -218,8 +217,7 @@ func (v *view) handleDone(key tcell.Key) {
 func (v *view) changeSelectedValues() {
 	selected, err := v.getCurrentSelection()
 	if err != nil {
-		v.app.Notice.Warn("Failed to changeSelectedValues")
-		logger.Warnf("Failed to changeSelectedValues, err: %v", err)
+		v.app.Notice.Warnf("failed to changeSelectedValues")
 		return
 	}
 	switch v.app.kind {
@@ -229,7 +227,7 @@ func (v *view) changeSelectedValues() {
 			v.app.cluster = cluster
 			v.app.entityName = *cluster.ClusterArn
 		} else {
-			logger.Warnf("unexpected in changeSelectedValues kind: %s", v.app.kind)
+			logger.Warn("unexpected in changeSelectedValues", "kind", v.app.kind)
 			return
 		}
 	case ServiceKind:
@@ -238,7 +236,7 @@ func (v *view) changeSelectedValues() {
 			v.app.service = service
 			v.app.entityName = *service.ServiceArn
 		} else {
-			logger.Warnf("unexpected in changeSelectedValues kind: %s", v.app.kind)
+			logger.Warn("unexpected in changeSelectedValues", "kind", v.app.kind)
 			return
 		}
 	case TaskKind:
@@ -248,7 +246,7 @@ func (v *view) changeSelectedValues() {
 			v.app.task = task
 			v.app.entityName = *task.TaskArn
 		} else {
-			logger.Warnf("unexpected in changeSelectedValues kind: %s", v.app.kind)
+			logger.Warn("unexpected in changeSelectedValues", "kind", v.app.kind)
 			return
 		}
 	case ContainerKind:
@@ -257,7 +255,7 @@ func (v *view) changeSelectedValues() {
 			v.app.container = selected.container
 			v.app.entityName = *container.ContainerArn
 		} else {
-			logger.Warnf("unexpected in changeSelectedValues kind: %s", v.app.kind)
+			logger.Warn("unexpected in changeSelectedValues", "kind", v.app.kind)
 			return
 		}
 	case TaskDefinitionKind:
@@ -266,7 +264,7 @@ func (v *view) changeSelectedValues() {
 			v.app.taskDefinition = selected.taskDefinition
 			v.app.entityName = *taskDefinition.TaskDefinitionArn
 		} else {
-			logger.Warnf("unexpected in changeSelectedValues kind: %s", v.app.kind)
+			logger.Warn("unexpected in changeSelectedValues", "kind", v.app.kind)
 			return
 		}
 	default:
@@ -278,8 +276,7 @@ func (v *view) changeSelectedValues() {
 func (v *view) openInBrowser() {
 	selected, err := v.getCurrentSelection()
 	if err != nil {
-		v.app.Notice.Warn("Failed to openInBrowser")
-		logger.Warnf("Failed to openInBrowser, err: %v", err)
+		v.app.Notice.Warnf("failed to openInBrowser")
 		return
 	}
 	arn := ""
@@ -300,10 +297,9 @@ func (v *view) openInBrowser() {
 	if len(url) == 0 {
 		return
 	}
-	logger.Infof("Open url: %s\n", url)
+	logger.Info("open", "url", url)
 	err = utils.OpenURL(url)
 	if err != nil {
-		logger.Warnf("Failed to open url %s\n", url)
-		v.app.Notice.Warnf("Failed to open url %s\n", url)
+		v.app.Notice.Warnf("failed to open url %s\n", url)
 	}
 }

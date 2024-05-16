@@ -53,8 +53,7 @@ func (v *view) getListString(entity Entity) string {
 
 		if err != nil {
 			contentString += "[red::]No valid contents[-:-:-]"
-			v.app.Notice.Warn("Failed to getListString")
-			logger.Warnf("Failed to getListString, err: %v", err)
+			v.app.Notice.Warnf("failed to getListString")
 		}
 
 		if len(logs) == 0 {
@@ -74,8 +73,7 @@ func (v *view) getListString(entity Entity) string {
 func (v *view) switchToServiceEventsList() {
 	selected, err := v.getCurrentSelection()
 	if err != nil {
-		v.app.Notice.Warn("Failed to switchToServiceEventsList")
-		logger.Warnf("Failed to switchToServiceEventsList, err: %v", err)
+		v.app.Notice.Warnf("failed to switchToServiceEventsList")
 		return
 	}
 	if v.app.kind != ServiceKind {
@@ -88,8 +86,7 @@ func (v *view) switchToServiceEventsList() {
 func (v *view) switchToLogsList() {
 	selected, err := v.getCurrentSelection()
 	if err != nil {
-		v.app.Notice.Warn("Failed to switchToLogsList")
-		logger.Warnf("Failed to switchToLogsList, err: %v", err)
+		v.app.Notice.Warnf("failed to switchToLogsList")
 		return
 	}
 	v.showListPages(selected)
@@ -109,8 +106,7 @@ func (v *view) realtimeAwsLog(entity Entity) {
 	}
 	td, err := v.app.Store.DescribeTaskDefinition(tdArn)
 	if err != nil {
-		v.app.Notice.Warn("Failed to switchToLogsList")
-		logger.Warnf("Failed to switchToLogsList, err: %v", err)
+		v.app.Notice.Warnf("failed to switchToLogsList")
 		return
 	}
 	for _, c := range td.ContainerDefinitions {
@@ -146,8 +142,7 @@ func (v *view) realtimeAwsLog(entity Entity) {
 
 		bin, err := exec.LookPath(awsCli)
 		if err != nil {
-			logger.Warnf("Failed to find aws cli binary, error: %v", err)
-			v.app.Notice.Warnf("Failed to find aws cli binary, error: %v", err)
+			v.app.Notice.Warnf("failed to find aws cli binary, error: %v", err)
 			v.app.back()
 		}
 		args := []string{
@@ -157,7 +152,7 @@ func (v *view) realtimeAwsLog(entity Entity) {
 			logGroup,
 		}
 
-		logger.Infof("Exec: `%s %s`", awsCli, strings.Join(args, " "))
+		logger.Info("exec", "command", bin+" "+strings.Join(args, " "))
 
 		v.app.Suspend(func() {
 			v.app.isSuspended = true

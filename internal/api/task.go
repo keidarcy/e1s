@@ -24,7 +24,7 @@ func (store *Store) ListTasks(clusterName, serviceName *string, status types.Des
 		MaxResults:    &limit,
 	})
 	if err != nil {
-		logger.Warnf("Failed to run aws api to list tasks, err: %v", err)
+		logger.Warn("failed to run aws api to list tasks", "error", err)
 		return []types.Task{}, err
 	}
 	if len(listTasksOutput.TaskArns) == 0 {
@@ -44,7 +44,7 @@ func (store *Store) ListTasks(clusterName, serviceName *string, status types.Des
 	})
 
 	if err != nil {
-		logger.Warnf("Failed to run aws api to describe tasks, error: %v", err)
+		logger.Warn("failed to run aws api to describe tasks", "error", err)
 		return []types.Task{}, err
 	}
 

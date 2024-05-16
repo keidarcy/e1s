@@ -1,12 +1,10 @@
 package view
 
 import (
+	"log/slog"
 	"testing"
-
-	"github.com/sirupsen/logrus/hooks/test"
 )
 
 func TestMain(m *testing.M) {
-	testLogger, _ := test.NewNullLogger()
-	logger = testLogger
+	logger = slog.New()
 }

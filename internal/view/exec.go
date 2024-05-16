@@ -19,7 +19,6 @@ func (v *view) execShell() {
 	args, containerName, err := v.preValidateExec()
 	if err != nil {
 		v.app.Notice.Warnf("Exec shell pre pre exec validate failed: %v", err)
-		logger.Warnf("Exec shell pre pre exec validate failed: %v", err)
 		v.app.back()
 		return
 	}
@@ -32,7 +31,7 @@ func (v *view) execShell() {
 		v.app.isSuspended = true
 		bin, _ := exec.LookPath(awsCli)
 		cmdArgs := append(*args, v.app.Option.Shell)
-		logger.Infof("Exec: `%s %s`", bin, strings.Join(cmdArgs, " "))
+		logger.Info("exec", "command", bin+" "+strings.Join(cmdArgs, " "))
 
 		cmd := exec.Command(bin, cmdArgs...)
 		cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, os.Stderr
@@ -52,7 +51,6 @@ func (v *view) execCommandForm() (*tview.Form, *string) {
 	args, containerName, err := v.preValidateExec()
 	if err != nil {
 		v.app.Notice.Warnf("Exec command pre pre exec validate failed: %v", err)
-		logger.Warnf("Exec command pre pre exec validate failed: %v", err)
 		v.app.back()
 		return nil, nil
 	}
@@ -81,7 +79,7 @@ func (v *view) execCommandForm() (*tview.Form, *string) {
 			v.app.isSuspended = true
 			bin, _ := exec.LookPath(awsCli)
 			cmdArgs := append(*args, execCmd)
-			logger.Infof("Exec: `%s %s`", bin, strings.Join(cmdArgs, " "))
+			logger.Info("exec", "command", bin+" "+strings.Join(cmdArgs, " "))
 
 			cmd := exec.Command(bin, cmdArgs...)
 			cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, os.Stderr

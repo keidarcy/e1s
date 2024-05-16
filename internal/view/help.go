@@ -6,6 +6,7 @@ import (
 
 	"github.com/keidarcy/e1s/internal/color"
 	"github.com/keidarcy/e1s/internal/ui"
+	"github.com/keidarcy/e1s/internal/utils"
 	"github.com/rivo/tview"
 )
 
@@ -68,6 +69,9 @@ func genColumn(title string, keys []keyDescriptionPair) tview.Primitive {
 	t.SetCell(0, 0, tview.NewTableCell(fmt.Sprintf(color.HelpTitleFmt, title)).SetAlign(L))
 	for i, k := range keys {
 		key := tview.NewTableCell(fmt.Sprintf(color.HelpKeyFmt, k.key)).SetAlign(L).SetExpansion(1)
+		if k.description == "" {
+			k.description = utils.EmptyText
+		}
 		description := tview.NewTableCell(fmt.Sprintf(color.HelpDescriptionFmt, k.description)).SetAlign(L).SetExpansion(5)
 		t.SetCell(i+adjust, 0, key)
 		t.SetCell(i+adjust, 1, description)

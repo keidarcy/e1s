@@ -92,11 +92,7 @@ Check https://github.com/keidarcy/e1s for more details.`,
 		shell := viper.GetString("shell")
 		theme := viper.GetString("theme")
 
-		logger, file := utils.GetLogger(logFile, json, debug)
-		defer file.Close()
-
 		option := e1s.Option{
-			Logger:     logger,
 			ConfigFile: configFile,
 			LogFile:    logFile,
 			Debug:      debug,
@@ -107,11 +103,11 @@ Check https://github.com/keidarcy/e1s for more details.`,
 			Theme:      theme,
 		}
 
-		logger.Debugf("ConfigFile: %s, LogFile: %s, Debug: %t, JSON: %t, ReadOnly: %t, Refresh: %d, Shell: %s", configFile, logFile, debug, json, readOnly, refresh, shell)
-		if err := e1s.Start(option); err != nil {
+		logger, err := e1s.Start(option)
+		if err != nil {
 			fmt.Printf("e1s failed to start, please check your aws cli credential and permission. error: %v\n", err)
-			logger.Fatalf("Failed to start, error: %v\n", err)
-			// will call os.Exit(1)
+			logger.Error("failed to start", "error", err)
+			os.Exit(1)
 		}
 	},
 	Version: utils.ShowVersion(),

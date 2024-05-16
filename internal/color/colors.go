@@ -3,16 +3,16 @@ package color
 import (
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 
 	"github.com/BurntSushi/toml"
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
-var logger *logrus.Logger
+var logger *slog.Logger
 
 type Colors struct {
 	BgColor     string `toml:"background"`
@@ -55,7 +55,7 @@ func Color(c string) tcell.Color {
 }
 
 // Init basic styles
-func InitStyles(theme string, appLogger *logrus.Logger) Colors {
+func InitStyles(theme string, appLogger *slog.Logger) Colors {
 	logger = appLogger
 	colors := Colors{
 		BgColor:     "#282828",
@@ -73,6 +73,7 @@ func InitStyles(theme string, appLogger *logrus.Logger) Colors {
 	colors.updateByTheme(theme)
 
 	viper.UnmarshalKey("colors", &colors)
+	logger.Debug("colors", "colors", colors)
 	tview.Styles.PrimitiveBackgroundColor = Color(colors.BgColor)
 	tview.Styles.ContrastBackgroundColor = Color(colors.BgColor)
 	tview.Styles.MoreContrastBackgroundColor = Color(colors.BgColor)
@@ -98,26 +99,26 @@ func (c *Colors) updateByTheme(theme string) {
 	url := fmt.Sprintf("https://raw.githubusercontent.com/keidarcy/alacritty-theme/master/themes/%s.toml", theme)
 	resp, err := http.Get(url)
 	if err != nil {
-		logger.Warnf("Error fetching TOML data: %s", err)
+		logger.Warn("failed fetching TOML data", "error", err)
 		return
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		logger.Warnf("Error fetching TOML data: HTTP status code %d", resp.StatusCode)
+		logger.Warn("failed fetching TOML data", "HTTP status code", resp.StatusCode)
 		return
 	}
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		logger.Warnf("Error reading TOML data: %s", err)
+		logger.Warn("failed reading TOML data", "error", err)
 		return
 	}
 
 	var config themeConfig
 	// Decode the TOML content
 	if _, err := toml.Decode(string(body), &config); err != nil {
-		logger.Warnf("Error decoding TOML data: %s", err)
+		logger.Warn("failed decoding TOML data", "error", err)
 		return
 	}
 	c.BgColor = config.Colors.Primary.Background
