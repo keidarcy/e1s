@@ -26,7 +26,7 @@ func (store *Store) ListServices(clusterName *string) ([]types.Service, error) {
 	for {
 		listServicesOutput, err := store.ecs.ListServices(context.Background(), params)
 		if err != nil {
-			logger.Warn("failed to run aws api to list services", "error", err)
+			slog.Warn("failed to run aws api to list services", "error", err)
 			// If first run failed return err
 			if len(serviceARNs) == 0 {
 				return []types.Service{}, err
@@ -79,7 +79,7 @@ func (store *Store) ListServices(clusterName *string) ([]types.Service, error) {
 				},
 			})
 			if err != nil {
-				logger.Warn("failed to run aws api to describe services in i:%d times loop", "error", i, err)
+				slog.Warn("failed to run aws api to describe services in i:%d times loop", "error", i, err)
 				return err
 			}
 
@@ -121,7 +121,7 @@ func (store *Store) UpdateService(input *ecs.UpdateServiceInput) (*types.Service
 		desiredCount = int(*input.DesiredCount)
 	}
 
-	logger.Info("update service",
+	slog.Info("update service",
 		slog.Group("parameters",
 			slog.String("cluster", *input.Cluster),
 			slog.String("service", *input.Service),
@@ -133,7 +133,7 @@ func (store *Store) UpdateService(input *ecs.UpdateServiceInput) (*types.Service
 
 	updateOutput, err := store.ecs.UpdateService(context.Background(), input)
 	if err != nil {
-		logger.Warn("failed to run aws api to update service", "error", err)
+		slog.Warn("failed to run aws api to update service", "error", err)
 		return nil, err
 	}
 	return updateOutput.Service, nil

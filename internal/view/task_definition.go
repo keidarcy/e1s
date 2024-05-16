@@ -2,6 +2,7 @@ package view
 
 import (
 	"fmt"
+	"log/slog"
 	"strconv"
 
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
@@ -39,7 +40,7 @@ func (app *App) showTaskDefinitionPage(reload bool) error {
 	taskDefinitions, err := app.Store.ListFullTaskDefinition(td)
 
 	if err != nil {
-		logger.Warn("failed to show taskDefinition pages", "error", err)
+		slog.Warn("failed to show taskDefinition pages", "error", err)
 		app.back()
 		return err
 	}

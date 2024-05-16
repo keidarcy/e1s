@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"log/slog"
 	"os"
 	"os/exec"
 	"os/signal"
@@ -182,7 +183,7 @@ func (v *view) cpForm() (*tview.Form, *string) {
 
 		v.app.Suspend(func() {
 			v.app.isSuspended = true
-			logger.Info("exec", "command", bin+" "+strings.Join(uploadArgs, " "))
+			slog.Info("exec", "command", bin+" "+strings.Join(uploadArgs, " "))
 			uploadCmd := exec.Command(bin, uploadArgs...)
 			uploadCmd.Stdin, uploadCmd.Stdout = os.Stdin, os.Stdout
 			uploadCmd.Stderr = io.MultiWriter(os.Stderr, &stderr)
@@ -194,7 +195,7 @@ func (v *view) cpForm() (*tview.Form, *string) {
 
 			time.Sleep(time.Second)
 
-			logger.Info("exec", "command", bin+" "+strings.Join(downloadArgs, " "))
+			slog.Info("exec", "command", bin+" "+strings.Join(downloadArgs, " "))
 			downloadCmd := exec.Command(bin, downloadArgs...)
 			downloadCmd.Stdin, downloadCmd.Stdout = os.Stdin, os.Stdout
 			downloadCmd.Stderr = io.MultiWriter(os.Stderr, &stderr)
@@ -207,7 +208,7 @@ func (v *view) cpForm() (*tview.Form, *string) {
 			time.Sleep(time.Second)
 
 			if delete {
-				logger.Info("exec", "command", bin+" "+strings.Join(deleteArgs, " "))
+				slog.Info("exec", "command", bin+" "+strings.Join(deleteArgs, " "))
 				deleteCmd := exec.Command(bin, deleteArgs...)
 				deleteCmd.Stdin, deleteCmd.Stdout = os.Stdin, os.Stdout
 				deleteCmd.Stderr = io.MultiWriter(os.Stderr, &stderr)

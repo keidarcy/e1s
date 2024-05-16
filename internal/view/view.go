@@ -2,6 +2,7 @@ package view
 
 import (
 	"fmt"
+	"log/slog"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/keidarcy/e1s/internal/color"
@@ -108,7 +109,7 @@ func (v *view) showSecondaryKindPage(reload bool) {
 	if !reload {
 		v.app.Notice.Infof("Viewing %s...", v.app.secondaryKind.String())
 	} else {
-		logger.Debug("Reload", "showSecondaryKindPage", reload)
+		slog.Debug("Reload", "showSecondaryKindPage", reload)
 	}
 }
 
@@ -171,7 +172,7 @@ func (v *view) handleSecondaryPageSwitch(entity Entity, colorizedJsonString stri
 
 	contentTextItem.SetDoneFunc(v.handleTableContentDone)
 
-	logger.Debug("v.tablePages navigation", "action", "AppPage", "pageName", contentPageName, "app", v.app)
+	slog.Debug("v.tablePages navigation", "action", "AppPage", "pageName", contentPageName, "app", v.app)
 
 	v.bodyPages.AddPage(contentPageName, contentTextItem, true, true)
 }
@@ -179,7 +180,7 @@ func (v *view) handleSecondaryPageSwitch(entity Entity, colorizedJsonString stri
 func (v *view) handleHeaderPageSwitch(entity Entity) {
 	pageName := fmt.Sprintf("%s.%s", entity.entityName, v.app.secondaryKind)
 
-	logger.Debug("v.tablePages navigation", "action", "SwitchToPage", "pageName", pageName, "app", v.app)
+	slog.Debug("v.tablePages navigation", "action", "SwitchToPage", "pageName", pageName, "app", v.app)
 
 	v.headerPages.SwitchToPage(pageName)
 }

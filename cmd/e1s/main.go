@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
 
@@ -103,10 +104,9 @@ Check https://github.com/keidarcy/e1s for more details.`,
 			Theme:      theme,
 		}
 
-		logger, err := e1s.Start(option)
-		if err != nil {
+		if err := e1s.Start(option); err != nil {
 			fmt.Printf("e1s failed to start, please check your aws cli credential and permission. error: %v\n", err)
-			logger.Error("failed to start", "error", err)
+			slog.Error("failed to start", "error", err)
 			os.Exit(1)
 		}
 	},

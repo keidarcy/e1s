@@ -2,6 +2,7 @@ package view
 
 import (
 	"fmt"
+	"log/slog"
 	"strconv"
 	"strings"
 
@@ -101,7 +102,7 @@ func (v *view) stopTaskForm() (*tview.Form, *string) {
 
 		if err != nil {
 			v.app.Notice.Error(err.Error())
-			logger.Error(err.Error())
+			slog.Error(err.Error())
 		} else {
 			v.app.Notice.Infof("task %s in %s cluster stopped", taskId, clusterName)
 		}
@@ -119,7 +120,7 @@ func (v *view) serviceUpdateWithSpecificTaskDefinitionForm() (*tview.Form, *stri
 	}
 
 	if v.app.service == nil || v.app.taskDefinition == nil {
-		logger.Warn("Unexpected nil to update service with task definition")
+		slog.Warn("Unexpected nil to update service with task definition")
 		return nil, nil
 	}
 	serviceName := *v.app.service.ServiceName
@@ -149,7 +150,7 @@ func (v *view) serviceUpdateWithSpecificTaskDefinitionForm() (*tview.Form, *stri
 
 		if err != nil {
 			v.app.Notice.Error(err.Error())
-			logger.Error(err.Error())
+			slog.Error(err.Error())
 		} else {
 			v.app.Notice.Infof("update service:\"%s\" with \"%d\" task definition:\"%s\" task(s)", *s.ServiceName, s.DesiredCount, utils.ArnToName(s.TaskDefinition))
 		}
@@ -300,7 +301,7 @@ func (v *view) serviceUpdateForm() (*tview.Form, *string) {
 		if err != nil {
 			v.closeModal()
 			v.app.Notice.Error(err.Error())
-			logger.Error(err.Error())
+			slog.Error(err.Error())
 			v.reloadResource(false)
 		} else {
 			v.closeModal()

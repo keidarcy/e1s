@@ -1,6 +1,8 @@
 package view
 
 import (
+	"log/slog"
+
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
 	"github.com/gdamore/tcell/v2"
 	"github.com/keidarcy/e1s/internal/color"
@@ -227,7 +229,7 @@ func (v *view) changeSelectedValues() {
 			v.app.cluster = cluster
 			v.app.entityName = *cluster.ClusterArn
 		} else {
-			logger.Warn("unexpected in changeSelectedValues", "kind", v.app.kind)
+			slog.Warn("unexpected in changeSelectedValues", "kind", v.app.kind)
 			return
 		}
 	case ServiceKind:
@@ -236,7 +238,7 @@ func (v *view) changeSelectedValues() {
 			v.app.service = service
 			v.app.entityName = *service.ServiceArn
 		} else {
-			logger.Warn("unexpected in changeSelectedValues", "kind", v.app.kind)
+			slog.Warn("unexpected in changeSelectedValues", "kind", v.app.kind)
 			return
 		}
 	case TaskKind:
@@ -246,7 +248,7 @@ func (v *view) changeSelectedValues() {
 			v.app.task = task
 			v.app.entityName = *task.TaskArn
 		} else {
-			logger.Warn("unexpected in changeSelectedValues", "kind", v.app.kind)
+			slog.Warn("unexpected in changeSelectedValues", "kind", v.app.kind)
 			return
 		}
 	case ContainerKind:
@@ -255,7 +257,7 @@ func (v *view) changeSelectedValues() {
 			v.app.container = selected.container
 			v.app.entityName = *container.ContainerArn
 		} else {
-			logger.Warn("unexpected in changeSelectedValues", "kind", v.app.kind)
+			slog.Warn("unexpected in changeSelectedValues", "kind", v.app.kind)
 			return
 		}
 	case TaskDefinitionKind:
@@ -264,7 +266,7 @@ func (v *view) changeSelectedValues() {
 			v.app.taskDefinition = selected.taskDefinition
 			v.app.entityName = *taskDefinition.TaskDefinitionArn
 		} else {
-			logger.Warn("unexpected in changeSelectedValues", "kind", v.app.kind)
+			slog.Warn("unexpected in changeSelectedValues", "kind", v.app.kind)
 			return
 		}
 	default:
@@ -297,7 +299,7 @@ func (v *view) openInBrowser() {
 	if len(url) == 0 {
 		return
 	}
-	logger.Info("open", "url", url)
+	slog.Info("open", "url", url)
 	err = utils.OpenURL(url)
 	if err != nil {
 		v.app.Notice.Warnf("failed to open url %s\n", url)

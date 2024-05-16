@@ -14,8 +14,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/ssm"
 )
 
-var logger *slog.Logger
-
 type Store struct {
 	*aws.Config
 	Region         string
@@ -27,17 +25,16 @@ type Store struct {
 	ssm            *ssm.Client
 }
 
-func NewStore(appLogger *slog.Logger) (*Store, error) {
-	logger = appLogger
+func NewStore() (*Store, error) {
 	profile := os.Getenv("AWS_PROFILE")
 	region := os.Getenv("AWS_REGION")
 	cfg, err := config.LoadDefaultConfig(context.Background(), config.WithRegion(region))
 	if err != nil {
-		logger.Error("failed to load aws SDK config", "error", err)
+		slog.Error("failed to load aws SDK config", "error", err)
 		return nil, err
 	}
 	ecsClient := ecs.NewFromConfig(cfg)
-	logger.Info("load config", slog.String("AWS_PROFILE", profile), slog.String("AWS_REGION", cfg.Region))
+	slog.Info("load config", slog.String("AWS_PROFILE", profile), slog.String("AWS_REGION", cfg.Region))
 	return &Store{
 		Config:  &cfg,
 		Region:  cfg.Region,

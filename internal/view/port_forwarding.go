@@ -2,6 +2,7 @@ package view
 
 import (
 	"fmt"
+	"log/slog"
 	"strconv"
 	"strings"
 
@@ -100,7 +101,7 @@ func (v *view) portForwardingForm() (*tview.Form, *string) {
 			v.closeModal()
 
 			v.app.Notice.Error(err.Error())
-			logger.Error(err.Error())
+			slog.Error(err.Error())
 		} else {
 			v.closeModal()
 
@@ -189,7 +190,7 @@ func (v *view) terminatePortForwardingForm() (*tview.Form, *string) {
 		// terminal targe container sessions
 		err := v.app.Store.TerminateSessions(sessionIds)
 		if err != nil {
-			logger.Error("failed to terminated port forwarding sessions", "error", err)
+			slog.Error("failed to terminated port forwarding sessions", "error", err)
 		} else {
 			v.app.Notice.Infof("success terminated sessions on port %s", portText)
 		}

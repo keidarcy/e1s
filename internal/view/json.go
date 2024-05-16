@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"os"
 	"os/exec"
 	"regexp"
@@ -100,7 +101,7 @@ func (v *view) handleTableContentDone(key tcell.Key) {
 	pageName := v.app.kind.getTablePageName(v.app.getPageHandle())
 	v.app.secondaryKind = EmptyKind
 
-	logger.Debug("v.tablePages navigation", "action", "SwitchToPage", "pageName", pageName, "app", v.app)
+	slog.Debug("v.tablePages navigation", "action", "SwitchToPage", "pageName", pageName, "app", v.app)
 	v.bodyPages.SwitchToPage(pageName)
 
 	selected, err := v.getCurrentSelection()
@@ -108,7 +109,7 @@ func (v *view) handleTableContentDone(key tcell.Key) {
 		v.app.back()
 	}
 
-	logger.Debug("v.headerPages navigation", "action", "SwitchToPage", "pageName", pageName, "app", v.app)
+	slog.Debug("v.headerPages navigation", "action", "SwitchToPage", "pageName", pageName, "app", v.app)
 	v.headerPages.SwitchToPage(selected.entityName)
 }
 
@@ -120,7 +121,7 @@ func (v *view) handleFullScreenContentDone() {
 func (v *view) openInEditor(beforeJson []byte) {
 	selected, err := v.getCurrentSelection()
 	if err != nil {
-		logger.Warn("failed to get current selection", "error", err)
+		slog.Warn("failed to get current selection", "error", err)
 		return
 	}
 	names := strings.Split(selected.entityName, "/")
@@ -147,7 +148,7 @@ func (v *view) openInEditor(beforeJson []byte) {
 		bin = "vi"
 	}
 
-	logger.Info("open", "bin", bin, "name", tmpfile.Name())
+	slog.Info("open", "bin", bin, "name", tmpfile.Name())
 	v.app.Suspend(func() {
 		v.app.isSuspended = true
 		cmd := exec.Command(bin, tmpfile.Name())
@@ -173,7 +174,7 @@ func (v *view) openInEditor(beforeJson []byte) {
 		if bytes.Equal(beforeJson, afterJson) {
 			if v.app.kind == TaskDefinitionKind {
 				v.app.Notice.Info("JSON content has no change")
-				logger.Info("JSON content has no change")
+				slog.Info("JSON content has no change")
 			}
 			return
 		}
@@ -228,7 +229,7 @@ func (v *view) getJsonString(entity Entity) (string, []byte, error) {
 	case entity.autoScaling != nil:
 		data = entity.autoScaling
 	default:
-		logger.Error("failed to get json string", "data", data)
+		slog.Error("failed to get json string", "data", data)
 		data = struct {
 			Message     string
 			IssueReport string

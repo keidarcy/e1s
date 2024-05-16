@@ -2,6 +2,7 @@ package view
 
 import (
 	"fmt"
+	"log/slog"
 	"strconv"
 	"strings"
 
@@ -55,7 +56,7 @@ func (app *App) showTasksPages(reload bool) error {
 	tasks, err := app.Store.ListTasks(app.cluster.ClusterName, serviceName, app.taskStatus)
 
 	if err != nil {
-		logger.Warn("failed to show tasks pages", "error", err)
+		slog.Warn("failed to show tasks pages", "error", err)
 		app.back()
 		return err
 	}

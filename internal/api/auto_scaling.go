@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"log/slog"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/applicationautoscaling"
@@ -61,7 +62,7 @@ func (store *Store) describeScalingActivities(serviceArn *string) ([]types.Scali
 	activitiesOutput, err := store.autoScaling.DescribeScalingActivities(context.Background(), activitiesInput)
 
 	if err != nil {
-		logger.Warn("failed to run aws api to auto scaling activities", "serviceArn", *serviceArn, "error", err)
+		slog.Warn("failed to run aws api to auto scaling activities", "serviceArn", *serviceArn, "error", err)
 		return nil, err
 	}
 
@@ -79,7 +80,7 @@ func (store *Store) describeScalableTargets(serviceArn *string) ([]types.Scalabl
 	targetsOutput, err := store.autoScaling.DescribeScalableTargets(context.Background(), targetsInput)
 
 	if err != nil {
-		logger.Warn("failed to run aws api to auto scaling activities", "serviceArn", *serviceArn, "error", err)
+		slog.Warn("failed to run aws api to auto scaling activities", "serviceArn", *serviceArn, "error", err)
 		return nil, err
 	}
 
@@ -97,7 +98,7 @@ func (store *Store) describeScalingPolicies(serviceArn *string) ([]types.Scaling
 	policiesOutput, err := store.autoScaling.DescribeScalingPolicies(context.Background(), policiesInput)
 
 	if err != nil {
-		logger.Warn("failed to run aws api to auto scaling activities", "serviceArn", *serviceArn, "error", err)
+		slog.Warn("failed to run aws api to auto scaling activities", "serviceArn", *serviceArn, "error", err)
 		return nil, err
 	}
 
@@ -121,7 +122,7 @@ func (store *Store) describeScheduledAction(serviceArn *string) ([]types.Schedul
 	actionsOutput, err := store.autoScaling.DescribeScheduledActions(context.Background(), actionsInput)
 
 	if err != nil {
-		logger.Warn("failed to run aws api to auto scaling scheduled actions", "serviceArn", *serviceArn, "error", err)
+		slog.Warn("failed to run aws api to auto scaling scheduled actions", "serviceArn", *serviceArn, "error", err)
 		return nil, err
 	}
 

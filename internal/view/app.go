@@ -15,7 +15,6 @@ import (
 	"github.com/rivo/tview"
 )
 
-var logger *slog.Logger
 var theme color.Colors
 
 // Entity contains ECS resources to show, use uppercase to make items like app.cluster easy to access
@@ -88,9 +87,8 @@ type App struct {
 	profile string
 }
 
-func newApp(option Option, logger *slog.Logger) (*App, error) {
-	logger.Debug("e1s start", "logger", logger)
-	store, err := api.NewStore(logger)
+func newApp(option Option) (*App, error) {
+	store, err := api.NewStore()
 	if err != nil {
 		return nil, err
 	}
@@ -98,7 +96,7 @@ func newApp(option Option, logger *slog.Logger) (*App, error) {
 	pages := tview.NewPages()
 	footer := tview.NewFlex()
 
-	notice := ui.NewNotice(app, theme, logger)
+	notice := ui.NewNotice(app, theme)
 	footer.AddItem(notice, 0, 1, false)
 	main := tview.NewFlex().SetDirection(tview.FlexRow).
 		AddItem(pages, 0, 2, true).
@@ -132,40 +130,39 @@ func newApp(option Option, logger *slog.Logger) (*App, error) {
 }
 
 // Entry point of the app
-func Start(option Option) (*slog.Logger, error) {
-	logger, file := utils.GetLogger(option.LogFile, option.JSON, option.Debug)
+func Start(option Option) error {
+	file := utils.GetLogger(option.LogFile, option.JSON, option.Debug)
 	defer file.Close()
-	logger.Debug(`
+	slog.Debug(`
 ****************************************************************
 **************** Started e1s
 ****************************************************************`)
-	logger.Debug("e1s start", "option", option)
-	logger.Debug("e1s start", "logger", logger)
-	theme = color.InitStyles(option.Theme, logger)
+	slog.Debug("e1s start", "option", option)
+	theme = color.InitStyles(option.Theme)
 
-	app, err := newApp(option, logger)
+	app, err := newApp(option)
 	if err != nil {
-		return logger, err
+		return err
 	}
 
 	if err := app.start(); err != nil {
-		return logger, err
+		return err
 	}
 
 	app.SetInputCapture(app.globalInputHandle)
 
 	if err := app.Application.SetRoot(app.mainScreen, true).Run(); err != nil {
-		return logger, err
+		return err
 	}
 	app.onClose()
-	return logger, nil
+	return nil
 }
 
 // Add new page to app.Pages
 func (app *App) addAppPage(page *tview.Flex) {
 	pageName := app.kind.getAppPageName(app.getPageHandle())
 
-	logger.Debug("app.Pages navigation", "action", "AppPage", "pageName", pageName, "app", app)
+	slog.Debug("app.Pages navigation", "action", "AppPage", "pageName", pageName, "app", app)
 
 	app.Pages.AddPage(pageName, page, true, true)
 }
@@ -175,7 +172,7 @@ func (app *App) switchPage(reload bool) bool {
 	pageName := app.kind.getAppPageName(app.getPageHandle())
 	if app.Pages.HasPage(pageName) && app.Refresh < 0 && !reload {
 
-		logger.Debug("app.Pages navigation", "action", "SwitchToPage", "pageName", pageName, "app", app)
+		slog.Debug("app.Pages navigation", "action", "SwitchToPage", "pageName", pageName, "app", app)
 		app.Pages.SwitchToPage(pageName)
 		return true
 	}
@@ -201,7 +198,7 @@ func (app *App) back() {
 	app.secondaryKind = EmptyKind
 	pageName := prevKind.getAppPageName(app.getPageHandle())
 
-	logger.Debug("app.Pages navigation", "action", "back", "pageName", pageName, "app", app)
+	slog.Debug("app.Pages navigation", "action", "back", "pageName", pageName, "app", app)
 
 	app.Pages.SwitchToPage(pageName)
 }
@@ -228,7 +225,7 @@ func (app *App) start() error {
 	err := app.showPrimaryKindPage(ClusterKind, false)
 
 	if app.Option.Refresh > 0 {
-		logger.Debug("Auto refresh rate", "seconds", app.Option.Refresh)
+		slog.Debug("Auto refresh rate", "seconds", app.Option.Refresh)
 		ticker := time.NewTicker(time.Duration(app.Option.Refresh) * time.Second)
 
 		go func() {
@@ -236,7 +233,7 @@ func (app *App) start() error {
 				<-ticker.C
 				if app.secondaryKind == EmptyKind && !app.isSuspended {
 					app.showPrimaryKindPage(app.kind, true)
-					logger.Debug("Auto refresh")
+					slog.Debug("Auto refresh")
 					app.Application.Draw()
 				}
 			}
@@ -274,7 +271,7 @@ func (app *App) showPrimaryKindPage(k kind, reload bool) error {
 	if !reload {
 		app.Notice.Infof("Viewing %s...", app.kind.String())
 	} else {
-		logger.Debug("Reload in showPrimaryKindPage")
+		slog.Debug("Reload in showPrimaryKindPage")
 	}
 	return nil
 }
@@ -288,13 +285,13 @@ func (app *App) onClose() {
 		}
 		err := app.Store.TerminateSessions(ids)
 		if err != nil {
-			logger.Error("Failed to terminated port forwarding sessions", "error", err)
+			slog.Error("Failed to terminated port forwarding sessions", "error", err)
 		} else {
-			logger.Debug("Terminated port forwarding session terminated")
+			slog.Debug("Terminated port forwarding session terminated")
 		}
 	}
 
-	logger.Debug(`
+	slog.Debug(`
 **************** Exited e1s ************************************`)
 }
 

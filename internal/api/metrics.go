@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"log/slog"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -57,7 +58,7 @@ func (store *Store) getCPU(cluster, service *string) ([]types.Datapoint, error) 
 	metricOutput, err := store.cloudwatch.GetMetricStatistics(context.TODO(), statisticsInput)
 
 	if err != nil {
-		logger.Warn("failed to run aws api", "metrics", CPU, "cluster", *cluster, "service", *service, "error", err)
+		slog.Warn("failed to run aws api", "metrics", CPU, "cluster", *cluster, "service", *service, "error", err)
 		return nil, err
 	}
 
@@ -82,7 +83,7 @@ func (store *Store) getMemory(cluster, service *string) ([]types.Datapoint, erro
 	metricOutput, err := store.cloudwatch.GetMetricStatistics(context.TODO(), statisticsInput)
 
 	if err != nil {
-		logger.Warn("failed to run aws api", "metrics", Memory, "cluster", *cluster, "service", *service, "error", err)
+		slog.Warn("failed to run aws api", "metrics", Memory, "cluster", *cluster, "service", *service, "error", err)
 		return nil, err
 	}
 

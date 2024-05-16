@@ -2,6 +2,7 @@ package view
 
 import (
 	"fmt"
+	"log/slog"
 	"os"
 	"os/exec"
 	"os/signal"
@@ -152,7 +153,7 @@ func (v *view) realtimeAwsLog(entity Entity) {
 			logGroup,
 		}
 
-		logger.Info("exec", "command", bin+" "+strings.Join(args, " "))
+		slog.Info("exec", "command", bin+" "+strings.Join(args, " "))
 
 		v.app.Suspend(func() {
 			v.app.isSuspended = true

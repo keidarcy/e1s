@@ -14,10 +14,9 @@ type Notice struct {
 	app        *tview.Application
 	timer      *time.Timer
 	forceTimer *time.Timer
-	logger     *slog.Logger
 }
 
-func NewNotice(app *tview.Application, theme color.Colors, logger *slog.Logger) *Notice {
+func NewNotice(app *tview.Application, theme color.Colors) *Notice {
 	t := tview.NewTextView().
 		SetTextAlign(tview.AlignCenter).
 		SetDynamicColors(true)
@@ -25,7 +24,6 @@ func NewNotice(app *tview.Application, theme color.Colors, logger *slog.Logger) 
 	return &Notice{
 		TextView:   t,
 		app:        app,
-		logger:     logger,
 		timer:      time.NewTimer(time.Second * 3),
 		forceTimer: time.NewTimer(time.Second * 8),
 	}
@@ -61,34 +59,34 @@ func (n *Notice) forceClear() {
 
 func (n *Notice) Info(s string) {
 	m := fmt.Sprintf(color.NoticeInfoFmt, s)
-	n.logger.Info("notice info", "msg", tview.Escape(m))
+	slog.Info("notice info", "msg", tview.Escape(m))
 	n.sendMessage(m)
 }
 
 func (n *Notice) Warn(s string) {
 	m := fmt.Sprintf(color.NoticeWarnFmt, s)
-	n.logger.Warn("notice warn", "msg", tview.Escape(m))
+	slog.Warn("notice warn", "msg", tview.Escape(m))
 	n.sendMessage(m)
 }
 func (n *Notice) Error(s string) {
 	m := fmt.Sprintf(color.NoticeErrorFmt, s)
-	n.logger.Error("notice error", "msg", tview.Escape(m))
+	slog.Error("notice error", "msg", tview.Escape(m))
 	n.sendMessage(m)
 }
 
 func (n *Notice) Infof(s string, args ...interface{}) {
 	m := fmt.Sprintf(fmt.Sprintf(color.NoticeInfoFmt, s), args...)
-	n.logger.Info("notice info", "msg", tview.Escape(m))
+	slog.Info("notice info", "msg", tview.Escape(m))
 	n.sendMessage(m)
 }
 
 func (n *Notice) Warnf(s string, args ...interface{}) {
 	m := fmt.Sprintf(fmt.Sprintf(color.NoticeWarnFmt, s), args...)
-	n.logger.Warn("notice warn", "msg", tview.Escape(m))
+	slog.Warn("notice warn", "msg", tview.Escape(m))
 	n.sendMessage(m)
 }
 func (n *Notice) Errorf(s string, args ...interface{}) {
 	m := fmt.Sprintf(fmt.Sprintf(color.NoticeErrorFmt, s), args...)
-	n.logger.Error("notice error", "msg", tview.Escape(m))
+	slog.Error("notice error", "msg", tview.Escape(m))
 	n.sendMessage(m)
 }

@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"log/slog"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs"
@@ -31,7 +32,7 @@ func (store *Store) GetLogs(tdArn *string) ([]cloudwatchlogsTypes.OutputLogEvent
 	td, err := store.DescribeTaskDefinition(tdArn)
 
 	if err != nil {
-		logger.Warn("failed to run aws api to describe task definition", "error", err)
+		slog.Warn("failed to run aws api to describe task definition", "error", err)
 		return nil, err
 	}
 
@@ -63,7 +64,7 @@ func (store *Store) GetLogs(tdArn *string) ([]cloudwatchlogsTypes.OutputLogEvent
 		}
 		describeLogStreamsOutput, err := store.cloudwatchlogs.DescribeLogStreams(context.Background(), describeLogStreamsInput)
 		if err != nil {
-			logger.Warn("failed to run aws api to describe log stream", "error", err)
+			slog.Warn("failed to run aws api to describe log stream", "error", err)
 			continue
 		}
 		streamName := describeLogStreamsOutput.LogStreams[0].LogStreamName
@@ -75,7 +76,7 @@ func (store *Store) GetLogs(tdArn *string) ([]cloudwatchlogsTypes.OutputLogEvent
 		}
 		getLogEventsOutput, err := store.cloudwatchlogs.GetLogEvents(context.Background(), getLogEventsInput)
 		if err != nil {
-			logger.Warn("failed to run aws api to get log events", "error", err)
+			slog.Warn("failed to run aws api to get log events", "error", err)
 			continue
 		}
 		logs = append(logs, getLogEventsOutput.Events...)

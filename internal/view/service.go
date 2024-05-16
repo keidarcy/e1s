@@ -2,6 +2,7 @@ package view
 
 import (
 	"fmt"
+	"log/slog"
 	"strconv"
 	"strings"
 	"time"
@@ -44,7 +45,7 @@ func (app *App) showServicesPage(reload bool) error {
 
 	services, err := app.Store.ListServices(app.cluster.ClusterName)
 	if err != nil {
-		logger.Warn("failed to show services page", "error", err)
+		slog.Warn("failed to show services page", "error", err)
 		app.back()
 		return err
 	}

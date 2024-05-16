@@ -12,8 +12,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-var logger *slog.Logger
-
 type Colors struct {
 	BgColor     string `toml:"background"`
 	FgColor     string `toml:"foreground"`
@@ -55,8 +53,7 @@ func Color(c string) tcell.Color {
 }
 
 // Init basic styles
-func InitStyles(theme string, appLogger *slog.Logger) Colors {
-	logger = appLogger
+func InitStyles(theme string) Colors {
 	colors := Colors{
 		BgColor:     "#282828",
 		FgColor:     "#ebdbb2",
@@ -73,7 +70,7 @@ func InitStyles(theme string, appLogger *slog.Logger) Colors {
 	colors.updateByTheme(theme)
 
 	viper.UnmarshalKey("colors", &colors)
-	logger.Debug("colors", "colors", colors)
+	slog.Debug("colors", "colors", colors)
 	tview.Styles.PrimitiveBackgroundColor = Color(colors.BgColor)
 	tview.Styles.ContrastBackgroundColor = Color(colors.BgColor)
 	tview.Styles.MoreContrastBackgroundColor = Color(colors.BgColor)
@@ -99,26 +96,26 @@ func (c *Colors) updateByTheme(theme string) {
 	url := fmt.Sprintf("https://raw.githubusercontent.com/keidarcy/alacritty-theme/master/themes/%s.toml", theme)
 	resp, err := http.Get(url)
 	if err != nil {
-		logger.Warn("failed fetching TOML data", "error", err)
+		slog.Warn("failed fetching TOML data", "error", err)
 		return
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		logger.Warn("failed fetching TOML data", "HTTP status code", resp.StatusCode)
+		slog.Warn("failed fetching TOML data", "HTTP status code", resp.StatusCode)
 		return
 	}
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		logger.Warn("failed reading TOML data", "error", err)
+		slog.Warn("failed reading TOML data", "error", err)
 		return
 	}
 
 	var config themeConfig
 	// Decode the TOML content
 	if _, err := toml.Decode(string(body), &config); err != nil {
-		logger.Warn("failed decoding TOML data", "error", err)
+		slog.Warn("failed decoding TOML data", "error", err)
 		return
 	}
 	c.BgColor = config.Colors.Primary.Background

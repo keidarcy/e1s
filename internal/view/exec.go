@@ -2,6 +2,7 @@ package view
 
 import (
 	"fmt"
+	"log/slog"
 	"os"
 	"os/exec"
 	"os/signal"
@@ -31,7 +32,7 @@ func (v *view) execShell() {
 		v.app.isSuspended = true
 		bin, _ := exec.LookPath(awsCli)
 		cmdArgs := append(*args, v.app.Option.Shell)
-		logger.Info("exec", "command", bin+" "+strings.Join(cmdArgs, " "))
+		slog.Info("exec", "command", bin+" "+strings.Join(cmdArgs, " "))
 
 		cmd := exec.Command(bin, cmdArgs...)
 		cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, os.Stderr
@@ -79,7 +80,7 @@ func (v *view) execCommandForm() (*tview.Form, *string) {
 			v.app.isSuspended = true
 			bin, _ := exec.LookPath(awsCli)
 			cmdArgs := append(*args, execCmd)
-			logger.Info("exec", "command", bin+" "+strings.Join(cmdArgs, " "))
+			slog.Info("exec", "command", bin+" "+strings.Join(cmdArgs, " "))
 
 			cmd := exec.Command(bin, cmdArgs...)
 			cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, os.Stderr

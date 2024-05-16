@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"log/slog"
 	"sort"
 	"strings"
 
@@ -29,7 +30,7 @@ func (store *Store) DescribeTaskDefinition(tdArn *string) (types.TaskDefinition,
 		Include:        include,
 	})
 	if err != nil {
-		logger.Warn("failed to run aws api to describe task definition", "error", err)
+		slog.Warn("failed to run aws api to describe task definition", "error", err)
 		return types.TaskDefinition{}, err
 	}
 
@@ -47,7 +48,7 @@ func (store *Store) ListTaskDefinition(familyName *string) (TaskDefinitionRevisi
 		Sort:         types.SortOrderDesc,
 	})
 	if err != nil {
-		logger.Warn("failed to run aws api to list task definitions", "error", err)
+		slog.Warn("failed to run aws api to list task definitions", "error", err)
 		return nil, err
 	}
 
@@ -64,7 +65,7 @@ func (store *Store) ListFullTaskDefinition(taskDefinition *string) ([]types.Task
 	list, err := store.ListTaskDefinition(&familyName)
 
 	if err != nil {
-		logger.Warn("failed to run aws api to run list task definition in ListFullTaskDefinition", "error", err)
+		slog.Warn("failed to run aws api to run list task definition in ListFullTaskDefinition", "error", err)
 		return []types.TaskDefinition{}, err
 	}
 
@@ -76,7 +77,7 @@ func (store *Store) ListFullTaskDefinition(taskDefinition *string) ([]types.Task
 		g.Go(func() error {
 			d, err := store.DescribeTaskDefinition(&t)
 			if err != nil {
-				logger.Warn("failed to run aws api to describe task definition , err: %v", err)
+				slog.Warn("failed to run aws api to describe task definition , err: %v", err)
 				return err
 			}
 			results = append(results, d)
@@ -100,7 +101,7 @@ func (store *Store) ListTaskDefinitionFamilies() ([]string, error) {
 		Status: types.TaskDefinitionFamilyStatusActive,
 	})
 	if err != nil {
-		logger.Warn("failed to run aws api to list task definition families", "error", err)
+		slog.Warn("failed to run aws api to list task definition families", "error", err)
 		return nil, err
 	}
 

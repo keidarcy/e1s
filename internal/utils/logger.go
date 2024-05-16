@@ -12,7 +12,7 @@ import (
 // GetLogger returns a *slog.Logger configured to write to the specified file path.
 // It also returns the log file *os.File  itself, such that callers can close the
 // file if/when needed.
-func GetLogger(path string, json bool, debug bool) (*slog.Logger, *os.File) {
+func GetLogger(path string, json bool, debug bool) *os.File {
 	option := slog.HandlerOptions{
 		Level:     slog.LevelInfo,
 		AddSource: true,
@@ -38,5 +38,6 @@ func GetLogger(path string, json bool, debug bool) (*slog.Logger, *os.File) {
 	}
 
 	logger := slog.New(handler)
-	return logger, out
+	slog.SetDefault(logger)
+	return out
 }
