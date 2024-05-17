@@ -15,7 +15,11 @@ import (
 // aws ecs list-services --cluster ${cluster}
 // aws ecs describe-services --cluster ${cluster} --services ${service}
 func (store *Store) ListServices(clusterName *string) ([]types.Service, error) {
-	limit := int32(100)
+	// You may specify up to 100 services to describe.
+	// If there are > 100 services in the cluster, loop and slice by 100
+	// to describe them in batches of <= 100.
+	batchSize := 100
+	limit := int32(batchSize)
 	params := &ecs.ListServicesInput{
 		Cluster:    clusterName,
 		MaxResults: &limit,
@@ -47,10 +51,6 @@ func (store *Store) ListServices(clusterName *string) ([]types.Service, error) {
 		}
 	}
 
-	// You may specify up to 10 services to describe.
-	// If there are > 10 services in the cluster, loop and slice by 10
-	// to describe them in batches of <= 10.
-	batchSize := 10
 	serviceCount := len(serviceARNs)
 	loopCount := serviceCount / batchSize
 
@@ -89,8 +89,7 @@ func (store *Store) ListServices(clusterName *string) ([]types.Service, error) {
 		})
 	}
 
-	err := g.Wait()
-	if err != nil {
+	if err := g.Wait(); err != nil {
 		return []types.Service{}, err
 	}
 
