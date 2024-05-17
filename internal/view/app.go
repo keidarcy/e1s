@@ -205,7 +205,11 @@ func (app *App) back() {
 	slog.Debug("app.Pages navigation", "action", "back", "pageName", pageName, "app", app)
 
 	if prevKind == ClusterKind && app.Option.Cluster != "" {
-		app.Notice.Warn("not support go back to clusters list when specified cluster")
+		app.Option.Cluster = ""
+		err := app.showPrimaryKindPage(ClusterKind, false)
+		if err != nil {
+			app.Notice.Warn("failed to back to cluster list")
+		}
 		return
 	}
 

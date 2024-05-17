@@ -56,7 +56,7 @@ func init() {
 	rootCmd.Flags().String("profile", "", "specify the AWS profile")
 	rootCmd.Flags().String("region", "", "specify the AWS region")
 	rootCmd.Flags().String("theme", "", "specify color theme")
-	rootCmd.Flags().String("cluster", "", "specify default cluster")
+	rootCmd.Flags().String("cluster", "", "specify the default cluster")
 
 	err := viper.BindPFlags(rootCmd.Flags())
 	if err != nil {
