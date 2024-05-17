@@ -2,6 +2,7 @@ package view
 
 import (
 	"fmt"
+	"log/slog"
 	"strconv"
 	"strings"
 
@@ -36,15 +37,14 @@ func (app *App) showClustersPage(reload bool) error {
 
 	clusters, err := app.Store.ListClusters()
 	if err != nil {
-		logger.Errorf("Failed to load clusters in %s region, error: %s", app.Region, err.Error())
-		// app.Notice.Errorf("Failed to load clusters in %s region, error: %s", app.Region, err.Error())
+		slog.Error("failed to load clusters", "region", app.Region, "error", err.Error())
 		return err
 	}
 
 	if len(clusters) == 0 {
-		logger.Warnf("There is no valid clusters in %s region", app.Region)
-		return fmt.Errorf("there is no valid clusters in %s region", app.Region)
-		// app.Notice.Warnf("There is no valid clusters in %s region", app.Region)
+		m := fmt.Sprintf("there is no valid clusters in %s region", app.Region)
+		slog.Warn("failed start", "reason", m)
+		return fmt.Errorf(m)
 	}
 
 	view := newClusterView(clusters, app)

@@ -1,6 +1,7 @@
 package view
 
 import (
+	"log/slog"
 	"strings"
 	"time"
 
@@ -10,11 +11,10 @@ import (
 	"github.com/keidarcy/e1s/internal/api"
 	"github.com/keidarcy/e1s/internal/color"
 	"github.com/keidarcy/e1s/internal/ui"
+	"github.com/keidarcy/e1s/internal/utils"
 	"github.com/rivo/tview"
-	"github.com/sirupsen/logrus"
 )
 
-var logger *logrus.Logger
 var theme color.Colors
 
 // Entity contains ECS resources to show, use uppercase to make items like app.cluster easy to access
@@ -33,8 +33,6 @@ type Entity struct {
 type Option struct {
 	// Read only mode indicator
 	ReadOnly bool
-	// Basic logger
-	Logger *logrus.Logger
 	// Reload resources every x second(s), -1 is stop auto refresh
 	Refresh int
 	// ECS exec shell
@@ -90,7 +88,7 @@ type App struct {
 }
 
 func newApp(option Option) (*App, error) {
-	store, err := api.NewStore(option.Logger)
+	store, err := api.NewStore()
 	if err != nil {
 		return nil, err
 	}
@@ -133,12 +131,14 @@ func newApp(option Option) (*App, error) {
 
 // Entry point of the app
 func Start(option Option) error {
-	logger = option.Logger
-	logger.Debug(`
+	file := utils.GetLogger(option.LogFile, option.JSON, option.Debug)
+	defer file.Close()
+	slog.Debug(`
 ****************************************************************
 **************** Started e1s
 ****************************************************************`)
-	theme = color.InitStyles(option.Theme, logger)
+	slog.Debug("e1s start", "option", option)
+	theme = color.InitStyles(option.Theme)
 
 	app, err := newApp(option)
 	if err != nil {
@@ -162,14 +162,7 @@ func Start(option Option) error {
 func (app *App) addAppPage(page *tview.Flex) {
 	pageName := app.kind.getAppPageName(app.getPageHandle())
 
-	logger.WithFields(logrus.Fields{
-		"Action":        "AppPage",
-		"PageName":      pageName,
-		"Kind":          app.kind.String(),
-		"SecondaryKind": app.secondaryKind.String(),
-		"Cluster":       *app.cluster.ClusterName,
-		"Service":       *app.service.ServiceName,
-	}).Debug("AddPage app.Pages")
+	slog.Debug("app.Pages navigation", "action", "AppPage", "pageName", pageName, "app", app)
 
 	app.Pages.AddPage(pageName, page, true, true)
 }
@@ -179,15 +172,7 @@ func (app *App) switchPage(reload bool) bool {
 	pageName := app.kind.getAppPageName(app.getPageHandle())
 	if app.Pages.HasPage(pageName) && app.Refresh < 0 && !reload {
 
-		logger.WithFields(logrus.Fields{
-			"Action":        "SwitchTo",
-			"Kind":          app.kind.String(),
-			"SecondaryKind": app.secondaryKind.String(),
-			"PageName":      pageName,
-			"Cluster":       *app.cluster.ClusterName,
-			"Service":       *app.service.ServiceName,
-		}).Debug("SwitchToPage app.Pages")
-
+		slog.Debug("app.Pages navigation", "action", "SwitchToPage", "pageName", pageName, "app", app)
 		app.Pages.SwitchToPage(pageName)
 		return true
 	}
@@ -213,14 +198,7 @@ func (app *App) back() {
 	app.secondaryKind = EmptyKind
 	pageName := prevKind.getAppPageName(app.getPageHandle())
 
-	logger.WithFields(logrus.Fields{
-		"Action":        "Back",
-		"PageName":      pageName,
-		"Kind":          app.kind.String(),
-		"SecondaryKind": app.secondaryKind.String(),
-		"Cluster":       *app.cluster.ClusterName,
-		"Service":       *app.service.ServiceName,
-	}).Debug("Back app.Pages")
+	slog.Debug("app.Pages navigation", "action", "back", "pageName", pageName, "app", app)
 
 	app.Pages.SwitchToPage(pageName)
 }
@@ -247,7 +225,7 @@ func (app *App) start() error {
 	err := app.showPrimaryKindPage(ClusterKind, false)
 
 	if app.Option.Refresh > 0 {
-		logger.Debugf("Auto refresh rate every %d seconds", app.Option.Refresh)
+		slog.Debug("Auto refresh rate", "seconds", app.Option.Refresh)
 		ticker := time.NewTicker(time.Duration(app.Option.Refresh) * time.Second)
 
 		go func() {
@@ -255,7 +233,7 @@ func (app *App) start() error {
 				<-ticker.C
 				if app.secondaryKind == EmptyKind && !app.isSuspended {
 					app.showPrimaryKindPage(app.kind, true)
-					logger.Debug("Auto refresh")
+					slog.Debug("Auto refresh")
 					app.Application.Draw()
 				}
 			}
@@ -293,7 +271,7 @@ func (app *App) showPrimaryKindPage(k kind, reload bool) error {
 	if !reload {
 		app.Notice.Infof("Viewing %s...", app.kind.String())
 	} else {
-		logger.Debug("Reload in showPrimaryKindPage")
+		slog.Debug("Reload in showPrimaryKindPage")
 	}
 	return nil
 }
@@ -307,13 +285,13 @@ func (app *App) onClose() {
 		}
 		err := app.Store.TerminateSessions(ids)
 		if err != nil {
-			logger.Errorf("Failed to terminated port forwarding sessions err: %v", err)
+			slog.Error("Failed to terminated port forwarding sessions", "error", err)
 		} else {
-			logger.Debug("Terminated port forwarding session terminated")
+			slog.Debug("Terminated port forwarding session terminated")
 		}
 	}
 
-	logger.Debug(`
+	slog.Debug(`
 **************** Exited e1s ************************************`)
 }
 
@@ -323,4 +301,18 @@ func (app *App) globalInputHandle(event *tcell.EventKey) *tcell.EventKey {
 		app.showHelpPage()
 	}
 	return event
+}
+
+func (app *App) LogValue() slog.Value {
+	return slog.AnyValue(struct {
+		kind       string
+		secondKind string
+		cluster    string
+		service    string
+	}{
+		kind:       app.kind.String(),
+		secondKind: app.secondaryKind.String(),
+		cluster:    *app.cluster.ClusterName,
+		service:    *app.service.ServiceName,
+	})
 }

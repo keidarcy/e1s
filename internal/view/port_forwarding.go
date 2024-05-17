@@ -2,6 +2,7 @@ package view
 
 import (
 	"fmt"
+	"log/slog"
 	"strconv"
 	"strings"
 
@@ -100,7 +101,7 @@ func (v *view) portForwardingForm() (*tview.Form, *string) {
 			v.closeModal()
 
 			v.app.Notice.Error(err.Error())
-			logger.Error(err.Error())
+			slog.Error(err.Error())
 		} else {
 			v.closeModal()
 
@@ -110,8 +111,7 @@ func (v *view) portForwardingForm() (*tview.Form, *string) {
 				containerId: fmt.Sprintf("%s.%s", clusterName, name),
 			})
 
-			v.app.Notice.Infof("Port forwarding session started on %s", localPort)
-			logger.Infof("Port forwarding session started on %s", localPort)
+			v.app.Notice.Infof("port forwarding session started on %s", localPort)
 
 			// Update port
 			go func() {
@@ -190,10 +190,9 @@ func (v *view) terminatePortForwardingForm() (*tview.Form, *string) {
 		// terminal targe container sessions
 		err := v.app.Store.TerminateSessions(sessionIds)
 		if err != nil {
-			logger.Errorf("Failed to terminated port forwarding sessions err: %v", err)
+			slog.Error("failed to terminated port forwarding sessions", "error", err)
 		} else {
-			v.app.Notice.Infof("Success terminated sessions on port %s", portText)
-			logger.Debug("Terminated port forwarding session terminated")
+			v.app.Notice.Infof("success terminated sessions on port %s", portText)
 		}
 
 		// Update port

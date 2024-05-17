@@ -2,12 +2,12 @@ package api
 
 import (
 	"context"
+	"log/slog"
 	"math"
 	"sort"
 
 	"github.com/aws/aws-sdk-go-v2/service/ecs"
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
-	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -26,7 +26,7 @@ func (store *Store) ListServices(clusterName *string) ([]types.Service, error) {
 	for {
 		listServicesOutput, err := store.ecs.ListServices(context.Background(), params)
 		if err != nil {
-			logger.Warnf("Failed to run aws api to list services, err: %v", err)
+			slog.Warn("failed to run aws api to list services", "error", err)
 			// If first run failed return err
 			if len(serviceARNs) == 0 {
 				return []types.Service{}, err
@@ -79,7 +79,7 @@ func (store *Store) ListServices(clusterName *string) ([]types.Service, error) {
 				},
 			})
 			if err != nil {
-				logger.Warnf("Failed to run aws api to describe services in i:%d times loop, err: %v", i, err)
+				slog.Warn("failed to run aws api to describe services in i:%d times loop", "error", i, err)
 				return err
 			}
 
@@ -121,17 +121,19 @@ func (store *Store) UpdateService(input *ecs.UpdateServiceInput) (*types.Service
 		desiredCount = int(*input.DesiredCount)
 	}
 
-	logger.WithFields(logrus.Fields{
-		"Cluster":            *input.Cluster,
-		"Service":            *input.Service,
-		"DesiredCount":       desiredCount,
-		"TaskDefinition":     taskDefinition,
-		"ForceNewDeployment": input.ForceNewDeployment,
-	}).Info("Update service with following parameters")
+	slog.Info("update service",
+		slog.Group("parameters",
+			slog.String("cluster", *input.Cluster),
+			slog.String("service", *input.Service),
+			slog.Int("desiredCount", desiredCount),
+			slog.String("taskDefinition", taskDefinition),
+			slog.Bool("forceNewDeployment", input.ForceNewDeployment),
+		),
+	)
 
 	updateOutput, err := store.ecs.UpdateService(context.Background(), input)
 	if err != nil {
-		logger.Warnf("Failed to run aws api to update service, err: %v", err)
+		slog.Warn("failed to run aws api to update service", "error", err)
 		return nil, err
 	}
 	return updateOutput.Service, nil

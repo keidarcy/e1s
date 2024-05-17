@@ -2,6 +2,7 @@ package ui
 
 import (
 	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/keidarcy/e1s/internal/color"
@@ -58,28 +59,34 @@ func (n *Notice) forceClear() {
 
 func (n *Notice) Info(s string) {
 	m := fmt.Sprintf(color.NoticeInfoFmt, s)
+	slog.Debug("notice info", "msg", m)
 	n.sendMessage(m)
 }
 
 func (n *Notice) Warn(s string) {
 	m := fmt.Sprintf(color.NoticeWarnFmt, s)
+	slog.Debug("notice warn", "msg", m)
 	n.sendMessage(m)
 }
 func (n *Notice) Error(s string) {
 	m := fmt.Sprintf(color.NoticeErrorFmt, s)
+	slog.Debug("notice error", "msg", m)
 	n.sendMessage(m)
 }
 
 func (n *Notice) Infof(s string, args ...interface{}) {
 	m := fmt.Sprintf(fmt.Sprintf(color.NoticeInfoFmt, s), args...)
+	slog.Debug("notice info", "msg", m)
 	n.sendMessage(m)
 }
 
 func (n *Notice) Warnf(s string, args ...interface{}) {
 	m := fmt.Sprintf(fmt.Sprintf(color.NoticeWarnFmt, s), args...)
+	slog.Debug("notice warn", "msg", m)
 	n.sendMessage(m)
 }
 func (n *Notice) Errorf(s string, args ...interface{}) {
 	m := fmt.Sprintf(fmt.Sprintf(color.NoticeErrorFmt, s), args...)
+	slog.Debug("notice error", "msg", m)
 	n.sendMessage(m)
 }

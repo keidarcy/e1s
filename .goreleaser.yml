@@ -26,7 +26,6 @@ changelog:
       - '^test:'
       - '^deps:'
       - '^bump:'
-      - '^refactor:'
       - '^Merge pull request'
       - '^Merge branch'
 

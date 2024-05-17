@@ -2,11 +2,11 @@ package view
 
 import (
 	"fmt"
+	"log/slog"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/keidarcy/e1s/internal/color"
 	"github.com/rivo/tview"
-	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -72,8 +72,7 @@ func (v *view) getCurrentSelection() (Entity, error) {
 	case Entity:
 		return entity, nil
 	default:
-		logger.Warnf("Unexpected error in getCurrentSelection: %v (%T)", entity, entity)
-		v.app.Notice.Warnf("Unexpected error in getCurrentSelection: %v (%T)", entity, entity)
+		v.app.Notice.Warnf("unexpected error in getCurrentSelection: %v (%T)", entity, entity)
 		return Entity{}, fmt.Errorf("unexpected error in getCurrentSelection: %v (%T)", entity, entity)
 	}
 }
@@ -110,7 +109,7 @@ func (v *view) showSecondaryKindPage(reload bool) {
 	if !reload {
 		v.app.Notice.Infof("Viewing %s...", v.app.secondaryKind.String())
 	} else {
-		logger.Debugf("Reload in showSecondaryKindPage: %v", reload)
+		slog.Debug("Reload", "showSecondaryKindPage", reload)
 	}
 }
 
@@ -173,14 +172,7 @@ func (v *view) handleSecondaryPageSwitch(entity Entity, colorizedJsonString stri
 
 	contentTextItem.SetDoneFunc(v.handleTableContentDone)
 
-	logger.WithFields(logrus.Fields{
-		"Action":        "AddPage",
-		"PageName":      contentPageName,
-		"Kind":          v.app.kind.String(),
-		"SecondaryKind": v.app.secondaryKind.String(),
-		"Cluster":       *v.app.cluster.ClusterName,
-		"Service":       *v.app.service.ServiceName,
-	}).Debug("AddPage v.tablePages")
+	slog.Debug("v.tablePages navigation", "action", "AppPage", "pageName", contentPageName, "app", v.app)
 
 	v.bodyPages.AddPage(contentPageName, contentTextItem, true, true)
 }
@@ -188,14 +180,7 @@ func (v *view) handleSecondaryPageSwitch(entity Entity, colorizedJsonString stri
 func (v *view) handleHeaderPageSwitch(entity Entity) {
 	pageName := fmt.Sprintf("%s.%s", entity.entityName, v.app.secondaryKind)
 
-	logger.WithFields(logrus.Fields{
-		"Action":        "SwitchToPage",
-		"PageName":      pageName,
-		"Kind":          v.app.kind.String(),
-		"SecondaryKind": v.app.secondaryKind.String(),
-		"Cluster":       *v.app.cluster.ClusterName,
-		"Service":       *v.app.service.ServiceName,
-	}).Debug("SwitchToPage v.infoPages")
+	slog.Debug("v.tablePages navigation", "action", "SwitchToPage", "pageName", pageName, "app", v.app)
 
 	v.headerPages.SwitchToPage(pageName)
 }

@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"log/slog"
 	"sort"
 
 	"github.com/aws/aws-sdk-go-v2/service/ecs"
@@ -24,7 +25,7 @@ func (store *Store) ListTasks(clusterName, serviceName *string, status types.Des
 		MaxResults:    &limit,
 	})
 	if err != nil {
-		logger.Warnf("Failed to run aws api to list tasks, err: %v", err)
+		slog.Warn("failed to run aws api to list tasks", "error", err)
 		return []types.Task{}, err
 	}
 	if len(listTasksOutput.TaskArns) == 0 {
@@ -44,7 +45,7 @@ func (store *Store) ListTasks(clusterName, serviceName *string, status types.Des
 	})
 
 	if err != nil {
-		logger.Warnf("Failed to run aws api to describe tasks, error: %v", err)
+		slog.Warn("failed to run aws api to describe tasks", "error", err)
 		return []types.Task{}, err
 	}
 

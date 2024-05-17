@@ -2,6 +2,7 @@ package view
 
 import (
 	"fmt"
+	"log/slog"
 	"strconv"
 	"strings"
 
@@ -101,10 +102,9 @@ func (v *view) stopTaskForm() (*tview.Form, *string) {
 
 		if err != nil {
 			v.app.Notice.Error(err.Error())
-			logger.Error(err.Error())
+			slog.Error(err.Error())
 		} else {
-			v.app.Notice.Infof("Task %s in %s cluster stopped", taskId, clusterName)
-			logger.Infof("Task %s in %s cluster stopped", taskId, clusterName)
+			v.app.Notice.Infof("task %s in %s cluster stopped", taskId, clusterName)
 		}
 		v.closeModal()
 		v.showKindPage(TaskKind, true)
@@ -120,7 +120,7 @@ func (v *view) serviceUpdateWithSpecificTaskDefinitionForm() (*tview.Form, *stri
 	}
 
 	if v.app.service == nil || v.app.taskDefinition == nil {
-		logger.Warn("Unexpected nil to update service with task definition")
+		slog.Warn("Unexpected nil to update service with task definition")
 		return nil, nil
 	}
 	serviceName := *v.app.service.ServiceName
@@ -150,10 +150,9 @@ func (v *view) serviceUpdateWithSpecificTaskDefinitionForm() (*tview.Form, *stri
 
 		if err != nil {
 			v.app.Notice.Error(err.Error())
-			logger.Error(err.Error())
+			slog.Error(err.Error())
 		} else {
-			v.app.Notice.Infof("Update service:\"%s\" with \"%d\" task definition:\"%s\" task(s)", *s.ServiceName, s.DesiredCount, utils.ArnToName(s.TaskDefinition))
-			logger.Infof("Update service:\"%s\" with \"%d\" task definition:\"%s\" task(s)", *s.ServiceName, s.DesiredCount, utils.ArnToName(s.TaskDefinition))
+			v.app.Notice.Infof("update service:\"%s\" with \"%d\" task definition:\"%s\" task(s)", *s.ServiceName, s.DesiredCount, utils.ArnToName(s.TaskDefinition))
 		}
 		v.closeModal()
 		v.showKindPage(ServiceKind, true)
@@ -182,8 +181,7 @@ func (v *view) serviceUpdateForm() (*tview.Form, *string) {
 	// get data for form
 	families, err := v.app.Store.ListTaskDefinitionFamilies()
 	if err != nil {
-		logger.Errorf("Failed list task definition families, err: %s", err.Error())
-		v.app.Notice.Errorf("Failed list task definition families, err: %s", err.Error())
+		v.app.Notice.Errorf("failed list task definition families, err: %s", err.Error())
 		v.closeModal()
 	}
 
@@ -220,7 +218,6 @@ func (v *view) serviceUpdateForm() (*tview.Form, *string) {
 				// when family option change, change revision drop down value
 				taskDefinitions, err := v.app.Store.ListTaskDefinition(&text)
 				if err != nil {
-					logger.Errorf("Failed list task definition, err: %s", err.Error())
 					v.app.Notice.Errorf("Failed list task definition, err: %s", err.Error())
 					v.closeModal()
 				}
@@ -304,7 +301,7 @@ func (v *view) serviceUpdateForm() (*tview.Form, *string) {
 		if err != nil {
 			v.closeModal()
 			v.app.Notice.Error(err.Error())
-			logger.Error(err.Error())
+			slog.Error(err.Error())
 			v.reloadResource(false)
 		} else {
 			v.closeModal()
@@ -325,8 +322,7 @@ func (v *view) serviceUpdateForm() (*tview.Form, *string) {
 				v.app.Application.Draw()
 			}()
 
-			v.app.Notice.Infof("Update service:\"%s\" with \"%d\" task definition:\"%s\" task(s)", *s.ServiceName, s.DesiredCount, utils.ArnToName(s.TaskDefinition))
-			logger.Infof("Update service:\"%s\" with \"%d\" task definition:\"%s\" task(s)", *s.ServiceName, s.DesiredCount, utils.ArnToName(s.TaskDefinition))
+			v.app.Notice.Infof("update service:\"%s\" with \"%d\" task definition:\"%s\" task(s)", *s.ServiceName, s.DesiredCount, utils.ArnToName(s.TaskDefinition))
 			v.reloadResource(false)
 		}
 	})
