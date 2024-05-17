@@ -47,6 +47,8 @@ type Option struct {
 	ConfigFile string
 	// Here for help view
 	Theme string
+	// Default cluster name
+	Cluster string
 }
 
 // tview App
@@ -117,10 +119,12 @@ func newApp(option Option) (*App, error) {
 		profile:       store.Profile,
 		Entity: Entity{
 			cluster: &types.Cluster{
-				ClusterName: aws.String("no cluster"),
+				ClusterName: aws.String("e1s_default_cluster"),
+				ClusterArn:  aws.String("e1s_default_cluster_arn"),
 			},
 			service: &types.Service{
-				ServiceName: aws.String("no service"),
+				ServiceName: aws.String("e1s_default_service"),
+				ServiceArn:  aws.String("e1s_default_service arn"),
 			},
 			task:           &types.Task{},
 			container:      &types.Container{},
@@ -200,6 +204,11 @@ func (app *App) back() {
 
 	slog.Debug("app.Pages navigation", "action", "back", "pageName", pageName, "app", app)
 
+	if prevKind == ClusterKind && app.Option.Cluster != "" {
+		app.Notice.Warn("not support go back to clusters list when specified cluster")
+		return
+	}
+
 	app.Pages.SwitchToPage(pageName)
 }
 
@@ -222,7 +231,13 @@ func (app *App) getPageHandle() string {
 }
 
 func (app *App) start() error {
-	err := app.showPrimaryKindPage(ClusterKind, false)
+	var err error
+	if app.Option.Cluster == "" {
+		err = app.showPrimaryKindPage(ClusterKind, false)
+	} else {
+		app.cluster.ClusterName = &app.Option.Cluster
+		err = app.showPrimaryKindPage(ServiceKind, false)
+	}
 
 	if app.Option.Refresh > 0 {
 		slog.Debug("Auto refresh rate", "seconds", app.Option.Refresh)
