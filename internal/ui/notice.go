@@ -59,34 +59,34 @@ func (n *Notice) forceClear() {
 
 func (n *Notice) Info(s string) {
 	m := fmt.Sprintf(color.NoticeInfoFmt, s)
-	slog.Info("notice info", "msg", tview.Escape(m))
+	slog.Debug("notice info", "msg", m)
 	n.sendMessage(m)
 }
 
 func (n *Notice) Warn(s string) {
 	m := fmt.Sprintf(color.NoticeWarnFmt, s)
-	slog.Warn("notice warn", "msg", tview.Escape(m))
+	slog.Debug("notice warn", "msg", m)
 	n.sendMessage(m)
 }
 func (n *Notice) Error(s string) {
 	m := fmt.Sprintf(color.NoticeErrorFmt, s)
-	slog.Error("notice error", "msg", tview.Escape(m))
+	slog.Debug("notice error", "msg", m)
 	n.sendMessage(m)
 }
 
 func (n *Notice) Infof(s string, args ...interface{}) {
 	m := fmt.Sprintf(fmt.Sprintf(color.NoticeInfoFmt, s), args...)
-	slog.Info("notice info", "msg", tview.Escape(m))
+	slog.Debug("notice info", "msg", m)
 	n.sendMessage(m)
 }
 
 func (n *Notice) Warnf(s string, args ...interface{}) {
 	m := fmt.Sprintf(fmt.Sprintf(color.NoticeWarnFmt, s), args...)
-	slog.Warn("notice warn", "msg", tview.Escape(m))
+	slog.Debug("notice warn", "msg", m)
 	n.sendMessage(m)
 }
 func (n *Notice) Errorf(s string, args ...interface{}) {
 	m := fmt.Sprintf(fmt.Sprintf(color.NoticeErrorFmt, s), args...)
-	slog.Error("notice error", "msg", tview.Escape(m))
+	slog.Debug("notice error", "msg", m)
 	n.sendMessage(m)
 }
