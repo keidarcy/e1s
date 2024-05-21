@@ -25,11 +25,13 @@ COPY . ./
 # https://github.com/aws/session-manager-plugin/issues/12
 FROM ubuntu:20.04 as sessionmanagerplugin
 
- # Install dependencies for dpkg and download tools
- RUN apt-get update && apt-get install -y curl dpkg && rm -rf /var/lib/apt/lists/*
+ARG TARGETARCH
 
- # Use the build argument to determine the correct package URL and installation method
- RUN if [ "$TARGETARCH" = "amd64" ]; then \
+# Install dependencies for dpkg and download tools
+RUN apt-get update && apt-get install -y curl dpkg && rm -rf /var/lib/apt/lists/*
+
+# Use the build argument to determine the correct package URL and installation method
+RUN if [ "$TARGETARCH" = "amd64" ]; then \
        curl -o session-manager-plugin.deb https://s3.amazonaws.com/session-manager-downloads/plugin/latest/ubuntu_64bit/session-manager-plugin.deb; \
      elif [ "$TARGETARCH" = "arm64" ]; then \
        curl -o session-manager-plugin.deb https://s3.amazonaws.com/session-manager-downloads/plugin/latest/ubuntu_arm64/session-manager-plugin.deb; \
