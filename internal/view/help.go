@@ -53,6 +53,7 @@ func (app *App) showHelpPage() {
 		{key: "shell", description: app.Option.Shell},
 		{key: "refresh", description: strconv.Itoa(app.Option.Refresh)},
 		{key: "theme", description: app.Option.Theme},
+		{key: "cluster", description: app.Option.Cluster},
 	})
 	flex := tview.NewFlex().
 		AddItem(resource, 0, 1, false).

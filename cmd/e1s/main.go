@@ -56,6 +56,7 @@ func init() {
 	rootCmd.Flags().String("profile", "", "specify the AWS profile")
 	rootCmd.Flags().String("region", "", "specify the AWS region")
 	rootCmd.Flags().String("theme", "", "specify color theme")
+	rootCmd.Flags().String("cluster", "", "specify the default cluster")
 
 	err := viper.BindPFlags(rootCmd.Flags())
 	if err != nil {
@@ -92,6 +93,7 @@ Check https://github.com/keidarcy/e1s for more details.`,
 		refresh := viper.GetInt("refresh")
 		shell := viper.GetString("shell")
 		theme := viper.GetString("theme")
+		cluster := viper.GetString("cluster")
 
 		option := e1s.Option{
 			ConfigFile: configFile,
@@ -102,6 +104,7 @@ Check https://github.com/keidarcy/e1s for more details.`,
 			Refresh:    refresh,
 			Shell:      shell,
 			Theme:      theme,
+			Cluster:    cluster,
 		}
 
 		if err := e1s.Start(option); err != nil {

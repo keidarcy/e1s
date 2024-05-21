@@ -60,6 +60,7 @@ Usage:
   e1s [flags]
 
 Flags:
+      --cluster string       specify the default cluster
   -c, --config-file string   config file (default "$HOME/.config/e1s/config.yml")
   -d, --debug                sets debug mode
   -h, --help                 help for e1s
@@ -176,7 +177,8 @@ tail -f /tmp/e1s.log
 <details>
   <summary>features</summary>
 
-  - [x]  config file
+  - [x] Specify config file
+  - [x] Specify the default cluster
   - [x] Read only mode
   - [x] Auto refresh
   - [x] Describe clusters
