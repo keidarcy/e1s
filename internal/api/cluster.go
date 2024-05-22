@@ -68,7 +68,7 @@ func (store *Store) ListClusters() ([]types.Cluster, error) {
 				Include:  include,
 			})
 			if err != nil {
-				slog.Warn("failed to run aws api to describe clusters", "error", err)
+				slog.Warn("failed to run aws api to describe clusters", "i times loop", i, "error", err)
 				return err
 			}
 
