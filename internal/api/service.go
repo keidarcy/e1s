@@ -18,8 +18,7 @@ func (store *Store) ListServices(clusterName *string) ([]types.Service, error) {
 	// You may specify up to 100 services to describe.
 	// If there are > 100 services in the cluster, loop and slice by 100
 	// to describe them in batches of <= 100.
-	batchSize := 100
-	limit := int32(batchSize)
+	limit := int32(100)
 	params := &ecs.ListServicesInput{
 		Cluster:    clusterName,
 		MaxResults: &limit,
@@ -51,6 +50,9 @@ func (store *Store) ListServices(clusterName *string) ([]types.Service, error) {
 		}
 	}
 
+	// DescribeService api limit is 10
+	// InvalidParameterException: service names can have at most 10 items
+	batchSize := 10
 	serviceCount := len(serviceARNs)
 	loopCount := serviceCount / batchSize
 
@@ -79,7 +81,7 @@ func (store *Store) ListServices(clusterName *string) ([]types.Service, error) {
 				},
 			})
 			if err != nil {
-				slog.Warn("failed to run aws api to describe services in i:%d times loop", "error", i, err)
+				slog.Warn("failed to run aws api to describe services", "i times loop", i, "error", err)
 				return err
 			}
 

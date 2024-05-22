@@ -125,7 +125,7 @@ func (v *taskView) headerPagesParam(t types.Task) (items []headerItem) {
 	}
 	// network
 	subnetID := utils.EmptyText
-	eniID := utils.EmptyText
+	arch := utils.EmptyText
 	privateIP := utils.EmptyText
 	for _, a := range t.Attachments {
 		if *a.Type == "ElasticNetworkInterface" {
@@ -133,13 +133,18 @@ func (v *taskView) headerPagesParam(t types.Task) (items []headerItem) {
 				if *d.Name == "subnetId" {
 					subnetID = *d.Value
 				}
-				if *d.Name == "networkInterfaceId" {
-					eniID = *d.Value
-				}
 
 				if *d.Name == "privateIPv4Address" {
 					privateIP = *d.Value
 				}
+			}
+		}
+	}
+
+	if len(t.Attributes) > 0 {
+		for _, attribute := range t.Attributes {
+			if *attribute.Name == "ecs.cpu-architecture" {
+				arch = *attribute.Value
 			}
 		}
 	}
@@ -152,7 +157,7 @@ func (v *taskView) headerPagesParam(t types.Task) (items []headerItem) {
 		{name: "Launch type", value: string(t.LaunchType)},
 		{name: "Capacity provider", value: utils.ShowString(t.CapacityProviderName)},
 		{name: "Subnet ID", value: subnetID},
-		{name: "ENI ID", value: eniID},
+		{name: "Cpu Architecture", value: arch},
 		{name: "Private IP", value: privateIP},
 		{name: "Execute command", value: strconv.FormatBool(t.EnableExecuteCommand)},
 		{name: "Started by", value: utils.ShowString(t.StartedBy)},
