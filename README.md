@@ -45,6 +45,12 @@ docker pull ghcr.io/keidarcy/e1s:latest
 curl -sL https://raw.githubusercontent.com/keidarcy/e1s-install/master/cloudshell-install.sh | bash
 ```
 
+- Install from source with Go CLI.
+
+```bash
+go install github.com/keidarcy/e1s/cmd/e1s@latest
+```
+
 ## Usage
 
 Make sure you have the AWS CLI installed and properly configured with the necessary permissions to access your ECS resources, and [session manager plugin](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html) installed if you want to use the interactive exec or port forwarding features.
