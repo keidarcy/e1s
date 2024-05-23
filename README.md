@@ -45,7 +45,7 @@ docker pull ghcr.io/keidarcy/e1s:latest
 curl -sL https://raw.githubusercontent.com/keidarcy/e1s-install/master/cloudshell-install.sh | bash
 ```
 
-- Install from source with Go CLI.
+- go install command
 
 ```bash
 go install github.com/keidarcy/e1s/cmd/e1s@latest
