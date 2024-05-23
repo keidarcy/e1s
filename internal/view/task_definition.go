@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log/slog"
 	"strconv"
+	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
 	"github.com/keidarcy/e1s/internal/color"
@@ -126,6 +127,16 @@ func (v *taskDefinitionView) headerPagesParam(t types.TaskDefinition) (items []h
 		placements = append(placements, string(p.Type))
 	}
 
+	arch := "x86_64"
+	if t.RuntimePlatform != nil {
+		arch = strings.ToLower(string(t.RuntimePlatform.CpuArchitecture))
+	}
+
+	OS := "linux"
+	if t.RuntimePlatform != nil {
+		OS = strings.ToLower(string(t.RuntimePlatform.OperatingSystemFamily))
+	}
+
 	items = []headerItem{
 		{name: "Revision", value: utils.ArnToName(t.TaskDefinitionArn)},
 		{name: "Task role", value: utils.ShowString(t.TaskRoleArn)},
@@ -136,9 +147,11 @@ func (v *taskDefinitionView) headerPagesParam(t types.TaskDefinition) (items []h
 		{name: "Placement constraints", value: utils.ShowArray(placements)},
 		{name: "Status", value: string(t.Status)},
 		{name: "Compatibilities", value: utils.ShowArray(compatibilities)},
-		{name: "Requires Compatibilities", value: utils.ShowArray(requiresCompatibilities)},
+		{name: "Requires compatibilities", value: utils.ShowArray(requiresCompatibilities)},
 		{name: "CPU", value: utils.ShowString(t.Cpu)},
 		{name: "Memory", value: utils.ShowString(t.Memory)},
+		{name: "CPU architecture", value: arch},
+		{name: "OS", value: OS},
 		{name: "Registered At", value: utils.ShowTime(t.RegisteredAt)},
 		{name: "Registered By", value: utils.ShowString(t.RegisteredBy)},
 	}
