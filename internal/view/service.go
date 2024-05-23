@@ -162,7 +162,7 @@ func (v *serviceView) headerPagesParam(s types.Service) (items []headerItem) {
 		{name: "Name", value: utils.ShowString(s.ServiceName)},
 		{name: "Cluster", value: utils.ArnToName(s.ClusterArn)},
 		{name: "Capacity provider strategy", value: cpsString},
-		{name: "RoleArn", value: utils.ArnToName(s.RoleArn)},
+		{name: "Role arn", value: utils.ArnToName(s.RoleArn)},
 		{name: "Task definition", value: utils.ArnToName(s.TaskDefinition)},
 		{name: "Propagate tags", value: string(s.PropagateTags)},
 		{name: "Scheduling strategy", value: string(s.SchedulingStrategy)},
