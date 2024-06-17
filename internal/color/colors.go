@@ -73,7 +73,7 @@ func InitStyles(theme string) Colors {
 	slog.Debug("colors", "colors", colors)
 	tview.Styles.PrimitiveBackgroundColor = Color(colors.BgColor)
 	tview.Styles.ContrastBackgroundColor = Color(colors.BgColor)
-	tview.Styles.MoreContrastBackgroundColor = Color(colors.BgColor)
+	// tview.Styles.MoreContrastBackgroundColor = Color(colors.BgColor)
 	tview.Styles.PrimaryTextColor = Color(colors.FgColor)
 	tview.Styles.BorderColor = Color(colors.BorderColor)
 	tview.Styles.TitleColor = Color(colors.FgColor)
