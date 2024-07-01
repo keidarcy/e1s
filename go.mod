@@ -14,7 +14,7 @@ require (
 	github.com/gdamore/tcell/v2 v2.7.4
 	github.com/lmittmann/tint v1.0.4
 	github.com/rivo/tview v0.0.0-20240413115534-b0d41c484b95
-	github.com/spf13/cobra v1.8.0
+	github.com/spf13/cobra v1.8.1
 	github.com/spf13/viper v1.18.2
 	golang.org/x/sync v0.7.0
 )
