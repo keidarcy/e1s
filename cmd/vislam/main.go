@@ -6,8 +6,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/keidarcy/e1s/internal/utils"
-	e1s "github.com/keidarcy/e1s/internal/view"
+	"github.com/sanoyo/vislam/internal/utils"
+	vislam "github.com/sanoyo/vislam/internal/view"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -22,7 +22,7 @@ func initConfig() {
 		if err != nil {
 			home = "."
 		}
-		configFile = filepath.Join(home, ".config", "e1s", "config.yml")
+		configFile = filepath.Join(home, ".config", "vislam", "config.yml")
 	}
 
 	viper.SetConfigFile(configFile)
@@ -46,7 +46,7 @@ func init() {
 
 	defaultLogFile := filepath.Join(os.TempDir(), fmt.Sprintf("%s.log", utils.AppName))
 
-	rootCmd.Flags().StringVarP(&configFile, "config-file", "c", "", "config file (default \"$HOME/.config/e1s/config.yml\")")
+	rootCmd.Flags().StringVarP(&configFile, "config-file", "c", "", "config file (default \"$HOME/.config/vislam/config.yml\")")
 	rootCmd.Flags().BoolP("debug", "d", false, "sets debug mode")
 	rootCmd.Flags().BoolP("json", "j", false, "log output json format")
 	rootCmd.Flags().Bool("read-only", false, "sets read only mode")
@@ -66,10 +66,10 @@ func init() {
 }
 
 var rootCmd = &cobra.Command{
-	Use:   "e1s",
-	Short: "e1s - Easily Manage AWS ECS Resources in Terminal 🐱",
-	Long: `e1s is a terminal application to easily browse and manage AWS ECS resources 🐱. 
-Check https://github.com/keidarcy/e1s for more details.`,
+	Use:   "vislam",
+	Short: "vislam - Easily Manage AWS ECS Resources in Terminal 🐱",
+	Long: `vislam is a terminal application to easily browse and manage AWS Lambda resources. 
+Check https://github.com/sanoyo/vislam for more details.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		profile := viper.GetString("profile")
 		region := viper.GetString("region")
@@ -95,7 +95,7 @@ Check https://github.com/keidarcy/e1s for more details.`,
 		theme := viper.GetString("theme")
 		cluster := viper.GetString("cluster")
 
-		option := e1s.Option{
+		option := vislam.Option{
 			ConfigFile: configFile,
 			LogFile:    logFile,
 			Debug:      debug,
@@ -107,8 +107,8 @@ Check https://github.com/keidarcy/e1s for more details.`,
 			Cluster:    cluster,
 		}
 
-		if err := e1s.Start(option); err != nil {
-			fmt.Printf("e1s failed to start, please check your aws cli credential and permission. error: %v\n", err)
+		if err := vislam.Start(option); err != nil {
+			fmt.Printf("vislam failed to start, please check your aws cli credential and permission. error: %v\n", err)
 			slog.Error("failed to start", "error", err)
 			os.Exit(1)
 		}

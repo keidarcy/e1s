@@ -93,7 +93,7 @@ func (c *Colors) updateByTheme(theme string) {
 		return
 	}
 	// Fetch the TOML content from the URL
-	url := fmt.Sprintf("https://raw.githubusercontent.com/keidarcy/alacritty-theme/master/themes/%s.toml", theme)
+	url := fmt.Sprintf("https://raw.githubusercontent.com/sanoyo/alacritty-theme/master/themes/%s.toml", theme)
 	resp, err := http.Get(url)
 	if err != nil {
 		slog.Warn("failed fetching TOML data", "error", err)

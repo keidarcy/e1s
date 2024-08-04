@@ -8,9 +8,9 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
-	"github.com/keidarcy/e1s/internal/color"
-	"github.com/keidarcy/e1s/internal/utils"
 	"github.com/rivo/tview"
+	"github.com/sanoyo/vislam/internal/color"
+	"github.com/sanoyo/vislam/internal/utils"
 )
 
 type serviceView struct {

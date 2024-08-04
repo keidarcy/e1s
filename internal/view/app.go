@@ -8,11 +8,11 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
 	"github.com/gdamore/tcell/v2"
-	"github.com/keidarcy/e1s/internal/api"
-	"github.com/keidarcy/e1s/internal/color"
-	"github.com/keidarcy/e1s/internal/ui"
-	"github.com/keidarcy/e1s/internal/utils"
 	"github.com/rivo/tview"
+	"github.com/sanoyo/vislam/internal/api"
+	"github.com/sanoyo/vislam/internal/color"
+	"github.com/sanoyo/vislam/internal/ui"
+	"github.com/sanoyo/vislam/internal/utils"
 )
 
 var theme color.Colors
@@ -139,9 +139,9 @@ func Start(option Option) error {
 	defer file.Close()
 	slog.Debug(`
 ****************************************************************
-**************** Started e1s
+**************** Started vislam
 ****************************************************************`)
-	slog.Debug("e1s start", "option", option)
+	slog.Debug("vislam start", "option", option)
 	theme = color.InitStyles(option.Theme)
 
 	app, err := newApp(option)

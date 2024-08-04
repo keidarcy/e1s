@@ -13,8 +13,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/keidarcy/e1s/internal/ui"
 	"github.com/rivo/tview"
+	"github.com/sanoyo/vislam/internal/ui"
 )
 
 // Get cp form content

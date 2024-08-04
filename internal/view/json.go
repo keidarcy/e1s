@@ -12,7 +12,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/service/ecs"
 	"github.com/gdamore/tcell/v2"
-	"github.com/keidarcy/e1s/internal/utils"
+	"github.com/sanoyo/vislam/internal/utils"
 )
 
 // Switch to current kind description JSON page
@@ -235,7 +235,7 @@ func (v *view) getJsonString(entity Entity) (string, []byte, error) {
 			IssueReport string
 		}{
 			Message:     "unknown issue",
-			IssueReport: "https://github.com/keidarcy/e1s/issues",
+			IssueReport: "https://github.com/sanoyo/vislam/issues",
 		}
 	}
 

@@ -10,9 +10,9 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/keidarcy/e1s/internal/ui"
-	"github.com/keidarcy/e1s/internal/utils"
 	"github.com/rivo/tview"
+	"github.com/sanoyo/vislam/internal/ui"
+	"github.com/sanoyo/vislam/internal/utils"
 )
 
 // Exec shell to selected container(like ssh)

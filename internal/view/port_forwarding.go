@@ -6,10 +6,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/keidarcy/e1s/internal/api"
-	"github.com/keidarcy/e1s/internal/ui"
-	"github.com/keidarcy/e1s/internal/utils"
 	"github.com/rivo/tview"
+	"github.com/sanoyo/vislam/internal/api"
+	"github.com/sanoyo/vislam/internal/ui"
+	"github.com/sanoyo/vislam/internal/utils"
 )
 
 type PortForwardingSession struct {

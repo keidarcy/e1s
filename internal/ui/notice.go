@@ -5,8 +5,8 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/keidarcy/e1s/internal/color"
 	"github.com/rivo/tview"
+	"github.com/sanoyo/vislam/internal/color"
 )
 
 type Notice struct {

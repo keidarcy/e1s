@@ -5,8 +5,8 @@ import (
 	"log/slog"
 
 	"github.com/gdamore/tcell/v2"
-	"github.com/keidarcy/e1s/internal/color"
 	"github.com/rivo/tview"
+	"github.com/sanoyo/vislam/internal/color"
 )
 
 const (
