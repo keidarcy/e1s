@@ -1,6 +1,7 @@
 package view
 
 import (
+	"fmt"
 	"log/slog"
 	"strings"
 	"time"
@@ -237,6 +238,7 @@ func (app *App) getPageHandle() string {
 func (app *App) start() error {
 	var err error
 	if app.Option.Cluster == "" {
+		fmt.Println("test")
 		err = app.showPrimaryKindPage(ClusterKind, false)
 	} else {
 		app.cluster.ClusterName = &app.Option.Cluster
@@ -270,8 +272,10 @@ func (app *App) showPrimaryKindPage(k kind, reload bool) error {
 	app.kind = k
 	switch k {
 	case ClusterKind:
+		fmt.Println("aaa")
 		err = app.showClustersPage(reload)
 	case ServiceKind:
+		fmt.Println("bbb")
 		err = app.showServicesPage(reload)
 	case TaskKind:
 		err = app.showTasksPages(reload)

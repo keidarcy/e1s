@@ -11,6 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/cloudwatch"
 	"github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs"
 	"github.com/aws/aws-sdk-go-v2/service/ecs"
+	"github.com/aws/aws-sdk-go-v2/service/lambda"
 	"github.com/aws/aws-sdk-go-v2/service/ssm"
 )
 
@@ -23,6 +24,7 @@ type Store struct {
 	cloudwatchlogs *cloudwatchlogs.Client
 	autoScaling    *applicationautoscaling.Client
 	ssm            *ssm.Client
+	lambda         *lambda.Client
 }
 
 func NewStore() (*Store, error) {
@@ -35,11 +37,16 @@ func NewStore() (*Store, error) {
 	}
 	ecsClient := ecs.NewFromConfig(cfg)
 	slog.Info("load config", slog.String("AWS_PROFILE", profile), slog.String("AWS_REGION", cfg.Region))
+
+	lambdaClient := lambda.NewFromConfig(cfg)
+	slog.Info("load lambda config", slog.String("AWS_PROFILE", profile), slog.String("AWS_REGION", cfg.Region))
+
 	return &Store{
 		Config:  &cfg,
 		Region:  cfg.Region,
 		Profile: profile,
 		ecs:     ecsClient,
+		lambda:  lambdaClient,
 	}, nil
 }
 

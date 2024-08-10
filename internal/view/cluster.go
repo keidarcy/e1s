@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
+	"github.com/aws/aws-sdk-go-v2/service/lambda/types"
 	"github.com/rivo/tview"
 	"github.com/sanoyo/vislam/internal/color"
 	"github.com/sanoyo/vislam/internal/utils"
@@ -14,10 +14,10 @@ import (
 
 type clusterView struct {
 	view
-	clusters []types.Cluster
+	clusters []types.FunctionConfiguration
 }
 
-func newClusterView(clusters []types.Cluster, app *App) *clusterView {
+func newFunctionView(functions []types.FunctionConfiguration, app *App) *clusterView {
 	keys := append(basicKeyInputs, []keyDescriptionPair{
 		hotKeyMap["n"],
 	}...)
@@ -25,9 +25,21 @@ func newClusterView(clusters []types.Cluster, app *App) *clusterView {
 		view: *newView(app, keys, secondaryPageKeyMap{
 			DescriptionKind: describePageKeys,
 		}),
-		clusters: clusters,
+		clusters: functions,
 	}
 }
+
+// func newClusterView(clusters []types.Cluster, app *App) *clusterView {
+// 	keys := append(basicKeyInputs, []keyDescriptionPair{
+// 		hotKeyMap["n"],
+// 	}...)
+// 	return &clusterView{
+// 		view: *newView(app, keys, secondaryPageKeyMap{
+// 			DescriptionKind: describePageKeys,
+// 		}),
+// 		clusters: clusters,
+// 	}
+// }
 
 func (app *App) showClustersPage(reload bool) error {
 	app.kind = ClusterKind
@@ -35,19 +47,20 @@ func (app *App) showClustersPage(reload bool) error {
 		return nil
 	}
 
-	clusters, err := app.Store.ListClusters()
+	funcitions, err := app.Store.ListFunctions()
 	if err != nil {
-		slog.Error("failed to load clusters", "region", app.Region, "error", err.Error())
+		fmt.Println("ccc")
+		slog.Error("failed to load funcitions", "region", app.Region, "error", err.Error())
 		return err
 	}
 
-	if len(clusters) == 0 {
-		m := fmt.Sprintf("there is no valid clusters in %s region", app.Region)
+	if len(funcitions) == 0 {
+		m := fmt.Sprintf("there is no valid funcitions in %s region", app.Region)
 		slog.Warn("failed start", "reason", m)
 		return fmt.Errorf(m)
 	}
 
-	view := newClusterView(clusters, app)
+	view := newFunctionView(funcitions, app)
 	page := buildAppPage(view)
 	app.addAppPage(page)
 	view.table.Select(app.rowIndex, 0)
