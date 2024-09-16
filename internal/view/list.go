@@ -136,7 +136,8 @@ func (v *view) realtimeAwsLog(entity Entity) {
 		}
 
 		// if logGroup is empty, assign it, can realtime logs
-		if logGroup == "" {
+		// or if groupName is the same with previous
+		if logGroup == "" || logGroup == groupName {
 			logGroup = groupName
 			canRealtime = true
 
@@ -149,13 +150,7 @@ func (v *view) realtimeAwsLog(entity Entity) {
 			streamName := fmt.Sprintf("%s/%s/%s", streamPrefix, *c.Name, taskId)
 			logStreamNames = append(logStreamNames, streamName)
 		} else {
-			// if groupName is the same with previous
-			if logGroup == groupName {
-				continue
-				// if groupName is the different, can not realtime logs
-			} else {
-				canRealtime = false
-			}
+			canRealtime = false
 		}
 	}
 
@@ -182,9 +177,6 @@ func (v *view) realtimeAwsLog(entity Entity) {
 			}
 		}
 
-		slog.Info("names", "streamNames", logStreamNames)
-		slog.Info("args", "args", args)
-
 		slog.Info("exec", "command", bin+" "+strings.Join(args, " "))
 
 		v.app.Suspend(func() {
@@ -201,6 +193,6 @@ func (v *view) realtimeAwsLog(entity Entity) {
 			v.app.isSuspended = false
 		})
 	} else {
-		v.app.Notice.Warn("invalid to view logs")
+		v.app.Notice.Warn("invalid realtime logs")
 	}
 }
