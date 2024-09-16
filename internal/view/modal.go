@@ -175,7 +175,7 @@ func (v *view) serviceUpdateForm() (*tview.Form, *string) {
 		readOnly = readOnlyLabel
 	}
 
-	title := " Update [purple::b]" + name + readOnly
+	title := " Update [purple::b]" + name + " " + readOnly
 	currentFamily, currentRevision, _ := v.getTaskDefinitionDetail()
 
 	// get data for form

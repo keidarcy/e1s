@@ -10,8 +10,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs/types"
 	ecsTypes "github.com/aws/aws-sdk-go-v2/service/ecs/types"
+	"github.com/keidarcy/e1s/internal/utils"
 )
 
 const (
@@ -41,28 +41,31 @@ func (v *view) getListString(entity Entity) string {
 			contentString += fmt.Sprintf(logFmt, createdAt.Format(time.RFC3339), *e.Message)
 		}
 	case LogKind:
-		var logs []types.OutputLogEvent
+		var logs []string
 		var err error
-		var tdArn *string
-		if entity.service != nil {
-			tdArn = entity.service.TaskDefinition
-		} else if entity.task != nil {
-			tdArn = entity.task.TaskDefinitionArn
-		}
 
-		logs, err = v.app.Store.GetLogs(tdArn)
+		switch v.app.kind {
+		case ServiceKind:
+			logs, err = v.app.Store.GetServiceLogs(entity.service.TaskDefinition)
+		case TaskKind:
+			taskId := utils.ArnToName(entity.task.TaskArn)
+			logs, err = v.app.Store.GetLogStreamLogs(entity.task.TaskDefinitionArn, taskId, "")
+		case ContainerKind:
+			taskId := utils.ArnToName(v.app.task.TaskArn)
+			containerName := entity.container.Name
+			logs, err = v.app.Store.GetLogStreamLogs(v.app.task.TaskDefinitionArn, taskId, *containerName)
+		}
 
 		if err != nil {
 			contentString += "[red::]No valid contents[-:-:-]"
 			v.app.Notice.Warnf("failed to getListString")
 		}
 
-		if len(logs) == 0 {
+		if len(logs) == 0 || len(logs) == 1 {
 			contentString += "[orange::]Empty logs[-:-:-]"
 		} else {
 			for _, log := range logs {
-				m := log.Message
-				contentString += fmt.Sprintf(logFmt, time.Unix(0, *log.Timestamp*int64(time.Millisecond)).Format(time.RFC3339), *m)
+				contentString += log
 			}
 		}
 	}
@@ -96,11 +99,14 @@ func (v *view) switchToLogsList() {
 func (v *view) realtimeAwsLog(entity Entity) {
 	var tdArn *string
 	var logGroup string
+	var logStreamNames []string
 	var canRealtime bool
 	if entity.service != nil {
 		tdArn = entity.service.TaskDefinition
 	} else if entity.task != nil {
 		tdArn = entity.task.TaskDefinitionArn
+	} else if entity.container != nil {
+		tdArn = v.app.service.TaskDefinition
 	}
 	if tdArn == nil {
 		return
@@ -111,6 +117,13 @@ func (v *view) realtimeAwsLog(entity Entity) {
 		return
 	}
 	for _, c := range td.ContainerDefinitions {
+		// if current container kind is not target container skip
+		if v.app.kind == ContainerKind {
+			if *entity.container.Name != *c.Name {
+				continue
+			}
+		}
+
 		// if current container has no log driver
 		if c.LogConfiguration.LogDriver != ecsTypes.LogDriverAwslogs {
 			continue
@@ -126,6 +139,15 @@ func (v *view) realtimeAwsLog(entity Entity) {
 		if logGroup == "" {
 			logGroup = groupName
 			canRealtime = true
+
+			// get log stream name
+			streamPrefix := *c.Name
+			if _, ok := c.LogConfiguration.Options["awslogs-stream-prefix"]; ok {
+				streamPrefix = c.LogConfiguration.Options["awslogs-stream-prefix"]
+			}
+			taskId := utils.ArnToName(v.app.task.TaskArn)
+			streamName := fmt.Sprintf("%s/%s/%s", streamPrefix, *c.Name, taskId)
+			logStreamNames = append(logStreamNames, streamName)
 		} else {
 			// if groupName is the same with previous
 			if logGroup == groupName {
@@ -153,6 +175,16 @@ func (v *view) realtimeAwsLog(entity Entity) {
 			logGroup,
 		}
 
+		if v.app.kind == TaskKind || v.app.kind == ContainerKind {
+			if len(args) == 4 && len(logStreamNames) > 0 {
+				args = append(args, "--log-stream-names")
+				args = append(args, logStreamNames...)
+			}
+		}
+
+		slog.Info("names", "streamNames", logStreamNames)
+		slog.Info("args", "args", args)
+
 		slog.Info("exec", "command", bin+" "+strings.Join(args, " "))
 
 		v.app.Suspend(func() {
@@ -160,7 +192,7 @@ func (v *view) realtimeAwsLog(entity Entity) {
 			cmd := exec.Command(bin, args...)
 			cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, os.Stderr
 
-			_, err = cmd.Stdout.Write([]byte(fmt.Sprintf(realtimeLogFmt, *v.app.cluster.ClusterName, *v.app.service.ServiceName, logGroup)))
+			_, err = cmd.Stdout.Write([]byte(fmt.Sprintf(realtimeLogFmt, *v.app.cluster.ClusterName, *v.app.service.ServiceName, logGroup, utils.ShowArray(logStreamNames))))
 			err = cmd.Run()
 
 			// return signal
@@ -168,5 +200,7 @@ func (v *view) realtimeAwsLog(entity Entity) {
 			close(interrupt)
 			v.app.isSuspended = false
 		})
+	} else {
+		v.app.Notice.Warn("invalid to view logs")
 	}
 }

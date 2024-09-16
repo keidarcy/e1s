@@ -13,7 +13,7 @@ const (
 	awsCli         = "aws"
 	smpCi          = "session-manager-plugin"
 	execBannerFmt  = "\n\033[1;31m<<E1S-ECS-EXEC>>\033[0m: \n#######################################\n\033[1;32mCluster\033[0m: \"%s\" \n\033[1;32mService\033[0m: \"%s\" \n\033[1;32mTask\033[0m: \"%s\" \n\033[1;32mContainer\033[0m: \"%s\"\n#######################################\n"
-	realtimeLogFmt = "\n\033[1;31m<<E1S-LOGS-TAIL>>\033[0m: \n#######################################\n\033[1;32mCluster\033[0m: \"%s\" \n\033[1;32mService\033[0m: \"%s\" \n\033[1;32mLogGroup\033[0m: \"%s\"\n#######################################\n"
+	realtimeLogFmt = "\n\033[1;31m<<E1S-LOGS-TAIL>>\033[0m: \n#######################################\n\033[1;32mCluster\033[0m: \"%s\" \n\033[1;32mService\033[0m: \"%s\" \n\033[1;32mLogGroup\033[0m: \"%s\"\n\033[1;32mLogStreamNames\033[0m: \"%s\"\n#######################################\n"
 )
 
 // Base struct of different views
@@ -127,7 +127,7 @@ func (v *view) closeModal() {
 
 // Content page builder
 func (v *view) handleSecondaryPageSwitch(entity Entity, colorizedJsonString string, jsonBytes []byte) {
-	contentTitle := fmt.Sprintf(color.TableSecondaryTitleFmt, v.app.kind, entity.entityName)
+	contentTitle := fmt.Sprintf(color.TableSecondaryTitleFmt, v.app.kind, entity.entityName, v.app.secondaryKind)
 	contentPageName := v.app.kind.getSecondaryPageName(entity.entityName + "." + v.app.secondaryKind.String())
 
 	contentTextItem := getSecondaryTextItem(colorizedJsonString, contentTitle)
