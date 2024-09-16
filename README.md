@@ -295,21 +295,15 @@ If you have any feature requests or bug reports, please submit them through GitH
 - Bump version
 - `make tag`
 
+## Contact & Author
+
+[Xing Yahao](https://github.com/keidarcy)
+
 ## Thanks
 
 - [tview](https://github.com/rivo/tview)
 - [k9s](https://github.com/derailed/k9s)
 - [ecsview](https://github.com/swartzrock/ecsview)
-
-## License
-
-MIT. See [LICENSE](LICENSE) for more information.
-
-Distributed under the GNU GENERAL PUBLIC LICENSE Version 3 or later. See [LICENSE](LICENSE) for more information.
-
-## Contact & Author
-
-[Xing Yahao](https://github.com/keidarcy)
 
 ## Stargazers over time
 
