@@ -32,6 +32,7 @@ func (app *App) showHelpPage() {
 		hotKeyMap["ctrlC"],
 		hotKeyMap["ctrlR"],
 		hotKeyMap["?"],
+		hotKeyMap["/"],
 		hotKeyMap["b"],
 		hotKeyMap["d"],
 		hotKeyMap["e"],
