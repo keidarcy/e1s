@@ -324,14 +324,14 @@ func (app *App) globalInputHandle(event *tcell.EventKey) *tcell.EventKey {
 
 func (app *App) LogValue() slog.Value {
 	return slog.AnyValue(struct {
-		kind       string
-		secondKind string
-		cluster    string
-		service    string
+		kind          string
+		secondaryKind string
+		cluster       string
+		service       string
 	}{
-		kind:       app.kind.String(),
-		secondKind: app.secondaryKind.String(),
-		cluster:    *app.cluster.ClusterName,
-		service:    *app.service.ServiceName,
+		kind:          app.kind.String(),
+		secondaryKind: app.secondaryKind.String(),
+		cluster:       *app.cluster.ClusterName,
+		service:       *app.service.ServiceName,
 	})
 }

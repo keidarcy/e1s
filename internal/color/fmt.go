@@ -50,6 +50,6 @@ func (c Colors) initFmt() {
 	NoticeErrorFmt = fmt.Sprintf("💥 [%s::]%%s[-:-:-]", c.Red)
 
 	TableTitleFmt = fmt.Sprintf(" [%s::-]<[%s::b]%%s[%s::-]>[%s::b]%%s[%s::-]([%s::b]%%d[%s::-]) ", c.Cyan, c.Magenta, c.Cyan, c.Cyan, c.Cyan, c.Magenta, c.Cyan)
-	TableSecondaryTitleFmt = fmt.Sprintf(" [%s]%%s([%s::b]%%s[%s:-:-]) ", c.Blue, c.Magenta, c.Blue)
+	TableSecondaryTitleFmt = fmt.Sprintf(" [%s]%%s([%s::b]%%s[%s:-:-])[%s::-][[%s::-]%%s[-:-:-]] ", c.Blue, c.Magenta, c.Blue, c.FgColor, c.Green)
 	TableClusterTasksFmt = fmt.Sprintf("[%s]%%d Pending[-] | [%s]%%d Running", c.Blue, c.Green)
 }

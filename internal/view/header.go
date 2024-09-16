@@ -9,7 +9,7 @@ import (
 
 const (
 	// column height in info page
-	oneColumnCount = 11
+	oneColumnCount = 12
 	headerTitleFmt = " [blue]info([purple::b]%s[blue:-:-]) "
 	headerItemFmt  = " %s:[aqua::b] %s "
 	headerKeyFmt   = " [purple::b]<%s> [green:-:-]%s "

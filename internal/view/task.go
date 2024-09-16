@@ -149,6 +149,12 @@ func (v *taskView) headerPagesParam(t types.Task) (items []headerItem) {
 		}
 	}
 
+	// Ephemeral storage
+	ephemeralStorage := utils.EmptyText
+	if t.EphemeralStorage != nil {
+		ephemeralStorage = strconv.Itoa(int(t.EphemeralStorage.SizeInGiB)) + "Gb"
+	}
+
 	items = []headerItem{
 		{name: "Task ID", value: utils.ArnToName(t.TaskArn)},
 		{name: "Task definition", value: utils.ArnToName(t.TaskDefinitionArn)},
@@ -159,6 +165,7 @@ func (v *taskView) headerPagesParam(t types.Task) (items []headerItem) {
 		{name: "Subnet ID", value: subnetID},
 		{name: "Cpu architecture", value: arch},
 		{name: "Private IP", value: privateIP},
+		{name: "Ephemeral storage", value: ephemeralStorage},
 		{name: "Execute command", value: strconv.FormatBool(t.EnableExecuteCommand)},
 		{name: "Started by", value: utils.ShowString(t.StartedBy)},
 		{name: "Started at", value: utils.ShowTime(t.StartedAt)},

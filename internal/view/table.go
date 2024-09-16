@@ -109,7 +109,7 @@ func (v *view) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 		v.app.secondaryKind = DescriptionKind
 		v.showSecondaryKindPage(false)
 	case 'l':
-		if v.app.kind == ServiceKind || v.app.kind == TaskKind {
+		if v.app.kind == ServiceKind || v.app.kind == TaskKind || v.app.kind == ContainerKind {
 			v.app.secondaryKind = LogKind
 			v.showSecondaryKindPage(false)
 			return event

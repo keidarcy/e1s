@@ -132,6 +132,7 @@ func (v *clusterView) headerPagesParam(c types.Cluster) (items []headerItem) {
 		{name: "Running tasks count", value: strconv.Itoa(running)},
 		{name: "Pending tasks count", value: strconv.Itoa(pending)},
 		{name: "Capacity providers", value: utils.ShowArray(c.CapacityProviders)},
+		{name: "Capacity providers count", value: strconv.Itoa(len(c.CapacityProviders))},
 		{name: "Container insights", value: containerInsights},
 		{name: "Service connect defaults", value: scd},
 		{name: "Attachments status", value: utils.ShowString(c.AttachmentsStatus)},
@@ -150,7 +151,7 @@ func (v *clusterView) tableParam() (title string, headers []string, dataBuilder 
 		"Services",
 		"Tasks ▾",
 		"Capacity providers",
-		"Registered containers",
+		"Registered container instance",
 	}
 	dataBuilder = func() (data [][]string) {
 		for _, c := range v.clusters {

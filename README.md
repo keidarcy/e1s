@@ -303,4 +303,14 @@ If you have any feature requests or bug reports, please submit them through GitH
 
 ## License
 
-MIT
+MIT. See [LICENSE](LICENSE) for more information.
+
+Distributed under the GNU GENERAL PUBLIC LICENSE Version 3 or later. See [LICENSE](LICENSE) for more information.
+
+## Contact & Author
+
+[Xing Yahao](https://github.com/keidarcy)
+
+## Stargazers over time
+
+[![Stargazers over time](https://starchart.cc/keidarcy/e1s.svg?variant=adaptive)](https://starchart.cc/keidarcy/e1s)

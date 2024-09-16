@@ -17,6 +17,7 @@ type containerView struct {
 
 func newContainerView(containers []types.Container, app *App) *containerView {
 	keys := append(basicKeyInputs, []keyDescriptionPair{
+		hotKeyMap["l"],
 		hotKeyMap["F"],
 		hotKeyMap["T"],
 		hotKeyMap["P"],
@@ -27,6 +28,7 @@ func newContainerView(containers []types.Container, app *App) *containerView {
 	return &containerView{
 		view: *newView(app, keys, secondaryPageKeyMap{
 			DescriptionKind: describePageKeys,
+			LogKind:         logPageKeys,
 		}),
 		containers: containers,
 	}
