@@ -9,10 +9,10 @@ import (
 )
 
 func (v *view) searchForm() (*tview.Form, *string) {
-	title := " Search in table"
+	title := " Search in table "
 
 	f := ui.StyledForm(title)
-	searchLabel := "Input search (first column)"
+	searchLabel := "Input search"
 
 	inputField := tview.NewInputField().
 		SetLabel(searchLabel).
@@ -28,18 +28,6 @@ func (v *view) searchForm() (*tview.Form, *string) {
 		})
 	f.AddFormItem(inputField)
 
-	// handle form close
-	f.AddButton("Cancel", func() {
-		v.searchLast = new(string)
-		v.closeModal()
-	})
-
-	// handle form submit
-	f.AddButton("Search", func() {
-		if submitForm(searchLabel, f, v) {
-			v.closeModal()
-		}
-	})
 	return f, &title
 }
 
@@ -57,23 +45,28 @@ func submitForm(searchLabel string, f *tview.Form, v *view) bool {
 	rowCount := table.GetRowCount()
 	wrapSearch := false
 
+RowLoop:
 	for i := 0; i < rowCount; i++ {
 		currentRow := (selectedRow + i) % rowCount
 		if currentRow < selectedRow {
 			wrapSearch = true
 		}
-		cell := table.GetCell(currentRow, 0)
-		if strings.Contains(cell.Text, searchInput) {
-			found = true
-			if selectedRow == currentRow {
-				continue
+
+		for j := 0; j < table.GetColumnCount(); j++ {
+			cell := table.GetCell(currentRow, j)
+			if strings.Contains(cell.Text, searchInput) {
+				found = true
+				if selectedRow == currentRow {
+					continue RowLoop
+				}
+				table.Select(currentRow, 0)
+				break RowLoop
 			}
-			table.Select(currentRow, 0)
-			break
 		}
 	}
+
 	if !found {
-		v.app.Notice.Warnf("prefix %s not found", searchInput)
+		v.app.Notice.Warnf("%s not found", searchInput)
 	} else if wrapSearch {
 		v.app.Notice.Info("search hit BOTTOM, continuing at TOP")
 	}

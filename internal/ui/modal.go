@@ -6,11 +6,11 @@ import (
 )
 
 // modal to show in the middle of screen for any usage
-func Modal(p tview.Primitive, width, height int, closeFn func()) tview.Primitive {
+func Modal(p tview.Primitive, width, height, top int, closeFn func()) tview.Primitive {
 	m := tview.NewFlex().
 		AddItem(nil, 0, 1, false).
 		AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
-			AddItem(nil, 0, 1, false).
+			AddItem(nil, top, 1, false).
 			AddItem(p, height, 1, true).
 			AddItem(nil, 0, 1, false), width, 1, true).
 		AddItem(nil, 0, 1, false)

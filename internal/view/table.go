@@ -192,7 +192,7 @@ func (v *view) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 		}
 	case '/':
 		v.app.secondaryKind = ModalKind
-		v.showFormModal(v.searchForm, 7)
+		v.showSearchFormModal(v.searchForm, 5)
 		return event
 	}
 
