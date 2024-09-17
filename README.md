@@ -158,7 +158,7 @@ colors:
 
 ### Key bindings
 
-Press `?` to check overall key bindings, top right corner to check current resource specific hot keys.
+Press `?` to check overall key bindings, `/` to search in table, top right corner to check current resource specific hot keys.
 
 <details>
   <summary>help</summary>

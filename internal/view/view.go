@@ -20,6 +20,7 @@ const (
 type view struct {
 	app         *App
 	table       *tview.Table
+	searchLast  *string
 	headerPages *tview.Pages
 	bodyPages   *tview.Pages
 	keys        []keyDescriptionPair
@@ -33,6 +34,7 @@ func newView(app *App, keys []keyDescriptionPair, pageKeys secondaryPageKeyMap) 
 		headerPages: tview.NewPages(),
 		bodyPages:   tview.NewPages(),
 		table:       tview.NewTable(),
+		searchLast:  new(string),
 		keys:        keys,
 		footer:      newFooter(),
 		pageKeyMap:  pageKeys,

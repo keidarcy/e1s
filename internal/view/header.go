@@ -16,6 +16,7 @@ const (
 )
 
 var hotKeyMap = map[string]keyDescriptionPair{
+	"/":     {key: "/", description: "Search in table"},
 	"a":     {key: "a", description: "Describe service auto scaling"},
 	"f":     {key: "f", description: "Toggle full screen"},
 	"l":     {key: "l", description: "Show cloudwatch logs(Only support awslogs logDriver)"},
@@ -64,6 +65,7 @@ type keyDescriptionPair struct {
 }
 
 var basicKeyInputs = []keyDescriptionPair{
+	hotKeyMap["/"],
 	hotKeyMap["b"],
 	hotKeyMap["d"],
 	hotKeyMap["ctrlR"],

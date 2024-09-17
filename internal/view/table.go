@@ -54,6 +54,8 @@ func (v *view) buildTable(title string, headers []string, dataBuilder func() [][
 		}
 	}
 
+	v.searchLast = new(string)
+
 	v.handleTableEvents()
 
 	pageName := v.app.kind.getTablePageName(v.app.getPageHandle())
@@ -188,6 +190,10 @@ func (v *view) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 			v.showFormModal(v.execCommandForm, 7)
 			return event
 		}
+	case '/':
+		v.app.secondaryKind = ModalKind
+		v.showSearchFormModal(v.searchForm, 5)
+		return event
 	}
 
 	// If it's composite keystroke, event.Key() is ctrl-char ascii code

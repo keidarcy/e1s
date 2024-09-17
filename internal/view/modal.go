@@ -27,7 +27,16 @@ func (v *view) showFormModal(formContentFn func() (*tview.Form, *string), height
 	if content == nil {
 		return
 	}
-	v.app.Pages.AddPage(*title, ui.Modal(content, 100, height, v.closeModal), true, true)
+	v.app.Pages.AddPage(*title, ui.Modal(content, 100, height, 0, v.closeModal), true, true)
+}
+
+// Show search modal with form
+func (v *view) showSearchFormModal(formContentFn func() (*tview.Form, *string), height int) {
+	content, title := formContentFn()
+	if content == nil {
+		return
+	}
+	v.app.Pages.AddPage(*title, ui.Modal(content, 100, height, 7, v.closeModal), true, true)
 }
 
 // Show task definition register confirm modal
@@ -39,7 +48,7 @@ func (v *view) showTaskDefinitionConfirm(fn func()) {
 	if content == nil {
 		return
 	}
-	v.app.Pages.AddPage(title, ui.Modal(content, 100, 7, v.closeModal), true, true)
+	v.app.Pages.AddPage(title, ui.Modal(content, 100, 7, 0, v.closeModal), true, true)
 }
 
 // Get task definition register content

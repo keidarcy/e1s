@@ -32,6 +32,7 @@ func (app *App) showHelpPage() {
 		hotKeyMap["ctrlC"],
 		hotKeyMap["ctrlR"],
 		hotKeyMap["?"],
+		hotKeyMap["/"],
 		hotKeyMap["b"],
 		hotKeyMap["d"],
 		hotKeyMap["e"],
@@ -60,7 +61,7 @@ func (app *App) showHelpPage() {
 		AddItem(navigation, 0, 1, false).
 		AddItem(info, 0, 1, false)
 	flex.SetBorder(true).SetTitle(" Help ")
-	app.Pages.AddPage("help", ui.Modal(flex, 150, 25, view.closeModal), true, true)
+	app.Pages.AddPage("help", ui.Modal(flex, 150, 25, 0, view.closeModal), true, true)
 }
 
 func genColumn(title string, keys []keyDescriptionPair) tview.Primitive {
