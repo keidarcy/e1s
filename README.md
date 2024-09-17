@@ -297,7 +297,7 @@ If you have any feature requests or bug reports, please submit them through GitH
 
 ## Contact & Author
 
-[Xing Yahao](https://github.com/keidarcy)
+Xing Yahao(https://github.com/keidarcy)
 
 ## Thanks
 
