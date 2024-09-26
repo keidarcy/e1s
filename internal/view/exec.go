@@ -19,7 +19,7 @@ import (
 func (v *view) execShell() {
 	args, containerName, err := v.preValidateExec()
 	if err != nil {
-		v.app.Notice.Warnf("Exec shell pre pre exec validate failed: %v", err)
+		v.app.Notice.Warnf("Exec command validation failed: %v", err)
 		v.app.back()
 		return
 	}
@@ -51,7 +51,7 @@ func (v *view) execShell() {
 func (v *view) execCommandForm() (*tview.Form, *string) {
 	args, containerName, err := v.preValidateExec()
 	if err != nil {
-		v.app.Notice.Warnf("Exec command pre pre exec validate failed: %v", err)
+		v.app.Notice.Warnf("Exec command validation failed: %v", err)
 		v.app.back()
 		return nil, nil
 	}
