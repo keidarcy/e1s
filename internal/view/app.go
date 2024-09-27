@@ -1,6 +1,7 @@
 package view
 
 import (
+	"errors"
 	"log/slog"
 	"strings"
 	"time"
@@ -16,6 +17,7 @@ import (
 )
 
 var theme color.Colors
+var ErrNoNeedReload = errors.New("no need reload")
 
 // Entity contains ECS resources to show, use uppercase to make items like app.cluster easy to access
 type Entity struct {
@@ -288,7 +290,9 @@ func (app *App) showPrimaryKindPage(k kind, reload bool) error {
 		return err
 	}
 	if !reload {
-		app.Notice.Infof("Viewing %s...", app.kind.String())
+		if app.taskStatus != types.DesiredStatusStopped {
+			app.Notice.Infof("Viewing %s...", app.kind.String())
+		}
 	} else {
 		slog.Debug("Reload in showPrimaryKindPage")
 	}

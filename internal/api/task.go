@@ -7,6 +7,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/service/ecs"
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
+	"github.com/keidarcy/e1s/internal/utils"
 )
 
 // Equivalent to
@@ -16,40 +17,68 @@ import (
 // aws ecs describe-tasks --cluster ${cluster} --tasks ${taskID}
 // OR
 // aws ecs list-tasks --cluster ${cluster} --desired-status STOPPED
-func (store *Store) ListTasks(clusterName, serviceName *string, status types.DesiredStatus) ([]types.Task, error) {
+// `aws ecs list-tasks --cluster ${CLUSTER} --service-name ${SERVICE} --desired-status STOPPED` return nothing
+// `aws ecs list-tasks --cluster ${CLUSTER} --desired-status STOPPED` return all stopped tasks in cluster
+func (store *Store) ListTasks(clusterName, serviceName *string, status types.DesiredStatus) ([]types.Task, bool, error) {
 	limit := int32(100)
-	listTasksOutput, err := store.ecs.ListTasks(context.Background(), &ecs.ListTasksInput{
+	resultTasks := []types.Task{}
+	describeTasksInclude := []types.TaskField{
+		types.TaskFieldTags,
+	}
+	listTaskServiceName := serviceName
+	noRunningShowStopped := false
+
+	// true when show desiredStatus:stopped tasks
+	if status == types.DesiredStatusStopped {
+		listTaskServiceName = nil
+		noRunningShowStopped = true
+	}
+
+	listTasksOutput, _ := store.ecs.ListTasks(context.Background(), &ecs.ListTasksInput{
 		Cluster:       clusterName,
-		ServiceName:   serviceName,
+		ServiceName:   listTaskServiceName,
 		DesiredStatus: status,
 		MaxResults:    &limit,
 	})
-	if err != nil {
-		slog.Warn("failed to run aws api to list tasks", "error", err)
-		return []types.Task{}, err
-	}
-	if len(listTasksOutput.TaskArns) == 0 {
-		return nil, nil
+
+	if status == types.DesiredStatusStopped && len(listTasksOutput.TaskArns) == 0 {
+		return nil, noRunningShowStopped, nil
 	}
 
-	include := []types.TaskField{
-		types.TaskFieldTags,
+	if status == types.DesiredStatusRunning && len(listTasksOutput.TaskArns) == 0 {
+		listTasksOutput, _ := store.ecs.ListTasks(context.Background(), &ecs.ListTasksInput{
+			Cluster:       clusterName,
+			DesiredStatus: types.DesiredStatusStopped,
+			MaxResults:    &limit,
+		})
+		if len(listTasksOutput.TaskArns) == 0 {
+			return nil, noRunningShowStopped, nil
+		}
+		noRunningShowStopped = true
 	}
-
-	resultTasks := []types.Task{}
 
 	describeTasksOutput, err := store.ecs.DescribeTasks(context.Background(), &ecs.DescribeTasksInput{
 		Cluster: clusterName,
 		Tasks:   listTasksOutput.TaskArns,
-		Include: include,
+		Include: describeTasksInclude,
 	})
 
 	if err != nil {
 		slog.Warn("failed to run aws api to describe tasks", "error", err)
-		return []types.Task{}, err
+		return []types.Task{}, noRunningShowStopped, err
 	}
 
-	resultTasks = append(resultTasks, describeTasksOutput.Tasks...)
+	if len(describeTasksOutput.Tasks) > 0 {
+		if !noRunningShowStopped {
+			resultTasks = append(resultTasks, describeTasksOutput.Tasks...)
+		} else {
+			for _, t := range describeTasksOutput.Tasks {
+				if *serviceName == utils.GetServiceByTaskGroup(t.Group) {
+					resultTasks = append(resultTasks, t)
+				}
+			}
+		}
+	}
 
 	// sort tasks by task name
 	sort.Slice(resultTasks, func(i, j int) bool {
@@ -63,7 +92,7 @@ func (store *Store) ListTasks(clusterName, serviceName *string, status types.Des
 		})
 	}
 
-	return resultTasks, nil
+	return resultTasks, noRunningShowStopped, nil
 }
 
 // aws ecs register-task-definition --family ${{family}} --...
