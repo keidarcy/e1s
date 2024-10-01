@@ -18,6 +18,115 @@ import (
 )
 
 // Get cp form content
+func (v *view) catFile() (*tview.Form, *string) {
+	selected, err := v.getCurrentSelection()
+	if err != nil {
+		return nil, nil
+	}
+	// container containerName
+	containerName := *selected.container.Name
+
+	readOnly := ""
+	if v.app.ReadOnly {
+		readOnly = readOnlyLabel
+	}
+
+	title := " Download text file [purple::b]" + containerName + readOnly
+
+	f := ui.StyledForm(title)
+	containerPathLabel := "Path to download(container)"
+	localPathLabel := "Local path(temp file when empty)"
+
+	f.AddInputField(containerPathLabel, "", 50, nil, nil)
+	f.AddInputField(localPathLabel, "", 50, nil, nil)
+
+	// handle form close
+	f.AddButton("Cancel", func() {
+		v.closeModal()
+	})
+
+	// readonly mode has no submit button
+	if v.app.ReadOnly {
+		return f, &title
+	}
+
+	// handle form submit
+	f.AddButton("Start", func() {
+		path := f.GetFormItemByLabel(containerPathLabel).(*tview.InputField).GetText()
+		localPath := f.GetFormItemByLabel(localPathLabel).(*tview.InputField).GetText()
+
+		args := []string{
+			"ecs",
+			"execute-command",
+			"--cluster",
+			*v.app.cluster.ClusterName,
+			"--task",
+			*v.app.task.TaskArn,
+			"--container",
+			containerName,
+			"--interactive",
+			"--command",
+			fmt.Sprintf("cat %s", path),
+		}
+		bin, _ := exec.LookPath(awsCli)
+		cmd := exec.Command(bin, args...)
+
+		go func() {
+			v.app.Notice.Info("Working in progress")
+			slog.Info("exec", "command", bin+" "+strings.Join(args, " "))
+
+			output, err := cmd.Output()
+			if err != nil {
+				v.app.Notice.Errorf("Failed, %s", err.Error())
+			}
+
+			lines := strings.Split(string(output), "\n")
+
+			if strings.Contains(lines[5], "cat:") {
+				v.app.Notice.Errorf("Failed cat file \"%s\"", lines[5])
+			}
+
+			content := ""
+
+			for _, l := range lines[5:] {
+				if strings.HasPrefix(l, "Exiting session with sessionId") {
+					break
+				}
+				content += l
+				content += "\n"
+			}
+			var file *os.File
+			if localPath == "" {
+				pwd, err := os.Getwd()
+				if err != nil {
+					v.app.Notice.Errorf("failed to get current directory to create file, err: %v", err)
+				}
+				names := strings.Split(path, "/")
+				file, err = os.Create(fmt.Sprintf("%s/%s", pwd, names[len(names)-1]))
+				if err != nil {
+					v.app.Notice.Errorf("failed to create file, err: %v", err)
+				}
+			} else {
+				file, err = os.Create(localPath)
+				if err != nil {
+					v.app.Notice.Errorf("failed to create file, err: %v", err)
+				}
+			}
+			defer file.Close()
+
+			if _, err := file.WriteString(content); err != nil {
+				v.app.Notice.Warnf("failed to write file %v", err)
+			} else {
+				v.app.Notice.Infof("write content to file %s", file.Name())
+			}
+		}()
+
+		v.closeModal()
+		v.reloadResource(false)
+	})
+	return f, &title
+}
+
 func (v *view) cpForm() (*tview.Form, *string) {
 	selected, err := v.getCurrentSelection()
 	if err != nil {

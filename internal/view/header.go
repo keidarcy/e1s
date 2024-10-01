@@ -9,7 +9,7 @@ import (
 
 const (
 	// column height in info page
-	oneColumnCount = 12
+	oneColumnCount = 13
 	headerTitleFmt = " [blue]info([purple::b]%s[blue:-:-]) "
 	headerItemFmt  = " %s:[aqua::b] %s "
 	headerKeyFmt   = " [purple::b]<%s> [green:-:-]%s "
@@ -28,6 +28,7 @@ var hotKeyMap = map[string]keyDescriptionPair{
 	"w":     {key: "w", description: "Describe service events"},
 	"S":     {key: "shift-s", description: "Stop task"},
 	"P":     {key: "shift-p", description: "File transfer"},
+	"D":     {key: "shift-d", description: "Download text file content(beta)"},
 	"F":     {key: "shift-f", description: "Start port forwarding session"},
 	"T":     {key: "shift-t", description: "Terminate port forwarding session"},
 	"U":     {key: "shift-u", description: "Update service"},
