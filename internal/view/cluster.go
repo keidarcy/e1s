@@ -106,7 +106,7 @@ func (v *clusterView) headerPagesParam(c types.Cluster) (items []headerItem) {
 	if c.ServiceConnectDefaults != nil {
 		scd = *c.ServiceConnectDefaults.Namespace
 	}
-	active, draining, running, pending := 0, 0, 0, 0
+	active, draining, running, pending, activeEC2, activeFargate := 0, 0, 0, 0, 0, 0
 	for _, statistic := range c.Statistics {
 		v, err := strconv.Atoi(*statistic.Value)
 		if err != nil {
@@ -124,10 +124,18 @@ func (v *clusterView) headerPagesParam(c types.Cluster) (items []headerItem) {
 		if strings.HasPrefix(*statistic.Name, "pending") {
 			pending += v
 		}
+		if strings.HasPrefix(*statistic.Name, "activeEC2") {
+			activeEC2 += v
+		}
+		if strings.HasPrefix(*statistic.Name, "activeFargate") {
+			activeFargate += v
+		}
 	}
 	items = []headerItem{
 		{name: "Name", value: *c.ClusterName},
 		{name: "Active services count", value: strconv.Itoa(active)},
+		{name: "Active EC2 services count", value: strconv.Itoa(activeEC2)},
+		{name: "Active Fargate services count", value: strconv.Itoa(activeFargate)},
 		{name: "Draining services count", value: strconv.Itoa(draining)},
 		{name: "Running tasks count", value: strconv.Itoa(running)},
 		{name: "Pending tasks count", value: strconv.Itoa(pending)},

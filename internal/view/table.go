@@ -190,6 +190,10 @@ func (v *view) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 			v.showFormModal(v.execCommandForm, 7)
 			return event
 		}
+	case 'D':
+		v.app.secondaryKind = ModalKind
+		v.showFormModal(v.catFile, 10)
+		return event
 	case '/':
 		v.app.secondaryKind = ModalKind
 		v.showSearchFormModal(v.searchForm, 5)
