@@ -150,8 +150,8 @@ func (v *clusterView) tableParam() (title string, headers []string, dataBuilder 
 		"Status",
 		"Services",
 		"Tasks ▾",
+		"Container instances",
 		"Capacity providers",
-		"Registered container instances",
 	}
 	dataBuilder = func() (data [][]string) {
 		for _, c := range v.clusters {
@@ -163,8 +163,8 @@ func (v *clusterView) tableParam() (title string, headers []string, dataBuilder 
 			row = append(row, utils.ShowGreenGrey(c.Status, "active"))
 			row = append(row, utils.ShowInt(&c.ActiveServicesCount))
 			row = append(row, tasks)
+			row = append(row, utils.ShowInt(&c.RegisteredContainerInstancesCount)+" EC2")
 			row = append(row, utils.ShowArray(c.CapacityProviders))
-			row = append(row, utils.ShowInt(&c.RegisteredContainerInstancesCount))
 
 			data = append(data, row)
 		}
