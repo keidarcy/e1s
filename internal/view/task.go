@@ -48,12 +48,7 @@ func (app *App) showTasksPages(reload bool) error {
 		serviceName = nil
 	}
 
-	// true when show desiredStatus:stopped tasks
-	if app.taskStatus == types.DesiredStatusStopped {
-		serviceName = nil
-	}
-
-	tasks, err := app.Store.ListTasks(app.cluster.ClusterName, serviceName, app.taskStatus)
+	tasks, noRunningShowStopped, err := app.Store.ListTasks(app.cluster.ClusterName, serviceName, app.taskStatus)
 
 	if err != nil {
 		slog.Warn("failed to show tasks pages", "error", err)
@@ -61,11 +56,20 @@ func (app *App) showTasksPages(reload bool) error {
 		return err
 	}
 
+	if noRunningShowStopped && len(tasks) > 0 {
+		app.Notice.Warn("0 running task show stopped")
+	}
+
 	// no tasks exists do nothing
 	if len(tasks) == 0 {
 		err := fmt.Errorf("no valid %s task", strings.ToLower(string(app.taskStatus)))
-		app.back()
-		return err
+		if app.taskStatus == types.DesiredStatusRunning {
+			app.back()
+			return err
+		} else {
+			app.Notice.Info("0 stopped task show running")
+			return nil
+		}
 	}
 
 	view := newTaskView(tasks, app)
@@ -208,7 +212,7 @@ func (v *taskView) tableParam() (title string, headers []string, dataBuilder fun
 			row = append(row, utils.ArnToName(t.TaskArn))
 			row = append(row, utils.ShowGreenGrey(t.LastStatus, "running"))
 			row = append(row, utils.ShowGreenGrey(&health, "healthy"))
-			row = append(row, utils.ShowServiceByGroup(t.Group))
+			row = append(row, utils.GetServiceByTaskGroup(t.Group))
 			row = append(row, utils.ArnToName(t.TaskDefinitionArn))
 			row = append(row, strconv.Itoa(len(t.Containers)))
 			row = append(row, utils.ShowString(t.Cpu))

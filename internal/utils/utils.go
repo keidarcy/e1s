@@ -270,7 +270,7 @@ func ImageInfo(imageURL *string) (string, string) {
 }
 
 // Get service name by describe task group name
-func ShowServiceByGroup(group *string) string {
+func GetServiceByTaskGroup(group *string) string {
 	if group == nil {
 		return EmptyText
 	}
