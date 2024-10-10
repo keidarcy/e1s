@@ -106,6 +106,17 @@ func (v *clusterView) headerPagesParam(c types.Cluster) (items []headerItem) {
 	if c.ServiceConnectDefaults != nil {
 		scd = *c.ServiceConnectDefaults.Namespace
 	}
+
+	// executeCommandConfiguration
+	ecc := utils.EmptyText
+	if c.Configuration != nil && c.Configuration.ExecuteCommandConfiguration != nil {
+		ecc = "On"
+	}
+	// managedStorageConfiguration
+	msc := utils.EmptyText
+	if c.Configuration != nil && c.Configuration.ManagedStorageConfiguration != nil {
+		msc = "On"
+	}
 	active, draining, running, pending, activeEC2, activeFargate := 0, 0, 0, 0, 0, 0
 	for _, statistic := range c.Statistics {
 		v, err := strconv.Atoi(*statistic.Value)
@@ -145,6 +156,8 @@ func (v *clusterView) headerPagesParam(c types.Cluster) (items []headerItem) {
 		{name: "Service connect defaults", value: scd},
 		{name: "Attachments status", value: utils.ShowString(c.AttachmentsStatus)},
 		{name: "Registered container instances", value: utils.ShowInt(&c.RegisteredContainerInstancesCount)},
+		{name: "Execute command configuration", value: ecc},
+		{name: "Managed storage configuration", value: msc},
 		{name: "Tags count", value: strconv.Itoa(len(c.Tags))},
 	}
 	return
