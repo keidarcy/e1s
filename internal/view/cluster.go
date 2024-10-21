@@ -110,12 +110,12 @@ func (v *clusterView) headerPagesParam(c types.Cluster) (items []headerItem) {
 	// executeCommandConfiguration
 	ecc := utils.EmptyText
 	if c.Configuration != nil && c.Configuration.ExecuteCommandConfiguration != nil {
-		ecc = "On"
+		ecc = "Exists"
 	}
 	// managedStorageConfiguration
 	msc := utils.EmptyText
 	if c.Configuration != nil && c.Configuration.ManagedStorageConfiguration != nil {
-		msc = "On"
+		msc = "Exists"
 	}
 	active, draining, running, pending, activeEC2, activeFargate := 0, 0, 0, 0, 0, 0
 	for _, statistic := range c.Statistics {

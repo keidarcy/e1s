@@ -1,6 +1,7 @@
 package view
 
 import (
+	"bufio"
 	"bytes"
 	"fmt"
 	"io"
@@ -75,26 +76,44 @@ func (v *view) catFile() (*tview.Form, *string) {
 			v.app.Notice.Info("Working in progress")
 			slog.Info("exec", "command", bin+" "+strings.Join(args, " "))
 
-			output, err := cmd.Output()
+			stdout, err := cmd.StdoutPipe()
 			if err != nil {
-				v.app.Notice.Errorf("Failed, %s", err.Error())
+				v.app.Notice.Errorf("Failed to create stdout pipe: %s", err.Error())
+				return
 			}
 
-			lines := strings.Split(string(output), "\n")
+			if err := cmd.Start(); err != nil {
+				v.app.Notice.Errorf("Failed to start command: %s", err.Error())
+				return
+			}
 
-			if strings.Contains(lines[5], "cat:") {
+			scanner := bufio.NewScanner(stdout)
+			var lines []string
+			for scanner.Scan() {
+				line := scanner.Text()
+				lines = append(lines, line)
+			}
+
+			if err := cmd.Wait(); err != nil {
+				v.app.Notice.Errorf("Command failed: %s", err.Error())
+				return
+			}
+
+			if len(lines) > 5 && strings.Contains(lines[5], "cat:") {
 				v.app.Notice.Errorf("Failed cat file \"%s\"", lines[5])
 			}
 
 			content := ""
-
 			for _, l := range lines[5:] {
 				if strings.HasPrefix(l, "Exiting session with sessionId") {
 					break
 				}
-				content += l
-				content += "\n"
+				if strings.Contains(l, "Cannot perform start session: EOF") {
+					break
+				}
+				content += l + "\n"
 			}
+
 			var file *os.File
 			if localPath == "" {
 				pwd, err := os.Getwd()
