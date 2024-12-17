@@ -158,7 +158,7 @@ func (v *view) handleSecondaryPageSwitch(entity Entity, colorizedJsonString stri
 				v.realtimeAwsLog(entity)
 			}
 		case 'e':
-			if v.app.secondaryKind == DescriptionKind || v.app.secondaryKind == AutoScalingKind {
+			if v.app.secondaryKind == DescriptionKind || v.app.secondaryKind == AutoScalingKind || v.app.secondaryKind == LogKind {
 				v.openInEditor(jsonBytes)
 			}
 		}

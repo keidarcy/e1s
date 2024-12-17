@@ -21,7 +21,7 @@ const (
 // Show new page from LIST(like logs, events) content in table area and handle done event to go back
 func (v *view) showListPages(entity Entity) {
 	contentString := v.getListString(entity)
-	v.handleSecondaryPageSwitch(entity, contentString, []byte{})
+	v.handleSecondaryPageSwitch(entity, contentString, []byte(contentString))
 	v.handleHeaderPageSwitch(entity)
 }
 
