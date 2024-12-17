@@ -127,6 +127,11 @@ func (v *view) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 			v.showKindPage(TaskDefinitionKind, false)
 			return event
 		}
+	case 'p':
+		if v.app.kind == ServiceKind {
+			v.showKindPage(ServiceDeployment, false)
+			return event
+		}
 	case 's':
 		if v.app.kind == TaskKind {
 			if v.app.taskStatus == types.DesiredStatusRunning {
@@ -279,6 +284,15 @@ func (v *view) changeSelectedValues() {
 			slog.Warn("unexpected in changeSelectedValues", "kind", v.app.kind)
 			return
 		}
+	case ServiceDeployment:
+		serviceDeployment := selected.serviceDeployment
+		if serviceDeployment != nil {
+			v.app.serviceDeployment = selected.serviceDeployment
+			v.app.entityName = *serviceDeployment.ServiceDeploymentArn
+		} else {
+			slog.Warn("unexpected in changeSelectedValues", "kind", v.app.kind)
+			return
+		}
 	default:
 		v.app.back()
 	}
@@ -304,9 +318,14 @@ func (v *view) openInBrowser() {
 	case ContainerKind:
 		taskService = *v.app.service.ServiceName
 		arn = *v.app.task.TaskArn
+	case TaskDefinitionKind:
+		arn = *v.app.taskDefinition.TaskDefinitionArn
+	case ServiceDeployment:
+		arn = *v.app.serviceDeployment.ServiceDeploymentArn
 	}
 	url := utils.ArnToUrl(arn, taskService)
 	if len(url) == 0 {
+		slog.Warn("open failed", "url", url, "kind", v.app.kind, "arn", arn)
 		return
 	}
 	slog.Info("open", "url", url)

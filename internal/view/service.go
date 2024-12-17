@@ -26,6 +26,7 @@ func newServiceView(services []types.Service, app *App) *serviceView {
 		hotKeyMap["l"],
 		hotKeyMap["m"],
 		hotKeyMap["a"],
+		hotKeyMap["p"],
 	}...)
 	return &serviceView{
 		view: *newView(app, keys, secondaryPageKeyMap{
@@ -167,8 +168,8 @@ func (v *serviceView) headerPagesParam(s types.Service) (items []headerItem) {
 		{name: "Propagate tags", value: string(s.PropagateTags)},
 		{name: "Scheduling strategy", value: string(s.SchedulingStrategy)},
 		{name: "Deployment controller", value: dc},
-		{name: "Deployment circuitBreaker enable", value: dcbe},
-		{name: "Deployment circuitBreaker rollback", value: dcbr},
+		{name: "Deployment circuit breaker enable", value: dcbe},
+		{name: "Deployment circuit breaker rollback", value: dcbr},
 		{name: "Deployment maximum", value: dmaxp},
 		{name: "Deployment minimum", value: dminp},
 		{name: "Public IP", value: ip},

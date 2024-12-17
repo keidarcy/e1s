@@ -16,14 +16,16 @@ import (
 )
 
 const (
-	EmptyText     = "<empty>"
-	clusterFmt    = "https://%s.console.aws.amazon.com/ecs/v2/clusters/%s"
-	regionFmt     = "?region=%s"
-	serviceFmt    = "/services/%s"
-	taskFmt       = "/tasks/%s"
-	clusterURLFmt = clusterFmt + regionFmt
-	serviceURLFmt = clusterFmt + serviceFmt + regionFmt
-	taskURLFmt    = clusterFmt + serviceFmt + taskFmt + regionFmt
+	EmptyText               = "<empty>"
+	clusterFmt              = "https://%s.console.aws.amazon.com/ecs/v2/clusters/%s"
+	regionFmt               = "?region=%s"
+	serviceFmt              = "/services/%s"
+	taskFmt                 = "/tasks/%s"
+	clusterURLFmt           = clusterFmt + regionFmt
+	serviceURLFmt           = clusterFmt + serviceFmt + regionFmt
+	taskURLFmt              = clusterFmt + serviceFmt + taskFmt + regionFmt
+	taskDefinitionURLFmt    = "https://%s.console.aws.amazon.com/ecs/v2/task-definitions/%s/%s/containers?region=%s"
+	serviceDeploymentURLFmt = "https://%s.console.aws.amazon.com/ecs/v2/clusters/%s/services/%s/service-deployments/%s?region=%s"
 )
 
 func ArnToName(arn *string) string {
@@ -106,10 +108,19 @@ func ArnToUrl(arn string, taskService string) string {
 		clusterName = names[1]
 		serviceName = names[2]
 		return fmt.Sprintf(serviceURLFmt, region, clusterName, serviceName, region)
+	case "service-deployment":
+		clusterName = names[1]
+		serviceName = names[2]
+		deploymentId := names[3]
+		return fmt.Sprintf(serviceDeploymentURLFmt, region, clusterName, serviceName, deploymentId, region)
 	case "task", "container":
 		clusterName = names[1]
 		taskName = names[2]
 		return fmt.Sprintf(taskURLFmt, region, clusterName, taskService, taskName, region)
+	case "task-definition":
+		taskDefName := names[1]
+		revision := names[2]
+		return fmt.Sprintf(taskDefinitionURLFmt, region, taskDefName, revision, region)
 	default:
 		return ""
 	}
@@ -281,4 +292,25 @@ func GetServiceByTaskGroup(group *string) string {
 
 	parts := strings.Split(*group, ":")
 	return parts[1]
+}
+
+// Duration calculates the time difference between two timestamps and returns it in a human-readable format
+func Duration(start, end time.Time) string {
+	duration := end.Sub(start)
+
+	if duration < 0 {
+		return EmptyText
+	}
+
+	if hours := int(duration.Hours()); hours > 24 {
+		days := hours / 24
+		return fmt.Sprintf("%dd", days)
+	}
+	if hours := int(duration.Hours()); hours > 0 {
+		return fmt.Sprintf("%dh", hours)
+	}
+	if minutes := int(duration.Minutes()); minutes > 0 {
+		return fmt.Sprintf("%dm", minutes)
+	}
+	return fmt.Sprintf("%ds", int(duration.Seconds()))
 }
