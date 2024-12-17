@@ -181,7 +181,7 @@ func (v *view) openInEditor(beforeJson []byte) {
 
 		// if not task definition do nothing
 		if v.app.kind != TaskDefinitionKind {
-			v.app.Notice.Warnf("Not support to update %s", v.app.kind)
+			v.app.Notice.Warn("Not support to update current resource")
 			return
 		}
 

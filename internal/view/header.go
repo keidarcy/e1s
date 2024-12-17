@@ -90,6 +90,7 @@ var otherDescribePageKeys = []keyDescriptionPair{
 
 var logPageKeys = []keyDescriptionPair{
 	hotKeyMap["f"],
+	hotKeyMap["e"],
 	hotKeyMap["b"],
 	hotKeyMap["r"],
 	hotKeyMap["ctrlR"],
