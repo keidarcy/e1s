@@ -71,7 +71,7 @@ func (store *Store) StartSession(input *SsmStartSessionInput) (*string, error) {
 	if err != nil {
 		m := fmt.Sprintf("failed to find %s path, please check %s", smpCi, "https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html")
 		slog.Warn(m)
-		return nil, fmt.Errorf(m)
+		return nil, fmt.Errorf("%s", m)
 	}
 
 	region := store.Config.Region

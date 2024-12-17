@@ -77,7 +77,7 @@ func (store *Store) ListFullTaskDefinition(taskDefinition *string) ([]types.Task
 		g.Go(func() error {
 			d, err := store.DescribeTaskDefinition(&t)
 			if err != nil {
-				slog.Warn("failed to run aws api to describe task definition , err: %v", err)
+				slog.Warn("failed to run aws api to describe task definition", "error", err)
 				return err
 			}
 			results = append(results, d)
