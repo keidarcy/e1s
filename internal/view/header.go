@@ -23,6 +23,7 @@ var hotKeyMap = map[string]keyDescriptionPair{
 	"m":     {key: "m", description: "Show metrics(CPU/Memory)"},
 	"r":     {key: "r", description: "Realtime log streaming(Only support one log group)"},
 	"t":     {key: "t", description: "Show task definitions"},
+	"p":     {key: "t", description: "Show service deployments"},
 	"n":     {key: "n", description: "Show all cluster tasks"},
 	"s":     {key: "s", description: "Toggle running/stopped tasks"},
 	"w":     {key: "w", description: "Describe service events"},

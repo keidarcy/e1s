@@ -218,6 +218,8 @@ func (v *view) getJsonString(entity Entity) (string, []byte, error) {
 		data = entity.events
 	case entity.service != nil && v.app.kind == ServiceKind:
 		data = entity.service
+	case entity.serviceDeployment != nil && v.app.kind == ServiceDeployment:
+		data = entity.serviceDeployment
 	case entity.task != nil && v.app.kind == TaskKind:
 		data = entity.task
 	case entity.container != nil && v.app.kind == ContainerKind:

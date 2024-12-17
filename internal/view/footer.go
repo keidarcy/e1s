@@ -10,26 +10,28 @@ import (
 
 // View footer struct
 type footer struct {
-	footerFlex     *tview.Flex
-	cluster        *tview.TextView
-	service        *tview.TextView
-	task           *tview.TextView
-	container      *tview.TextView
-	taskDefinition *tview.TextView
-	help           *tview.TextView
+	footerFlex        *tview.Flex
+	cluster           *tview.TextView
+	service           *tview.TextView
+	task              *tview.TextView
+	container         *tview.TextView
+	taskDefinition    *tview.TextView
+	serviceDeployment *tview.TextView
+	help              *tview.TextView
 }
 
 func newFooter() *footer {
 	footerFlex := tview.NewFlex().SetDirection(tview.FlexColumn)
 	footerFlex.SetBackgroundColor(color.Color(theme.BgColor))
 	return &footer{
-		footerFlex:     footerFlex,
-		cluster:        tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(color.FooterItemFmt, ClusterKind)),
-		service:        tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(color.FooterItemFmt, ServiceKind)),
-		task:           tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(color.FooterItemFmt, TaskKind)),
-		container:      tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(color.FooterItemFmt, ContainerKind)),
-		taskDefinition: tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(color.FooterItemFmt, TaskDefinitionKind)).SetTextAlign(L),
-		help:           tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(color.FooterItemFmt, HelpKind)).SetTextAlign(L),
+		footerFlex:        footerFlex,
+		cluster:           tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(color.FooterItemFmt, ClusterKind)),
+		service:           tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(color.FooterItemFmt, ServiceKind)),
+		task:              tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(color.FooterItemFmt, TaskKind)),
+		container:         tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(color.FooterItemFmt, ContainerKind)),
+		taskDefinition:    tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(color.FooterItemFmt, TaskDefinitionKind)).SetTextAlign(L),
+		serviceDeployment: tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(color.FooterItemFmt, ServiceDeployment)).SetTextAlign(L),
+		help:              tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(color.FooterItemFmt, HelpKind)).SetTextAlign(L),
 	}
 }
 func (v *view) addFooterItems() {
@@ -44,6 +46,10 @@ func (v *view) addFooterItems() {
 		v.footer.footerFlex.
 			AddItem(tview.NewTextView(), 5, 0, false).
 			AddItem(v.footer.taskDefinition, 0, 1, false)
+	} else if v.app.kind == ServiceDeployment {
+		v.footer.footerFlex.
+			AddItem(tview.NewTextView(), 5, 0, false).
+			AddItem(v.footer.serviceDeployment, 0, 1, false)
 	} else if v.app.kind == HelpKind {
 		v.footer.footerFlex.
 			AddItem(tview.NewTextView(), 5, 0, false).

@@ -92,7 +92,7 @@ func (v *taskDefinitionView) footerBuilder() *tview.Flex {
 	return v.footer.footerFlex
 }
 
-// Handlers for task table
+// Handlers for task definition table
 func (v *taskDefinitionView) tableHandler() {
 	for row, task := range v.taskDefinitions {
 		t := task

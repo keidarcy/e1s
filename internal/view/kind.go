@@ -11,6 +11,7 @@ const (
 	HelpKind
 	DescriptionKind
 	ServiceEventsKind
+	ServiceDeployment
 	LogKind
 	AutoScalingKind
 	ModalKind
@@ -35,6 +36,8 @@ func (k kind) String() string {
 		return "task definitions"
 	case ServiceEventsKind:
 		return "service events"
+	case ServiceDeployment:
+		return "service deployments"
 	case LogKind:
 		return "logs"
 	case AutoScalingKind:
@@ -65,7 +68,7 @@ func (k kind) prevKind() kind {
 		return ClusterKind
 	case ServiceKind:
 		return ClusterKind
-	case TaskKind, TaskDefinitionKind:
+	case TaskKind, TaskDefinitionKind, ServiceDeployment:
 		return ServiceKind
 	case ContainerKind:
 		return TaskKind
@@ -79,15 +82,7 @@ func (k kind) getAppPageName(name string) string {
 	switch k {
 	case ClusterKind:
 		return k.String()
-	case ServiceKind:
-		return k.String() + "." + name
-	case TaskKind:
-		return k.String() + "." + name
-	case ContainerKind:
-		return k.String() + "." + name
-	case TaskDefinitionKind:
-		return k.String() + "." + name
-	case DescriptionKind:
+	case ServiceKind, TaskKind, ContainerKind, TaskDefinitionKind, ServiceDeployment, DescriptionKind:
 		return k.String() + "." + name
 	default:
 		return k.String()

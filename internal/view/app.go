@@ -21,15 +21,16 @@ var ErrNoNeedReload = errors.New("no need reload")
 
 // Entity contains ECS resources to show, use uppercase to make items like app.cluster easy to access
 type Entity struct {
-	cluster        *types.Cluster
-	service        *types.Service
-	task           *types.Task
-	container      *types.Container
-	taskDefinition *types.TaskDefinition
-	events         []types.ServiceEvent
-	metrics        *api.MetricsData
-	autoScaling    *api.AutoScalingData
-	entityName     string
+	cluster           *types.Cluster
+	service           *types.Service
+	task              *types.Task
+	container         *types.Container
+	taskDefinition    *types.TaskDefinition
+	events            []types.ServiceEvent
+	metrics           *api.MetricsData
+	autoScaling       *api.AutoScalingData
+	serviceDeployment *types.ServiceDeployment
+	entityName        string
 }
 
 type Option struct {
@@ -281,6 +282,8 @@ func (app *App) showPrimaryKindPage(k kind, reload bool) error {
 		err = app.showContainersPage(reload)
 	case TaskDefinitionKind:
 		err = app.showTaskDefinitionPage(reload)
+	case ServiceDeployment:
+		err = app.showServiceDeploymentPage(reload)
 	default:
 		app.kind = ClusterKind
 		err = app.showClustersPage(reload)
