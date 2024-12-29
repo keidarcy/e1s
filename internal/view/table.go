@@ -129,7 +129,13 @@ func (v *view) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 		}
 	case 'p':
 		if v.app.kind == ServiceKind {
-			v.showKindPage(ServiceDeployment, false)
+			v.showKindPage(ServiceDeploymentKind, false)
+			return event
+		}
+	case 'v':
+		if v.app.kind == ServiceDeploymentKind {
+			v.app.secondaryKind = ServiceRevisionKind
+			v.showSecondaryKindPage(false)
 			return event
 		}
 	case 's':
@@ -284,7 +290,7 @@ func (v *view) changeSelectedValues() {
 			slog.Warn("unexpected in changeSelectedValues", "kind", v.app.kind)
 			return
 		}
-	case ServiceDeployment:
+	case ServiceDeploymentKind:
 		serviceDeployment := selected.serviceDeployment
 		if serviceDeployment != nil {
 			v.app.serviceDeployment = selected.serviceDeployment
@@ -320,7 +326,7 @@ func (v *view) openInBrowser() {
 		arn = *v.app.task.TaskArn
 	case TaskDefinitionKind:
 		arn = *v.app.taskDefinition.TaskDefinitionArn
-	case ServiceDeployment:
+	case ServiceDeploymentKind:
 		arn = *v.app.serviceDeployment.ServiceDeploymentArn
 	}
 	url := utils.ArnToUrl(arn, taskService)

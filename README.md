@@ -197,7 +197,8 @@ tail -f /tmp/e1s.log
   - [x] Auto refresh
   - [x] Describe clusters
   - [x] Describe services
-  - [x] Describe service deployments(new)
+  - [x] Describe service deployments
+  - [x] Describe service revisions
   - [x] Describe tasks(running, stopped)
   - [x] Describe containers
   - [x] Describe task definitions
