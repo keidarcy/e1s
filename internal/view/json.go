@@ -67,6 +67,27 @@ func (v *view) switchToAutoScalingJson() {
 	v.showJsonPages(entity)
 }
 
+// Switch to service revision
+func (v *view) switchToServiceRevisionJson() {
+	selected, err := v.getCurrentSelection()
+	if err != nil {
+		return
+	}
+	serviceRevisionArn := selected.serviceDeployment.TargetServiceRevision.Arn
+
+	if serviceRevisionArn == nil {
+		return
+	}
+
+	serviceRevision, err := v.app.Store.GetServiceRevision(serviceRevisionArn)
+
+	if err != nil {
+		return
+	}
+	entity := Entity{serviceRevision: serviceRevision, entityName: *selected.serviceDeployment.ServiceDeploymentArn}
+	v.showJsonPages(entity)
+}
+
 // Show new page from JSON content in table area and handle done event to go back
 func (v *view) showJsonPages(entity Entity) {
 	colorizedJsonString, rawJsonString, err := v.getJsonString(entity)
@@ -218,7 +239,7 @@ func (v *view) getJsonString(entity Entity) (string, []byte, error) {
 		data = entity.events
 	case entity.service != nil && v.app.kind == ServiceKind:
 		data = entity.service
-	case entity.serviceDeployment != nil && v.app.kind == ServiceDeployment:
+	case entity.serviceDeployment != nil && v.app.kind == ServiceDeploymentKind:
 		data = entity.serviceDeployment
 	case entity.task != nil && v.app.kind == TaskKind:
 		data = entity.task
@@ -230,6 +251,8 @@ func (v *view) getJsonString(entity Entity) (string, []byte, error) {
 		data = entity.metrics
 	case entity.autoScaling != nil:
 		data = entity.autoScaling
+	case entity.serviceRevision != nil:
+		data = entity.serviceRevision
 	default:
 		slog.Error("failed to get json string", "data", data)
 		data = struct {

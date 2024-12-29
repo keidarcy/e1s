@@ -30,6 +30,7 @@ type Entity struct {
 	metrics           *api.MetricsData
 	autoScaling       *api.AutoScalingData
 	serviceDeployment *types.ServiceDeployment
+	serviceRevision   *types.ServiceRevision
 	entityName        string
 }
 
@@ -282,7 +283,7 @@ func (app *App) showPrimaryKindPage(k kind, reload bool) error {
 		err = app.showContainersPage(reload)
 	case TaskDefinitionKind:
 		err = app.showTaskDefinitionPage(reload)
-	case ServiceDeployment:
+	case ServiceDeploymentKind:
 		err = app.showServiceDeploymentPage(reload)
 	default:
 		app.kind = ClusterKind

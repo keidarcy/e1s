@@ -47,3 +47,16 @@ func (store *Store) ListServiceDeployments(cluster, service *string) ([]types.Se
 
 	return describeOutput.ServiceDeployments, nil
 }
+
+// Equivalent to
+// aws ecs describe-service-revisions --service-revision-arns ${arn1}
+func (store *Store) GetServiceRevision(serviceRevisionArn *string) (*types.ServiceRevision, error) {
+	describeServiceRevisionOutput, err := store.ecs.DescribeServiceRevisions(context.Background(), &ecs.DescribeServiceRevisionsInput{
+		ServiceRevisionArns: []string{*serviceRevisionArn},
+	})
+	if err != nil {
+		slog.Warn("failed to run aws api to describe service revision", "error", err)
+		return nil, err
+	}
+	return &describeServiceRevisionOutput.ServiceRevisions[0], nil
+}

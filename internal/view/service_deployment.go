@@ -19,11 +19,12 @@ type serviceDeploymentView struct {
 // Constructor for service deployment view
 func newServiceDeploymentView(serviceDeployments []types.ServiceDeployment, app *App) *serviceDeploymentView {
 	keys := append(basicKeyInputs, []keyDescriptionPair{
-		hotKeyMap["U"],
+		hotKeyMap["v"],
 	}...)
 	return &serviceDeploymentView{
 		view: *newView(app, keys, secondaryPageKeyMap{
-			DescriptionKind: describePageKeys,
+			DescriptionKind:     describePageKeys,
+			ServiceRevisionKind: describePageKeys,
 		}),
 		serviceDeployments: serviceDeployments,
 	}
@@ -91,8 +92,8 @@ func (v *serviceDeploymentView) headerPagesParam(d types.ServiceDeployment) (ite
 				return "-"
 			}
 			return fmt.Sprintf("Max: %d%%, Min: %d%%",
-				d.DeploymentConfiguration.MaximumPercent,
-				d.DeploymentConfiguration.MinimumHealthyPercent)
+				*d.DeploymentConfiguration.MaximumPercent,
+				*d.DeploymentConfiguration.MinimumHealthyPercent)
 		}()},
 		{name: "Circuit Breaker Config", value: func() string {
 			if d.DeploymentConfiguration == nil || d.DeploymentConfiguration.DeploymentCircuitBreaker == nil {
@@ -102,24 +103,23 @@ func (v *serviceDeploymentView) headerPagesParam(d types.ServiceDeployment) (ite
 				d.DeploymentConfiguration.DeploymentCircuitBreaker.Enable,
 				d.DeploymentConfiguration.DeploymentCircuitBreaker.Rollback)
 		}()},
-		{name: "Source revision", value: func() string {
-			if len(d.SourceServiceRevisions) == 0 {
-				return "-"
-			}
-			return fmt.Sprintf("%s (Running: %d, Pending: %d)",
-				utils.ArnToName(d.SourceServiceRevisions[0].Arn),
-				d.SourceServiceRevisions[0].RunningTaskCount,
-				d.SourceServiceRevisions[0].PendingTaskCount)
-		}()},
-		{name: "Target revision", value: func() string {
+		{name: "Target task count", value: func() string {
 			if d.TargetServiceRevision == nil {
 				return "-"
 			}
-			return fmt.Sprintf("%s (Running: %d, Pending: %d, Requested: %d)",
-				utils.ArnToName(d.TargetServiceRevision.Arn),
+			return fmt.Sprintf("Requested: %d, Running: %d, Pending: %d",
+				d.TargetServiceRevision.RequestedTaskCount,
 				d.TargetServiceRevision.RunningTaskCount,
-				d.TargetServiceRevision.PendingTaskCount,
-				d.TargetServiceRevision.RequestedTaskCount)
+				d.TargetServiceRevision.PendingTaskCount)
+		}()},
+		{name: "Source task count", value: func() string {
+			if len(d.SourceServiceRevisions) == 0 {
+				return "-"
+			}
+			return fmt.Sprintf("Requested: %d, Running: %d, Pending: %d",
+				d.SourceServiceRevisions[0].RequestedTaskCount,
+				d.SourceServiceRevisions[0].RunningTaskCount,
+				d.SourceServiceRevisions[0].PendingTaskCount)
 		}()},
 		{name: "Created At", value: utils.ShowTime(d.CreatedAt)},
 		{name: "Started At", value: utils.ShowTime(d.StartedAt)},
@@ -163,7 +163,7 @@ func (v *serviceDeploymentView) tableParam() (title string, headers []string, da
 	headers = []string{
 		"Deployment ID ▾",
 		"Status",
-		"Revision",
+		"Target service revision",
 		"Created At",
 		"Started At",
 		"Finished At",

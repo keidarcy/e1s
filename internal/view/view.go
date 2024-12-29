@@ -107,6 +107,8 @@ func (v *view) showSecondaryKindPage(reload bool) {
 		v.switchToLogsList()
 	case ServiceEventsKind:
 		v.switchToServiceEventsList()
+	case ServiceRevisionKind:
+		v.switchToServiceRevisionJson()
 	}
 	if !reload {
 		v.app.Notice.Infof("Viewing %s...", v.app.secondaryKind.String())
@@ -158,7 +160,7 @@ func (v *view) handleSecondaryPageSwitch(entity Entity, colorizedJsonString stri
 				v.realtimeAwsLog(entity)
 			}
 		case 'e':
-			if v.app.secondaryKind == DescriptionKind || v.app.secondaryKind == AutoScalingKind || v.app.secondaryKind == LogKind {
+			if v.app.secondaryKind == DescriptionKind || v.app.secondaryKind == AutoScalingKind || v.app.secondaryKind == ServiceRevisionKind || v.app.secondaryKind == LogKind {
 				v.openInEditor(jsonBytes)
 			}
 		}
