@@ -4,7 +4,7 @@ go 1.22.1
 
 require (
 	github.com/BurntSushi/toml v1.4.0
-	github.com/aws/aws-sdk-go-v2 v1.32.6
+	github.com/aws/aws-sdk-go-v2 v1.32.7
 	github.com/aws/aws-sdk-go-v2/config v1.28.6
 	github.com/aws/aws-sdk-go-v2/service/applicationautoscaling v1.34.2
 	github.com/aws/aws-sdk-go-v2/service/cloudwatch v1.43.3
