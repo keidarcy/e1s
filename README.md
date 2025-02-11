@@ -59,6 +59,12 @@ asdf install e1s latest
 asdf global e1s latest
 ```
 
+- [mise](https://github.com/jdx/mise)
+
+```bash
+mise install e1s@latest
+```
+
 ## Usage
 
 Make sure you have the AWS CLI installed and properly configured with the necessary permissions to access your ECS resources, and [session manager plugin](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html) installed if you want to use the interactive exec or port forwarding features.
