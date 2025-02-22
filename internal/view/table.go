@@ -138,7 +138,7 @@ func (v *view) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 			v.showSecondaryKindPage(false)
 			return event
 		}
-	case 's':
+	case 'x':
 		if v.app.kind == TaskKind {
 			if v.app.taskStatus == types.DesiredStatusRunning {
 				v.app.taskStatus = types.DesiredStatusStopped
@@ -148,16 +148,30 @@ func (v *view) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 			v.showKindPage(TaskKind, false)
 			return event
 		}
+	case 's':
+		if v.app.kind == ContainerKind {
+			v.execShell()
+		}
+		if v.app.kind == InstanceKind || v.app.kind == TaskKind {
+			v.instanceStartSession()
+		}
+		return event
 	case 'S':
 		if v.app.kind == TaskKind {
 			v.app.secondaryKind = ModalKind
 			v.showFormModal(v.stopTaskForm, 6)
 			return event
 		}
-	case 'n':
+	case 'N':
 		if v.app.kind == ClusterKind {
 			v.app.fromCluster = true
 			v.showKindPage(TaskKind, false)
+			return event
+		}
+	case 'n':
+		if v.app.kind == ClusterKind {
+			v.app.fromCluster = true
+			v.showKindPage(InstanceKind, false)
 			return event
 		}
 	case 'w':
@@ -295,6 +309,15 @@ func (v *view) changeSelectedValues() {
 		if serviceDeployment != nil {
 			v.app.serviceDeployment = selected.serviceDeployment
 			v.app.entityName = *serviceDeployment.ServiceDeploymentArn
+		} else {
+			slog.Warn("unexpected in changeSelectedValues", "kind", v.app.kind)
+			return
+		}
+	case InstanceKind:
+		instance := selected.instance
+		if instance != nil {
+			v.app.instance = selected.instance
+			v.app.entityName = *instance.ContainerInstanceArn
 		} else {
 			slog.Warn("unexpected in changeSelectedValues", "kind", v.app.kind)
 			return

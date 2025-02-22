@@ -29,6 +29,7 @@ type Entity struct {
 	events            []types.ServiceEvent
 	metrics           *api.MetricsData
 	autoScaling       *api.AutoScalingData
+	instance          *types.ContainerInstance
 	serviceDeployment *types.ServiceDeployment
 	serviceRevision   *types.ServiceRevision
 	entityName        string
@@ -275,6 +276,8 @@ func (app *App) showPrimaryKindPage(k kind, reload bool) error {
 	switch k {
 	case ClusterKind:
 		err = app.showClustersPage(reload)
+	case InstanceKind:
+		err = app.showInstancesPage(reload)
 	case ServiceKind:
 		err = app.showServicesPage(reload)
 	case TaskKind:

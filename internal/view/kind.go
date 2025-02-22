@@ -6,6 +6,7 @@ const (
 	ClusterKind kind = iota
 	ServiceKind
 	TaskKind
+	InstanceKind
 	ContainerKind
 	TaskDefinitionKind
 	HelpKind
@@ -35,6 +36,8 @@ func (k kind) String() string {
 		return "description"
 	case TaskDefinitionKind:
 		return "task definitions"
+	case InstanceKind:
+		return "instances"
 	case ServiceEventsKind:
 		return "service events"
 	case ServiceDeploymentKind:
@@ -67,7 +70,7 @@ func (k kind) nextKind() kind {
 
 func (k kind) prevKind() kind {
 	switch k {
-	case ClusterKind:
+	case ClusterKind, InstanceKind:
 		return ClusterKind
 	case ServiceKind:
 		return ClusterKind
