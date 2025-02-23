@@ -149,3 +149,86 @@ func (v *view) preValidateExec() (*[]string, string, error) {
 
 	return &args, containerName, nil
 }
+
+// Start session for instance
+// aws ssm start-session --target ${instance_id}
+func (v *view) instanceStartSession() {
+	if v.app.kind != InstanceKind && v.app.kind != TaskKind {
+		v.app.Notice.Warn("Invalid kind type to start session")
+		return
+	}
+
+	if v.app.ReadOnly {
+		v.app.Notice.Warn("No permission to start session in read only mode")
+		return
+	}
+
+	_, err := exec.LookPath(awsCli)
+	if err != nil {
+		v.app.Notice.Warnf("failed to find %s path, please check %s", awsCli, "https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html")
+		return
+	}
+
+	selected, err := v.getCurrentSelection()
+	if err != nil {
+		v.app.Notice.Warnf("failed to handleSelected, err: %v", err)
+		return
+	}
+
+	instanceId := ""
+	if v.app.kind == InstanceKind {
+		if selected.instance == nil {
+			v.app.Notice.Warn("Not a valid instance")
+			return
+		}
+		instanceId = *selected.instance.Ec2InstanceId
+	} else if v.app.kind == TaskKind {
+		if v.app.task.ContainerInstanceArn == nil {
+			v.app.Notice.Warn("Not a valid task with container instance")
+			return
+		}
+		instanceId, err = v.app.Store.GetTaskInstanceId(v.app.cluster.ClusterName, v.app.task.ContainerInstanceArn)
+		if err != nil {
+			v.app.Notice.Warnf("failed to get task instance id, err: %v", err)
+			return
+		}
+	}
+
+	if instanceId == "" {
+		v.app.Notice.Warn("Not a valid instance")
+		return
+	}
+
+	_, err = exec.LookPath(smpCi)
+	if err != nil {
+		v.app.Notice.Warnf("failed to find %s path, please check %s", smpCi, "https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html")
+		return
+	}
+
+	args := []string{
+		"ssm",
+		"start-session",
+		"--target",
+		instanceId,
+	}
+
+	// catch ctrl+C & SIGTERM
+	interrupt := make(chan os.Signal, 1)
+	signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM)
+
+	v.app.Suspend(func() {
+		v.app.isSuspended = true
+		bin, _ := exec.LookPath(awsCli)
+		slog.Info("exec", "command", bin+" "+strings.Join(args, " "))
+
+		cmd := exec.Command(bin, args...)
+		cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, os.Stderr
+		_, err = cmd.Stdout.Write([]byte(fmt.Sprintf(instanceBannerFmt, *v.app.cluster.ClusterName, instanceId)))
+		err = cmd.Run()
+
+		// return signal
+		signal.Stop(interrupt)
+		close(interrupt)
+		v.app.isSuspended = false
+	})
+}

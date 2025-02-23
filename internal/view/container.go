@@ -23,7 +23,7 @@ func newContainerView(containers []types.Container, app *App) *containerView {
 		hotKeyMap["P"],
 		hotKeyMap["D"],
 		hotKeyMap["E"],
-		hotKeyMap["enter"],
+		hotKeyMap["s"],
 		hotKeyMap["ctrlD"],
 	}...)
 	return &containerView{

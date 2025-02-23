@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"sort"
 
@@ -114,4 +115,23 @@ func (store *Store) StopTask(input *ecs.StopTaskInput) error {
 		return err
 	}
 	return nil
+}
+
+// aws ecs describe-container-instances --cluster ${cluster} --container-instances ${instanceId}
+func (store *Store) GetTaskInstanceId(cluster, containerInstance *string) (string, error) {
+	describeOutput, err := store.ecs.DescribeContainerInstances(context.Background(), &ecs.DescribeContainerInstancesInput{
+		Cluster:            cluster,
+		ContainerInstances: []string{*containerInstance},
+	})
+
+	if err != nil {
+		slog.Warn("failed to run aws api to describe container instances", "error", err)
+		return "", err
+	}
+
+	if len(describeOutput.ContainerInstances) != 1 {
+		return "", fmt.Errorf("expect 1 container instance, got %d", len(describeOutput.ContainerInstances))
+	}
+
+	return *describeOutput.ContainerInstances[0].Ec2InstanceId, nil
 }

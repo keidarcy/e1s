@@ -234,6 +234,8 @@ func (v *view) getJsonString(entity Entity) (string, []byte, error) {
 	switch {
 	case entity.cluster != nil && v.app.kind == ClusterKind:
 		data = entity.cluster
+	case entity.instance != nil && v.app.kind == InstanceKind:
+		data = entity.instance
 	// events need be upper then service
 	case entity.events != nil && v.app.secondaryKind == ServiceEventsKind:
 		data = entity.events

@@ -15,6 +15,7 @@ type footer struct {
 	service           *tview.TextView
 	task              *tview.TextView
 	container         *tview.TextView
+	instance       *tview.TextView
 	taskDefinition    *tview.TextView
 	serviceDeployment *tview.TextView
 	help              *tview.TextView
@@ -29,6 +30,7 @@ func newFooter() *footer {
 		service:           tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(color.FooterItemFmt, ServiceKind)),
 		task:              tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(color.FooterItemFmt, TaskKind)),
 		container:         tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(color.FooterItemFmt, ContainerKind)),
+		instance:       tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(color.FooterItemFmt, InstanceKind)).SetTextAlign(L),
 		taskDefinition:    tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(color.FooterItemFmt, TaskDefinitionKind)).SetTextAlign(L),
 		serviceDeployment: tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(color.FooterItemFmt, ServiceDeploymentKind)).SetTextAlign(L),
 		help:              tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(color.FooterItemFmt, HelpKind)).SetTextAlign(L),
@@ -46,6 +48,10 @@ func (v *view) addFooterItems() {
 		v.footer.footerFlex.
 			AddItem(tview.NewTextView(), 5, 0, false).
 			AddItem(v.footer.taskDefinition, 0, 1, false)
+	} else if v.app.kind == InstanceKind {
+		v.footer.footerFlex.
+			AddItem(tview.NewTextView(), 5, 0, false).
+			AddItem(v.footer.instance, 0, 1, false)
 	} else if v.app.kind == ServiceDeploymentKind {
 		v.footer.footerFlex.
 			AddItem(tview.NewTextView(), 5, 0, false).

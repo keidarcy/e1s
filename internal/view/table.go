@@ -60,6 +60,7 @@ func (v *view) buildTable(title string, headers []string, dataBuilder func() [][
 
 	pageName := v.app.kind.getTablePageName(v.app.getPageHandle())
 	v.bodyPages.AddPage(pageName, v.table, true, true)
+
 }
 
 // Handler common table events
@@ -71,6 +72,11 @@ func (v *view) handleTableEvents() {
 	v.table.SetInputCapture(v.handleInputCapture)
 
 	v.table.SetDoneFunc(v.handleDone)
+
+	// prevent table row selection out of range
+	if v.app.rowIndex >= v.table.GetRowCount() {
+		v.app.rowIndex = 1
+	}
 }
 
 // Handle selected event for table when press up and down
@@ -88,7 +94,7 @@ func (v *view) handleSelectionChanged(row, column int) {
 
 // Handle selected event for table when press Enter
 func (v *view) handleSelected(row, column int) {
-	if v.app.kind == TaskDefinitionKind {
+	if v.app.kind == TaskDefinitionKind || v.app.kind == InstanceKind {
 		return
 	}
 	v.app.rowIndex = 0
@@ -138,7 +144,7 @@ func (v *view) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 			v.showSecondaryKindPage(false)
 			return event
 		}
-	case 's':
+	case 'x':
 		if v.app.kind == TaskKind {
 			if v.app.taskStatus == types.DesiredStatusRunning {
 				v.app.taskStatus = types.DesiredStatusStopped
@@ -148,16 +154,30 @@ func (v *view) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 			v.showKindPage(TaskKind, false)
 			return event
 		}
+	case 's':
+		if v.app.kind == ContainerKind {
+			v.execShell()
+		}
+		if v.app.kind == InstanceKind || v.app.kind == TaskKind {
+			v.instanceStartSession()
+		}
+		return event
 	case 'S':
 		if v.app.kind == TaskKind {
 			v.app.secondaryKind = ModalKind
 			v.showFormModal(v.stopTaskForm, 6)
 			return event
 		}
-	case 'n':
+	case 'N':
 		if v.app.kind == ClusterKind {
 			v.app.fromCluster = true
 			v.showKindPage(TaskKind, false)
+			return event
+		}
+	case 'n':
+		if v.app.kind == ClusterKind {
+			v.app.fromCluster = true
+			v.showKindPage(InstanceKind, false)
 			return event
 		}
 	case 'w':
@@ -295,6 +315,15 @@ func (v *view) changeSelectedValues() {
 		if serviceDeployment != nil {
 			v.app.serviceDeployment = selected.serviceDeployment
 			v.app.entityName = *serviceDeployment.ServiceDeploymentArn
+		} else {
+			slog.Warn("unexpected in changeSelectedValues", "kind", v.app.kind)
+			return
+		}
+	case InstanceKind:
+		instance := selected.instance
+		if instance != nil {
+			v.app.instance = selected.instance
+			v.app.entityName = *instance.ContainerInstanceArn
 		} else {
 			slog.Warn("unexpected in changeSelectedValues", "kind", v.app.kind)
 			return
