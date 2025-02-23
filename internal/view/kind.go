@@ -88,7 +88,7 @@ func (k kind) getAppPageName(name string) string {
 	switch k {
 	case ClusterKind:
 		return k.String()
-	case ServiceKind, TaskKind, ContainerKind, TaskDefinitionKind, ServiceDeploymentKind, DescriptionKind:
+	case ServiceKind, TaskKind, ContainerKind, TaskDefinitionKind, ServiceDeploymentKind, DescriptionKind, InstanceKind:
 		return k.String() + "." + name
 	default:
 		return k.String()

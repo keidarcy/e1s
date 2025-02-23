@@ -202,6 +202,7 @@ tail -f /tmp/e1s.log
   - [x] Read only mode
   - [x] Auto refresh
   - [x] Describe clusters
+  - [x] Describe instances
   - [x] Describe services
   - [x] Describe service deployments
   - [x] Describe service revisions
@@ -216,7 +217,8 @@ tail -f /tmp/e1s.log
     - [x] MemoryUtilization
   - [x] Show autoscaling target and policy
   - [x] Open selected resource in browser(support new UI(v2))
-  - [x] Interactively exec towards containers(like ssh)
+  - [x] Interactively shell to containers(like ssh)
+  - [x] Interactively shell to instances(like ssh)
   - [x] Edit service
     - [x] Desired count
     - [x] Force new deployment

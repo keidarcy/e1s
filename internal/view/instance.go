@@ -19,7 +19,6 @@ type instanceView struct {
 // Constructor for instance view
 func newInstanceView(instances []types.ContainerInstance, app *App) *instanceView {
 	keys := append(basicKeyInputs, []keyDescriptionPair{
-		hotKeyMap["v"],
 		hotKeyMap["s"],
 	}...)
 	return &instanceView{
@@ -75,8 +74,9 @@ func (v *instanceView) headerBuilder() *tview.Pages {
 // Generate info pages params
 func (v *instanceView) headerPagesParam(instance types.ContainerInstance) (items []headerItem) {
 	items = []headerItem{
+		{name: "Instance ID", value: utils.ShowString(instance.Ec2InstanceId)},
 		{name: "Status", value: utils.ShowString(instance.Status)},
-		{name: "Instance Type", value: utils.ShowString(instance.Ec2InstanceId)},
+		{name: "Capacity Provider", value: utils.ShowString(instance.CapacityProviderName)},
 		{name: "Agent Connected", value: fmt.Sprintf("%v", instance.AgentConnected)},
 		{name: "Running Tasks Count", value: fmt.Sprintf("%d", instance.RunningTasksCount)},
 		{name: "Pending Tasks Count", value: fmt.Sprintf("%d", instance.PendingTasksCount)},
@@ -133,7 +133,7 @@ func (v *instanceView) tableParam() (title string, headers []string, dataBuilder
 		for _, instance := range v.instances {
 			row := []string{
 				utils.ArnToName(instance.ContainerInstanceArn),
-				utils.ShowGreenGrey(instance.Status, "ACTIVE"),
+				utils.ShowGreenGrey(instance.Status, "active"),
 				fmt.Sprintf("%d", instance.RunningTasksCount),
 				fmt.Sprintf("%d", instance.PendingTasksCount),
 				fmt.Sprintf("%v", instance.AgentConnected),

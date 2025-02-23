@@ -60,6 +60,7 @@ func (v *view) buildTable(title string, headers []string, dataBuilder func() [][
 
 	pageName := v.app.kind.getTablePageName(v.app.getPageHandle())
 	v.bodyPages.AddPage(pageName, v.table, true, true)
+
 }
 
 // Handler common table events
@@ -71,6 +72,11 @@ func (v *view) handleTableEvents() {
 	v.table.SetInputCapture(v.handleInputCapture)
 
 	v.table.SetDoneFunc(v.handleDone)
+
+	// prevent table row selection out of range
+	if v.app.rowIndex >= v.table.GetRowCount() {
+		v.app.rowIndex = 1
+	}
 }
 
 // Handle selected event for table when press up and down
@@ -88,7 +94,7 @@ func (v *view) handleSelectionChanged(row, column int) {
 
 // Handle selected event for table when press Enter
 func (v *view) handleSelected(row, column int) {
-	if v.app.kind == TaskDefinitionKind {
+	if v.app.kind == TaskDefinitionKind || v.app.kind == InstanceKind {
 		return
 	}
 	v.app.rowIndex = 0

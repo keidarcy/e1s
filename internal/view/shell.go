@@ -178,13 +178,13 @@ func (v *view) instanceStartSession() {
 	instanceId := ""
 	if v.app.kind == InstanceKind {
 		if selected.instance == nil {
-			v.app.Notice.Warn("empty pointer selected.instance")
+			v.app.Notice.Warn("Not a valid instance")
 			return
 		}
 		instanceId = *selected.instance.Ec2InstanceId
 	} else if v.app.kind == TaskKind {
 		if v.app.task.ContainerInstanceArn == nil {
-			v.app.Notice.Warn("empty pointer selected.task.ContainerInstanceArn")
+			v.app.Notice.Warn("Not a valid task with container instance")
 			return
 		}
 		instanceId, err = v.app.Store.GetTaskInstanceId(v.app.cluster.ClusterName, v.app.task.ContainerInstanceArn)
@@ -195,7 +195,7 @@ func (v *view) instanceStartSession() {
 	}
 
 	if instanceId == "" {
-		v.app.Notice.Warn("empty instanceId")
+		v.app.Notice.Warn("Not a valid instance")
 		return
 	}
 
