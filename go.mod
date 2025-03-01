@@ -14,7 +14,7 @@ require (
 	github.com/gdamore/tcell/v2 v2.7.4
 	github.com/lmittmann/tint v1.0.4
 	github.com/rivo/tview v0.0.0-20240413115534-b0d41c484b95
-	github.com/spf13/cobra v1.8.1
+	github.com/spf13/cobra v1.9.1
 	github.com/spf13/viper v1.18.2
 	golang.org/x/sync v0.10.0
 )
@@ -48,7 +48,7 @@ require (
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/spf13/afero v1.11.0 // indirect
 	github.com/spf13/cast v1.6.0 // indirect
-	github.com/spf13/pflag v1.0.5 // indirect
+	github.com/spf13/pflag v1.0.6 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/exp v0.0.0-20240416160154-fe59bbe5cc7f // indirect
