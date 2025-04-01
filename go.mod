@@ -1,7 +1,6 @@
 module github.com/keidarcy/e1s
 
 go 1.22.1
-
 require (
 	github.com/BurntSushi/toml v1.4.0
 	github.com/aws/aws-sdk-go-v2 v1.32.6
@@ -12,7 +11,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/ecs v1.52.2
 	github.com/aws/aws-sdk-go-v2/service/ssm v1.56.1
 	github.com/gdamore/tcell/v2 v2.7.4
-	github.com/lmittmann/tint v1.0.4
+	github.com/lmittmann/tint v1.0.7
 	github.com/rivo/tview v0.0.0-20240413115534-b0d41c484b95
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/viper v1.18.2
