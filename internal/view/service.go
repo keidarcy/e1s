@@ -57,6 +57,21 @@ func (app *App) showServicesPage(reload bool) error {
 		return fmt.Errorf("no valid service")
 	}
 
+	// Set default service if provided through options
+	if app.Option.Service != "" && !reload {
+		for _, s := range services {
+			if *s.ServiceName == app.Option.Service {
+				app.service = &s
+				app.events = s.Events
+				return app.showPrimaryKindPage(TaskKind, false)
+			}
+		}
+		// If service not found, reset the option and show warning
+		slog.Warn("service not found", "service", app.Option.Service)
+		app.Notice.Warnf("Service '%s' not found in cluster '%s'", app.Option.Service, *app.cluster.ClusterName)
+		app.Option.Service = ""
+	}
+
 	view := newServiceView(services, app)
 	page := buildAppPage(view)
 	app.addAppPage(page)

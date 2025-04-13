@@ -90,6 +90,7 @@ Flags:
       --read-only            sets read only mode
   -r, --refresh int          specify the default refresh rate as an integer, sets -1 to stop auto refresh (sec) (default 30)
       --region string        specify the AWS region
+      --service string       specify the default service (requires --cluster)
   -s, --shell string         specify interactive ecs exec shell (default "/bin/sh")
       --theme string         specify color theme
   -v, --version              version for e1s
@@ -105,6 +106,8 @@ $ e1s
 $ AWS_PROFILE=custom-profile AWS_REGION=us-east-2 e1s
 # use custom-profile profile, us-east-2 region
 $ e1s --profile custom-profile --region us-east-2
+# use default cluster and default service
+$ e1s --cluster cluster-1 --service service-1
 # use command line to set read only, debug, stop auto refresh with a custom log path json output and dracula theme
 $ e1s --readonly --debug --refresh -1 --log-file /tmp/e1s.log --json --theme dracula
 # docker run with specified profile and region
