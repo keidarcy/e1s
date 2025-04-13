@@ -35,12 +35,17 @@ func (store *Store) ListTasks(clusterName, serviceName *string, status types.Des
 		noRunningShowStopped = true
 	}
 
-	listTasksOutput, _ := store.ecs.ListTasks(context.Background(), &ecs.ListTasksInput{
+	listTasksOutput, err := store.ecs.ListTasks(context.Background(), &ecs.ListTasksInput{
 		Cluster:       clusterName,
 		ServiceName:   listTaskServiceName,
 		DesiredStatus: status,
 		MaxResults:    &limit,
 	})
+
+	if err != nil {
+		slog.Warn("failed to run aws api to list tasks", "error", err)
+		return []types.Task{}, noRunningShowStopped, err
+	}
 
 	if status == types.DesiredStatusStopped && len(listTasksOutput.TaskArns) == 0 {
 		return nil, noRunningShowStopped, nil

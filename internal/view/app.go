@@ -54,6 +54,8 @@ type Option struct {
 	Theme string
 	// Default cluster name
 	Cluster string
+	// Default service name
+	Service string
 }
 
 // tview App
@@ -218,6 +220,15 @@ func (app *App) back() {
 		return
 	}
 
+	if prevKind == ServiceKind && app.Option.Service != "" {
+		app.Option.Service = ""
+		err := app.showPrimaryKindPage(ServiceKind, false)
+		if err != nil {
+			app.Notice.Warn("failed to back to service list")
+		}
+		return
+	}
+
 	app.Pages.SwitchToPage(pageName)
 }
 
@@ -245,7 +256,12 @@ func (app *App) start() error {
 		err = app.showPrimaryKindPage(ClusterKind, false)
 	} else {
 		app.cluster.ClusterName = &app.Option.Cluster
-		err = app.showPrimaryKindPage(ServiceKind, false)
+		if app.Option.Service == "" {
+			err = app.showPrimaryKindPage(ServiceKind, false)
+		} else {
+			app.service.ServiceName = &app.Option.Service
+			err = app.showPrimaryKindPage(TaskKind, false)
+		}
 	}
 
 	if app.Option.Refresh > 0 {

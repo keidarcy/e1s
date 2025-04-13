@@ -57,6 +57,7 @@ func init() {
 	rootCmd.Flags().String("region", "", "specify the AWS region")
 	rootCmd.Flags().String("theme", "", "specify color theme")
 	rootCmd.Flags().String("cluster", "", "specify the default cluster")
+	rootCmd.Flags().String("service", "", "specify the default service (requires --cluster)")
 
 	err := viper.BindPFlags(rootCmd.Flags())
 	if err != nil {
@@ -70,6 +71,15 @@ var rootCmd = &cobra.Command{
 	Short: "e1s - Easily Manage AWS ECS Resources in Terminal 🐱",
 	Long: `e1s is a terminal application to easily browse and manage AWS ECS resources 🐱. 
 Check https://github.com/keidarcy/e1s for more details.`,
+	PreRunE: func(cmd *cobra.Command, args []string) error {
+		// Validate if service is provided, cluster must also be provided
+		service := viper.GetString("service")
+		cluster := viper.GetString("cluster")
+		if service != "" && cluster == "" {
+			return fmt.Errorf("when specifying a service with --service, you must also specify a cluster with --cluster")
+		}
+		return nil
+	},
 	Run: func(cmd *cobra.Command, args []string) {
 		profile := viper.GetString("profile")
 		region := viper.GetString("region")
@@ -94,6 +104,7 @@ Check https://github.com/keidarcy/e1s for more details.`,
 		shell := viper.GetString("shell")
 		theme := viper.GetString("theme")
 		cluster := viper.GetString("cluster")
+		service := viper.GetString("service")
 
 		option := e1s.Option{
 			ConfigFile: configFile,
@@ -105,6 +116,7 @@ Check https://github.com/keidarcy/e1s for more details.`,
 			Shell:      shell,
 			Theme:      theme,
 			Cluster:    cluster,
+			Service:    service,
 		}
 
 		if err := e1s.Start(option); err != nil {
