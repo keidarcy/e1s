@@ -79,7 +79,11 @@ func (store *Store) ListTasks(clusterName, serviceName *string, status types.Des
 			resultTasks = append(resultTasks, describeTasksOutput.Tasks...)
 		} else {
 			for _, t := range describeTasksOutput.Tasks {
-				if *serviceName == utils.GetServiceByTaskGroup(t.Group) {
+				if serviceName != nil {
+					if *serviceName == utils.GetServiceByTaskGroup(t.Group) {
+						resultTasks = append(resultTasks, t)
+					}
+				} else {
 					resultTasks = append(resultTasks, t)
 				}
 			}
