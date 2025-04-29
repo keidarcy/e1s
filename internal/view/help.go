@@ -44,6 +44,8 @@ func (app *App) showHelpPage() {
 		hotKeyMap["g"],
 		hotKeyMap["ctrlF"],
 		hotKeyMap["ctrlB"],
+		hotKeyMap["tab"],
+		hotKeyMap["backtab"],
 	})
 	info := genColumn("Info", []keyDescriptionPair{
 		{key: "debug", description: strconv.FormatBool(app.Option.Debug)},
