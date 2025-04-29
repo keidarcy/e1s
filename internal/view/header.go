@@ -49,12 +49,14 @@ var hotKeyMap = map[string]keyDescriptionPair{
 	"d":     {key: "d", description: "Describe"},
 	"e":     {key: "e", description: "Open in default editor"},
 
-	"j":     {key: "j, down arrow", description: "Down"},
-	"k":     {key: "k, up arrow", description: "Up"},
-	"G":     {key: "shift-g, end", description: "Go to bottom"},
-	"g":     {key: "g, home", description: "Go to top"},
-	"ctrlF": {key: "ctrl+f, page down", description: "Page down"},
-	"ctrlB": {key: "ctrl+b, page up", description: "Page up"},
+	"j":       {key: "j, down arrow", description: "Down"},
+	"k":       {key: "k, up arrow", description: "Up"},
+	"G":       {key: "shift-g, end", description: "Go to bottom"},
+	"g":       {key: "g, home", description: "Go to top"},
+	"ctrlF":   {key: "ctrl+f, page down", description: "Page down"},
+	"ctrlB":   {key: "ctrl+b, page up", description: "Page up"},
+	"tab":     {key: "tab", description: "Field next"},
+	"backtab": {key: "backtab", description: "Field previous"},
 }
 
 // Info item name and value
