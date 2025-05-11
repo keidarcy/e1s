@@ -121,6 +121,48 @@ func (v *view) stopTaskForm() (*tview.Form, *string) {
 	return f, &title
 }
 
+// Stop selected service deployment
+func (v *view) rollbackServiceDeploymentForm() (*tview.Form, *string) {
+	readOnly := ""
+	if v.app.ReadOnly {
+		readOnly = readOnlyLabel
+	}
+	if v.app.serviceDeployment == nil || v.app.service == nil || v.app.serviceDeployment.ServiceDeploymentArn == nil {
+		slog.Warn("Unexpected nil to rollback service deployment")
+		return nil, nil
+	}
+
+	serviceName := *v.app.service.ServiceName
+	startedAt := utils.ShowTime(v.app.serviceDeployment.StartedAt)
+	title := fmt.Sprintf(" rollback service [%s::b]%s[-:-:-] started at [%s::b]%s[-:-:-] service %s? ", theme.Magenta, serviceName, theme.Cyan, startedAt, readOnly)
+	f := ui.StyledForm(title)
+
+	// handle form close
+	f.AddButton("Cancel", func() {
+		v.closeModal()
+	})
+
+	// readonly mode has no submit button
+	if v.app.ReadOnly {
+		return f, &title
+	}
+
+	// handle form submit
+	f.AddButton("Rollback", func() {
+		err := v.app.Store.RollbackServiceDeployment(v.app.serviceDeployment.ServiceDeploymentArn)
+
+		if err != nil {
+			v.app.Notice.Error(err.Error())
+			slog.Error(err.Error())
+		} else {
+			v.app.Notice.Info("Successfully requested to rollback service deployment")
+		}
+		v.closeModal()
+		v.showKindPage(ServiceDeploymentKind, true)
+	})
+	return f, &title
+}
+
 // Update service with selected task definition
 func (v *view) serviceUpdateWithSpecificTaskDefinitionForm() (*tview.Form, *string) {
 	readOnly := ""

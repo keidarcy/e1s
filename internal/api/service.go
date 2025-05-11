@@ -139,3 +139,24 @@ func (store *Store) UpdateService(input *ecs.UpdateServiceInput) (*types.Service
 	}
 	return updateOutput.Service, nil
 }
+
+// Equivalent to
+// aws ecs stop-service-deployment --service-deployment-arn ${service-deployment-arn} --stop-type ROLLBACK
+func (store *Store) RollbackServiceDeployment(serviceDeploymentArn *string) error {
+	slog.Info("rollback service deployment",
+		slog.Group("parameters",
+			slog.String("serviceDeploymentArn", *serviceDeploymentArn),
+		),
+	)
+
+	_, err := store.ecs.StopServiceDeployment(context.Background(), &ecs.StopServiceDeploymentInput{
+		ServiceDeploymentArn: serviceDeploymentArn,
+		StopType:             types.StopServiceDeploymentStopTypeRollback,
+	})
+	if err != nil {
+		slog.Warn("failed to run aws api to rollback service deployment", "error", err)
+		return err
+	}
+
+	return nil
+}

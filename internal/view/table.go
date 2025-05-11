@@ -144,6 +144,12 @@ func (v *view) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 			v.showSecondaryKindPage(false)
 			return event
 		}
+	case 'R':
+		if v.app.kind == ServiceDeploymentKind {
+			v.app.secondaryKind = ModalKind
+			v.showFormModal(v.rollbackServiceDeploymentForm, 6)
+			return event
+		}
 	case 'x':
 		if v.app.kind == TaskKind {
 			if v.app.taskStatus == types.DesiredStatusRunning {
