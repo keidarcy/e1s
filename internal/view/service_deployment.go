@@ -20,6 +20,7 @@ type serviceDeploymentView struct {
 func newServiceDeploymentView(serviceDeployments []types.ServiceDeployment, app *App) *serviceDeploymentView {
 	keys := append(basicKeyInputs, []keyDescriptionPair{
 		hotKeyMap["v"],
+		hotKeyMap["R"],
 	}...)
 	return &serviceDeploymentView{
 		view: *newView(app, keys, secondaryPageKeyMap{
