@@ -22,7 +22,7 @@ var hotKeyMap = map[string]keyDescriptionPair{
 	"l":     {key: "l", description: "Show cloudwatch logs(Only support awslogs logDriver)"},
 	"m":     {key: "m", description: "Show metrics(CPU/Memory)"},
 	"r":     {key: "r", description: "Realtime log streaming(Only support one log group)"},
-	"R":     {key: "R", description: "Rollback service deployment"},
+	"R":     {key: "shift-r", description: "Rollback service deployment"},
 	"t":     {key: "t", description: "Show task definitions"},
 	"p":     {key: "p", description: "Show service deployments"},
 	"n":     {key: "n", description: "Show related EC2 instances"},

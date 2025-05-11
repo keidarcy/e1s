@@ -235,8 +235,13 @@ func (app *App) back() {
 // Get page handler, cluster is empty, other is cluster arn
 func (app *App) getPageHandle() string {
 	name := ""
-	if app.kind != ClusterKind {
+	switch app.kind {
+	case ServiceKind:
 		name = *app.cluster.ClusterArn
+	case TaskKind, TaskDefinitionKind, ServiceDeploymentKind:
+		name = *app.service.ServiceArn
+	case ContainerKind:
+		name = *app.task.TaskArn
 	}
 	// based on different task status different name
 	if app.kind == TaskKind {
