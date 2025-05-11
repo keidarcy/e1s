@@ -62,7 +62,11 @@ func ShowTime(at *time.Time) string {
 	if at == nil {
 		return EmptyText
 	}
-	return at.Format(time.RFC3339)
+	loc, err := time.LoadLocation("Local")
+	if err != nil {
+		return at.Format(time.RFC3339)
+	}
+	return at.In(loc).Format(time.RFC3339)
 }
 
 func ShowInt(p *int32) string {

@@ -227,9 +227,9 @@ func (v *serviceView) tableParam() (title string, headers []string, dataBuilder 
 
 			if len(s.Deployments) > 0 {
 				rollout := string(s.Deployments[0].RolloutState)
-				lastDeployment += fmt.Sprintf("%s - %s", utils.ShowGreenGrey(&rollout, "completed"), s.Deployments[0].UpdatedAt.Format(time.RFC3339))
-
 				lastUpdateTime = s.Deployments[0].UpdatedAt
+				lastDeployment += fmt.Sprintf("%s - %s", utils.ShowGreenGrey(&rollout, "completed"), utils.ShowTime(lastUpdateTime))
+
 			}
 
 			// enable execute command
