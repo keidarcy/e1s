@@ -201,7 +201,9 @@ func (v *taskDefinitionView) tableParam() (title string, headers []string, dataB
 			if t.Memory == nil {
 				sum := 0
 				for _, c := range t.ContainerDefinitions {
-					sum += int(*c.Memory)
+					if c.Memory != nil {
+						sum += int(*c.Memory)
+					}
 				}
 				memory = strconv.Itoa(sum)
 			} else {
