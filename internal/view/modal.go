@@ -238,11 +238,13 @@ func (v *view) serviceUpdateForm() (*tview.Form, *string) {
 
 	f := ui.StyledForm(title)
 	forceLabel := "Force new deployment"
+	execLabel := "Enable execute command"
 	desiredLabel := "Desired tasks"
 	familyLabel := "Task definition family"
 	revisionLabel := "Task definition revision"
 
 	f.AddCheckbox(forceLabel, false, nil)
+	f.AddCheckbox(execLabel, selected.service.EnableExecuteCommand, nil)
 	f.AddInputField(desiredLabel, strconv.Itoa(int(selected.service.DesiredCount)), 50, nil, nil)
 
 	// If DeploymentController is CodeDeploy do not update task definition
@@ -323,6 +325,9 @@ func (v *view) serviceUpdateForm() (*tview.Form, *string) {
 		// get force deploy bool
 		force := f.GetFormItemByLabel(forceLabel).(*tview.Checkbox).IsChecked()
 
+		// get exec command bool
+		execCommand := f.GetFormItemByLabel(execLabel).(*tview.Checkbox).IsChecked()
+
 		if !DeploymentControllerCodeDeploy {
 			// get task definition with revision
 			_, selectedFamily := f.GetFormItemByLabel(familyLabel).(*tview.DropDown).GetCurrentOption()
@@ -332,19 +337,21 @@ func (v *view) serviceUpdateForm() (*tview.Form, *string) {
 			taskDefinitionWithRevision := selectedFamily + ":" + selectedRevision
 
 			input = &ecs.UpdateServiceInput{
-				Service:            aws.String(name),
-				Cluster:            v.app.cluster.ClusterName,
-				TaskDefinition:     aws.String(taskDefinitionWithRevision),
-				DesiredCount:       aws.Int32(int32(desiredInt)),
-				ForceNewDeployment: force,
+				Service:              aws.String(name),
+				Cluster:              v.app.cluster.ClusterName,
+				TaskDefinition:       aws.String(taskDefinitionWithRevision),
+				DesiredCount:         aws.Int32(int32(desiredInt)),
+				ForceNewDeployment:   force,
+				EnableExecuteCommand: &execCommand,
 			}
 			s, err = v.app.Store.UpdateService(input)
 		} else {
 			input = &ecs.UpdateServiceInput{
-				Service:            aws.String(name),
-				Cluster:            v.app.cluster.ClusterName,
-				DesiredCount:       aws.Int32(int32(desiredInt)),
-				ForceNewDeployment: force,
+				Service:              aws.String(name),
+				Cluster:              v.app.cluster.ClusterName,
+				DesiredCount:         aws.Int32(int32(desiredInt)),
+				ForceNewDeployment:   force,
+				EnableExecuteCommand: &execCommand,
 			}
 			s, err = v.app.Store.UpdateService(input)
 		}
