@@ -129,6 +129,7 @@ func (store *Store) UpdateService(input *ecs.UpdateServiceInput) (*types.Service
 			slog.Int("desiredCount", desiredCount),
 			slog.String("taskDefinition", taskDefinition),
 			slog.Bool("forceNewDeployment", input.ForceNewDeployment),
+			slog.Bool("EnableExecuteCommand", *input.EnableExecuteCommand),
 		),
 	)
 
