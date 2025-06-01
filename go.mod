@@ -6,7 +6,7 @@ require (
 	github.com/BurntSushi/toml v1.4.0
 	github.com/aws/aws-sdk-go-v2 v1.36.3
 	github.com/aws/aws-sdk-go-v2/config v1.28.6
-	github.com/aws/aws-sdk-go-v2/service/applicationautoscaling v1.36.0
+	github.com/aws/aws-sdk-go-v2/service/applicationautoscaling v1.36.1
 	github.com/aws/aws-sdk-go-v2/service/cloudwatch v1.44.3
 	github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.49.0
 	github.com/aws/aws-sdk-go-v2/service/ecs v1.56.3
