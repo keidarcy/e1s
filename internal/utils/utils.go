@@ -207,24 +207,24 @@ func Age(t *time.Time) string {
 	duration := now.Sub(*t)
 
 	if years := int(duration.Hours() / 24 / 365); years > 0 {
-		return fmt.Sprintf("%dy", years)
+		return fmt.Sprintf("%dy ago", years)
 	}
 	if months := int(duration.Hours() / 24 / 30); months > 0 {
-		return fmt.Sprintf("%dmo", months)
+		return fmt.Sprintf("%dmo ago", months)
 	}
 	if weeks := int(duration.Hours() / 24 / 7); weeks > 0 {
-		return fmt.Sprintf("%dw", weeks)
+		return fmt.Sprintf("%dw ago", weeks)
 	}
 	if days := int(duration.Hours() / 24); days > 0 {
-		return fmt.Sprintf("%dd", days)
+		return fmt.Sprintf("%dd ago", days)
 	}
 	if hours := int(duration.Hours()); hours > 0 {
-		return fmt.Sprintf("%dh", hours)
+		return fmt.Sprintf("%dh ago", hours)
 	}
 	if minutes := int(duration.Minutes()); minutes > 0 {
-		return fmt.Sprintf("%dm", minutes)
+		return fmt.Sprintf("%dm ago", minutes)
 	}
-	return fmt.Sprintf("%ds", int(duration.Seconds()))
+	return fmt.Sprintf("%ds ago", int(duration.Seconds()))
 }
 
 // Return docker image registry and image name with tag

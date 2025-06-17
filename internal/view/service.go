@@ -211,7 +211,7 @@ func (v *serviceView) tableParam() (title string, headers []string, dataBuilder 
 		"Last deployment",
 		"Execute command",
 		"Task definition",
-		"Age",
+		"Created at",
 	}
 	dataBuilder = func() (data [][]string) {
 		for _, s := range v.services {
@@ -227,9 +227,8 @@ func (v *serviceView) tableParam() (title string, headers []string, dataBuilder 
 
 			if len(s.Deployments) > 0 {
 				rollout := string(s.Deployments[0].RolloutState)
-				lastUpdateTime = s.Deployments[0].UpdatedAt
-				lastDeployment += fmt.Sprintf("%s - %s", utils.ShowGreenGrey(&rollout, "completed"), utils.ShowTime(lastUpdateTime))
-
+				lastUpdateTime = s.Deployments[0].CreatedAt
+				lastDeployment += fmt.Sprintf("%s - %s", utils.ShowGreenGrey(&rollout, "completed"), utils.Age(lastUpdateTime))
 			}
 
 			// enable execute command
@@ -245,7 +244,7 @@ func (v *serviceView) tableParam() (title string, headers []string, dataBuilder 
 			row = append(row, lastDeployment)
 			row = append(row, utils.ShowGreenGrey(&enableExecuteCommand, "true"))
 			row = append(row, utils.ArnToName(s.TaskDefinition))
-			row = append(row, utils.Age(lastUpdateTime))
+			row = append(row, utils.Age(s.CreatedAt))
 			data = append(data, row)
 		}
 		return data
