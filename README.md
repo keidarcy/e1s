@@ -1,6 +1,8 @@
 <p align="center">
       <img src="./assets/e1s-label.png" alt="e1s" width="300" height="150" >
+      <a title="This tool is Tool of The Week on Terminal Trove, The $HOME of all things in the terminal" href="https://terminaltrove.com/"><img src="https://cdn.terminaltrove.com/media/badges/tool_of_the_week/png/terminal_trove_tool_of_the_week_black_on_white_bg.png" alt="Terminal Trove Tool of The Week" width="200" height="50" /></a>
 </p>
+
 
 
 # E1S - Easily Manage AWS ECS Resources in Terminal 🐱
