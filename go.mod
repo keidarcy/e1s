@@ -1,6 +1,6 @@
 module github.com/keidarcy/e1s
 
-go 1.22.1
+go 1.23.0
 
 require (
 	github.com/BurntSushi/toml v1.4.0
@@ -16,7 +16,7 @@ require (
 	github.com/rivo/tview v0.0.0-20240413115534-b0d41c484b95
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/viper v1.18.2
-	golang.org/x/sync v0.10.0
+	golang.org/x/sync v0.15.0
 )
 
 require (
