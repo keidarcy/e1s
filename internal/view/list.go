@@ -124,6 +124,11 @@ func (v *view) realtimeAwsLog(entity Entity) {
 			}
 		}
 
+		// if current container has no log configuration skip
+		if c.LogConfiguration == nil {
+			continue
+		}
+
 		// if current container has no log driver
 		if c.LogConfiguration.LogDriver != ecsTypes.LogDriverAwslogs {
 			continue
