@@ -68,11 +68,13 @@ resource "aws_iam_role" "ec2_instance" {
       },
     ]
   })
+}
 
-  inline_policy {
-    name   = "instance-policy"
-    policy = data.aws_iam_policy_document.ec2_instance.json
-  }
+resource "aws_iam_role_policy" "ec2_instance_policy" {
+  name = "instance-policy"
+  role = aws_iam_role.ec2_instance.id
+
+  policy = data.aws_iam_policy_document.ec2_instance.json
 }
 
 

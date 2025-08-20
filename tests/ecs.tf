@@ -19,7 +19,15 @@ locals {
         "containerPort": 80,
         "hostPort": 80
       }
-    ]
+    ],
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "/aws/ecs/${local.name}",
+        "awslogs-region": "us-east-1",
+        "awslogs-stream-prefix": "nginx"
+      }
+    }
   },
   {
     "name": "fluent-bit",
@@ -42,7 +50,15 @@ EOL
         "containerPort": 80,
         "hostPort": 80
       }
-    ]
+    ],
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "/aws/ecs/${local.name}",
+        "awslogs-region": "us-east-1",
+        "awslogs-stream-prefix": "nginx"
+      }
+    }
   }
 ]
 EOL
@@ -122,6 +138,7 @@ resource "aws_ecs_task_definition" "main" {
   family                   = "${local.name}-task-definition-${count.index}"
   requires_compatibilities = ["FARGATE"]
   task_role_arn            = aws_iam_role.task_role.arn
+  execution_role_arn       = aws_iam_role.task_role.arn
   cpu                      = "256"
   memory                   = "512"
   network_mode             = "awsvpc"
@@ -133,6 +150,10 @@ resource "aws_ecs_task_definition" "main" {
 #######################
 resource "aws_service_discovery_http_namespace" "main" {
   name = local.name
+}
+
+resource "aws_cloudwatch_log_group" "main" {
+  name = "/aws/ecs/${local.name}"
 }
 
 resource "aws_iam_role" "task_role" {
@@ -151,51 +172,54 @@ resource "aws_iam_role" "task_role" {
       ]
     }
   )
-  inline_policy {
-    name = "${local.name}-custom-policy"
-    policy = jsonencode(
-      {
-        Statement = concat([
-          {
-            Action = [
-              "ssmmessages:OpenDataChannel",
-              "ssmmessages:OpenControlChannel",
-              "ssmmessages:CreateDataChannel",
-              "ssmmessages:CreateControlChannel"
-            ]
-            Effect   = "Allow"
-            Resource = "*"
-            Sid      = "UseECSExec"
-          },
-          {
-            Action = [
-              "ssm:GetParameters",
-              "ssm:GetParameter",
-              "logs:PutLogEvents",
-              "logs:CreateLogStream",
-              "logs:CreateLogGroup",
-              "kms:Decrypt",
-            ],
-            Effect = "Allow",
-            Resource : "*",
-          },
-          {
-            Effect = "Allow",
-            Resource = [
-              aws_s3_bucket.test_bucket.arn,
-              "${aws_s3_bucket.test_bucket.arn}/${local.name}/*"
-            ],
-            Action = [
-              "s3:GetObject",
-              "s3:PutObject",
-              "s3:ListBucket",
-            ],
-          }
-        ])
-        Version = "2012-10-17"
-      }
-    )
-  }
+}
+
+resource "aws_iam_role_policy" "task_role_policy" {
+  name = "${local.name}-custom-policy"
+  role = aws_iam_role.task_role.id
+
+  policy = jsonencode(
+    {
+      Statement = concat([
+        {
+          Action = [
+            "ssmmessages:OpenDataChannel",
+            "ssmmessages:OpenControlChannel",
+            "ssmmessages:CreateDataChannel",
+            "ssmmessages:CreateControlChannel"
+          ]
+          Effect   = "Allow"
+          Resource = "*"
+          Sid      = "UseECSExec"
+        },
+        {
+          Action = [
+            "ssm:GetParameters",
+            "ssm:GetParameter",
+            "logs:PutLogEvents",
+            "logs:CreateLogStream",
+            "logs:CreateLogGroup",
+            "kms:Decrypt",
+          ],
+          Effect = "Allow",
+          Resource : "*",
+        },
+        {
+          Effect = "Allow",
+          Resource = [
+            aws_s3_bucket.test_bucket.arn,
+            "${aws_s3_bucket.test_bucket.arn}/${local.name}/*"
+          ],
+          Action = [
+            "s3:GetObject",
+            "s3:PutObject",
+            "s3:ListBucket",
+          ],
+        }
+      ])
+      Version = "2012-10-17"
+    }
+  )
 }
 
 
@@ -217,7 +241,7 @@ resource "aws_lb_target_group" "main" {
 }
 
 resource "aws_lb_listener_rule" "main" {
-  listener_arn = aws_lb_listener.main.arn
+  listener_arn = aws_lb_listener.production.arn
 
   action {
     type             = "forward"
