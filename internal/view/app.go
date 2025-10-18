@@ -351,7 +351,40 @@ func (app *App) globalInputHandle(event *tcell.EventKey) *tcell.EventKey {
 	case '?':
 		app.showHelpPage()
 	}
+
+	// Handle Ctrl+P for profile switcher
+	switch event.Key() {
+	case tcell.KeyCtrlP:
+		app.showProfileSwitcher()
+		return nil
+	}
+
 	return event
+}
+
+// showProfileSwitcher displays the AWS profile switcher modal
+func (app *App) showProfileSwitcher() {
+	profileSwitcher := NewProfileSwitcher(app)
+	profileSwitcher.Show()
+}
+
+// switchProfile switches the AWS profile and refreshes the current view
+func (app *App) switchProfile(profileName string) error {
+	// Switch profile in the store
+	if err := app.Store.SwitchProfile(profileName); err != nil {
+		return err
+	}
+
+	// Update app's profile and region info
+	app.profile = app.Store.Profile
+	app.region = app.Store.Region
+
+	// Refresh the current view to use the new profile
+	if err := app.showPrimaryKindPage(app.kind, true); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (app *App) LogValue() slog.Value {
