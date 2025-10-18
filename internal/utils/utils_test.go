@@ -6,10 +6,11 @@ import (
 )
 
 const (
-	testRegion    = "us-east-1"
-	clusterArnFmt = "arn:aws:ecs:%s:111111:cluster/%s"
-	serviceArnFmt = "arn:aws:ecs:%s:111111:service/%s/%s"
-	taskArnFmt    = "arn:aws:ecs:%s:111111:task/%s/%s"
+	testRegion           = "us-east-1"
+	clusterArnFmt        = "arn:aws:ecs:%s:111111:cluster/%s"
+	serviceArnFmt        = "arn:aws:ecs:%s:111111:service/%s/%s"
+	taskArnFmt           = "arn:aws:ecs:%s:111111:task/%s/%s"
+	taskDefinitionArnFmt = "arn:aws:ecs:%s:111111:task-definition/%s:%s"
 )
 
 func TestArnToURL(t *testing.T) {
@@ -21,12 +22,16 @@ func TestArnToURL(t *testing.T) {
 	service1 := "service1"
 	task1 := "task1"
 	taskService1 := "taskService1"
+	taskDef1 := "my-task-def"
+	revision1 := "1"
 	arn1 := fmt.Sprintf(clusterArnFmt, testRegion, cluster1)
 	url1 := fmt.Sprintf(clusterURLFmt, testRegion, cluster1, testRegion)
 	arn2 := fmt.Sprintf(serviceArnFmt, testRegion, cluster1, service1)
 	url2 := fmt.Sprintf(serviceURLFmt, testRegion, cluster1, service1, testRegion)
 	arn3 := fmt.Sprintf(taskArnFmt, testRegion, cluster1, task1)
 	url3 := fmt.Sprintf(taskURLFmt, testRegion, cluster1, taskService1, task1, testRegion)
+	arn4 := fmt.Sprintf(taskDefinitionArnFmt, testRegion, taskDef1, revision1)
+	url4 := fmt.Sprintf(taskDefinitionURLFmt, testRegion, taskDef1, revision1, testRegion)
 
 	testCases := []struct {
 		name string
@@ -56,6 +61,14 @@ func TestArnToURL(t *testing.T) {
 				taskService: taskService1,
 			},
 			want: url3,
+		},
+		{
+			name: "task definition arn convert",
+			args: Args{
+				arn:         arn4,
+				taskService: "",
+			},
+			want: url4,
 		},
 	}
 

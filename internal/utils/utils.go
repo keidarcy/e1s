@@ -98,6 +98,13 @@ func ArnToUrl(arn string, taskService string) string {
 	components := strings.Split(arn, ":")
 	resources := components[len(components)-1]
 	names := strings.Split(resources, "/")
+	_, err := strconv.Atoi(resources)
+	if err == nil {
+		// it's a task definition arn
+		resources := components[len(components)-2]
+		names = strings.Split(resources, "/")
+		names = append(names, components[len(components)-1])
+	}
 
 	region := components[3]
 	clusterName := ""
