@@ -60,3 +60,44 @@ func (store *Store) initSsmClient() {
 		store.ssm = ssm.NewFromConfig(*store.Config)
 	}
 }
+
+// SwitchProfile switches to a different AWS profile and reinitializes clients
+func (store *Store) SwitchProfile(profileName string) error {
+	// Set the profile in environment variable
+	if profileName == "default" {
+		os.Unsetenv("AWS_PROFILE")
+	} else {
+		os.Setenv("AWS_PROFILE", profileName)
+	}
+
+	// Load new configuration with the updated profile
+	cfg, err := config.LoadDefaultConfig(context.Background())
+	if err != nil {
+		slog.Error("failed to load aws SDK config with new profile", "profile", profileName, "error", err)
+		return err
+	}
+
+	// Update store with new configuration
+	store.Config = &cfg
+	store.Region = cfg.Region
+	store.Profile = profileName
+	if profileName == "default" {
+		store.Profile = ""
+	}
+
+	// Reinitialize all clients with new configuration
+	store.ecs = ecs.NewFromConfig(cfg)
+	store.cloudwatch = nil       // Will be lazy-loaded with new config
+	store.cloudwatchlogs = nil   // Will be lazy-loaded with new config
+	store.ssm = nil              // Will be lazy-loaded with new config
+	store.autoScaling = nil      // Will be lazy-loaded with new config
+
+	slog.Info("switched AWS profile", slog.String("AWS_PROFILE", store.Profile), slog.String("AWS_REGION", store.Region))
+	return nil
+}
+
+func (store *Store) initAutoScalingClient() {
+	if store.autoScaling == nil {
+		store.autoScaling = applicationautoscaling.NewFromConfig(*store.Config)
+	}
+}

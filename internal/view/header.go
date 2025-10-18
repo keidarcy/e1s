@@ -10,9 +10,6 @@ import (
 const (
 	// column height in info page
 	oneColumnCount = 13
-	headerTitleFmt = " [blue]info([purple::b]%s[blue:-:-]) "
-	headerItemFmt  = " %s:[aqua::b] %s "
-	headerKeyFmt   = " [purple::b]<%s> [green:-:-]%s "
 )
 
 var hotKeyMap = map[string]keyDescriptionPair{
@@ -45,6 +42,7 @@ var hotKeyMap = map[string]keyDescriptionPair{
 	"ctrlZ": {key: "ctrl-z", description: "Back"},
 	"ctrlC": {key: "ctrl-c", description: "Exit"},
 	"ctrlR": {key: "ctrl-r", description: "Refresh"},
+	"ctrlP": {key: "ctrl-p", description: "Switch AWS profile"},
 	"?":     {key: "?", description: "Help"},
 	"b":     {key: "b", description: "Open in browser"},
 	"d":     {key: "d", description: "Describe"},
@@ -77,6 +75,7 @@ var basicKeyInputs = []keyDescriptionPair{
 	hotKeyMap["b"],
 	hotKeyMap["d"],
 	hotKeyMap["ctrlR"],
+	hotKeyMap["ctrlP"],
 }
 
 type secondaryPageKeyMap = map[kind][]keyDescriptionPair

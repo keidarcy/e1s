@@ -159,7 +159,7 @@ func (v *view) cpForm() (*tview.Form, *string) {
 		readOnly = readOnlyLabel
 	}
 
-	title := " File transfer though S3 bucket [purple::b]" + containerName + readOnly
+	title := " File transfer though S3 bucket [purple::b]" + containerName + readOnly + " "
 
 	f := ui.StyledForm(title)
 	remoteLabel := "Remote to local"
