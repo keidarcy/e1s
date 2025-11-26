@@ -80,10 +80,17 @@ func (v *instanceView) headerPagesParam(instance types.ContainerInstance) (items
 		{name: "Agent Connected", value: fmt.Sprintf("%v", instance.AgentConnected)},
 		{name: "Running Tasks Count", value: fmt.Sprintf("%d", instance.RunningTasksCount)},
 		{name: "Pending Tasks Count", value: fmt.Sprintf("%d", instance.PendingTasksCount)},
-		{name: "Agent Version", value: utils.ShowString(instance.VersionInfo.AgentVersion)},
-		{name: "Docker Version", value: utils.ShowString(instance.VersionInfo.DockerVersion)},
-		{name: "Registered At", value: utils.ShowTime(instance.RegisteredAt)},
 	}
+
+	// Managed Instances don't have these attributes
+	if instance.VersionInfo != nil {
+		items = append(items,
+			headerItem{name: "Agent Version", value: utils.ShowString(instance.VersionInfo.AgentVersion)},
+			headerItem{name: "Docker Version", value: utils.ShowString(instance.VersionInfo.DockerVersion)},
+		)
+	}
+
+	items = append(items, headerItem{name: "Registered At", value: utils.ShowTime(instance.RegisteredAt)})
 	return
 }
 
@@ -117,6 +124,15 @@ func (v *instanceView) tableParam() (title string, headers []string, dataBuilder
 		clusterName = *v.app.cluster.ClusterName
 	}
 
+	// Check if any instance has VersionInfo
+	hasVersionInfo := false
+	for _, instance := range v.instances {
+		if instance.VersionInfo != nil {
+			hasVersionInfo = true
+			break
+		}
+	}
+
 	title = fmt.Sprintf(color.TableTitleFmt, v.app.kind, clusterName, len(v.instances))
 	headers = []string{
 		"Instance ID ▾",
@@ -124,10 +140,14 @@ func (v *instanceView) tableParam() (title string, headers []string, dataBuilder
 		"Running Tasks",
 		"Pending Tasks",
 		"Agent Connected",
-		"Agent Version",
-		"Docker Version",
-		"Registered At",
 	}
+
+	// Managed Instances don't have these attributes
+	if hasVersionInfo {
+		headers = append(headers, "Agent Version", "Docker Version")
+	}
+
+	headers = append(headers, "Registered At")
 
 	dataBuilder = func() (data [][]string) {
 		for _, instance := range v.instances {
@@ -137,10 +157,19 @@ func (v *instanceView) tableParam() (title string, headers []string, dataBuilder
 				fmt.Sprintf("%d", instance.RunningTasksCount),
 				fmt.Sprintf("%d", instance.PendingTasksCount),
 				fmt.Sprintf("%v", instance.AgentConnected),
-				utils.ShowString(instance.VersionInfo.AgentVersion),
-				utils.ShowString(instance.VersionInfo.DockerVersion),
-				utils.ShowTime(instance.RegisteredAt),
 			}
+
+			if hasVersionInfo {
+				agentVersion := ""
+				dockerVersion := ""
+				if instance.VersionInfo != nil {
+					agentVersion = utils.ShowString(instance.VersionInfo.AgentVersion)
+					dockerVersion = utils.ShowString(instance.VersionInfo.DockerVersion)
+				}
+				row = append(row, agentVersion, dockerVersion)
+			}
+
+			row = append(row, utils.ShowTime(instance.RegisteredAt))
 			data = append(data, row)
 		}
 		return data
