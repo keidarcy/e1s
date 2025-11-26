@@ -116,7 +116,7 @@ func (v *view) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 	case 'd':
 		v.app.secondaryKind = DescriptionKind
 		v.showSecondaryKindPage(false)
-	case 'l':
+	case 'L':
 		if v.app.kind == ServiceKind || v.app.kind == TaskKind || v.app.kind == ContainerKind {
 			v.app.secondaryKind = LogKind
 			v.showSecondaryKindPage(false)
@@ -235,6 +235,10 @@ func (v *view) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 		v.app.secondaryKind = ModalKind
 		v.showSearchFormModal(v.searchForm, 5)
 		return event
+	case 'h':
+		v.handleDone(0)
+	case 'l':
+		v.handleSelected(0, 0)
 	}
 
 	// If it's composite keystroke, event.Key() is ctrl-char ascii code
