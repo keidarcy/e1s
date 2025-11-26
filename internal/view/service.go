@@ -23,7 +23,7 @@ func newServiceView(services []types.Service, app *App) *serviceView {
 		hotKeyMap["U"],
 		hotKeyMap["w"],
 		hotKeyMap["t"],
-		hotKeyMap["l"],
+		hotKeyMap["L"],
 		hotKeyMap["m"],
 		hotKeyMap["a"],
 		hotKeyMap["p"],

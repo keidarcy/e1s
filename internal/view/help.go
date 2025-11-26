@@ -36,11 +36,14 @@ func (app *App) showHelpPage() {
 		hotKeyMap["/"],
 		hotKeyMap["b"],
 		hotKeyMap["d"],
+		hotKeyMap["L"],
 		hotKeyMap["e"],
 	})
 	navigation := genColumn("Navigation", []keyDescriptionPair{
 		hotKeyMap["j"],
 		hotKeyMap["k"],
+		hotKeyMap["h"],
+		hotKeyMap["l"],
 		hotKeyMap["G"],
 		hotKeyMap["g"],
 		hotKeyMap["ctrlF"],

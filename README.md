@@ -179,7 +179,9 @@ colors:
 
 ### Key bindings
 
-Press `?` to check overall key bindings, `/` to search in table, top right corner to check current resource specific hot keys.
+`e1s` supports Vim-style navigation: use `h`, `j`, `k`, `l` for left, down, up, right navigation respectively. Use `Ctrl+P` to switch AWS profile.
+
+Press `?` to check overall key bindings.
 
 <details>
   <summary>help</summary>
