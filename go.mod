@@ -6,7 +6,7 @@ require (
 	github.com/BurntSushi/toml v1.4.0
 	github.com/aws/aws-sdk-go-v2 v1.40.0
 	github.com/aws/aws-sdk-go-v2/config v1.28.6
-	github.com/aws/aws-sdk-go-v2/service/applicationautoscaling v1.36.0
+	github.com/aws/aws-sdk-go-v2/service/applicationautoscaling v1.41.6
 	github.com/aws/aws-sdk-go-v2/service/cloudwatch v1.44.3
 	github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.49.0
 	github.com/aws/aws-sdk-go-v2/service/ecs v1.67.0
@@ -23,8 +23,8 @@ require (
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.6.10 // indirect
 	github.com/aws/aws-sdk-go-v2/credentials v1.17.47 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.16.21 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/configsources v1.4.12 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.7.12 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/configsources v1.4.14 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.7.14 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/ini v1.8.1 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.12.1 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.12.6 // indirect
