@@ -329,6 +329,8 @@ func (v *view) serviceUpdateForm() (*tview.Form, *string) {
 		execCommand := f.GetFormItemByLabel(execLabel).(*tview.Checkbox).IsChecked()
 
 		if !DeploymentControllerCodeDeploy {
+			currentTaskDefinition := utils.ArnToName(selected.service.TaskDefinition)
+
 			// get task definition with revision
 			_, selectedFamily := f.GetFormItemByLabel(familyLabel).(*tview.DropDown).GetCurrentOption()
 			_, selectedRevision := f.GetFormItemByLabel(revisionLabel).(*tview.DropDown).GetCurrentOption()
@@ -336,10 +338,17 @@ func (v *view) serviceUpdateForm() (*tview.Form, *string) {
 			selectedRevision, _ = strings.CutSuffix(selectedRevision, latest)
 			taskDefinitionWithRevision := selectedFamily + ":" + selectedRevision
 
+			// Only send task definition if it changed. This avoids triggering iam:PassRole
+			// for operators who only want to update desired count / toggles.
+			var taskDefinitionPtr *string
+			if taskDefinitionWithRevision != currentTaskDefinition {
+				taskDefinitionPtr = aws.String(taskDefinitionWithRevision)
+			}
+
 			input = &ecs.UpdateServiceInput{
 				Service:              aws.String(name),
 				Cluster:              v.app.cluster.ClusterName,
-				TaskDefinition:       aws.String(taskDefinitionWithRevision),
+				TaskDefinition:       taskDefinitionPtr,
 				DesiredCount:         aws.Int32(int32(desiredInt)),
 				ForceNewDeployment:   force,
 				EnableExecuteCommand: &execCommand,
