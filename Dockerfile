@@ -47,8 +47,7 @@ COPY --from=sessionmanagerplugin /usr/local/sessionmanagerplugin/bin/session-man
 
 
 # Install the AWS CLI
-RUN apk add --no-cache aws-cli \
-		apk add --no-cache gcompat \
-		rm -rf /var/cache/apk/*
+RUN apk add --no-cache aws-cli gcompat && \
+    rm -rf /var/cache/apk/*
 
 ENTRYPOINT ["/e1s"]
