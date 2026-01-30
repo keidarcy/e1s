@@ -13,7 +13,7 @@ const (
 )
 
 var hotKeyMap = map[string]keyDescriptionPair{
-	"/":     {key: "/", description: "Search in table"},
+	"/":     {key: "/", description: "Filter (ESC to clear)"},
 	"a":     {key: "a", description: "Show service auto scaling"},
 	"f":     {key: "f", description: "Toggle full screen"},
 	"h":     {key: "h, left arrow", description: "Back"},

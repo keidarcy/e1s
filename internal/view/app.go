@@ -94,6 +94,8 @@ type App struct {
 	region string
 	// AWS profile
 	profile string
+	// Filter text per kind (persists across reloads)
+	kindFilters map[kind]string
 }
 
 func newApp(option Option) (*App, error) {
@@ -124,6 +126,7 @@ func newApp(option Option) (*App, error) {
 		taskStatus:    types.DesiredStatusRunning,
 		region:        store.Region,
 		profile:       store.Profile,
+		kindFilters:   make(map[kind]string),
 		Entity: Entity{
 			cluster: &types.Cluster{
 				ClusterName: aws.String("e1s_default_cluster"),

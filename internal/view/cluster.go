@@ -22,18 +22,27 @@ func newClusterView(clusters []types.Cluster, app *App) *clusterView {
 		hotKeyMap["n"],
 		hotKeyMap["N"],
 	}...)
-	return &clusterView{
+	cv := &clusterView{
 		view: *newView(app, keys, secondaryPageKeyMap{
 			DescriptionKind: describePageKeys,
 		}),
 		clusters: clusters,
 	}
+	// Load persisted filter from app
+	cv.loadFilter()
+	return cv
 }
 
 func (app *App) showClustersPage(reload bool) error {
 	app.kind = ClusterKind
 	if switched := app.switchPage(reload); switched {
 		return nil
+	}
+
+	// Remove old page when reloading to ensure fresh view
+	if reload {
+		pageName := app.kind.getAppPageName(app.getPageHandle())
+		app.Pages.RemovePage(pageName)
 	}
 
 	clusters, err := app.Store.ListClusters()
@@ -48,10 +57,11 @@ func (app *App) showClustersPage(reload bool) error {
 		return fmt.Errorf(m)
 	}
 
-	view := newClusterView(clusters, app)
-	page := buildAppPage(view)
+	cv := newClusterView(clusters, app)
+	// Build page with filter support (filter row added dynamically when '/' pressed)
+	page := buildAppPageWithFilter(cv, &cv.view)
 	app.addAppPage(page)
-	view.table.Select(app.rowIndex, 0)
+	cv.table.Select(app.rowIndex, 0)
 	return nil
 }
 
@@ -64,9 +74,13 @@ func (v *clusterView) headerBuilder() *tview.Pages {
 
 		v.buildHeaderPages(items, title, entityName)
 	}
-	// prevent empty clusters
-	if len(v.clusters) > 0 && v.clusters[0].ClusterArn != nil {
-		// show first when enter
+	// Show first filtered cluster when entering (or first cluster if no filter)
+	filteredClusters := v.getFilteredClusters()
+	if len(filteredClusters) > 0 && filteredClusters[0].ClusterArn != nil {
+		v.headerPages.SwitchToPage(*filteredClusters[0].ClusterArn)
+		v.changeSelectedValues()
+	} else if len(v.clusters) > 0 && v.clusters[0].ClusterArn != nil {
+		// Fallback if no clusters match filter
 		v.headerPages.SwitchToPage(*v.clusters[0].ClusterArn)
 		v.changeSelectedValues()
 	}
@@ -90,7 +104,8 @@ func (v *clusterView) footerBuilder() *tview.Flex {
 
 // Handlers for cluster table
 func (v *clusterView) tableHandler() {
-	for row, cluster := range v.clusters {
+	filteredClusters := v.getFilteredClusters()
+	for row, cluster := range filteredClusters {
 		c := cluster
 		v.table.GetCell(row+1, 0).SetReference(Entity{cluster: &c, entityName: *c.ClusterArn})
 	}
@@ -166,7 +181,12 @@ func (v *clusterView) headerPagesParam(c types.Cluster) (items []headerItem) {
 
 // Generate table params
 func (v *clusterView) tableParam() (title string, headers []string, dataBuilder func() [][]string) {
-	title = fmt.Sprintf(color.TableTitleFmt, v.app.kind, "all", len(v.clusters))
+	filteredCount := v.getFilteredClusterCount()
+	if v.filterText != "" {
+		title = fmt.Sprintf(color.TableTitleFmt, v.app.kind, v.filterText, filteredCount)
+	} else {
+		title = fmt.Sprintf(color.TableTitleFmt, v.app.kind, "all", filteredCount)
+	}
 	headers = []string{
 		"Name",
 		"Status",
@@ -188,10 +208,41 @@ func (v *clusterView) tableParam() (title string, headers []string, dataBuilder 
 			row = append(row, utils.ShowInt(&c.RegisteredContainerInstancesCount)+" EC2")
 			row = append(row, utils.ShowArray(c.CapacityProviders))
 
-			data = append(data, row)
+			// Apply filter
+			if v.matchesFilter(row) {
+				data = append(data, row)
+			}
 		}
 		return data
 	}
 
 	return
+}
+
+// Get filtered clusters for table handler
+func (v *clusterView) getFilteredClusters() []types.Cluster {
+	if v.filterText == "" {
+		return v.clusters
+	}
+	var filtered []types.Cluster
+	for _, c := range v.clusters {
+		tasks := fmt.Sprintf(color.TableClusterTasksFmt, c.PendingTasksCount, c.RunningTasksCount)
+		row := []string{
+			utils.ShowString(c.ClusterName),
+			utils.ShowGreenGrey(c.Status, "active"),
+			utils.ShowInt(&c.ActiveServicesCount),
+			tasks,
+			utils.ShowInt(&c.RegisteredContainerInstancesCount) + " EC2",
+			utils.ShowArray(c.CapacityProviders),
+		}
+		if v.matchesFilter(row) {
+			filtered = append(filtered, c)
+		}
+	}
+	return filtered
+}
+
+// Get count of filtered clusters
+func (v *clusterView) getFilteredClusterCount() int {
+	return len(v.getFilteredClusters())
 }

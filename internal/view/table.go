@@ -33,7 +33,7 @@ func (v *view) buildTable(title string, headers []string, dataBuilder func() [][
 
 	v.table.
 		SetBorder(true).
-		SetTitle(title).
+		// 	SetTitle(title).
 		SetBorderPadding(0, 0, 1, 1)
 
 	data := [][]string{}
@@ -232,8 +232,8 @@ func (v *view) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 		v.showFormModal(v.catFile, 10)
 		return event
 	case '/':
-		v.app.secondaryKind = ModalKind
-		v.showSearchFormModal(v.searchForm, 5)
+		// Show filter input
+		v.showFilterInput()
 		return event
 	case 'h':
 		v.handleDone(0)

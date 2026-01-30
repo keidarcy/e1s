@@ -3,6 +3,7 @@ package view
 import (
 	"fmt"
 	"log/slog"
+	"strings"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/keidarcy/e1s/internal/color"
@@ -27,10 +28,16 @@ type view struct {
 	keys        []keyDescriptionPair
 	footer      *footer
 	pageKeyMap  secondaryPageKeyMap
+	// Filter support
+	filterText   string
+	filterInput  *tview.InputField
+	filterFlex   *tview.Flex // Container for filter input (1 row)
+	mainFlex     *tview.Flex // Main page flex (to add/remove filter dynamically)
+	filterActive bool        // Whether filter input is currently shown
 }
 
 func newView(app *App, keys []keyDescriptionPair, pageKeys secondaryPageKeyMap) *view {
-	return &view{
+	v := &view{
 		app:         app,
 		headerPages: tview.NewPages(),
 		bodyPages:   tview.NewPages(),
@@ -39,7 +46,113 @@ func newView(app *App, keys []keyDescriptionPair, pageKeys secondaryPageKeyMap) 
 		keys:        keys,
 		footer:      newFooter(),
 		pageKeyMap:  pageKeys,
+		filterText:  "",
 	}
+	v.initFilterInput()
+	return v
+}
+
+// Initialize filter input component
+func (v *view) initFilterInput() {
+	v.filterInput = tview.NewInputField().
+		SetLabel("🐱 /")
+	// SetLabelColor(color.Color(theme.Cyan)).
+	// SetFieldWidth(0).
+	// SetFieldBackgroundColor(color.Color(theme.BgColor)).
+	// SetFieldTextColor(color.Color(theme.FgColor))
+	v.filterInput.SetBorderPadding(0, 0, 1, 1)
+	// 	SetBorder(true).
+	// 	// SetTitle(title).
+
+	v.filterInput.SetDoneFunc(func(key tcell.Key) {
+		switch key {
+		case tcell.KeyEnter:
+			// Apply filter and hide input
+			v.filterText = v.filterInput.GetText()
+			v.hideFilterInput()
+			v.applyFilter()
+		case tcell.KeyEsc:
+			// Clear filter and hide input
+			v.filterText = ""
+			v.filterInput.SetText("")
+			v.hideFilterInput()
+			v.applyFilter()
+		}
+	})
+
+	// Create flex container for filter input (1 row when shown)
+	v.filterFlex = tview.NewFlex().SetDirection(tview.FlexColumn)
+	v.filterFlex.SetBackgroundColor(color.Color(theme.BgColor))
+	v.filterFlex.AddItem(v.filterInput, 0, 1, true)
+}
+
+// Apply filter and rebuild table
+func (v *view) applyFilter() {
+	// Save filter to app for persistence across reloads
+	v.app.kindFilters[v.app.kind] = v.filterText
+	// Reset row index when filtering to avoid out of bounds
+	v.app.rowIndex = 1
+	// Trigger reload to rebuild table with filter
+	v.reloadResource(false)
+}
+
+// Load filter from app storage
+func (v *view) loadFilter() {
+	if filter, ok := v.app.kindFilters[v.app.kind]; ok {
+		v.filterText = filter
+		v.filterInput.SetText(filter)
+	}
+}
+
+// Show filter input and focus it
+func (v *view) showFilterInput() {
+	if v.filterActive {
+		return
+	}
+	v.filterActive = true
+	v.filterInput.SetText(v.filterText)
+
+	// Dynamically insert filter row into main flex (after header, before body)
+	// mainFlex layout: [header, body, footer] -> [header, filter, body, footer]
+	if v.mainFlex != nil {
+		// Remove body and footer, add filter, then re-add body and footer
+		v.mainFlex.RemoveItem(v.bodyPages)
+		v.mainFlex.RemoveItem(v.footer.footerFlex)
+		v.mainFlex.AddItem(v.filterFlex, 1, 0, false)
+		v.mainFlex.AddItem(v.bodyPages, 0, 2, true)
+		v.mainFlex.AddItem(v.footer.footerFlex, 1, 1, false)
+	}
+
+	v.app.SetFocus(v.filterInput)
+}
+
+// Hide filter input and return focus to table
+func (v *view) hideFilterInput() {
+	if !v.filterActive {
+		return
+	}
+	v.filterActive = false
+
+	// Remove filter row from main flex
+	if v.mainFlex != nil {
+		v.mainFlex.RemoveItem(v.filterFlex)
+	}
+
+	v.app.SetFocus(v.table)
+}
+
+// Check if a row matches the filter
+func (v *view) matchesFilter(row []string) bool {
+	if v.filterText == "" {
+		return true
+	}
+	filterLower := strings.ToLower(v.filterText)
+	for _, cell := range row {
+		if strings.Contains(strings.ToLower(cell), filterLower) {
+			return true
+		}
+	}
+	return false
 }
 
 // Interface to show each view
@@ -60,6 +173,25 @@ func buildAppPage(v dataView) *tview.Flex {
 		AddItem(infoPages, oneColumnCount+2, 1, false).
 		AddItem(tablePages, 0, 2, true).
 		AddItem(footer, 1, 1, false)
+	return flex
+}
+
+// Build page with filter support (filter row added dynamically when needed)
+func buildAppPageWithFilter(dv dataView, v *view) *tview.Flex {
+	// build table reference first
+	tablePages := dv.bodyBuilder()
+	infoPages := dv.headerBuilder()
+	footer := dv.footerBuilder()
+
+	// Build main flex WITHOUT filter row by default
+	flex := tview.NewFlex().SetDirection(tview.FlexRow).
+		AddItem(infoPages, oneColumnCount+2, 1, false).
+		AddItem(tablePages, 0, 2, true).
+		AddItem(footer, 1, 1, false)
+
+	// Store reference so we can add/remove filter dynamically
+	v.mainFlex = flex
+
 	return flex
 }
 
