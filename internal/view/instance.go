@@ -105,16 +105,7 @@ func (v *instanceView) footerBuilder() *tview.Flex {
 func (v *instanceView) bodyBuilder() *tview.Pages {
 	title, headers, dataBuilder := v.tableParam()
 	v.buildTable(title, headers, dataBuilder)
-	v.tableHandler()
 	return v.bodyPages
-}
-
-// Handlers for instance table
-func (v *instanceView) tableHandler() {
-	for row, instance := range v.instances {
-		i := instance
-		v.table.GetCell(row+1, 0).SetReference(Entity{instance: &i, entityName: *i.ContainerInstanceArn})
-	}
 }
 
 // Generate table params
@@ -135,7 +126,7 @@ func (v *instanceView) tableParam() (title string, headers []string, dataBuilder
 
 	title = fmt.Sprintf(color.TableTitleFmt, v.app.kind, clusterName, len(v.instances))
 	headers = []string{
-		"Instance ID ▾",
+		"Instance ID",
 		"Status",
 		"Running Tasks",
 		"Pending Tasks",
@@ -171,6 +162,9 @@ func (v *instanceView) tableParam() (title string, headers []string, dataBuilder
 
 			row = append(row, utils.ShowTime(instance.RegisteredAt))
 			data = append(data, row)
+
+			entity := Entity{instance: &instance, entityName: *instance.ContainerInstanceArn}
+			v.originalRowReferences = append(v.originalRowReferences, entity)
 		}
 		return data
 	}

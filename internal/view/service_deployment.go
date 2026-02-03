@@ -162,7 +162,7 @@ func (v *serviceDeploymentView) tableParam() (title string, headers []string, da
 
 	title = fmt.Sprintf(color.TableTitleFmt, v.app.kind, serviceName, len(v.serviceDeployments))
 	headers = []string{
-		"Deployment ID ▾",
+		"Deployment ID",
 		"Status",
 		"Target service revision",
 		"Created At",

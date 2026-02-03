@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"sort"
 	"strings"
 
 	"github.com/gdamore/tcell/v2"
@@ -109,7 +108,6 @@ func (ps *ProfileSwitcher) loadProfiles() {
 		profiles = append(profiles, "default")
 	}
 
-	sort.Strings(profiles)
 	ps.profiles = profiles
 }
 

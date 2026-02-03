@@ -2,6 +2,11 @@ package view
 
 import (
 	"log/slog"
+	"regexp"
+	"sort"
+	"strconv"
+	"strings"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
 	"github.com/gdamore/tcell/v2"
@@ -18,14 +23,6 @@ const (
 
 // Build common table
 func (v *view) buildTable(title string, headers []string, dataBuilder func() [][]string) {
-	// init with first column width
-	expansions := []int{2}
-	alignment := []int{L}
-
-	for i := 1; i < len(headers); i++ {
-		expansions = append(expansions, 1)
-		alignment = append(alignment, C)
-	}
 
 	v.table.
 		SetFixed(5, 5).
@@ -36,23 +33,10 @@ func (v *view) buildTable(title string, headers []string, dataBuilder func() [][
 		SetTitle(title).
 		SetBorderPadding(0, 0, 1, 1)
 
-	data := [][]string{}
-	data = append(data, headers)
-	data = append(data, dataBuilder()...)
+	v.headers = headers
+	v.originalRowData = dataBuilder()
 
-	for y, row := range data {
-		for x, text := range row {
-			cell := tview.NewTableCell(text).
-				SetAlign(alignment[x]).
-				SetExpansion(expansions[x]).
-				SetMaxWidth(30)
-			if y == 0 {
-				cell.SetTextColor(color.Color(theme.Yellow))
-				cell.SetSelectable(false)
-			}
-			v.table.SetCell(y, x, cell)
-		}
-	}
+	v.buildTableContent(v.originalRowData, v.originalRowReferences)
 
 	v.searchLast = new(string)
 
@@ -60,6 +44,46 @@ func (v *view) buildTable(title string, headers []string, dataBuilder func() [][
 
 	pageName := v.app.kind.getTablePageName(v.app.getPageHandle())
 	v.bodyPages.AddPage(pageName, v.table, true, true)
+}
+
+// Build table content based on headers and sorted row data
+func (v *view) buildTableContent(rowData [][]string, references []Entity) {
+	// init with first column width
+	expansions := []int{2}
+	alignment := []int{L}
+
+	for i := 1; i < len(v.headers); i++ {
+		expansions = append(expansions, 1)
+		alignment = append(alignment, C)
+	}
+
+	data := [][]string{v.headers}
+	data = append(data, rowData...)
+
+	for y, row := range data {
+		for x, text := range row {
+			cell := tview.NewTableCell("")
+			if y == 0 {
+				if x == v.sortColumn {
+					if v.sortOrder == "asc" {
+						text = text + " ↑"
+					} else {
+						text = text + " ↓"
+					}
+				}
+				cell.SetTextColor(color.Color(theme.Yellow))
+				cell.SetSelectable(false)
+			}
+			cell.SetText(text).
+				SetAlign(alignment[x]).
+				SetExpansion(expansions[x]).
+				SetMaxWidth(30)
+			if y > 0 {
+				cell.SetReference(references[y-1])
+			}
+			v.table.SetCell(y, x, cell)
+		}
+	}
 
 }
 
@@ -251,11 +275,146 @@ func (v *view) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 		v.handleSelected(0, 0)
 	// Handle <ctrl> + r
 	case tcell.KeyCtrlR:
+		v.sortColumn = 0
+		v.sortOrder = "desc"
 		v.reloadResource(true)
 	case tcell.KeyCtrlZ:
 		v.handleDone(0)
+	case tcell.KeyF1:
+		v.sortByColumn(0)
+	case tcell.KeyF2:
+		v.sortByColumn(1)
+	case tcell.KeyF3:
+		v.sortByColumn(2)
+	case tcell.KeyF4:
+		v.sortByColumn(3)
+	case tcell.KeyF5:
+		v.sortByColumn(4)
+	case tcell.KeyF6:
+		v.sortByColumn(5)
+	case tcell.KeyF7:
+		v.sortByColumn(6)
+	case tcell.KeyF8:
+		v.sortByColumn(7)
+	case tcell.KeyF9:
+		v.sortByColumn(8)
+	case tcell.KeyF10:
+		v.sortByColumn(9)
+	case tcell.KeyF11:
+		v.sortByColumn(10)
+	case tcell.KeyF12:
+		v.sortByColumn(11)
 	}
 	return event
+}
+
+// Handle sort by column event
+func (v *view) sortByColumn(column int) {
+	if column >= len(v.headers) {
+		v.app.Notice.Warnf("sort by column out of range: %d", column)
+		return
+	}
+	if v.sortColumn == column {
+		if v.sortOrder == "asc" {
+			v.sortOrder = "desc"
+		} else {
+			v.sortOrder = "asc"
+		}
+	} else {
+		v.sortColumn = column
+		v.sortOrder = "desc"
+	}
+
+	if len(v.originalRowData) == 0 || column < 0 || column >= len(v.headers) {
+		slog.Warn("sort by column out of range", "column", column, "headers", v.headers)
+		return
+	}
+
+	slog.Info("sort column", "column", column, "header", v.headers[column], "order", v.sortOrder)
+
+	v.table.Clear()
+
+	sortIndex := v.getSortedIndex(column)
+
+	// sortIndex is sorted
+	sortedRowData := [][]string{}
+	sortedReference := []Entity{}
+	for _, oldIdx := range sortIndex {
+		sortedRowData = append(sortedRowData, v.originalRowData[oldIdx])
+		sortedReference = append(sortedReference, v.originalRowReferences[oldIdx])
+	}
+	v.buildTableContent(sortedRowData, sortedReference)
+
+	// need to change selected values after sort for enter to work
+	v.changeSelectedValues()
+}
+
+// Handle sort logic to get sorted index
+func (v *view) getSortedIndex(column int) []int {
+	sortIndex := []int{}
+	for i := range v.originalRowData {
+		sortIndex = append(sortIndex, i)
+	}
+	sort.Slice(sortIndex, func(i, j int) bool {
+		a := v.originalRowData[sortIndex[i]][column]
+		b := v.originalRowData[sortIndex[j]][column]
+
+		// // if
+		if v.app.kind == ClusterKind {
+
+			// [#458588]0 Pending[-] | [#98971a]18 Running
+			// sort by running tasks count (second number not in [])
+			if strings.Contains(strings.ToLower(v.headers[column]), "tasks") {
+				// Match numbers that follow a ]
+				re := regexp.MustCompile(`\](\d+)`)
+				aMatches := re.FindAllStringSubmatch(a, -1)
+				bMatches := re.FindAllStringSubmatch(b, -1)
+				var aRightInt, bRightInt int
+				if len(aMatches) >= 2 {
+					aRightInt, _ = strconv.Atoi(aMatches[1][1])
+				}
+				if len(bMatches) >= 2 {
+					bRightInt, _ = strconv.Atoi(bMatches[1][1])
+				}
+				if v.sortOrder == "asc" {
+					return aRightInt < bRightInt
+				} else {
+					return aRightInt > bRightInt
+				}
+			}
+		}
+
+		// if date column
+		if _, err := time.Parse(time.RFC3339, a); err == nil {
+			aTime, _ := time.Parse(time.RFC3339, a)
+			bTime, _ := time.Parse(time.RFC3339, b)
+			if v.sortOrder == "asc" {
+				return aTime.Before(bTime)
+			} else {
+				return aTime.After(bTime)
+			}
+		}
+
+		// if numeric column, convert to int and compare
+		if _, err := strconv.Atoi(a); err == nil {
+			aInt, _ := strconv.Atoi(a)
+			bInt, _ := strconv.Atoi(b)
+			if v.sortOrder == "asc" {
+				return aInt < bInt
+			} else {
+				return aInt > bInt
+			}
+		}
+
+		// compare string
+		if v.sortOrder == "asc" {
+			return a < b
+		} else {
+			return a > b
+		}
+	})
+
+	return sortIndex
 }
 
 // Handle done event for table when press ESC

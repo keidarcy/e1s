@@ -77,7 +77,7 @@ func (v *clusterView) headerBuilder() *tview.Pages {
 func (v *clusterView) bodyBuilder() *tview.Pages {
 	title, headers, dataBuilder := v.tableParam()
 	v.buildTable(title, headers, dataBuilder)
-	v.tableHandler()
+	// v.tableHandler()
 	return v.bodyPages
 }
 
@@ -86,14 +86,6 @@ func (v *clusterView) footerBuilder() *tview.Flex {
 	v.footer.cluster.SetText(fmt.Sprintf(color.FooterSelectedItemFmt, v.app.kind))
 	v.addFooterItems()
 	return v.footer.footerFlex
-}
-
-// Handlers for cluster table
-func (v *clusterView) tableHandler() {
-	for row, cluster := range v.clusters {
-		c := cluster
-		v.table.GetCell(row+1, 0).SetReference(Entity{cluster: &c, entityName: *c.ClusterArn})
-	}
 }
 
 // Generate info pages params
@@ -171,10 +163,11 @@ func (v *clusterView) tableParam() (title string, headers []string, dataBuilder 
 		"Name",
 		"Status",
 		"Services",
-		"Tasks ▾",
+		"Tasks",
 		"Container instances",
 		"Capacity providers",
 	}
+
 	dataBuilder = func() (data [][]string) {
 		for _, c := range v.clusters {
 			// calculate tasks
@@ -189,9 +182,11 @@ func (v *clusterView) tableParam() (title string, headers []string, dataBuilder 
 			row = append(row, utils.ShowArray(c.CapacityProviders))
 
 			data = append(data, row)
+
+			entity := Entity{cluster: &c, entityName: *c.ClusterArn}
+			v.originalRowReferences = append(v.originalRowReferences, entity)
 		}
 		return data
 	}
-
 	return
 }

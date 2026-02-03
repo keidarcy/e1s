@@ -81,7 +81,6 @@ func (v *taskDefinitionView) headerBuilder() *tview.Pages {
 func (v *taskDefinitionView) bodyBuilder() *tview.Pages {
 	title, headers, dataBuilder := v.tableParam()
 	v.buildTable(title, headers, dataBuilder)
-	v.tableHandler()
 	return v.bodyPages
 }
 
@@ -90,14 +89,6 @@ func (v *taskDefinitionView) footerBuilder() *tview.Flex {
 	v.footer.taskDefinition.SetText(fmt.Sprintf(color.FooterSelectedItemFmt, v.app.kind))
 	v.addFooterItems()
 	return v.footer.footerFlex
-}
-
-// Handlers for task definition table
-func (v *taskDefinitionView) tableHandler() {
-	for row, task := range v.taskDefinitions {
-		t := task
-		v.table.GetCell(row+1, 0).SetReference(Entity{taskDefinition: &t, entityName: *t.TaskDefinitionArn})
-	}
 }
 
 // Generate info pages params
@@ -172,7 +163,7 @@ func (v *taskDefinitionView) tableParam() (title string, headers []string, dataB
 	}
 	title = fmt.Sprintf(color.TableTitleFmt, v.app.kind, serviceName, len(v.taskDefinitions))
 	headers = []string{
-		"Revision ▾",
+		"Revision",
 		"In use",
 		"CPU",
 		"Memory",
@@ -217,6 +208,9 @@ func (v *taskDefinitionView) tableParam() (title string, headers []string, dataB
 			row = append(row, memory)
 			row = append(row, utils.Age(t.RegisteredAt))
 			data = append(data, row)
+
+			entity := Entity{taskDefinition: &t, entityName: *t.TaskDefinitionArn}
+			v.originalRowReferences = append(v.originalRowReferences, entity)
 		}
 		return data
 	}

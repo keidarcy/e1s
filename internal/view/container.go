@@ -74,7 +74,9 @@ func (v *containerView) headerBuilder() *tview.Pages {
 func (v *containerView) bodyBuilder() *tview.Pages {
 	title, headers, dataBuilder := v.tableParam()
 	v.buildTable(title, headers, dataBuilder)
-	v.tableHandler()
+	v.table.SetSelectedFunc(func(row int, column int) {
+		v.execShell()
+	})
 	return v.bodyPages
 }
 
@@ -83,18 +85,6 @@ func (v *containerView) footerBuilder() *tview.Flex {
 	v.footer.container.SetText(fmt.Sprintf(color.FooterSelectedItemFmt, v.app.kind))
 	v.addFooterItems()
 	return v.footer.footerFlex
-}
-
-// Handlers for container table
-func (v *containerView) tableHandler() {
-	for row, container := range v.containers {
-		c := container
-		v.table.GetCell(row+1, 0).SetReference(Entity{container: &c, entityName: *c.ContainerArn})
-	}
-
-	v.table.SetSelectedFunc(func(row int, column int) {
-		v.execShell()
-	})
 }
 
 // Generate info pages params
@@ -133,7 +123,7 @@ func (v *containerView) tableParam() (title string, headers []string, dataBuilde
 	headers = []string{
 		"Name",
 		"Status",
-		"Health ▾",
+		"Health",
 		"PF",
 		"Registry",
 		"Image name",
@@ -164,6 +154,9 @@ func (v *containerView) tableParam() (title string, headers []string, dataBuilde
 			row = append(row, registry)
 			row = append(row, imageName)
 			data = append(data, row)
+
+			entity := Entity{container: &c, entityName: *c.ContainerArn}
+			v.originalRowReferences = append(v.originalRowReferences, entity)
 		}
 		return data
 	}

@@ -27,18 +27,31 @@ type view struct {
 	keys        []keyDescriptionPair
 	footer      *footer
 	pageKeyMap  secondaryPageKeyMap
+	// sort order 'asc' or 'desc'
+	sortOrder string
+	// sort column index 0-based
+	sortColumn int
+	// headers
+	headers []string
+	// original data
+	originalRowData [][]string
+	// original reference to handle table events
+	originalRowReferences []Entity
 }
 
 func newView(app *App, keys []keyDescriptionPair, pageKeys secondaryPageKeyMap) *view {
 	return &view{
-		app:         app,
-		headerPages: tview.NewPages(),
-		bodyPages:   tview.NewPages(),
-		table:       tview.NewTable(),
-		searchLast:  new(string),
-		keys:        keys,
-		footer:      newFooter(),
-		pageKeyMap:  pageKeys,
+		app:                   app,
+		headerPages:           tview.NewPages(),
+		bodyPages:             tview.NewPages(),
+		table:                 tview.NewTable(),
+		searchLast:            new(string),
+		keys:                  keys,
+		footer:                newFooter(),
+		pageKeyMap:            pageKeys,
+		sortOrder:             "desc",
+		sortColumn:            -1,
+		originalRowReferences: []Entity{},
 	}
 }
 

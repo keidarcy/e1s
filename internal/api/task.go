@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"sort"
 
 	"github.com/aws/aws-sdk-go-v2/service/ecs"
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
@@ -88,18 +87,6 @@ func (store *Store) ListTasks(clusterName, serviceName *string, status types.Des
 				}
 			}
 		}
-	}
-
-	// sort tasks by task name
-	sort.Slice(resultTasks, func(i, j int) bool {
-		return *resultTasks[i].TaskArn > *resultTasks[j].TaskArn
-	})
-
-	// sort containers by health status
-	for _, t := range resultTasks {
-		sort.Slice(t.Containers, func(i, j int) bool {
-			return t.Containers[i].HealthStatus < t.Containers[j].HealthStatus
-		})
 	}
 
 	return resultTasks, noRunningShowStopped, nil
