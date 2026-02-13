@@ -4,7 +4,6 @@ import (
 	"context"
 	"log/slog"
 	"math"
-	"sort"
 
 	"github.com/aws/aws-sdk-go-v2/service/ecs"
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
@@ -80,17 +79,6 @@ func (store *Store) ListClusters() ([]types.Cluster, error) {
 	if err := g.Wait(); err != nil {
 		return []types.Cluster{}, err
 	}
-
-	// sort by running task count, name ascending
-	sort.Slice(results, func(i, j int) bool {
-		if results[i].RunningTasksCount > results[j].RunningTasksCount {
-			return true
-		} else if results[i].RunningTasksCount < results[j].RunningTasksCount {
-			return false
-		} else {
-			return *results[i].ClusterName < *results[j].ClusterName
-		}
-	})
 
 	return results, nil
 }

@@ -102,7 +102,6 @@ func (v *taskView) headerBuilder() *tview.Pages {
 func (v *taskView) bodyBuilder() *tview.Pages {
 	title, headers, dataBuilder := v.tableParam()
 	v.buildTable(title, headers, dataBuilder)
-	v.tableHandler()
 	return v.bodyPages
 }
 
@@ -194,7 +193,7 @@ func (v *taskView) tableParam() (title string, headers []string, dataBuilder fun
 	}
 	title = fmt.Sprintf(color.TableTitleFmt, fmt.Sprintf("%s.%s", v.app.kind, strings.ToLower(string(v.app.taskStatus))), parent, len(v.tasks))
 	headers = []string{
-		"Task ID ▾",
+		"Task ID",
 		"Last status",
 		"Health",
 		"Service",
@@ -220,6 +219,9 @@ func (v *taskView) tableParam() (title string, headers []string, dataBuilder fun
 			row = append(row, utils.ShowString(t.Memory))
 			row = append(row, utils.Age(t.StartedAt))
 			data = append(data, row)
+
+			entity := Entity{task: &t, entityName: *t.TaskArn}
+			v.originalRowReferences = append(v.originalRowReferences, entity)
 		}
 		return data
 	}

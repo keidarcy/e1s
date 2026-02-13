@@ -40,11 +40,6 @@ func (store *Store) ListServiceDeployments(cluster, service *string) ([]types.Se
 		return []types.ServiceDeployment{}, err
 	}
 
-	// // sort by running task count, name ascending
-	// sort.Slice(results, func(i, j int) bool {
-	// return results[i].StartedAt.After(u time.Time)
-	// })
-
 	return describeOutput.ServiceDeployments, nil
 }
 

@@ -3,6 +3,7 @@ package utils
 import (
 	"fmt"
 	"testing"
+	"time"
 )
 
 const (
@@ -143,5 +144,45 @@ func TestGetRegistryInfo(t *testing.T) {
 				t.Errorf("getRegistryInfo(%q) got image name %q, want %q", test.imageURL, imageName, test.expectedImageName)
 			}
 		})
+	}
+}
+
+func TestParseAge(t *testing.T) {
+	tests := []struct {
+		s    string
+		want time.Duration
+		ok   bool
+	}{
+		{"0s", 0, true},
+		{"5s ago", 5 * time.Second, true},
+		{"5m ago", 5 * time.Minute, true},
+		{"2h ago", 2 * time.Hour, true},
+		{"3d ago", 3 * 24 * time.Hour, true},
+		{"1w ago", 1 * 24 * 7 * time.Hour, true},
+		{"2mo ago", 2 * 24 * 30 * time.Hour, true},
+		{"1y ago", 1 * 24 * 365 * time.Hour, true},
+		{"", 0, false},
+		{"nope", 0, false},
+		{"5x ago", 0, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.s, func(t *testing.T) {
+			got, ok := ParseAge(tt.s)
+			if ok != tt.ok || got != tt.want {
+				t.Errorf("ParseAge(%q) = %v, %v; want %v, %v", tt.s, got, ok, tt.want, tt.ok)
+			}
+		})
+	}
+}
+
+func TestIsAge(t *testing.T) {
+	if !IsAge("5m ago") {
+		t.Error("IsAge(\"5m ago\") = false, want true")
+	}
+	if !IsAge("0s") {
+		t.Error("IsAge(\"0s\") = false, want true")
+	}
+	if IsAge("2024-01-01T00:00:00Z") {
+		t.Error("IsAge(RFC3339) = true, want false")
 	}
 }

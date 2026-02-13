@@ -3,7 +3,6 @@ package api
 import (
 	"context"
 	"log/slog"
-	"sort"
 	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -87,10 +86,6 @@ func (store *Store) ListFullTaskDefinition(taskDefinition *string) ([]types.Task
 
 	err = g.Wait()
 
-	// sort by desire count, name ascending
-	sort.Slice(results, func(i, j int) bool {
-		return results[i].Revision > results[j].Revision
-	})
 	return results, err
 }
 

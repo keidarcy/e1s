@@ -101,7 +101,6 @@ func (v *serviceView) headerBuilder() *tview.Pages {
 func (v *serviceView) bodyBuilder() *tview.Pages {
 	title, headers, dataBuilder := v.tableParam()
 	v.buildTable(title, headers, dataBuilder)
-	v.tableHandler()
 	return v.bodyPages
 }
 
@@ -110,17 +109,6 @@ func (v *serviceView) footerBuilder() *tview.Flex {
 	v.footer.service.SetText(fmt.Sprintf(color.FooterSelectedItemFmt, v.app.kind))
 	v.addFooterItems()
 	return v.footer.footerFlex
-}
-
-// Handlers for service table
-func (v *serviceView) tableHandler() {
-	for row, service := range v.services {
-		s := service
-		// Events are too long show in separate view
-		events := s.Events
-		s.Events = []types.ServiceEvent{}
-		v.table.GetCell(row+1, 0).SetReference(Entity{service: &s, events: events, entityName: *s.ServiceArn})
-	}
 }
 
 // Generate info pages params
@@ -206,13 +194,14 @@ func (v *serviceView) tableParam() (title string, headers []string, dataBuilder 
 	headers = []string{
 		"Name",
 		"Status",
-		"Tasks ▾",
+		"Tasks",
 		"Pending",
 		"Last deployment",
 		"Execute command",
 		"Task definition",
-		"Created at",
+		"Age",
 	}
+
 	dataBuilder = func() (data [][]string) {
 		for _, s := range v.services {
 			row := []string{}
@@ -246,6 +235,9 @@ func (v *serviceView) tableParam() (title string, headers []string, dataBuilder 
 			row = append(row, utils.ArnToName(s.TaskDefinition))
 			row = append(row, utils.Age(s.CreatedAt))
 			data = append(data, row)
+
+			entity := Entity{service: &s, events: s.Events, entityName: *s.ServiceArn}
+			v.originalRowReferences = append(v.originalRowReferences, entity)
 		}
 		return data
 	}
