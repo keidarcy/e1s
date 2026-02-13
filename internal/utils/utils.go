@@ -234,6 +234,62 @@ func Age(t *time.Time) string {
 	return fmt.Sprintf("%ds ago", int(duration.Seconds()))
 }
 
+func IsAge(s string) bool {
+	_, ok := ParseAge(s)
+	return ok
+}
+
+// ParseAge parses an age string from Age() back into a duration (older = larger duration).
+// Supports "0s", "Ns ago", "Nm ago", "Nh ago", "Nd ago", "Nw ago", "Nmo ago", "Ny ago".
+// Returns (0, false) for non-age strings.
+func ParseAge(s string) (time.Duration, bool) {
+	s = strings.TrimSpace(s)
+	if s == "" {
+		return 0, false
+	}
+	// "0s" (no "ago")
+	if s == "0s" {
+		return 0, true
+	}
+	parts := strings.Split(s, " ")
+	if len(parts) != 2 || parts[1] != "ago" {
+		return 0, false
+	}
+	// "Nunit" e.g. "5m", "2h", "1y"
+	numUnit := parts[0]
+	if len(numUnit) < 2 {
+		return 0, false
+	}
+	// "mo" (months) before "m" (minutes) - must check before single-char parse
+	if strings.HasSuffix(numUnit, "mo") {
+		n, err := strconv.Atoi(numUnit[:len(numUnit)-2])
+		if err != nil {
+			return 0, false
+		}
+		return time.Duration(n) * 24 * 30 * time.Hour, true
+	}
+	n, err := strconv.Atoi(numUnit[:len(numUnit)-1])
+	if err != nil {
+		return 0, false
+	}
+	switch numUnit[len(numUnit)-1] {
+	case 's':
+		return time.Duration(n) * time.Second, true
+	case 'm':
+		return time.Duration(n) * time.Minute, true
+	case 'h':
+		return time.Duration(n) * time.Hour, true
+	case 'd':
+		return time.Duration(n) * 24 * time.Hour, true
+	case 'w':
+		return time.Duration(n) * 24 * 7 * time.Hour, true
+	case 'y':
+		return time.Duration(n) * 24 * 365 * time.Hour, true
+	default:
+		return 0, false
+	}
+}
+
 // Return docker image registry and image name with tag
 func ImageInfo(imageURL *string) (string, string) {
 	if imageURL == nil {

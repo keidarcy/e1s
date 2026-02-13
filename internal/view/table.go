@@ -2,11 +2,7 @@ package view
 
 import (
 	"log/slog"
-	"regexp"
 	"sort"
-	"strconv"
-	"strings"
-	"time"
 
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
 	"github.com/gdamore/tcell/v2"
@@ -334,12 +330,12 @@ func (v *view) sortByColumn(column int) {
 
 	v.table.Clear()
 
-	sortIndex := v.getSortedIndex(column)
+	sortedOriginalIndex := v.getSortedOriginalIndex(column)
 
 	// sortIndex is sorted
 	sortedRowData := [][]string{}
 	sortedReference := []Entity{}
-	for _, oldIdx := range sortIndex {
+	for _, oldIdx := range sortedOriginalIndex {
 		sortedRowData = append(sortedRowData, v.originalRowData[oldIdx])
 		sortedReference = append(sortedReference, v.originalRowReferences[oldIdx])
 	}
@@ -350,71 +346,28 @@ func (v *view) sortByColumn(column int) {
 }
 
 // Handle sort logic to get sorted index
-func (v *view) getSortedIndex(column int) []int {
-	sortIndex := []int{}
+func (v *view) getSortedOriginalIndex(column int) []int {
+	sortedIndex := []int{}
 	for i := range v.originalRowData {
-		sortIndex = append(sortIndex, i)
+		sortedIndex = append(sortedIndex, i)
 	}
-	sort.Slice(sortIndex, func(i, j int) bool {
-		a := v.originalRowData[sortIndex[i]][column]
-		b := v.originalRowData[sortIndex[j]][column]
-
-		// // if
-		if v.app.kind == ClusterKind {
-
-			// [#458588]0 Pending[-] | [#98971a]18 Running
-			// sort by running tasks count (second number not in [])
-			if strings.Contains(strings.ToLower(v.headers[column]), "tasks") {
-				// Match numbers that follow a ]
-				re := regexp.MustCompile(`\](\d+)`)
-				aMatches := re.FindAllStringSubmatch(a, -1)
-				bMatches := re.FindAllStringSubmatch(b, -1)
-				var aRightInt, bRightInt int
-				if len(aMatches) >= 2 {
-					aRightInt, _ = strconv.Atoi(aMatches[1][1])
-				}
-				if len(bMatches) >= 2 {
-					bRightInt, _ = strconv.Atoi(bMatches[1][1])
-				}
-				if v.sortOrder == "asc" {
-					return aRightInt < bRightInt
-				} else {
-					return aRightInt > bRightInt
-				}
-			}
-		}
-
-		// if date column
-		if _, err := time.Parse(time.RFC3339, a); err == nil {
-			aTime, _ := time.Parse(time.RFC3339, a)
-			bTime, _ := time.Parse(time.RFC3339, b)
-			if v.sortOrder == "asc" {
-				return aTime.Before(bTime)
-			} else {
-				return aTime.After(bTime)
-			}
-		}
-
-		// if numeric column, convert to int and compare
-		if _, err := strconv.Atoi(a); err == nil {
-			aInt, _ := strconv.Atoi(a)
-			bInt, _ := strconv.Atoi(b)
-			if v.sortOrder == "asc" {
-				return aInt < bInt
-			} else {
-				return aInt > bInt
-			}
-		}
-
-		// compare string
-		if v.sortOrder == "asc" {
-			return a < b
-		} else {
-			return a > b
-		}
+	sort.Slice(sortedIndex, func(i, j int) bool {
+		a := v.originalRowData[sortedIndex[i]][column]
+		b := v.originalRowData[sortedIndex[j]][column]
+		return v.compareValues(a, b, column)
 	})
 
-	return sortIndex
+	return sortedIndex
+}
+
+// compareValues compares two values for sorting based on column type
+func (v *view) compareValues(a, b string, column int) bool {
+	header := ""
+	if column < len(v.headers) {
+		header = v.headers[column]
+	}
+	isClusterTasks := v.app.kind == ClusterKind
+	return CompareCellValues(a, b, header, isClusterTasks, v.sortOrder)
 }
 
 // Handle done event for table when press ESC
