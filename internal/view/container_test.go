@@ -9,7 +9,9 @@ import (
 
 var (
 	containerName1 = "container1"
+	containerArn1  = "arn:aws:ecs:us-east-1:111111:container/container1"
 	containerName2 = "container2"
+	containerArn2  = "arn:aws:ecs:us-east-1:111111:container/container2"
 )
 
 func getContainerViews() []containerView {
@@ -18,9 +20,11 @@ func getContainerViews() []containerView {
 	}
 	container1 := newContainer()
 	container1.Name = aws.String(containerName1)
+	container1.ContainerArn = aws.String(containerArn1)
 
 	container2 := newContainer()
 	container2.Name = aws.String(containerName2)
+	container2.ContainerArn = aws.String(containerArn2)
 
 	app, _ := newApp(Option{})
 	app.cluster = &types.Cluster{

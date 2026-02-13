@@ -11,6 +11,8 @@ import (
 var (
 	serviceName1 = "service1"
 	serviceName2 = "service2"
+	serviceArn1  = "arn:aws:ecs:us-east-1:111111:service/service1"
+	serviceArn2  = "arn:aws:ecs:us-east-1:111111:service/service2"
 )
 
 func getServiceViews() []serviceView {
@@ -19,11 +21,13 @@ func getServiceViews() []serviceView {
 		CreatedAt: &now,
 	}
 	service1.ServiceName = aws.String(serviceName1)
+	service1.ServiceArn = aws.String(serviceArn1)
 
 	service2 := types.Service{
 		CreatedAt: &now,
 	}
 	service2.ServiceName = aws.String(serviceName2)
+	service2.ServiceArn = aws.String(serviceArn2)
 
 	app, _ := newApp(Option{})
 	app.cluster = &types.Cluster{

@@ -9,8 +9,9 @@ import (
 
 var (
 	clusterName1 = "cluster1"
-
+	clusterArn1  = "arn:aws:ecs:us-east-1:111111:cluster/cluster1"
 	clusterName2 = "cluster2"
+	clusterArn2  = "arn:aws:ecs:us-east-1:111111:cluster/cluster2"
 )
 
 type want struct {
@@ -24,9 +25,11 @@ type want struct {
 func getClusterViews() []clusterView {
 	cluster1 := types.Cluster{}
 	cluster1.ClusterName = aws.String(clusterName1)
+	cluster1.ClusterArn = aws.String(clusterArn1)
 
 	cluster2 := types.Cluster{}
 	cluster2.ClusterName = aws.String(clusterName2)
+	cluster2.ClusterArn = aws.String(clusterArn2)
 
 	app, _ := newApp(Option{})
 	clusterView1 := newClusterView([]types.Cluster{cluster1}, app)
