@@ -2,7 +2,6 @@ package view
 
 import (
 	"fmt"
-	"log/slog"
 
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
 	"github.com/keidarcy/e1s/internal/color"
@@ -35,23 +34,16 @@ func (app *App) showInstancesPage(reload bool) error {
 		return nil
 	}
 
-	instances, err := app.Store.ListContainerInstances(app.cluster.ClusterName)
-	if err != nil {
-		slog.Warn("failed to show instances page", "error", err)
-		app.back()
-		return err
-	}
+	resources, err := app.Store.ListContainerInstances(app.cluster.ClusterName)
 
-	if len(instances) == 0 {
-		app.back()
-		return fmt.Errorf("no instances found")
-	}
+	err = buildResourcePage(resources, app, err, func() resourceViewBuilder {
+		return newInstanceView(resources, app)
+	})
+	return err
+}
 
-	view := newInstanceView(instances, app)
-	page := buildAppPage(view)
-	app.addAppPage(page)
-	view.table.Select(app.rowIndex, 0)
-	return nil
+func (v *instanceView) getView() *view {
+	return &v.view
 }
 
 // Build info pages for instance page

@@ -40,16 +40,21 @@ func (app *App) showContainersPage(reload bool) error {
 		return nil
 	}
 
-	// no containers exists do nothing
-	if app.task == nil || len(app.task.Containers) == 0 {
+	if app.task == nil {
 		app.back()
-		return fmt.Errorf("no valid container")
+		app.Notice.Warnf("no valid task")
+		return fmt.Errorf("no valid task")
 	}
-	view := newContainerView(app.task.Containers, app)
-	page := buildAppPage(view)
-	app.addAppPage(page)
-	view.table.Select(app.rowIndex, 0)
-	return nil
+
+	resources := app.task.Containers
+	err := buildResourcePage(resources, app, nil, func() resourceViewBuilder {
+		return newContainerView(resources, app)
+	})
+	return err
+}
+
+func (v *containerView) getView() *view {
+	return &v.view
 }
 
 // Build info pages for container page

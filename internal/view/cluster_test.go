@@ -104,7 +104,7 @@ func TestClusterTableParam(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			_, _, dataBuilder := tc.view.tableParam()
+			_, _, dataBuilder := tc.view.tableParamsBuilder()
 			matrix := dataBuilder()
 			if matrix[0][0] != tc.want.clusterName {
 				t.Errorf("Name Got: %s, Want: %s\n", matrix[0][0], tc.want.clusterName)

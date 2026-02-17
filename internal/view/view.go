@@ -3,6 +3,7 @@ package view
 import (
 	"fmt"
 	"log/slog"
+	"time"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/keidarcy/e1s/internal/color"
@@ -21,12 +22,14 @@ const (
 type view struct {
 	app         *App
 	table       *tview.Table
-	searchLast  *string
 	headerPages *tview.Pages
 	bodyPages   *tview.Pages
 	keys        []keyDescriptionPair
 	footer      *footer
 	pageKeyMap  secondaryPageKeyMap
+	mainFlex    *tview.Flex
+
+	// Support sort
 	// sort order 'asc' or 'desc'
 	sortOrder string
 	// sort column index 0-based
@@ -37,6 +40,11 @@ type view struct {
 	originalRowData [][]string
 	// original reference to handle table events
 	originalRowReferences []Entity
+
+	// Support filter
+	filterActive     bool
+	filterInput      *tview.InputField
+	filterApplyTimer *time.Timer // debounce: auto-apply after 1s of no typing
 }
 
 func newView(app *App, keys []keyDescriptionPair, pageKeys secondaryPageKeyMap) *view {
@@ -45,7 +53,6 @@ func newView(app *App, keys []keyDescriptionPair, pageKeys secondaryPageKeyMap) 
 		headerPages:           tview.NewPages(),
 		bodyPages:             tview.NewPages(),
 		table:                 tview.NewTable(),
-		searchLast:            new(string),
 		keys:                  keys,
 		footer:                newFooter(),
 		pageKeyMap:            pageKeys,
@@ -56,24 +63,56 @@ func newView(app *App, keys []keyDescriptionPair, pageKeys secondaryPageKeyMap) 
 }
 
 // Interface to show each view
-type dataView interface {
+type resourceViewBuilder interface {
 	headerBuilder() *tview.Pages
 	bodyBuilder() *tview.Pages
 	footerBuilder() *tview.Flex
+	getView() *view
 }
 
-// Common function to build page for each view
-func buildAppPage(v dataView) *tview.Flex {
-	// build table reference first
-	tablePages := v.bodyBuilder()
-	infoPages := v.headerBuilder()
-	footer := v.footerBuilder()
+// Common function to build resource page for each view
+func buildResourcePage[T any](
+	resources []T,
+	app *App,
+	err error,
+	newResourceViewBuilder func() resourceViewBuilder,
+) error {
+	err = resourcePagePreHandler(resources, app, err)
+	if err != nil {
+		return err
+	}
+	b := newResourceViewBuilder()
+	v := b.getView()
+	tablePages := b.bodyBuilder()
+	infoPages := b.headerBuilder()
+	footer := b.footerBuilder()
 
-	flex := tview.NewFlex().SetDirection(tview.FlexRow).
+	page := tview.NewFlex().SetDirection(tview.FlexRow).
 		AddItem(infoPages, oneColumnCount+2, 1, false).
 		AddItem(tablePages, 0, 2, true).
 		AddItem(footer, 1, 1, false)
-	return flex
+
+	v.mainFlex = page
+	v.initFilterInput()
+	v.app.addAppPage(page)
+	v.table.Select(v.app.rowIndex, 0)
+	return nil
+}
+
+func resourcePagePreHandler[T any](resources []T, app *App, err error) error {
+	if err != nil {
+		slog.Warn("failed to show "+app.kind.String()+" pages in resourcePagePreHandler", "error", err)
+		app.back()
+		return err
+	}
+	if len(resources) == 0 {
+		errMsg := "no " + app.kind.String() + " found"
+		slog.Warn(errMsg + " in resourcePagePreHandler")
+		err = fmt.Errorf(errMsg)
+		app.back()
+		return err
+	}
+	return err
 }
 
 // Get current table selection and return as entity

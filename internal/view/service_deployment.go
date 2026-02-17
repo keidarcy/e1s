@@ -2,7 +2,6 @@ package view
 
 import (
 	"fmt"
-	"log/slog"
 
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
 	"github.com/keidarcy/e1s/internal/color"
@@ -37,23 +36,15 @@ func (app *App) showServiceDeploymentPage(reload bool) error {
 		return nil
 	}
 
-	serviceDeployments, err := app.Store.ListServiceDeployments(app.cluster.ClusterName, app.service.ServiceName)
-	if err != nil {
-		slog.Warn("failed to show service deployment pages", "error", err)
-		app.back()
-		return err
-	}
+	resources, err := app.Store.ListServiceDeployments(app.cluster.ClusterName, app.service.ServiceName)
+	err = buildResourcePage(resources, app, err, func() resourceViewBuilder {
+		return newServiceDeploymentView(resources, app)
+	})
+	return err
+}
 
-	if len(serviceDeployments) == 0 {
-		app.back()
-		return fmt.Errorf("no service deployments found")
-	}
-
-	view := newServiceDeploymentView(serviceDeployments, app)
-	page := buildAppPage(view)
-	app.addAppPage(page)
-	view.table.Select(app.rowIndex, 0)
-	return nil
+func (v *serviceDeploymentView) getView() *view {
+	return &v.view
 }
 
 // Build info pages for service deployment page
@@ -141,16 +132,7 @@ func (v *serviceDeploymentView) footerBuilder() *tview.Flex {
 func (v *serviceDeploymentView) bodyBuilder() *tview.Pages {
 	title, headers, dataBuilder := v.tableParam()
 	v.buildTable(title, headers, dataBuilder)
-	v.tableHandler()
 	return v.bodyPages
-}
-
-// Handlers for task definition table
-func (v *serviceDeploymentView) tableHandler() {
-	for row, deployment := range v.serviceDeployments {
-		d := deployment
-		v.table.GetCell(row+1, 0).SetReference(Entity{serviceDeployment: &d, entityName: *d.ServiceDeploymentArn})
-	}
 }
 
 // Generate table params
@@ -189,6 +171,9 @@ func (v *serviceDeploymentView) tableParam() (title string, headers []string, da
 				duration,
 			}
 			data = append(data, row)
+
+			entity := Entity{serviceDeployment: &d, entityName: *d.ServiceDeploymentArn}
+			v.originalRowReferences = append(v.originalRowReferences, entity)
 		}
 		return data
 	}

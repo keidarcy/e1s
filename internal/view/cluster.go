@@ -2,7 +2,6 @@ package view
 
 import (
 	"fmt"
-	"log/slog"
 	"strconv"
 	"strings"
 
@@ -36,23 +35,15 @@ func (app *App) showClustersPage(reload bool) error {
 		return nil
 	}
 
-	clusters, err := app.Store.ListClusters()
-	if err != nil {
-		slog.Error("failed to load clusters", "region", app.Region, "error", err.Error())
-		return err
-	}
+	resources, err := app.Store.ListClusters()
+	err = buildResourcePage(resources, app, err, func() resourceViewBuilder {
+		return newClusterView(resources, app)
+	})
+	return err
+}
 
-	if len(clusters) == 0 {
-		m := fmt.Sprintf("there is no valid clusters in %s region", app.Region)
-		slog.Warn("failed start", "reason", m)
-		return fmt.Errorf(m)
-	}
-
-	view := newClusterView(clusters, app)
-	page := buildAppPage(view)
-	app.addAppPage(page)
-	view.table.Select(app.rowIndex, 0)
-	return nil
+func (v *clusterView) getView() *view {
+	return &v.view
 }
 
 // Build info pages for cluster page
@@ -75,9 +66,8 @@ func (v *clusterView) headerBuilder() *tview.Pages {
 
 // Build table for cluster page
 func (v *clusterView) bodyBuilder() *tview.Pages {
-	title, headers, dataBuilder := v.tableParam()
+	title, headers, dataBuilder := v.tableParamsBuilder()
 	v.buildTable(title, headers, dataBuilder)
-	// v.tableHandler()
 	return v.bodyPages
 }
 
@@ -157,7 +147,7 @@ func (v *clusterView) headerPagesParam(c types.Cluster) (items []headerItem) {
 }
 
 // Generate table params
-func (v *clusterView) tableParam() (title string, headers []string, dataBuilder func() [][]string) {
+func (v *clusterView) tableParamsBuilder() (title string, headers []string, dataBuilder func() [][]string) {
 	title = fmt.Sprintf(color.TableTitleFmt, v.app.kind, "all", len(v.clusters))
 	headers = []string{
 		"Name",

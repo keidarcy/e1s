@@ -1,13 +1,87 @@
 package view
 
 import (
+	"log/slog"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/keidarcy/e1s/internal/utils"
 )
+
+// Handle sort by column event
+func (v *view) sortByColumn(column int) {
+	if column >= len(v.headers) {
+		v.app.Notice.Warnf("sort by column out of range: %d", column)
+		return
+	}
+	if v.sortColumn == column {
+		if v.sortOrder == "asc" {
+			v.sortOrder = "desc"
+		} else {
+			v.sortOrder = "asc"
+		}
+	} else {
+		v.sortColumn = column
+		v.sortOrder = "desc"
+	}
+
+	if len(v.originalRowData) == 0 || column < 0 || column >= len(v.headers) {
+		slog.Warn("sort by column out of range", "column", column, "headers", v.headers)
+		return
+	}
+
+	slog.Info("sort column", "column", column, "header", v.headers[column], "order", v.sortOrder)
+
+	v.table.Clear()
+
+	sortedOriginalIndex := v.getSortedOriginalIndexWithFilterText(column)
+
+	// sortIndex is sorted
+	sortedRowData := [][]string{}
+	sortedReference := []Entity{}
+	for _, oldIdx := range sortedOriginalIndex {
+		sortedRowData = append(sortedRowData, v.originalRowData[oldIdx])
+		sortedReference = append(sortedReference, v.originalRowReferences[oldIdx])
+	}
+	v.buildTableContent(sortedRowData, sortedReference)
+
+	// need to change selected values after sort for enter to work
+	v.changeSelectedValues()
+}
+
+// Handle sort logic to get sorted index
+func (v *view) getSortedOriginalIndexWithFilterText(column int) []int {
+	filterText := ""
+	if v.filterInput != nil {
+		filterText = v.filterInput.GetText()
+	}
+	sortedIndex := []int{}
+	for i := range v.originalRowData {
+		if v.shouldShow(v.originalRowData[i], filterText) {
+			sortedIndex = append(sortedIndex, i)
+		}
+	}
+	sort.Slice(sortedIndex, func(i, j int) bool {
+		a := v.originalRowData[sortedIndex[i]][column]
+		b := v.originalRowData[sortedIndex[j]][column]
+		return v.compareValues(a, b, column)
+	})
+
+	return sortedIndex
+}
+
+// compareValues compares two values for sorting based on column type
+func (v *view) compareValues(a, b string, column int) bool {
+	header := ""
+	if column < len(v.headers) {
+		header = v.headers[column]
+	}
+	isClusterTasks := v.app.kind == ClusterKind
+	return CompareCellValues(a, b, header, isClusterTasks, v.sortOrder)
+}
 
 // CompareCellValues compares two cell values for table sorting.
 // It is a pure function of its arguments for easy unit testing.

@@ -314,6 +314,7 @@ func (app *App) showPrimaryKindPage(k kind, reload bool) error {
 		err = app.showClustersPage(reload)
 	}
 	if err != nil {
+		slog.Error("failed to show primary kind page", "error", err)
 		app.Notice.Error(err.Error())
 		return err
 	}

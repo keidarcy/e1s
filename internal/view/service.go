@@ -44,26 +44,18 @@ func (app *App) showServicesPage(reload bool) error {
 		return nil
 	}
 
-	services, err := app.Store.ListServices(app.cluster.ClusterName)
-	if err != nil {
-		slog.Warn("failed to show services page", "error", err)
-		app.back()
-		return err
-	}
-
-	// no services exists do nothing
-	if len(services) == 0 {
-		app.back()
-		return fmt.Errorf("no valid service")
-	}
+	resources, err := app.Store.ListServices(app.cluster.ClusterName)
 
 	// Set default service if provided through options
 	if app.Option.Service != "" && !reload {
-		for _, s := range services {
+		for _, s := range resources {
 			if *s.ServiceName == app.Option.Service {
 				app.service = &s
 				app.events = s.Events
-				return app.showPrimaryKindPage(TaskKind, false)
+				err = app.showPrimaryKindPage(TaskKind, false)
+				if err != nil {
+					return err
+				}
 			}
 		}
 		// If service not found, reset the option and show warning
@@ -72,11 +64,14 @@ func (app *App) showServicesPage(reload bool) error {
 		app.Option.Service = ""
 	}
 
-	view := newServiceView(services, app)
-	page := buildAppPage(view)
-	app.addAppPage(page)
-	view.table.Select(app.rowIndex, 0)
-	return nil
+	err = buildResourcePage(resources, app, err, func() resourceViewBuilder {
+		return newServiceView(resources, app)
+	})
+	return err
+}
+
+func (v *serviceView) getView() *view {
+	return &v.view
 }
 
 // Build info pages for service page

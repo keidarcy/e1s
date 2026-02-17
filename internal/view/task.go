@@ -2,7 +2,6 @@ package view
 
 import (
 	"fmt"
-	"log/slog"
 	"strconv"
 	"strings"
 
@@ -49,35 +48,19 @@ func (app *App) showTasksPages(reload bool) error {
 		serviceName = nil
 	}
 
-	tasks, noRunningShowStopped, err := app.Store.ListTasks(app.cluster.ClusterName, serviceName, app.taskStatus)
+	resources, noRunningShowStopped, err := app.Store.ListTasks(app.cluster.ClusterName, serviceName, app.taskStatus)
 
-	if err != nil {
-		slog.Warn("failed to show tasks pages", "error", err)
-		app.back()
-		return err
-	}
-
-	if noRunningShowStopped && len(tasks) > 0 {
-		app.Notice.Warn("0 running task show stopped")
-	}
-
-	// no tasks exists do nothing
-	if len(tasks) == 0 {
-		err := fmt.Errorf("no valid %s task", strings.ToLower(string(app.taskStatus)))
-		if app.taskStatus == types.DesiredStatusRunning {
-			app.back()
-			return err
-		} else {
-			app.Notice.Info("0 stopped task show running")
-			return nil
+	err = buildResourcePage(resources, app, err, func() resourceViewBuilder {
+		if noRunningShowStopped && len(resources) > 0 {
+			app.Notice.Warn("0 running task show stopped")
 		}
-	}
+		return newTaskView(resources, app)
+	})
+	return err
+}
 
-	view := newTaskView(tasks, app)
-	page := buildAppPage(view)
-	app.addAppPage(page)
-	view.table.Select(app.rowIndex, 0)
-	return nil
+func (v *taskView) getView() *view {
+	return &v.view
 }
 
 // Build info pages for task page
@@ -110,14 +93,6 @@ func (v *taskView) footerBuilder() *tview.Flex {
 	v.footer.task.SetText(fmt.Sprintf(color.FooterSelectedItemFmt, v.app.kind))
 	v.addFooterItems()
 	return v.footer.footerFlex
-}
-
-// Handlers for task table
-func (v *taskView) tableHandler() {
-	for row, task := range v.tasks {
-		t := task
-		v.table.GetCell(row+1, 0).SetReference(Entity{task: &t, entityName: *t.TaskArn})
-	}
 }
 
 // Generate info pages params

@@ -2,7 +2,6 @@ package view
 
 import (
 	"fmt"
-	"log/slog"
 	"strconv"
 	"strings"
 
@@ -38,25 +37,16 @@ func (app *App) showTaskDefinitionPage(reload bool) error {
 	if td == nil {
 		td = app.task.TaskDefinitionArn
 	}
-	taskDefinitions, err := app.Store.ListFullTaskDefinition(td)
+	resources, err := app.Store.ListFullTaskDefinition(td)
+	err = buildResourcePage(resources, app, err, func() resourceViewBuilder {
+		return newTaskDefinitionView(resources, app)
+	})
 
-	if err != nil {
-		slog.Warn("failed to show taskDefinition pages", "error", err)
-		app.back()
-		return err
-	}
+	return err
+}
 
-	// no taskDefinition exists do nothing
-	if len(taskDefinitions) == 0 {
-		app.back()
-		return fmt.Errorf("no valid task definition")
-	}
-
-	view := newTaskDefinitionView(taskDefinitions, app)
-	page := buildAppPage(view)
-	app.addAppPage(page)
-	view.table.Select(app.rowIndex, 0)
-	return nil
+func (v *taskDefinitionView) getView() *view {
+	return &v.view
 }
 
 // Build info pages for task page
