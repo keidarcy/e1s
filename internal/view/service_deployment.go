@@ -43,29 +43,27 @@ func (app *App) showServiceDeploymentPage(reload bool) error {
 	return err
 }
 
-func (v *serviceDeploymentView) getView() *view {
-	return &v.view
+func (v *serviceDeploymentView) getViewAndFooter() (*view, *tview.TextView) {
+	return &v.view, v.footer.serviceDeployment
 }
 
 // Build info pages for service deployment page
-func (v *serviceDeploymentView) headerBuilder() *tview.Pages {
-	for _, d := range v.serviceDeployments {
-		title := utils.ArnToName(d.ServiceDeploymentArn)
-		entityName := *d.ServiceDeploymentArn
-		items := v.headerPagesParam(d)
-
-		v.buildHeaderPages(items, title, entityName)
+func (v *serviceDeploymentView) headerParamsBuilder() []headerPageParam {
+	params := make([]headerPageParam, 0, len(v.serviceDeployments))
+	for i, d := range v.serviceDeployments {
+		params = append(params, headerPageParam{
+			title:      utils.ArnToName(d.ServiceDeploymentArn),
+			entityName: *d.ServiceDeploymentArn,
+			items:      v.headerPageItems(i),
+		})
 	}
 
-	if len(v.serviceDeployments) > 0 && v.serviceDeployments[0].ServiceDeploymentArn != nil {
-		v.headerPages.SwitchToPage(*v.serviceDeployments[0].ServiceDeploymentArn)
-		v.changeSelectedValues()
-	}
-	return v.headerPages
+	return params
 }
 
 // Generate info pages params
-func (v *serviceDeploymentView) headerPagesParam(d types.ServiceDeployment) (items []headerItem) {
+func (v *serviceDeploymentView) headerPageItems(index int) (items []headerItem) {
+	d := v.serviceDeployments[index]
 	items = []headerItem{
 		{name: "Status", value: string(d.Status)},
 		{name: "Status Reason", value: utils.ShowString(d.StatusReason)},
@@ -121,22 +119,8 @@ func (v *serviceDeploymentView) headerPagesParam(d types.ServiceDeployment) (ite
 	return
 }
 
-// Build footer for service deployment page
-func (v *serviceDeploymentView) footerBuilder() *tview.Flex {
-	v.footer.serviceDeployment.SetText(fmt.Sprintf(color.FooterSelectedItemFmt, v.app.kind))
-	v.addFooterItems()
-	return v.footer.footerFlex
-}
-
-// Build table for service deployment page
-func (v *serviceDeploymentView) bodyBuilder() *tview.Pages {
-	title, headers, dataBuilder := v.tableParam()
-	v.buildTable(title, headers, dataBuilder)
-	return v.bodyPages
-}
-
 // Generate table params
-func (v *serviceDeploymentView) tableParam() (title string, headers []string, dataBuilder func() [][]string) {
+func (v *serviceDeploymentView) tableParamsBuilder() (title string, headers []string, rowsBuilder func() [][]string) {
 	serviceName := ""
 	if v.app.service.ServiceName != nil {
 		serviceName = *v.app.service.ServiceName
@@ -153,7 +137,7 @@ func (v *serviceDeploymentView) tableParam() (title string, headers []string, da
 		"Duration",
 	}
 
-	dataBuilder = func() (data [][]string) {
+	rowsBuilder = func() (data [][]string) {
 		for _, d := range v.serviceDeployments {
 			duration := "-"
 			if d.StartedAt != nil && d.FinishedAt != nil {

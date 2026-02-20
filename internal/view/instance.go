@@ -42,29 +42,26 @@ func (app *App) showInstancesPage(reload bool) error {
 	return err
 }
 
-func (v *instanceView) getView() *view {
-	return &v.view
+func (v *instanceView) getViewAndFooter() (*view, *tview.TextView) {
+	return &v.view, v.footer.instance
 }
 
 // Build info pages for instance page
-func (v *instanceView) headerBuilder() *tview.Pages {
-	for _, instance := range v.instances {
-		title := utils.ArnToName(instance.ContainerInstanceArn)
-		entityName := *instance.ContainerInstanceArn
-		items := v.headerPagesParam(instance)
-
-		v.buildHeaderPages(items, title, entityName)
+func (v *instanceView) headerParamsBuilder() []headerPageParam {
+	params := make([]headerPageParam, 0, len(v.instances))
+	for i, instance := range v.instances {
+		params = append(params, headerPageParam{
+			title:      utils.ArnToName(instance.ContainerInstanceArn),
+			entityName: *instance.ContainerInstanceArn,
+			items:      v.headerPageItems(i),
+		})
 	}
-
-	if len(v.instances) > 0 && v.instances[0].ContainerInstanceArn != nil {
-		v.headerPages.SwitchToPage(*v.instances[0].ContainerInstanceArn)
-		v.changeSelectedValues()
-	}
-	return v.headerPages
+	return params
 }
 
 // Generate info pages params
-func (v *instanceView) headerPagesParam(instance types.ContainerInstance) (items []headerItem) {
+func (v *instanceView) headerPageItems(index int) (items []headerItem) {
+	instance := v.instances[index]
 	items = []headerItem{
 		{name: "Instance ID", value: utils.ShowString(instance.Ec2InstanceId)},
 		{name: "Status", value: utils.ShowString(instance.Status)},
@@ -86,22 +83,8 @@ func (v *instanceView) headerPagesParam(instance types.ContainerInstance) (items
 	return
 }
 
-// Build footer for instance page
-func (v *instanceView) footerBuilder() *tview.Flex {
-	v.footer.instance.SetText(fmt.Sprintf(color.FooterSelectedItemFmt, v.app.kind))
-	v.addFooterItems()
-	return v.footer.footerFlex
-}
-
-// Build table for instance page
-func (v *instanceView) bodyBuilder() *tview.Pages {
-	title, headers, dataBuilder := v.tableParam()
-	v.buildTable(title, headers, dataBuilder)
-	return v.bodyPages
-}
-
 // Generate table params
-func (v *instanceView) tableParam() (title string, headers []string, dataBuilder func() [][]string) {
+func (v *instanceView) tableParamsBuilder() (title string, headers []string, rowsBuilder func() [][]string) {
 	clusterName := ""
 	if v.app.cluster.ClusterName != nil {
 		clusterName = *v.app.cluster.ClusterName
@@ -132,7 +115,7 @@ func (v *instanceView) tableParam() (title string, headers []string, dataBuilder
 
 	headers = append(headers, "Registered At")
 
-	dataBuilder = func() (data [][]string) {
+	rowsBuilder = func() (data [][]string) {
 		for _, instance := range v.instances {
 			row := []string{
 				utils.ArnToName(instance.ContainerInstanceArn),

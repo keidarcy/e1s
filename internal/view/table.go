@@ -17,7 +17,7 @@ const (
 )
 
 // Build common table
-func (v *view) buildTable(title string, headers []string, dataBuilder func() [][]string) {
+func (v *view) buildTable(title string, headers []string, rowsBuilder func() [][]string) {
 
 	v.table.
 		SetFixed(5, 5).
@@ -29,14 +29,14 @@ func (v *view) buildTable(title string, headers []string, dataBuilder func() [][
 		SetBorderPadding(0, 0, 1, 1)
 
 	v.headers = headers
-	v.originalRowData = dataBuilder()
+	v.originalRowData = rowsBuilder()
 
 	v.buildTableContent(v.originalRowData, v.originalRowReferences)
 
 	v.handleTableEvents()
 
 	pageName := v.app.kind.getTablePageName(v.app.getPageHandle())
-	v.bodyPages.AddPage(pageName, v.table, true, true)
+	v.tablePages.AddPage(pageName, v.table, true, true)
 }
 
 // Build table content based on headers and sorted row data

@@ -23,7 +23,7 @@ type view struct {
 	app         *App
 	table       *tview.Table
 	headerPages *tview.Pages
-	bodyPages   *tview.Pages
+	tablePages  *tview.Pages
 	keys        []keyDescriptionPair
 	footer      *footer
 	pageKeyMap  secondaryPageKeyMap
@@ -51,7 +51,7 @@ func newView(app *App, keys []keyDescriptionPair, pageKeys secondaryPageKeyMap) 
 	return &view{
 		app:                   app,
 		headerPages:           tview.NewPages(),
-		bodyPages:             tview.NewPages(),
+		tablePages:            tview.NewPages(),
 		table:                 tview.NewTable(),
 		keys:                  keys,
 		footer:                newFooter(),
@@ -60,59 +60,6 @@ func newView(app *App, keys []keyDescriptionPair, pageKeys secondaryPageKeyMap) 
 		sortColumn:            -1,
 		originalRowReferences: []Entity{},
 	}
-}
-
-// Interface to show each view
-type resourceViewBuilder interface {
-	headerBuilder() *tview.Pages
-	bodyBuilder() *tview.Pages
-	footerBuilder() *tview.Flex
-	getView() *view
-}
-
-// Common function to build resource page for each view
-func buildResourcePage[T any](
-	resources []T,
-	app *App,
-	err error,
-	newResourceViewBuilder func() resourceViewBuilder,
-) error {
-	err = resourcePagePreHandler(resources, app, err)
-	if err != nil {
-		return err
-	}
-	b := newResourceViewBuilder()
-	v := b.getView()
-	tablePages := b.bodyBuilder()
-	infoPages := b.headerBuilder()
-	footer := b.footerBuilder()
-
-	page := tview.NewFlex().SetDirection(tview.FlexRow).
-		AddItem(infoPages, oneColumnCount+2, 1, false).
-		AddItem(tablePages, 0, 2, true).
-		AddItem(footer, 1, 1, false)
-
-	v.mainFlex = page
-	v.initFilterInput()
-	v.app.addAppPage(page)
-	v.table.Select(v.app.rowIndex, 0)
-	return nil
-}
-
-func resourcePagePreHandler[T any](resources []T, app *App, err error) error {
-	if err != nil {
-		slog.Warn("failed to show "+app.kind.String()+" pages in resourcePagePreHandler", "error", err)
-		app.back()
-		return err
-	}
-	if len(resources) == 0 {
-		errMsg := "no " + app.kind.String() + " found"
-		slog.Warn(errMsg + " in resourcePagePreHandler")
-		err = fmt.Errorf(errMsg)
-		app.back()
-		return err
-	}
-	return err
 }
 
 // Get current table selection and return as entity
@@ -231,7 +178,7 @@ func (v *view) handleSecondaryPageSwitch(entity Entity, colorizedJsonString stri
 
 	slog.Debug("v.tablePages navigation", "action", "AppPage", "pageName", contentPageName, "app", v.app)
 
-	v.bodyPages.AddPage(contentPageName, contentTextItem, true, true)
+	v.tablePages.AddPage(contentPageName, contentTextItem, true, true)
 }
 
 func (v *view) handleHeaderPageSwitch(entity Entity) {
@@ -242,13 +189,18 @@ func (v *view) handleHeaderPageSwitch(entity Entity) {
 	v.headerPages.SwitchToPage(pageName)
 }
 
-func (v *view) buildHeaderPages(items []headerItem, title, entityName string) {
-	infoFlex := v.buildHeaderFlex(title, items, v.keys)
-	v.headerPages.AddPage(entityName, infoFlex, true, true)
+func (v *view) buildHeaderPages(headerPageParams []headerPageParam) {
+	for _, param := range headerPageParams {
+		title := param.title
+		entityName := param.entityName
+		items := param.items
+		infoFlex := v.buildHeaderFlex(title, items, v.keys)
+		v.headerPages.AddPage(entityName, infoFlex, true, true)
 
-	for p, k := range v.pageKeyMap {
-		infoJsonFlex := v.buildHeaderFlex(title, items, k)
-		v.headerPages.AddPage(fmt.Sprintf("%s.%s", entityName, p), infoJsonFlex, true, false)
+		for p, k := range v.pageKeyMap {
+			infoJsonFlex := v.buildHeaderFlex(title, items, k)
+			v.headerPages.AddPage(fmt.Sprintf("%s.%s", entityName, p), infoJsonFlex, true, false)
+		}
 	}
 }
 

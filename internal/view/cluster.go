@@ -42,44 +42,25 @@ func (app *App) showClustersPage(reload bool) error {
 	return err
 }
 
-func (v *clusterView) getView() *view {
-	return &v.view
+func (v *clusterView) getViewAndFooter() (*view, *tview.TextView) {
+	return &v.view, v.footer.cluster
 }
 
-// Build info pages for cluster page
-func (v *clusterView) headerBuilder() *tview.Pages {
-	for _, c := range v.clusters {
-		title := *c.ClusterName
-		entityName := *c.ClusterArn
-		items := v.headerPagesParam(c)
-
-		v.buildHeaderPages(items, title, entityName)
+func (v *clusterView) headerParamsBuilder() []headerPageParam {
+	params := make([]headerPageParam, 0, len(v.clusters))
+	for i, c := range v.clusters {
+		params = append(params, headerPageParam{
+			title:      *c.ClusterName,
+			entityName: *c.ClusterArn,
+			items:      v.headerPageItems(i),
+		})
 	}
-	// prevent empty clusters
-	if len(v.clusters) > 0 && v.clusters[0].ClusterArn != nil {
-		// show first when enter
-		v.headerPages.SwitchToPage(*v.clusters[0].ClusterArn)
-		v.changeSelectedValues()
-	}
-	return v.headerPages
-}
-
-// Build table for cluster page
-func (v *clusterView) bodyBuilder() *tview.Pages {
-	title, headers, dataBuilder := v.tableParamsBuilder()
-	v.buildTable(title, headers, dataBuilder)
-	return v.bodyPages
-}
-
-// Build footer for cluster page
-func (v *clusterView) footerBuilder() *tview.Flex {
-	v.footer.cluster.SetText(fmt.Sprintf(color.FooterSelectedItemFmt, v.app.kind))
-	v.addFooterItems()
-	return v.footer.footerFlex
+	return params
 }
 
 // Generate info pages params
-func (v *clusterView) headerPagesParam(c types.Cluster) (items []headerItem) {
+func (v *clusterView) headerPageItems(index int) (items []headerItem) {
+	c := v.clusters[index]
 	containerInsights := "disabled"
 	if len(c.Settings) > 0 && c.Settings[0].Name == "containerInsights" {
 		containerInsights = *c.Settings[0].Value
@@ -102,27 +83,27 @@ func (v *clusterView) headerPagesParam(c types.Cluster) (items []headerItem) {
 	}
 	active, draining, running, pending, activeEC2, activeFargate := 0, 0, 0, 0, 0, 0
 	for _, statistic := range c.Statistics {
-		v, err := strconv.Atoi(*statistic.Value)
+		n, err := strconv.Atoi(*statistic.Value)
 		if err != nil {
-			v = 0
+			n = 0
 		}
 		if strings.HasPrefix(*statistic.Name, "active") {
-			active += v
+			active += n
 		}
 		if strings.HasPrefix(*statistic.Name, "draining") {
-			draining += v
+			draining += n
 		}
 		if strings.HasPrefix(*statistic.Name, "running") {
-			running += v
+			running += n
 		}
 		if strings.HasPrefix(*statistic.Name, "pending") {
-			pending += v
+			pending += n
 		}
 		if strings.HasPrefix(*statistic.Name, "activeEC2") {
-			activeEC2 += v
+			activeEC2 += n
 		}
 		if strings.HasPrefix(*statistic.Name, "activeFargate") {
-			activeFargate += v
+			activeFargate += n
 		}
 	}
 	items = []headerItem{
@@ -147,7 +128,7 @@ func (v *clusterView) headerPagesParam(c types.Cluster) (items []headerItem) {
 }
 
 // Generate table params
-func (v *clusterView) tableParamsBuilder() (title string, headers []string, dataBuilder func() [][]string) {
+func (v *clusterView) tableParamsBuilder() (title string, headers []string, rowsBuilder func() [][]string) {
 	title = fmt.Sprintf(color.TableTitleFmt, v.app.kind, "all", len(v.clusters))
 	headers = []string{
 		"Name",
@@ -158,7 +139,7 @@ func (v *clusterView) tableParamsBuilder() (title string, headers []string, data
 		"Capacity providers",
 	}
 
-	dataBuilder = func() (data [][]string) {
+	rowsBuilder = func() (data [][]string) {
 		for _, c := range v.clusters {
 			// calculate tasks
 			tasks := fmt.Sprintf(color.TableClusterTasksFmt, c.PendingTasksCount, c.RunningTasksCount)

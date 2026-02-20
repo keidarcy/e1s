@@ -43,7 +43,7 @@ func getTaskViews() []taskView {
 	return []taskView{*TaskView1, *TaskView2}
 }
 
-func TestTaskPageParams(t *testing.T) {
+func TestTaskHeaderPageItems(t *testing.T) {
 	taskViews := getTaskViews()
 
 	testCases := []struct {
@@ -69,8 +69,8 @@ func TestTaskPageParams(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			for _, c := range tc.view.tasks {
-				items := tc.view.headerPagesParam(c)
+			for i := range tc.view.tasks {
+				items := tc.view.headerPageItems(i)
 				if items[0].value != tc.want.taskID {
 					t.Errorf("%s Got: %s, Want: %s\n", items[0].name, items[0].value, tc.want.taskID)
 				}
@@ -79,7 +79,7 @@ func TestTaskPageParams(t *testing.T) {
 	}
 }
 
-func TestTaskTableParam(t *testing.T) {
+func TestTaskTableParamsBuilder(t *testing.T) {
 	taskViews := getTaskViews()
 
 	testCases := []struct {
@@ -105,8 +105,8 @@ func TestTaskTableParam(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			_, _, dataBuilder := tc.view.tableParam()
-			matrix := dataBuilder()
+			_, _, rowsBuilder := tc.view.tableParamsBuilder()
+			matrix := rowsBuilder()
 			if matrix[0][0] != tc.want.taskID {
 				t.Errorf("Name Got: %s, Want: %s\n", matrix[0][0], tc.want.taskID)
 			}

@@ -70,44 +70,25 @@ func (app *App) showServicesPage(reload bool) error {
 	return err
 }
 
-func (v *serviceView) getView() *view {
-	return &v.view
+func (v *serviceView) getViewAndFooter() (*view, *tview.TextView) {
+	return &v.view, v.footer.service
 }
 
-// Build info pages for service page
-func (v *serviceView) headerBuilder() *tview.Pages {
-	for _, s := range v.services {
-		title := *s.ServiceName
-		entityName := *s.ServiceArn
-		items := v.headerPagesParam(s)
-
-		v.buildHeaderPages(items, title, entityName)
+func (v *serviceView) headerParamsBuilder() []headerPageParam {
+	params := make([]headerPageParam, 0, len(v.services))
+	for i, s := range v.services {
+		params = append(params, headerPageParam{
+			title:      *s.ServiceName,
+			entityName: *s.ServiceArn,
+			items:      v.headerPageItems(i),
+		})
 	}
-	// prevent empty services
-	if len(v.services) > 0 && v.services[0].ServiceArn != nil {
-		// show first when enter
-		v.headerPages.SwitchToPage(*v.services[0].ServiceArn)
-		v.changeSelectedValues()
-	}
-	return v.headerPages
-}
-
-// Build table for service page
-func (v *serviceView) bodyBuilder() *tview.Pages {
-	title, headers, dataBuilder := v.tableParam()
-	v.buildTable(title, headers, dataBuilder)
-	return v.bodyPages
-}
-
-// Build footer for service page
-func (v *serviceView) footerBuilder() *tview.Flex {
-	v.footer.service.SetText(fmt.Sprintf(color.FooterSelectedItemFmt, v.app.kind))
-	v.addFooterItems()
-	return v.footer.footerFlex
+	return params
 }
 
 // Generate info pages params
-func (v *serviceView) headerPagesParam(s types.Service) (items []headerItem) {
+func (v *serviceView) headerPageItems(index int) (items []headerItem) {
+	s := v.services[index]
 	// publicIP
 	ip := utils.EmptyText
 	// security groups
@@ -184,7 +165,7 @@ func (v *serviceView) headerPagesParam(s types.Service) (items []headerItem) {
 }
 
 // Generate table params
-func (v *serviceView) tableParam() (title string, headers []string, dataBuilder func() [][]string) {
+func (v *serviceView) tableParamsBuilder() (title string, headers []string, rowsBuilder func() [][]string) {
 	title = fmt.Sprintf(color.TableTitleFmt, "Services", *v.app.cluster.ClusterName, len(v.services))
 	headers = []string{
 		"Name",
@@ -197,7 +178,7 @@ func (v *serviceView) tableParam() (title string, headers []string, dataBuilder 
 		"Age",
 	}
 
-	dataBuilder = func() (data [][]string) {
+	rowsBuilder = func() (data [][]string) {
 		for _, s := range v.services {
 			row := []string{}
 

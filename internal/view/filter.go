@@ -116,10 +116,10 @@ func (v *view) showFilterInput() error {
 	}
 	v.filterActive = true
 	if v.mainFlex != nil {
-		v.mainFlex.RemoveItem(v.bodyPages)
+		v.mainFlex.RemoveItem(v.tablePages)
 		v.mainFlex.RemoveItem(v.footer.footerFlex)
 		v.mainFlex.AddItem(v.filterInput, 3, 0, false)
-		v.mainFlex.AddItem(v.bodyPages, 0, 2, true)
+		v.mainFlex.AddItem(v.tablePages, 0, 2, true)
 		v.mainFlex.AddItem(v.footer.footerFlex, 1, 1, false)
 	}
 	v.app.SetFocus(v.filterInput)
