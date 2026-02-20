@@ -123,7 +123,7 @@ func (v *view) handleTableContentDone(key tcell.Key) {
 	v.app.secondaryKind = EmptyKind
 
 	slog.Debug("v.tablePages navigation", "action", "SwitchToPage", "pageName", pageName, "app", v.app)
-	v.bodyPages.SwitchToPage(pageName)
+	v.tablePages.SwitchToPage(pageName)
 
 	selected, err := v.getCurrentSelection()
 	if err != nil {

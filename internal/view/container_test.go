@@ -42,7 +42,7 @@ func getContainerViews() []containerView {
 	return []containerView{*ContainerView1, *ContainerView2}
 }
 
-func TestContainerPageParams(t *testing.T) {
+func TestContainerHeaderPageItems(t *testing.T) {
 	containerViews := getContainerViews()
 
 	testCases := []struct {
@@ -68,8 +68,8 @@ func TestContainerPageParams(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			for _, c := range tc.view.containers {
-				items := tc.view.headerPagesParam(c)
+			for i := range tc.view.containers {
+				items := tc.view.headerPageItems(i)
 				if items[0].value != tc.want.containerName {
 					t.Errorf("%s Got: %s, Want: %s\n", items[0].name, items[0].value, tc.want.containerName)
 				}
@@ -78,7 +78,7 @@ func TestContainerPageParams(t *testing.T) {
 	}
 }
 
-func TestContainerTableParam(t *testing.T) {
+func TestContainerTableParamsBuilder(t *testing.T) {
 	containerViews := getContainerViews()
 
 	testCases := []struct {
@@ -104,8 +104,8 @@ func TestContainerTableParam(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			_, _, dataBuilder := tc.view.tableParam()
-			matrix := dataBuilder()
+			_, _, rowsBuilder := tc.view.tableParamsBuilder()
+			matrix := rowsBuilder()
 			if matrix[0][0] != tc.want.containerName {
 				t.Errorf("Name Got: %s, Want: %s\n", matrix[0][0], tc.want.containerName)
 			}

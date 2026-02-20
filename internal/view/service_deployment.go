@@ -2,7 +2,6 @@ package view
 
 import (
 	"fmt"
-	"log/slog"
 
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
 	"github.com/keidarcy/e1s/internal/color"
@@ -37,44 +36,34 @@ func (app *App) showServiceDeploymentPage(reload bool) error {
 		return nil
 	}
 
-	serviceDeployments, err := app.Store.ListServiceDeployments(app.cluster.ClusterName, app.service.ServiceName)
-	if err != nil {
-		slog.Warn("failed to show service deployment pages", "error", err)
-		app.back()
-		return err
-	}
+	resources, err := app.Store.ListServiceDeployments(app.cluster.ClusterName, app.service.ServiceName)
+	err = buildResourcePage(resources, app, err, func() resourceViewBuilder {
+		return newServiceDeploymentView(resources, app)
+	})
+	return err
+}
 
-	if len(serviceDeployments) == 0 {
-		app.back()
-		return fmt.Errorf("no service deployments found")
-	}
-
-	view := newServiceDeploymentView(serviceDeployments, app)
-	page := buildAppPage(view)
-	app.addAppPage(page)
-	view.table.Select(app.rowIndex, 0)
-	return nil
+func (v *serviceDeploymentView) getViewAndFooter() (*view, *tview.TextView) {
+	return &v.view, v.footer.serviceDeployment
 }
 
 // Build info pages for service deployment page
-func (v *serviceDeploymentView) headerBuilder() *tview.Pages {
-	for _, d := range v.serviceDeployments {
-		title := utils.ArnToName(d.ServiceDeploymentArn)
-		entityName := *d.ServiceDeploymentArn
-		items := v.headerPagesParam(d)
-
-		v.buildHeaderPages(items, title, entityName)
+func (v *serviceDeploymentView) headerParamsBuilder() []headerPageParam {
+	params := make([]headerPageParam, 0, len(v.serviceDeployments))
+	for i, d := range v.serviceDeployments {
+		params = append(params, headerPageParam{
+			title:      utils.ArnToName(d.ServiceDeploymentArn),
+			entityName: *d.ServiceDeploymentArn,
+			items:      v.headerPageItems(i),
+		})
 	}
 
-	if len(v.serviceDeployments) > 0 && v.serviceDeployments[0].ServiceDeploymentArn != nil {
-		v.headerPages.SwitchToPage(*v.serviceDeployments[0].ServiceDeploymentArn)
-		v.changeSelectedValues()
-	}
-	return v.headerPages
+	return params
 }
 
 // Generate info pages params
-func (v *serviceDeploymentView) headerPagesParam(d types.ServiceDeployment) (items []headerItem) {
+func (v *serviceDeploymentView) headerPageItems(index int) (items []headerItem) {
+	d := v.serviceDeployments[index]
 	items = []headerItem{
 		{name: "Status", value: string(d.Status)},
 		{name: "Status Reason", value: utils.ShowString(d.StatusReason)},
@@ -130,31 +119,8 @@ func (v *serviceDeploymentView) headerPagesParam(d types.ServiceDeployment) (ite
 	return
 }
 
-// Build footer for service deployment page
-func (v *serviceDeploymentView) footerBuilder() *tview.Flex {
-	v.footer.serviceDeployment.SetText(fmt.Sprintf(color.FooterSelectedItemFmt, v.app.kind))
-	v.addFooterItems()
-	return v.footer.footerFlex
-}
-
-// Build table for service deployment page
-func (v *serviceDeploymentView) bodyBuilder() *tview.Pages {
-	title, headers, dataBuilder := v.tableParam()
-	v.buildTable(title, headers, dataBuilder)
-	v.tableHandler()
-	return v.bodyPages
-}
-
-// Handlers for task definition table
-func (v *serviceDeploymentView) tableHandler() {
-	for row, deployment := range v.serviceDeployments {
-		d := deployment
-		v.table.GetCell(row+1, 0).SetReference(Entity{serviceDeployment: &d, entityName: *d.ServiceDeploymentArn})
-	}
-}
-
 // Generate table params
-func (v *serviceDeploymentView) tableParam() (title string, headers []string, dataBuilder func() [][]string) {
+func (v *serviceDeploymentView) tableParamsBuilder() (title string, headers []string, rowsBuilder func() [][]string) {
 	serviceName := ""
 	if v.app.service.ServiceName != nil {
 		serviceName = *v.app.service.ServiceName
@@ -171,7 +137,7 @@ func (v *serviceDeploymentView) tableParam() (title string, headers []string, da
 		"Duration",
 	}
 
-	dataBuilder = func() (data [][]string) {
+	rowsBuilder = func() (data [][]string) {
 		for _, d := range v.serviceDeployments {
 			duration := "-"
 			if d.StartedAt != nil && d.FinishedAt != nil {
@@ -189,6 +155,9 @@ func (v *serviceDeploymentView) tableParam() (title string, headers []string, da
 				duration,
 			}
 			data = append(data, row)
+
+			entity := Entity{serviceDeployment: &d, entityName: *d.ServiceDeploymentArn}
+			v.originalRowReferences = append(v.originalRowReferences, entity)
 		}
 		return data
 	}

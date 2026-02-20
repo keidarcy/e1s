@@ -39,7 +39,7 @@ func getServiceViews() []serviceView {
 	return []serviceView{*serviceView1, *serviceView2}
 }
 
-func TestServicePageParams(t *testing.T) {
+func TestServiceHeaderPageItems(t *testing.T) {
 	serviceViews := getServiceViews()
 
 	testCases := []struct {
@@ -65,8 +65,8 @@ func TestServicePageParams(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			for _, c := range tc.view.services {
-				items := tc.view.headerPagesParam(c)
+			for i := range tc.view.services {
+				items := tc.view.headerPageItems(i)
 				if items[0].value != tc.want.serviceName {
 					t.Errorf("%s Got: %s, Want: %s\n", items[0].name, items[0].value, tc.want.serviceName)
 				}
@@ -75,7 +75,7 @@ func TestServicePageParams(t *testing.T) {
 	}
 }
 
-func TestServiceTableParam(t *testing.T) {
+func TestServiceTableParamsBuilder(t *testing.T) {
 	serviceViews := getServiceViews()
 
 	testCases := []struct {
@@ -103,8 +103,8 @@ func TestServiceTableParam(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			_, _, dataBuilder := tc.view.tableParam()
-			matrix := dataBuilder()
+			_, _, rowsBuilder := tc.view.tableParamsBuilder()
+			matrix := rowsBuilder()
 			if matrix[0][0] != tc.want.serviceName {
 				t.Errorf("Name Got: %s, Want: %s\n", matrix[0][0], tc.want.serviceName)
 			}

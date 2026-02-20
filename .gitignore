@@ -40,3 +40,6 @@ _testmain.go
 *.log
 dist
 e1s_*
+
+# Design / notes (local docs)
+designdocs/

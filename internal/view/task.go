@@ -2,7 +2,6 @@ package view
 
 import (
 	"fmt"
-	"log/slog"
 	"strconv"
 	"strings"
 
@@ -49,79 +48,37 @@ func (app *App) showTasksPages(reload bool) error {
 		serviceName = nil
 	}
 
-	tasks, noRunningShowStopped, err := app.Store.ListTasks(app.cluster.ClusterName, serviceName, app.taskStatus)
+	resources, noRunningShowStopped, err := app.Store.ListTasks(app.cluster.ClusterName, serviceName, app.taskStatus)
 
-	if err != nil {
-		slog.Warn("failed to show tasks pages", "error", err)
-		app.back()
-		return err
-	}
-
-	if noRunningShowStopped && len(tasks) > 0 {
-		app.Notice.Warn("0 running task show stopped")
-	}
-
-	// no tasks exists do nothing
-	if len(tasks) == 0 {
-		err := fmt.Errorf("no valid %s task", strings.ToLower(string(app.taskStatus)))
-		if app.taskStatus == types.DesiredStatusRunning {
-			app.back()
-			return err
-		} else {
-			app.Notice.Info("0 stopped task show running")
-			return nil
+	err = buildResourcePage(resources, app, err, func() resourceViewBuilder {
+		if noRunningShowStopped && len(resources) > 0 {
+			app.Notice.Warn("0 running task show stopped")
 		}
-	}
+		return newTaskView(resources, app)
+	})
+	return err
+}
 
-	view := newTaskView(tasks, app)
-	page := buildAppPage(view)
-	app.addAppPage(page)
-	view.table.Select(app.rowIndex, 0)
-	return nil
+func (v *taskView) getViewAndFooter() (*view, *tview.TextView) {
+	return &v.view, v.footer.task
 }
 
 // Build info pages for task page
-func (v *taskView) headerBuilder() *tview.Pages {
-	for _, t := range v.tasks {
-		title := utils.ArnToName(t.TaskArn)
-		entityName := *t.TaskArn
-		items := v.headerPagesParam(t)
-
-		v.buildHeaderPages(items, title, entityName)
+func (v *taskView) headerParamsBuilder() []headerPageParam {
+	params := make([]headerPageParam, 0, len(v.tasks))
+	for i, t := range v.tasks {
+		params = append(params, headerPageParam{
+			title:      utils.ArnToName(t.TaskArn),
+			entityName: *t.TaskArn,
+			items:      v.headerPageItems(i),
+		})
 	}
-	// prevent empty tasks
-	if len(v.tasks) > 0 && v.tasks[0].TaskArn != nil {
-		// show first when enter
-		v.headerPages.SwitchToPage(*v.tasks[0].TaskArn)
-		v.changeSelectedValues()
-	}
-	return v.headerPages
-}
-
-// Build table for task page
-func (v *taskView) bodyBuilder() *tview.Pages {
-	title, headers, dataBuilder := v.tableParam()
-	v.buildTable(title, headers, dataBuilder)
-	return v.bodyPages
-}
-
-// Build footer for task page
-func (v *taskView) footerBuilder() *tview.Flex {
-	v.footer.task.SetText(fmt.Sprintf(color.FooterSelectedItemFmt, v.app.kind))
-	v.addFooterItems()
-	return v.footer.footerFlex
-}
-
-// Handlers for task table
-func (v *taskView) tableHandler() {
-	for row, task := range v.tasks {
-		t := task
-		v.table.GetCell(row+1, 0).SetReference(Entity{task: &t, entityName: *t.TaskArn})
-	}
+	return params
 }
 
 // Generate info pages params
-func (v *taskView) headerPagesParam(t types.Task) (items []headerItem) {
+func (v *taskView) headerPageItems(index int) (items []headerItem) {
+	t := v.tasks[index]
 	// containers
 	containers := []string{}
 	for _, c := range t.Containers {
@@ -186,7 +143,7 @@ func (v *taskView) headerPagesParam(t types.Task) (items []headerItem) {
 }
 
 // Generate table params
-func (v *taskView) tableParam() (title string, headers []string, dataBuilder func() [][]string) {
+func (v *taskView) tableParamsBuilder() (title string, headers []string, rowsBuilder func() [][]string) {
 	parent := *v.app.service.ServiceName
 	if v.app.taskStatus == types.DesiredStatusStopped {
 		parent = *v.app.cluster.ClusterName
@@ -203,7 +160,7 @@ func (v *taskView) tableParam() (title string, headers []string, dataBuilder fun
 		"Memory",
 		"Age",
 	}
-	dataBuilder = func() (data [][]string) {
+	rowsBuilder = func() (data [][]string) {
 		for _, t := range v.tasks {
 			// healthy status
 			health := string(t.HealthStatus)

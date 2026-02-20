@@ -2,7 +2,6 @@ package view
 
 import (
 	"fmt"
-	"log/slog"
 	"strconv"
 	"strings"
 
@@ -38,61 +37,34 @@ func (app *App) showTaskDefinitionPage(reload bool) error {
 	if td == nil {
 		td = app.task.TaskDefinitionArn
 	}
-	taskDefinitions, err := app.Store.ListFullTaskDefinition(td)
+	resources, err := app.Store.ListFullTaskDefinition(td)
+	err = buildResourcePage(resources, app, err, func() resourceViewBuilder {
+		return newTaskDefinitionView(resources, app)
+	})
 
-	if err != nil {
-		slog.Warn("failed to show taskDefinition pages", "error", err)
-		app.back()
-		return err
-	}
+	return err
+}
 
-	// no taskDefinition exists do nothing
-	if len(taskDefinitions) == 0 {
-		app.back()
-		return fmt.Errorf("no valid task definition")
-	}
-
-	view := newTaskDefinitionView(taskDefinitions, app)
-	page := buildAppPage(view)
-	app.addAppPage(page)
-	view.table.Select(app.rowIndex, 0)
-	return nil
+func (v *taskDefinitionView) getViewAndFooter() (*view, *tview.TextView) {
+	return &v.view, v.footer.taskDefinition
 }
 
 // Build info pages for task page
-func (v *taskDefinitionView) headerBuilder() *tview.Pages {
-	for _, t := range v.taskDefinitions {
-		title := utils.ArnToName(t.TaskDefinitionArn)
-		entityName := *t.TaskDefinitionArn
-		items := v.headerPagesParam(t)
-
-		v.buildHeaderPages(items, title, entityName)
+func (v *taskDefinitionView) headerParamsBuilder() []headerPageParam {
+	params := make([]headerPageParam, 0, len(v.taskDefinitions))
+	for i, t := range v.taskDefinitions {
+		params = append(params, headerPageParam{
+			title:      utils.ArnToName(t.TaskDefinitionArn),
+			entityName: *t.TaskDefinitionArn,
+			items:      v.headerPageItems(i),
+		})
 	}
-	// prevent empty tasks
-	if len(v.taskDefinitions) > 0 && v.taskDefinitions[0].TaskDefinitionArn != nil {
-		// show first when enter
-		v.headerPages.SwitchToPage(*v.taskDefinitions[0].TaskDefinitionArn)
-		v.changeSelectedValues()
-	}
-	return v.headerPages
-}
-
-// Build table for task page
-func (v *taskDefinitionView) bodyBuilder() *tview.Pages {
-	title, headers, dataBuilder := v.tableParam()
-	v.buildTable(title, headers, dataBuilder)
-	return v.bodyPages
-}
-
-// Build footer for task page
-func (v *taskDefinitionView) footerBuilder() *tview.Flex {
-	v.footer.taskDefinition.SetText(fmt.Sprintf(color.FooterSelectedItemFmt, v.app.kind))
-	v.addFooterItems()
-	return v.footer.footerFlex
+	return params
 }
 
 // Generate info pages params
-func (v *taskDefinitionView) headerPagesParam(t types.TaskDefinition) (items []headerItem) {
+func (v *taskDefinitionView) headerPageItems(index int) (items []headerItem) {
+	t := v.taskDefinitions[index]
 	compatibilities := []string{}
 	for _, c := range t.Compatibilities {
 		compatibilities = append(compatibilities, string(c))
@@ -150,7 +122,7 @@ func (v *taskDefinitionView) headerPagesParam(t types.TaskDefinition) (items []h
 }
 
 // Generate table params
-func (v *taskDefinitionView) tableParam() (title string, headers []string, dataBuilder func() [][]string) {
+func (v *taskDefinitionView) tableParamsBuilder() (title string, headers []string, rowsBuilder func() [][]string) {
 	serviceName, td := "", ""
 	if v.app.service.ServiceName != nil {
 		serviceName = *v.app.service.ServiceName
@@ -170,7 +142,7 @@ func (v *taskDefinitionView) tableParam() (title string, headers []string, dataB
 		"Age",
 	}
 
-	dataBuilder = func() (data [][]string) {
+	rowsBuilder = func() (data [][]string) {
 		for _, t := range v.taskDefinitions {
 			inUse := "-"
 			if td == *t.TaskDefinitionArn {

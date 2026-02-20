@@ -26,6 +26,8 @@ func (store *Store) ListTasks(clusterName, serviceName *string, status types.Des
 		types.TaskFieldTags,
 	}
 	listTaskServiceName := serviceName
+	
+	// true when show desiredStatus:stopped tasks and no running tasks
 	noRunningShowStopped := false
 
 	// true when show desiredStatus:stopped tasks

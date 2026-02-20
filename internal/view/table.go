@@ -2,7 +2,6 @@ package view
 
 import (
 	"log/slog"
-	"sort"
 
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
 	"github.com/gdamore/tcell/v2"
@@ -18,7 +17,7 @@ const (
 )
 
 // Build common table
-func (v *view) buildTable(title string, headers []string, dataBuilder func() [][]string) {
+func (v *view) buildTable(title string, headers []string, rowsBuilder func() [][]string) {
 
 	v.table.
 		SetFixed(5, 5).
@@ -30,16 +29,14 @@ func (v *view) buildTable(title string, headers []string, dataBuilder func() [][
 		SetBorderPadding(0, 0, 1, 1)
 
 	v.headers = headers
-	v.originalRowData = dataBuilder()
+	v.originalRowData = rowsBuilder()
 
 	v.buildTableContent(v.originalRowData, v.originalRowReferences)
-
-	v.searchLast = new(string)
 
 	v.handleTableEvents()
 
 	pageName := v.app.kind.getTablePageName(v.app.getPageHandle())
-	v.bodyPages.AddPage(pageName, v.table, true, true)
+	v.tablePages.AddPage(pageName, v.table, true, true)
 }
 
 // Build table content based on headers and sorted row data
@@ -252,8 +249,7 @@ func (v *view) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 		v.showFormModal(v.catFile, 10)
 		return event
 	case '/':
-		v.app.secondaryKind = ModalKind
-		v.showSearchFormModal(v.searchForm, 5)
+		v.showFilterInput()
 		return event
 	case 'h':
 		v.handleDone(0)
@@ -300,74 +296,15 @@ func (v *view) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 		v.sortByColumn(10)
 	case tcell.KeyF12:
 		v.sortByColumn(11)
-	}
-	return event
-}
-
-// Handle sort by column event
-func (v *view) sortByColumn(column int) {
-	if column >= len(v.headers) {
-		v.app.Notice.Warnf("sort by column out of range: %d", column)
-		return
-	}
-	if v.sortColumn == column {
-		if v.sortOrder == "asc" {
-			v.sortOrder = "desc"
-		} else {
-			v.sortOrder = "asc"
+	case tcell.KeyEsc:
+		if v.filterInput != nil && v.filterInput.GetText() != "" {
+			v.filterInput.SetText("")
+			v.applyFilter()
 		}
-	} else {
-		v.sortColumn = column
-		v.sortOrder = "desc"
 	}
 
-	if len(v.originalRowData) == 0 || column < 0 || column >= len(v.headers) {
-		slog.Warn("sort by column out of range", "column", column, "headers", v.headers)
-		return
-	}
-
-	slog.Info("sort column", "column", column, "header", v.headers[column], "order", v.sortOrder)
-
-	v.table.Clear()
-
-	sortedOriginalIndex := v.getSortedOriginalIndex(column)
-
-	// sortIndex is sorted
-	sortedRowData := [][]string{}
-	sortedReference := []Entity{}
-	for _, oldIdx := range sortedOriginalIndex {
-		sortedRowData = append(sortedRowData, v.originalRowData[oldIdx])
-		sortedReference = append(sortedReference, v.originalRowReferences[oldIdx])
-	}
-	v.buildTableContent(sortedRowData, sortedReference)
-
-	// need to change selected values after sort for enter to work
-	v.changeSelectedValues()
-}
-
-// Handle sort logic to get sorted index
-func (v *view) getSortedOriginalIndex(column int) []int {
-	sortedIndex := []int{}
-	for i := range v.originalRowData {
-		sortedIndex = append(sortedIndex, i)
-	}
-	sort.Slice(sortedIndex, func(i, j int) bool {
-		a := v.originalRowData[sortedIndex[i]][column]
-		b := v.originalRowData[sortedIndex[j]][column]
-		return v.compareValues(a, b, column)
-	})
-
-	return sortedIndex
-}
-
-// compareValues compares two values for sorting based on column type
-func (v *view) compareValues(a, b string, column int) bool {
-	header := ""
-	if column < len(v.headers) {
-		header = v.headers[column]
-	}
-	isClusterTasks := v.app.kind == ClusterKind
-	return CompareCellValues(a, b, header, isClusterTasks, v.sortOrder)
+	// slog.Debug("Key stroke", "key", event.Key(), "rune", event.Rune())
+	return event
 }
 
 // Handle done event for table when press ESC

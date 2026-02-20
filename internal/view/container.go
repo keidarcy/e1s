@@ -40,55 +40,38 @@ func (app *App) showContainersPage(reload bool) error {
 		return nil
 	}
 
-	// no containers exists do nothing
-	if app.task == nil || len(app.task.Containers) == 0 {
+	if app.task == nil {
 		app.back()
-		return fmt.Errorf("no valid container")
+		app.Notice.Warnf("no valid task")
+		return fmt.Errorf("no valid task")
 	}
-	view := newContainerView(app.task.Containers, app)
-	page := buildAppPage(view)
-	app.addAppPage(page)
-	view.table.Select(app.rowIndex, 0)
-	return nil
-}
 
-// Build info pages for container page
-func (v *containerView) headerBuilder() *tview.Pages {
-	for _, c := range v.containers {
-		title := utils.ArnToName(c.ContainerArn)
-		entityName := *c.ContainerArn
-		items := v.headerPagesParam(c)
-
-		v.buildHeaderPages(items, title, entityName)
-	}
-	// prevent empty containers
-	if len(v.containers) > 0 && v.containers[0].ContainerArn != nil {
-		// show first when enter
-		v.headerPages.SwitchToPage(*v.containers[0].ContainerArn)
-		v.changeSelectedValues()
-	}
-	return v.headerPages
-}
-
-// Build table for container page
-func (v *containerView) bodyBuilder() *tview.Pages {
-	title, headers, dataBuilder := v.tableParam()
-	v.buildTable(title, headers, dataBuilder)
-	v.table.SetSelectedFunc(func(row int, column int) {
-		v.execShell()
+	resources := app.task.Containers
+	err := buildResourcePage(resources, app, nil, func() resourceViewBuilder {
+		return newContainerView(resources, app)
 	})
-	return v.bodyPages
+	return err
 }
 
-// Build footer for container page
-func (v *containerView) footerBuilder() *tview.Flex {
-	v.footer.container.SetText(fmt.Sprintf(color.FooterSelectedItemFmt, v.app.kind))
-	v.addFooterItems()
-	return v.footer.footerFlex
+func (v *containerView) getViewAndFooter() (*view, *tview.TextView) {
+	return &v.view, v.footer.container
+}
+
+func (v *containerView) headerParamsBuilder() []headerPageParam {
+	params := make([]headerPageParam, 0, len(v.containers))
+	for i, c := range v.containers {
+		params = append(params, headerPageParam{
+			title:      utils.ArnToName(c.ContainerArn),
+			entityName: *c.ContainerArn,
+			items:      v.headerPageItems(i),
+		})
+	}
+	return params
 }
 
 // Generate info pages params
-func (v *containerView) headerPagesParam(c types.Container) (items []headerItem) {
+func (v *containerView) headerPageItems(index int) (items []headerItem) {
+	c := v.containers[index]
 	// Managed agents
 	mas := []string{}
 	for _, m := range c.ManagedAgents {
@@ -118,7 +101,7 @@ func (v *containerView) headerPagesParam(c types.Container) (items []headerItem)
 }
 
 // Generate table params
-func (v *containerView) tableParam() (title string, headers []string, dataBuilder func() [][]string) {
+func (v *containerView) tableParamsBuilder() (title string, headers []string, rowsBuilder func() [][]string) {
 	title = fmt.Sprintf(color.TableTitleFmt, v.app.kind, utils.ArnToName(v.app.task.TaskArn), len(v.containers))
 	headers = []string{
 		"Name",
@@ -129,7 +112,7 @@ func (v *containerView) tableParam() (title string, headers []string, dataBuilde
 		"Image name",
 	}
 
-	dataBuilder = func() (data [][]string) {
+	rowsBuilder = func() (data [][]string) {
 		for _, c := range v.containers {
 			containerId := fmt.Sprintf("%s.%s", *v.app.cluster.ClusterName, *c.Name)
 			portText := utils.EmptyText
