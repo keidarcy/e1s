@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log/slog"
-	"os"
 	"os/exec"
 	"strings"
 
@@ -34,7 +33,7 @@ type SsmStartSessionInput struct {
 // --target ecs:${cluster_id}_${task_id}_${runtime_id}
 // --document-name AWS-StartPortForwardingSession
 // --parameters {"portNumber":["${port}"], "localPortNumber":["${local_port}"]}
-func (store *Store) StartSession(input *SsmStartSessionInput) (*string, error) {
+func (store *Store) StartSession(input *SsmStartSessionInput, profile string, region string) (*string, error) {
 	store.initSsmClient()
 	smpCi := "session-manager-plugin"
 
@@ -73,15 +72,8 @@ func (store *Store) StartSession(input *SsmStartSessionInput) (*string, error) {
 		slog.Warn(m)
 		return nil, fmt.Errorf("%s", m)
 	}
-
-	region := store.Config.Region
-
 	sessionJson, _ := json.Marshal(result)
 
-	profile := "default"
-	if p := os.Getenv("AWS_PROFILE"); p != "" {
-		profile = p
-	}
 	pluginParameter := &sessionManagerPluginParameter{Target: target, Parameters: startInput.Parameters}
 	parameterJson, _ := json.Marshal(pluginParameter)
 
@@ -103,6 +95,7 @@ func (store *Store) StartSession(input *SsmStartSessionInput) (*string, error) {
 }
 
 func (store *Store) TerminateSessions(sessionIds []*string) error {
+	store.initSsmClient()
 	g := new(errgroup.Group)
 
 	for _, id := range sessionIds {

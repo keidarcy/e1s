@@ -95,7 +95,7 @@ func (v *view) portForwardingForm() (*tview.Form, *string) {
 			RemoteHost:  remoteHost,
 			Port:        port,
 			LocalPort:   localPort,
-		})
+		}, globalProfile, globalRegion)
 
 		if err != nil {
 			v.closeModal()

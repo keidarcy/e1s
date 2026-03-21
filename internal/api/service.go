@@ -4,7 +4,6 @@ import (
 	"context"
 	"log/slog"
 	"math"
-	"sort"
 
 	"github.com/aws/aws-sdk-go-v2/service/ecs"
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
@@ -94,17 +93,6 @@ func (store *Store) ListServices(clusterName *string) ([]types.Service, error) {
 	if err := g.Wait(); err != nil {
 		return []types.Service{}, err
 	}
-
-	// sort by desire count, name ascending
-	sort.Slice(results, func(i, j int) bool {
-		if results[i].DesiredCount > results[j].DesiredCount {
-			return true
-		} else if results[i].DesiredCount < results[j].DesiredCount {
-			return false
-		} else {
-			return *results[i].ServiceName < *results[j].ServiceName
-		}
-	})
 
 	return results, nil
 }
