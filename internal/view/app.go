@@ -322,14 +322,6 @@ func (app *App) showPrimaryKindPage(k kind, reload bool) error {
 		err = app.showClustersPage(reload)
 	}
 	if err != nil {
-		// // if failed to list cluster fallback to profile list
-		// if k == ClusterKind {
-		// 	app.kind = ProfileKind
-		// 	app.showProfilesPage(false)
-		// 	slog.Error("failed to show primary kind page", "error", err)
-		// 	app.Notice.Error(fmt.Sprintf("Select your profile. failed to get ecs clusters, profile: %s, region: %s", globalProfile, globalRegion))
-		// 	return nil
-		// }
 		slog.Error("failed to show primary kind page", "error", err)
 		app.Notice.Error(err.Error())
 		return err
