@@ -15,7 +15,9 @@ type footer struct {
 	service           *tview.TextView
 	task              *tview.TextView
 	container         *tview.TextView
-	instance       *tview.TextView
+	profile           *tview.TextView
+	region            *tview.TextView
+	instance          *tview.TextView
 	taskDefinition    *tview.TextView
 	serviceDeployment *tview.TextView
 	help              *tview.TextView
@@ -30,7 +32,9 @@ func newFooter() *footer {
 		service:           tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(color.FooterItemFmt, ServiceKind)),
 		task:              tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(color.FooterItemFmt, TaskKind)),
 		container:         tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(color.FooterItemFmt, ContainerKind)),
-		instance:       tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(color.FooterItemFmt, InstanceKind)).SetTextAlign(L),
+		profile:           tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(color.FooterItemFmt, ProfileKind)),
+		region:            tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(color.FooterItemFmt, RegionKind)),
+		instance:          tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(color.FooterItemFmt, InstanceKind)).SetTextAlign(L),
 		taskDefinition:    tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(color.FooterItemFmt, TaskDefinitionKind)).SetTextAlign(L),
 		serviceDeployment: tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(color.FooterItemFmt, ServiceDeploymentKind)).SetTextAlign(L),
 		help:              tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(color.FooterItemFmt, HelpKind)).SetTextAlign(L),
@@ -60,17 +64,21 @@ func (v *view) addFooterItems() {
 		v.footer.footerFlex.
 			AddItem(tview.NewTextView(), 5, 0, false).
 			AddItem(v.footer.help, 0, 1, false)
+	} else if v.app.kind == ProfileKind {
+		v.footer.footerFlex.
+			AddItem(tview.NewTextView(), 5, 0, false).
+			AddItem(v.footer.profile, 0, 1, false)
+	} else if v.app.kind == RegionKind {
+		v.footer.footerFlex.
+			AddItem(tview.NewTextView(), 5, 0, false).
+			AddItem(v.footer.region, 0, 1, false)
 	} else {
 		v.footer.footerFlex.
 			AddItem(tview.NewTextView(), 0, 1, false)
 	}
 
-	// right labels
-	// aws cli awsInfo label
-	awsInfo := v.app.region
-	if v.app.profile != "" {
-		awsInfo = fmt.Sprintf("%s:%s", v.app.profile, v.app.region)
-	}
+	// aws profile and region
+	awsInfo := fmt.Sprintf("%s:%s", globalProfile, globalRegion)
 	awsInfoView := tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(color.FooterAwsFmt, awsInfo))
 	v.footer.footerFlex.AddItem(awsInfoView, len(awsInfo)+3, 0, false)
 

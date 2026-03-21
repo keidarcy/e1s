@@ -1,6 +1,7 @@
 package view
 
 import (
+	"fmt"
 	"log/slog"
 
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
@@ -109,10 +110,70 @@ func (v *view) handleSelectionChanged(row, column int) {
 	v.headerPages.SwitchToPage(selected.entityName)
 }
 
+func (v *view) revertProfileOrRegion(to string, prev string) {
+	slog.Debug("Reverting profile or region", "to", to, "prev", prev)
+	v.app.Pages.SwitchToPage(to)
+	if to == "profiles" {
+		v.app.kind = ProfileKind
+		globalProfile = prev
+	} else {
+		v.app.kind = RegionKind
+		globalRegion = prev
+	}
+	v.app.Store.SwitchAwsConfig(globalProfile, globalRegion)
+}
+
 // Handle selected event for table when press Enter
 func (v *view) handleSelected(row, column int) {
+	if v.app.kind == ProfileKind {
+		cell := v.table.GetCell(row, column)
+		cell.GetReference()
+		prevProfile := globalProfile
+		switch entity := cell.GetReference().(type) {
+		case Entity:
+			globalProfile = entity.profile
+			slog.Info("Handle select", "profile", globalProfile)
+			if err := v.app.Store.SwitchAwsConfig(globalProfile, globalRegion); err != nil {
+				v.revertProfileOrRegion("profiles", prevProfile)
+				return
+			}
+			err := v.app.showPrimaryKindPage(ClusterKind, false)
+			if err != nil {
+				v.revertProfileOrRegion("profiles", prevProfile)
+				return
+			}
+			v.app.Notice.Info(fmt.Sprintf("Switched to Profile: %s, Region: %s", globalProfile, globalRegion))
+		}
+		return
+	}
+	if v.app.kind == RegionKind {
+		cell := v.table.GetCell(row, column)
+		cell.GetReference()
+		prevRegion := globalRegion
+		switch entity := cell.GetReference().(type) {
+		case Entity:
+			globalRegion = entity.region.Code
+			slog.Info("Handle select", "region", globalRegion)
+			if err := v.app.Store.SwitchAwsConfig(globalProfile, globalRegion); err != nil {
+				v.revertProfileOrRegion("regions", prevRegion)
+				return
+			}
+			err := v.app.showPrimaryKindPage(ClusterKind, false)
+			if err != nil {
+				v.revertProfileOrRegion("regions", prevRegion)
+				return
+			}
+			v.app.Notice.Info(fmt.Sprintf("Switched to Profile: %s, Region: %s", globalProfile, globalRegion))
+		}
+
+		return
+
+	}
 	if v.app.kind == TaskDefinitionKind || v.app.kind == InstanceKind {
 		return
+	}
+	if v.app.kind == ContainerKind {
+		v.execShell()
 	}
 	v.app.rowIndex = 0
 	v.app.showPrimaryKindPage(v.app.kind.nextKind(), false)
@@ -161,6 +222,10 @@ func (v *view) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 			v.showSecondaryKindPage(false)
 			return event
 		}
+	case 'r':
+		v.sortColumn = 0
+		v.sortOrder = "desc"
+		v.reloadResource(true)
 	case 'R':
 		if v.app.kind == ServiceDeploymentKind {
 			v.app.secondaryKind = ModalKind
@@ -265,11 +330,6 @@ func (v *view) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 	// Handle right arrow key
 	case tcell.KeyRight:
 		v.handleSelected(0, 0)
-	// Handle <ctrl> + r
-	case tcell.KeyCtrlR:
-		v.sortColumn = 0
-		v.sortOrder = "desc"
-		v.reloadResource(true)
 	case tcell.KeyCtrlZ:
 		v.handleDone(0)
 	case tcell.KeyF1:
@@ -323,6 +383,24 @@ func (v *view) changeSelectedValues() {
 		return
 	}
 	switch v.app.kind {
+	case ProfileKind:
+		profile := selected.profile
+		if profile != "" {
+			v.app.profile = profile
+			v.app.entityName = profile
+		} else {
+			slog.Warn("unexpected in changeSelectedValues", "kind", v.app.kind)
+			return
+		}
+	case RegionKind:
+		region := selected.region
+		if region != nil {
+			v.app.region = region
+			v.app.entityName = region.Code
+		} else {
+			slog.Warn("unexpected in changeSelectedValues", "kind", v.app.kind)
+			return
+		}
 	case ClusterKind:
 		cluster := selected.cluster
 		if cluster != nil {

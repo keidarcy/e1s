@@ -25,21 +25,14 @@ func newHelpView(app *App) *helpView {
 
 func (app *App) showHelpPage() {
 	view := newHelpView(app)
-	resource := genColumn("Resource", []keyDescriptionPair{
+	resource := genColumn("Resource", append([]keyDescriptionPair{
 		hotKeyMap["enter"],
 		hotKeyMap["esc"],
 		hotKeyMap["ctrlZ"],
 		hotKeyMap["ctrlC"],
-		hotKeyMap["ctrlR"],
-		hotKeyMap["ctrlP"],
 		hotKeyMap["?"],
-		hotKeyMap["/"],
-		hotKeyMap["f1~f12"],
-		hotKeyMap["b"],
-		hotKeyMap["d"],
-		hotKeyMap["L"],
 		hotKeyMap["e"],
-	})
+	}, basicKeyInputs...))
 	navigation := genColumn("Navigation", []keyDescriptionPair{
 		hotKeyMap["j"],
 		hotKeyMap["k"],

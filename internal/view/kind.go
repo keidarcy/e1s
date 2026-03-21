@@ -18,6 +18,8 @@ const (
 	ServiceRevisionKind
 	ModalKind
 	EmptyKind
+	ProfileKind
+	RegionKind
 )
 
 func (k kind) String() string {
@@ -50,6 +52,10 @@ func (k kind) String() string {
 		return "autoscaling"
 	case ModalKind:
 		return "modal"
+	case ProfileKind:
+		return "profiles"
+	case RegionKind:
+		return "regions"
 	default:
 		return "unknownKind"
 	}
@@ -72,6 +78,10 @@ func (k kind) prevKind() kind {
 	switch k {
 	case ClusterKind, InstanceKind:
 		return ClusterKind
+	case ProfileKind:
+		return ProfileKind
+	case RegionKind:
+		return RegionKind
 	case ServiceKind:
 		return ClusterKind
 	case TaskKind, TaskDefinitionKind, ServiceDeploymentKind:
@@ -85,13 +95,16 @@ func (k kind) prevKind() kind {
 
 // App page name is kind string + "." + cluster arn
 func (k kind) getAppPageName(name string) string {
+	prefix := globalProfile + "." + globalRegion
 	switch k {
+	case ProfileKind, RegionKind:
+		return k.String()
 	case ClusterKind:
-		return k.String()
+		return prefix + "." + k.String()
 	case ServiceKind, TaskKind, ContainerKind, TaskDefinitionKind, ServiceDeploymentKind, DescriptionKind, InstanceKind:
-		return k.String() + "." + name
+		return prefix + "." + k.String() + "." + name
 	default:
-		return k.String()
+		return prefix + "." + k.String()
 	}
 }
 

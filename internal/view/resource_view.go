@@ -55,7 +55,7 @@ func buildResourcePage[T any](
 	v.addFooterItems()
 
 	page := tview.NewFlex().SetDirection(tview.FlexRow).
-		AddItem(v.headerPages, oneColumnCount+2, 1, false).
+		AddItem(v.headerPages, oneColumnCount+4, 1, false).
 		AddItem(v.tablePages, 0, 2, true).
 		AddItem(v.footer.footerFlex, 1, 1, false)
 
@@ -75,7 +75,7 @@ func resourceViewPreHandler[T any](resources []T, app *App, err error) error {
 	if len(resources) == 0 {
 		errMsg := "no " + app.kind.String() + " found"
 		slog.Warn(errMsg + " in resourcePagePreHandler")
-		err = fmt.Errorf(errMsg)
+		err = fmt.Errorf("%s", errMsg)
 		app.back()
 		return err
 	}

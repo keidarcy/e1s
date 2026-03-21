@@ -3,6 +3,7 @@ package view
 import (
 	"errors"
 	"log/slog"
+	"os"
 	"strings"
 	"time"
 
@@ -18,6 +19,8 @@ import (
 
 var theme color.Colors
 var ErrNoNeedReload = errors.New("no need reload")
+var globalProfile string
+var globalRegion string
 
 // Entity contains ECS resources to show, use uppercase to make items like app.cluster easy to access
 type Entity struct {
@@ -32,6 +35,8 @@ type Entity struct {
 	instance          *types.ContainerInstance
 	serviceDeployment *types.ServiceDeployment
 	serviceRevision   *types.ServiceRevision
+	profile           string
+	region            *api.Region
 	entityName        string
 }
 
@@ -90,14 +95,12 @@ type App struct {
 	taskStatus types.DesiredStatus
 	// Show resources from cluster
 	fromCluster bool
-	// AWS region
-	region string
-	// AWS profile
-	profile string
 }
 
 func newApp(option Option) (*App, error) {
-	store, err := api.NewStore()
+	globalProfile = os.Getenv("AWS_PROFILE")
+	globalRegion = os.Getenv("AWS_REGION")
+	store, err := api.NewStore(globalProfile, globalRegion)
 	if err != nil {
 		return nil, err
 	}
@@ -122,8 +125,6 @@ func newApp(option Option) (*App, error) {
 		secondaryKind: EmptyKind,
 		backKind:      EmptyKind,
 		taskStatus:    types.DesiredStatusRunning,
-		region:        store.Region,
-		profile:       store.Profile,
 		Entity: Entity{
 			cluster: &types.Cluster{
 				ClusterName: aws.String("e1s_default_cluster"),
@@ -192,6 +193,7 @@ func (app *App) switchPage(reload bool) bool {
 
 // Go back page based on current kind
 func (app *App) back() {
+	slog.Debug("app.Pages back", "kind", app.kind)
 	app.taskStatus = types.DesiredStatusRunning
 
 	prevKind := app.kind.prevKind()
@@ -277,9 +279,13 @@ func (app *App) start() error {
 			for {
 				<-ticker.C
 				if app.secondaryKind == EmptyKind && !app.isSuspended {
-					app.showPrimaryKindPage(app.kind, true)
-					slog.Debug("Auto refresh")
-					app.Application.Draw()
+					// tview is not thread-safe: UI updates must run on the main loop
+					app.QueueUpdateDraw(func() {
+						if err := app.showPrimaryKindPage(app.kind, true); err != nil {
+							// showPrimaryKindPage already shows error in Notice
+						}
+						slog.Debug("Auto refresh")
+					})
 				}
 			}
 		}()
@@ -356,36 +362,14 @@ func (app *App) globalInputHandle(event *tcell.EventKey) *tcell.EventKey {
 	// Handle Ctrl+P for profile switcher
 	switch event.Key() {
 	case tcell.KeyCtrlP:
-		app.showProfileSwitcher()
-		return nil
+		app.kind = ProfileKind
+		app.showProfilesPage(false)
+	case tcell.KeyCtrlR:
+		app.kind = RegionKind
+		app.showRegionsPage(false)
 	}
 
 	return event
-}
-
-// showProfileSwitcher displays the AWS profile switcher modal
-func (app *App) showProfileSwitcher() {
-	profileSwitcher := NewProfileSwitcher(app)
-	profileSwitcher.Show()
-}
-
-// switchProfile switches the AWS profile and refreshes the current view
-func (app *App) switchProfile(profileName string) error {
-	// Switch profile in the store
-	if err := app.Store.SwitchProfile(profileName); err != nil {
-		return err
-	}
-
-	// Update app's profile and region info
-	app.profile = app.Store.Profile
-	app.region = app.Store.Region
-
-	// Refresh the current view to use the new profile
-	if err := app.showPrimaryKindPage(app.kind, true); err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func (app *App) LogValue() slog.Value {

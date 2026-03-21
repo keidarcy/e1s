@@ -21,7 +21,7 @@ var hotKeyMap = map[string]keyDescriptionPair{
 	"l":      {key: "l, right arrow", description: "Select"},
 	"L":      {key: "shift-l", description: "Show cloudwatch logs(Only support awslogs logDriver)"},
 	"m":      {key: "m", description: "Show metrics(CPU/Memory)"},
-	"r":      {key: "r", description: "Realtime log streaming(Only support one log group)"},
+	"r":      {key: "r", description: "Refresh"},
 	"R":      {key: "shift-r", description: "Rollback service deployment"},
 	"t":      {key: "t", description: "Show task definitions"},
 	"p":      {key: "p", description: "Show service deployments"},
@@ -44,8 +44,9 @@ var hotKeyMap = map[string]keyDescriptionPair{
 	"esc":   {key: "esc", description: "Back"},
 	"ctrlZ": {key: "ctrl-z", description: "Back"},
 	"ctrlC": {key: "ctrl-c", description: "Exit"},
-	"ctrlR": {key: "ctrl-r", description: "Refresh"},
-	"ctrlP": {key: "ctrl-p", description: "Switch AWS profile"},
+	"ctrlR": {key: "ctrl-r", description: "Show AWS regions"},
+	"ctrlP": {key: "ctrl-p", description: "Show AWS profiles"},
+	"ctrlL": {key: "ctrl-l", description: "Realtime log streaming(Only support one log group)"},
 	"?":     {key: "?", description: "Help"},
 	"b":     {key: "b", description: "Open in browser"},
 	"d":     {key: "d", description: "Describe"},
@@ -73,14 +74,18 @@ type keyDescriptionPair struct {
 	description string
 }
 
-var basicKeyInputs = []keyDescriptionPair{
+var tableInputs = []keyDescriptionPair{
 	hotKeyMap["/"],
 	hotKeyMap["f1~f12"],
+}
+
+var basicKeyInputs = append(tableInputs, []keyDescriptionPair{
 	hotKeyMap["b"],
 	hotKeyMap["d"],
+	hotKeyMap["r"],
 	hotKeyMap["ctrlR"],
 	hotKeyMap["ctrlP"],
-}
+}...)
 
 type secondaryPageKeyMap = map[kind][]keyDescriptionPair
 
@@ -101,7 +106,7 @@ var logPageKeys = []keyDescriptionPair{
 	hotKeyMap["f"],
 	hotKeyMap["e"],
 	hotKeyMap["b"],
-	hotKeyMap["r"],
+	hotKeyMap["ctrlL"],
 	hotKeyMap["ctrlR"],
 	hotKeyMap["ctrlZ"],
 }
