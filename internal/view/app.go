@@ -125,8 +125,6 @@ func newApp(option Option) (*App, error) {
 		secondaryKind: EmptyKind,
 		backKind:      EmptyKind,
 		taskStatus:    types.DesiredStatusRunning,
-		// region:        store.Region,
-		// profile:       store.Profile,
 		Entity: Entity{
 			cluster: &types.Cluster{
 				ClusterName: aws.String("e1s_default_cluster"),
