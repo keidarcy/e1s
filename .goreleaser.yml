@@ -1,3 +1,5 @@
+version: 2
+
 before:
   hooks:
     - go mod download
@@ -36,7 +38,7 @@ brews:
   - name: e1s
     homepage: https://github.com/keidarcy/e1s
     description: e1s is a terminal application to simply browsing and manage AWS ECS resources, with a focus on Fargate. Inspired by k9s.
-    tap:
+    repository:
       owner: keidarcy
       name: homebrew-tap
 
