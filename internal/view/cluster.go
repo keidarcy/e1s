@@ -35,7 +35,14 @@ func (app *App) showClustersPage(reload bool) error {
 		return nil
 	}
 
-	resources, err := app.Store.ListClusters()
+	var resources []types.Cluster
+	var err error
+	if len(app.bootstrapClusters) > 0 && !reload {
+		resources = app.bootstrapClusters
+		app.bootstrapClusters = nil
+	} else {
+		resources, err = app.Store.ListClusters()
+	}
 	err = buildResourcePage(resources, app, err, func() resourceViewBuilder {
 		return newClusterView(resources, app)
 	})

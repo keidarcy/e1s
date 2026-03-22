@@ -58,6 +58,7 @@ func init() {
 	rootCmd.Flags().String("theme", "", "specify color theme")
 	rootCmd.Flags().String("cluster", "", "specify the default cluster")
 	rootCmd.Flags().String("service", "", "specify the default service (requires --cluster)")
+	rootCmd.Flags().Bool("splash", true, "display startup splash screen (AWS load runs before the UI)")
 
 	err := viper.BindPFlags(rootCmd.Flags())
 	if err != nil {
@@ -105,6 +106,7 @@ Check https://github.com/keidarcy/e1s for more details.`,
 		theme := viper.GetString("theme")
 		cluster := viper.GetString("cluster")
 		service := viper.GetString("service")
+		splash := viper.GetBool("splash")
 
 		option := e1s.Option{
 			ConfigFile: configFile,
@@ -117,6 +119,7 @@ Check https://github.com/keidarcy/e1s for more details.`,
 			Theme:      theme,
 			Cluster:    cluster,
 			Service:    service,
+			Splash:     splash,
 		}
 
 		if err := e1s.Start(option); err != nil {
