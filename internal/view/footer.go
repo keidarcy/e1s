@@ -84,5 +84,5 @@ func (v *view) addFooterItems() {
 
 	// e1s info label
 	t := tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(color.FooterE1sFmt, utils.AppName, utils.AppVersion))
-	v.footer.footerFlex.AddItem(t, 14, 0, false)
+	v.footer.footerFlex.AddItem(t, len(utils.AppVersion)+7, 0, false)
 }

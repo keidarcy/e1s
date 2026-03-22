@@ -1,6 +1,6 @@
 package utils
 
 const (
-	AppVersion = "v1.0.53"
+	AppVersion = "v2.0.0-rc.1"
 	AppName    = "e1s"
 )
