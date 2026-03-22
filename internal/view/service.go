@@ -44,7 +44,14 @@ func (app *App) showServicesPage(reload bool) error {
 		return nil
 	}
 
-	resources, err := app.Store.ListServices(app.cluster.ClusterName)
+	var resources []types.Service
+	var err error
+	if len(app.bootstrapServices) > 0 && !reload {
+		resources = app.bootstrapServices
+		app.bootstrapServices = nil
+	} else {
+		resources, err = app.Store.ListServices(app.cluster.ClusterName)
+	}
 
 	// Set default service if provided through options
 	if app.Option.Service != "" && !reload {

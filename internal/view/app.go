@@ -61,6 +61,8 @@ type Option struct {
 	Cluster string
 	// Default service name
 	Service string
+	// Splash screen on startup (load AWS config and first resource list in background).
+	Splash bool
 }
 
 // tview App
@@ -95,14 +97,23 @@ type App struct {
 	taskStatus types.DesiredStatus
 	// Show resources from cluster
 	fromCluster bool
+	// First paint after splash: avoid a second identical API list call.
+	bootstrapClusters []types.Cluster
+	bootstrapServices []types.Service
+	// Set when splash bootstrap fails before Run() returns; read after Run().
+	splashStartupErr error
 }
 
 func newApp(option Option) (*App, error) {
 	globalProfile = os.Getenv("AWS_PROFILE")
 	globalRegion = os.Getenv("AWS_REGION")
-	store, err := api.NewStore(globalProfile, globalRegion)
-	if err != nil {
-		return nil, err
+	var store *api.Store
+	var err error
+	if !option.Splash {
+		store, err = api.NewStore(globalProfile, globalRegion)
+		if err != nil {
+			return nil, err
+		}
 	}
 	app := tview.NewApplication()
 	pages := tview.NewPages()
@@ -157,14 +168,24 @@ func Start(option Option) error {
 		return err
 	}
 
-	if err := app.start(); err != nil {
-		return err
-	}
-
 	app.SetInputCapture(app.globalInputHandle)
 
-	if err := app.Application.SetRoot(app.mainScreen, true).Run(); err != nil {
-		return err
+	if option.Splash {
+		app.SetRoot(app.buildSplashPage(), true)
+		go app.runSplashBootstrap()
+		if err := app.Application.Run(); err != nil {
+			return err
+		}
+		if app.splashStartupErr != nil {
+			return app.splashStartupErr
+		}
+	} else {
+		if err := app.start(); err != nil {
+			return err
+		}
+		if err := app.Application.SetRoot(app.mainScreen, true).Run(); err != nil {
+			return err
+		}
 	}
 	app.onClose()
 	return nil
@@ -354,6 +375,15 @@ func (app *App) onClose() {
 }
 
 func (app *App) globalInputHandle(event *tcell.EventKey) *tcell.EventKey {
+	if app.Store == nil {
+		switch event.Key() {
+		case tcell.KeyCtrlC:
+			return event
+		default:
+			return nil
+		}
+	}
+
 	switch event.Rune() {
 	case '?':
 		app.showHelpPage()
