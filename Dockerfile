@@ -1,5 +1,5 @@
 # Build e1s in go image
-FROM golang:1.23.2-alpine as builder
+FROM golang:1.26-alpine as builder
 
 # Set build argument for target architecture
 ARG TARGETARCH

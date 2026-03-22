@@ -69,6 +69,8 @@ func (k kind) nextKind() kind {
 		return TaskKind
 	case TaskKind:
 		return ContainerKind
+	case ContainerKind:
+		return ContainerKind
 	default:
 		return ClusterKind
 	}
