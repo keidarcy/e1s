@@ -63,6 +63,7 @@ func (app *App) showServicesPage(reload bool) error {
 				if err != nil {
 					return err
 				}
+				return nil
 			}
 		}
 		// If service not found, reset the option and show warning

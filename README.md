@@ -21,14 +21,22 @@
 
 ## AWS credentials and configuration
 
-`e1s` uses the default [aws-cli configuration](https://github.com/aws/aws-cli/blob/develop/README.rst#configuration). It does not store or send your access and secret key anywhere. The access and secret key are used only to securely connect to AWS API via AWS SDK. Both profile and region are overridable via the `AWS_PROFILE`, `AWS_REGION` prepend environment variable or `--profile`, `--region` option.
+`e1s` uses the default [aws-cli configuration](https://github.com/aws/aws-cli/blob/develop/README.rst#configuration). It does not store or send your access key or secret key anywhere. Credentials are only used to securely connect to AWS APIs through the AWS SDK for Go.
+
+You can choose AWS credentials and target region in three ways:
+
+- Use your default AWS CLI profile and region.
+- Override them at startup with `AWS_PROFILE`, `AWS_REGION`, `--profile`, or `--region`.
+- Switch them while `e1s` is running with `Ctrl+P` for profiles and `Ctrl+R` for regions.
+
+`e1s` reads local AWS shared config and credentials files, so it works with common setups such as static credentials, assume-role profiles, `credential_process`, and AWS IAM Identity Center or SSO-based configurations.
 
 ## Installation
 
 `e1s` is available on Linux, macOS and Windows platforms.
 
 - Binaries for Linux, Windows and Mac are available in the [release](https://github.com/keidarcy/e1s/releases) page.
-- Homebrew for maxOS or Linux
+- Homebrew for macOS or Linux
 
 ```bash
 brew install keidarcy/tap/e1s
@@ -96,6 +104,7 @@ Flags:
       --region string        specify the AWS region
       --service string       specify the default service (requires --cluster)
   -s, --shell string         specify interactive ecs exec shell (default "/bin/sh")
+      --splash               display startup splash screen (AWS load runs before the UI) (default true)
       --theme string         specify color theme
   -v, --version              version for e1s
 
@@ -112,15 +121,27 @@ $ AWS_PROFILE=custom-profile AWS_REGION=us-east-2 e1s
 $ e1s --profile custom-profile --region us-east-2
 # use default cluster and default service
 $ e1s --cluster cluster-1 --service service-1
-# use command line to set read only, debug, stop auto refresh with a custom log path json output and dracula theme
-$ e1s --readonly --debug --refresh -1 --log-file /tmp/e1s.log --json --theme dracula
+# use command line to set read only, debug, stop auto refresh with a custom log path, json output, and dracula theme
+$ e1s --read-only --debug --refresh -1 --log-file /tmp/e1s.log --json --theme dracula
+# disable the startup splash screen
+$ e1s --splash=false
 # docker run with specified profile and region
 $ docker run -it --rm -v $HOME/.aws:/root/.aws ghcr.io/keidarcy/e1s:latest e1s --profile YOUR_PROFILE --region YOUR_REGION
 ```
 
 ### Config file([sample](https://github.com/keidarcy/dotfiles/blob/master/other-dot-config/.config/e1s/config.yml))
 
-Default config file path is `$HOME/.config/e1s/config.yml`, it's possible specify the config file that [viper](https://github.com/spf13/viper?tab=readme-ov-file#what-is-viper) supports with `--config-file` option.
+Default config file path is `$HOME/.config/e1s/config.yml`. You can specify a different config file with `--config-file`. Because `e1s` uses [viper](https://github.com/spf13/viper?tab=readme-ov-file#what-is-viper), standard config file formats supported by viper can be used.
+
+Typical settings you may want to manage in config are:
+
+- `theme`
+- `refresh`
+- `read-only`
+- `log-file`
+- default `cluster` and `service`
+- `splash`
+- color overrides
 
 ### Theme and colors
 
@@ -179,7 +200,19 @@ colors:
 
 ### Key bindings
 
-`e1s` supports Vim-style navigation: use `h`, `j`, `k`, `l` for left, down, up, right navigation respectively. Use `Ctrl+P` to switch AWS profile.
+`e1s` supports Vim-style navigation: use `h`, `j`, `k`, `l` for left, down, up, right navigation respectively.
+
+Common shortcuts:
+
+- `?` shows the help page.
+- `Ctrl+P` opens the AWS profile list.
+- `Ctrl+R` opens the AWS region list.
+- `/` opens table filtering. Use `ESC` to clear the current filter.
+- `F1` to `F12` sort the current table by column.
+- `d` opens the description view for the selected resource.
+- `b` opens the selected resource in the AWS console.
+- `r` refreshes the current view.
+- `s` opens shell access on supported task, instance, and container views.
 
 Press `?` to check overall key bindings.
 
@@ -200,6 +233,59 @@ tail -f /tmp/e1s.log
 ```
 
 ## Features
+
+### Core workflow
+
+- Browse ECS resources in a drill-down flow: clusters -> services -> tasks -> containers.
+- Jump directly to a specific cluster or service from the CLI.
+- Use the app in read-only mode when you want browsing and inspection without mutation actions.
+- Auto-refresh resource lists on a configurable interval.
+- Start with a splash screen that loads AWS resources before the main UI is shown.
+
+### Navigation and discovery
+
+- Vim-style navigation with rich keyboard shortcuts.
+- Global help page.
+- In-table filtering with simple text matching or `column:value` syntax.
+- Per-column sorting with function keys.
+- Dedicated profile and region views with in-app switching.
+- Footer indicators that show the current AWS profile and region context.
+
+### Resource inspection
+
+- Describe clusters.
+- Describe EC2 container instances.
+- Describe services.
+- Describe service deployments.
+- Describe service revisions.
+- Describe tasks, including running and stopped tasks.
+- Describe containers.
+- Describe task definitions.
+- Describe service autoscaling.
+- Open the selected resource in the AWS console.
+- View CloudWatch Logs for supported `awslogs` configurations.
+- Start realtime log streaming for supported single-log-group cases.
+- Show service CPU and memory metrics.
+
+### Resource operations
+
+- ECS Exec style interactive shell into containers.
+- Interactive shell into ECS container instances through AWS Systems Manager.
+- Update services.
+- Roll back service deployments.
+- Stop tasks.
+- Register new task definitions.
+- Start local port forwarding sessions.
+- Start remote host port forwarding sessions through a selected container.
+- Transfer files through S3-backed workflows.
+- Run one-off exec commands in containers.
+- Download text file content from containers.
+
+### Customization
+
+- Configure themes from the built-in theme set.
+- Override individual colors in config.
+- Adjust logging, refresh interval, splash behavior, shell, and default navigation targets.
 
 ### Full features list
 
@@ -228,6 +314,10 @@ tail -f /tmp/e1s.log
   - [x] Open selected resource in browser(support new UI(v2))
   - [x] Interactively shell to containers(like ssh)
   - [x] Interactively shell to instances(like ssh)
+  - [x] Switch AWS profiles in-app
+  - [x] Switch AWS regions in-app
+  - [x] Filter table data
+  - [x] Sort table columns
   - [x] Edit service
     - [x] Desired count
     - [x] Force new deployment
@@ -335,3 +425,4 @@ Xing Yahao(https://github.com/keidarcy)
 ## Stargazers over time
 
 [![Stargazers over time](https://starchart.cc/keidarcy/e1s.svg?variant=adaptive)](https://starchart.cc/keidarcy/e1s)
+

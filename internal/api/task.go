@@ -19,6 +19,8 @@ import (
 // aws ecs list-tasks --cluster ${cluster} --desired-status STOPPED
 // `aws ecs list-tasks --cluster ${CLUSTER} --service-name ${SERVICE} --desired-status STOPPED` return nothing
 // `aws ecs list-tasks --cluster ${CLUSTER} --desired-status STOPPED` return all stopped tasks in cluster
+// The bool is true only when the running list was empty and results are stopped tasks
+// from a cluster-wide list (so the UI can warn). It is false when the user asked for stopped tasks directly.
 func (store *Store) ListTasks(clusterName, serviceName *string, status types.DesiredStatus) ([]types.Task, bool, error) {
 	limit := int32(100)
 	resultTasks := []types.Task{}
@@ -26,14 +28,13 @@ func (store *Store) ListTasks(clusterName, serviceName *string, status types.Des
 		types.TaskFieldTags,
 	}
 	listTaskServiceName := serviceName
-	
-	// true when show desiredStatus:stopped tasks and no running tasks
-	noRunningShowStopped := false
 
-	// true when show desiredStatus:stopped tasks
+	// When listing stopped tasks, ECS ignores service on ListTasks; we filter after DescribeTasks.
+	filterDescribedByService := status == types.DesiredStatusStopped
+	warnFallbackFromRunningToStopped := false
+
 	if status == types.DesiredStatusStopped {
 		listTaskServiceName = nil
-		noRunningShowStopped = true
 	}
 
 	listTasksOutput, err := store.ecs.ListTasks(context.Background(), &ecs.ListTasksInput{
@@ -45,23 +46,28 @@ func (store *Store) ListTasks(clusterName, serviceName *string, status types.Des
 
 	if err != nil {
 		slog.Warn("failed to run aws api to list tasks", "error", err)
-		return []types.Task{}, noRunningShowStopped, err
+		return []types.Task{}, false, err
 	}
 
 	if status == types.DesiredStatusStopped && len(listTasksOutput.TaskArns) == 0 {
-		return nil, noRunningShowStopped, nil
+		return nil, false, nil
 	}
 
 	if status == types.DesiredStatusRunning && len(listTasksOutput.TaskArns) == 0 {
-		listTasksOutput, _ := store.ecs.ListTasks(context.Background(), &ecs.ListTasksInput{
+		listTasksOutput, err = store.ecs.ListTasks(context.Background(), &ecs.ListTasksInput{
 			Cluster:       clusterName,
 			DesiredStatus: types.DesiredStatusStopped,
 			MaxResults:    &limit,
 		})
-		if len(listTasksOutput.TaskArns) == 0 {
-			return nil, noRunningShowStopped, nil
+		if err != nil {
+			slog.Warn("failed to run aws api to list tasks", "error", err)
+			return nil, false, err
 		}
-		noRunningShowStopped = true
+		if len(listTasksOutput.TaskArns) == 0 {
+			return nil, false, nil
+		}
+		filterDescribedByService = true
+		warnFallbackFromRunningToStopped = true
 	}
 
 	describeTasksOutput, err := store.ecs.DescribeTasks(context.Background(), &ecs.DescribeTasksInput{
@@ -72,11 +78,11 @@ func (store *Store) ListTasks(clusterName, serviceName *string, status types.Des
 
 	if err != nil {
 		slog.Warn("failed to run aws api to describe tasks", "error", err)
-		return []types.Task{}, noRunningShowStopped, err
+		return []types.Task{}, false, err
 	}
 
 	if len(describeTasksOutput.Tasks) > 0 {
-		if !noRunningShowStopped {
+		if !filterDescribedByService {
 			resultTasks = append(resultTasks, describeTasksOutput.Tasks...)
 		} else {
 			for _, t := range describeTasksOutput.Tasks {
@@ -91,7 +97,7 @@ func (store *Store) ListTasks(clusterName, serviceName *string, status types.Des
 		}
 	}
 
-	return resultTasks, noRunningShowStopped, nil
+	return resultTasks, warnFallbackFromRunningToStopped, nil
 }
 
 // aws ecs register-task-definition --family ${{family}} --...

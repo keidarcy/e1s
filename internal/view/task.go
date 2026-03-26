@@ -38,20 +38,20 @@ func (app *App) showTasksPages(reload bool) error {
 		return nil
 	}
 
-	var serviceName *string = nil
+	var serviceName *string
 	if app.service != nil {
 		serviceName = app.service.ServiceName
 	}
 
-	// true when show tasks from cluster
+	// Cluster task list: do not scope ListTasks to a single service.
 	if app.fromCluster {
 		serviceName = nil
 	}
 
-	resources, noRunningShowStopped, err := app.Store.ListTasks(app.cluster.ClusterName, serviceName, app.taskStatus)
+	resources, warnStoppedAfterEmptyRunning, err := app.Store.ListTasks(app.cluster.ClusterName, serviceName, app.taskStatus)
 
 	err = buildResourcePage(resources, app, err, func() resourceViewBuilder {
-		if noRunningShowStopped && len(resources) > 0 {
+		if warnStoppedAfterEmptyRunning && len(resources) > 0 {
 			app.Notice.Warn("0 running task show stopped")
 		}
 		return newTaskView(resources, app)
