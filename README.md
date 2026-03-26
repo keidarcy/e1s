@@ -332,6 +332,45 @@ tail -f /tmp/e1s.log
   - [x] Customize colors
 </details>
 
+### Table sorting
+
+Press `F1` through `F12` to sort the current table by that column index.
+
+<details>
+  <summary>Table sorting</summary>
+
+  ![table sorting](./assets/e1s-table-sort.gif)
+</details>
+
+### Table filtering
+
+Press `/` to filter rows. Use plain text or `column:value` queries (for example `name:payments`). Press `ESC` to clear the filter.
+
+<details>
+  <summary>Table filtering</summary>
+
+  ![table filtering](./assets/e1s-table-filter.gif)
+</details>
+
+### Switch AWS profile and region
+
+Press `Ctrl+P` to pick an AWS profile and `Ctrl+R` to pick a region. The footer shows the active profile and region.
+
+<details>
+  <summary>Profile and region</summary>
+
+  ![profile and region](./assets/e1s-profile-region.gif)
+</details>
+
+### [Service deployments](https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_ListServiceDeployments.html)
+
+From the service list, press `p` on a service to open its deployments. From there you can inspect a deployment or open the linked service revision.
+
+<details>
+  <summary>Service deployments</summary>
+
+  ![service deployments](./assets/e1s-service-deployments.gif)
+</details>
 
 ### Interactively exec towards containers([ECS Exec](https://docs.aws.amazon.com/AmazonECS/latest/userguide/ecs-exec.html))
 
