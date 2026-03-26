@@ -287,49 +287,27 @@ tail -f /tmp/e1s.log
 - Override individual colors in config.
 - Adjust logging, refresh interval, splash behavior, shell, and default navigation targets.
 
-### Full features list
+### Switch AWS profile and region
+
+Press `Ctrl+P` to pick an AWS profile and `Ctrl+R` to pick a region. The footer shows the active profile and region.
 
 <details>
-  <summary>features</summary>
+  <summary>Profile and region</summary>
 
-  - [x] Specify config file
-  - [x] Specify the default cluster
-  - [x] Read only mode
-  - [x] Auto refresh
-  - [x] Describe clusters
-  - [x] Describe instances
-  - [x] Describe services
-  - [x] Describe service deployments
-  - [x] Describe service revisions
-  - [x] Describe tasks(running, stopped)
-  - [x] Describe containers
-  - [x] Describe task definitions
-  - [x] Describe service autoscaling
-  - [x] Show cloudwatch logs(only support awslogs logDriver)
-    - [x] Realtime log streaming(only support one log group)
-  - [x] Show Metrics
-    - [x] CPUUtilization
-    - [x] MemoryUtilization
-  - [x] Show autoscaling target and policy
-  - [x] Open selected resource in browser(support new UI(v2))
-  - [x] Interactively shell to containers(like ssh)
-  - [x] Interactively shell to instances(like ssh)
-  - [x] Switch AWS profiles in-app
-  - [x] Switch AWS regions in-app
-  - [x] Filter table data
-  - [x] Sort table columns
-  - [x] Edit service
-    - [x] Desired count
-    - [x] Force new deployment
-    - [x] Task definition family
-    - [x] Task definition revision
-  - [x] Stop task
-  - [x] Register new task definition
-  - [x] Start port forwarding session
-  - [x] Start remote host port forwarding session
-  - [x] Transfer files to and from your local machine and a remote host like `aws s3 cp`
-  - [x] Customize theme
-  - [x] Customize colors
+  ![profile](./assets/e1s-switch-profile.png)
+
+  ![region](./assets/e1s-switch-region.png)
+</details>
+
+### Table filtering
+
+Press `/` to filter rows. Use plain text to filter the first column or `column:value` queries (for example `service:1`). Press `ESC` to clear the filter.
+
+<details>
+  <summary>Table filtering</summary>
+  ![table filtering](./assets/e1s-table-filter.png)
+
+  ![table filtering via column](./assets/e1s-table-filter-via-column.png)
 </details>
 
 ### Table sorting
@@ -339,27 +317,7 @@ Press `F1` through `F12` to sort the current table by that column index.
 <details>
   <summary>Table sorting</summary>
 
-  ![table sorting](./assets/e1s-table-sort.gif)
-</details>
-
-### Table filtering
-
-Press `/` to filter rows. Use plain text or `column:value` queries (for example `name:payments`). Press `ESC` to clear the filter.
-
-<details>
-  <summary>Table filtering</summary>
-
-  ![table filtering](./assets/e1s-table-filter.gif)
-</details>
-
-### Switch AWS profile and region
-
-Press `Ctrl+P` to pick an AWS profile and `Ctrl+R` to pick a region. The footer shows the active profile and region.
-
-<details>
-  <summary>Profile and region</summary>
-
-  ![profile and region](./assets/e1s-profile-region.gif)
+  ![table sorting](./assets/e1s-table-sort-via-column.png)
 </details>
 
 ### [Service deployments](https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_ListServiceDeployments.html)
@@ -368,8 +326,7 @@ From the service list, press `p` on a service to open its deployments. From ther
 
 <details>
   <summary>Service deployments</summary>
-
-  ![service deployments](./assets/e1s-service-deployments.gif)
+  ![service deployments](./assets/e1s-service-deployments.png)
 </details>
 
 ### Interactively exec towards containers([ECS Exec](https://docs.aws.amazon.com/AmazonECS/latest/userguide/ecs-exec.html))
@@ -440,6 +397,51 @@ Implemented by a S3 bucket. Since file transfer though a S3 bucket and aws-cli i
   <summary>File transfer</summary>
 
   ![file-transfer-demo](./assets/e1s-file-transfer-demo.gif)
+</details>
+
+### Full features list
+
+<details>
+  <summary>features</summary>
+
+  - [x] Specify config file
+  - [x] Specify the default cluster
+  - [x] Read only mode
+  - [x] Auto refresh
+  - [x] Describe clusters
+  - [x] Describe instances
+  - [x] Describe services
+  - [x] Describe service deployments
+  - [x] Describe service revisions
+  - [x] Describe tasks(running, stopped)
+  - [x] Describe containers
+  - [x] Describe task definitions
+  - [x] Describe service autoscaling
+  - [x] Show cloudwatch logs(only support awslogs logDriver)
+    - [x] Realtime log streaming(only support one log group)
+  - [x] Show Metrics
+    - [x] CPUUtilization
+    - [x] MemoryUtilization
+  - [x] Show autoscaling target and policy
+  - [x] Open selected resource in browser(support new UI(v2))
+  - [x] Interactively shell to containers(like ssh)
+  - [x] Interactively shell to instances(like ssh)
+  - [x] Switch AWS profiles in-app
+  - [x] Switch AWS regions in-app
+  - [x] Filter table data
+  - [x] Sort table columns
+  - [x] Edit service
+    - [x] Desired count
+    - [x] Force new deployment
+    - [x] Task definition family
+    - [x] Task definition revision
+  - [x] Stop task
+  - [x] Register new task definition
+  - [x] Start port forwarding session
+  - [x] Start remote host port forwarding session
+  - [x] Transfer files to and from your local machine and a remote host like `aws s3 cp`
+  - [x] Customize theme
+  - [x] Customize colors
 </details>
 
 ## Feature requests & bug reports
