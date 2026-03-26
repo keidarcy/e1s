@@ -287,17 +287,6 @@ tail -f /tmp/e1s.log
 - Override individual colors in config.
 - Adjust logging, refresh interval, splash behavior, shell, and default navigation targets.
 
-### Switch AWS profile and region
-
-Press `Ctrl+P` to pick an AWS profile and `Ctrl+R` to pick a region. The footer shows the active profile and region.
-
-<details>
-  <summary>Profile and region</summary>
-
-  ![profile](./assets/e1s-switch-profile.png)
-
-  ![region](./assets/e1s-switch-region.png)
-</details>
 
 ### Table filtering
 
@@ -328,14 +317,16 @@ Press `F1` through `F12` to sort the current table by that column index.
 
 </details>
 
-### [Service deployments](https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_ListServiceDeployments.html)
+### Switch AWS profile and region
 
-From the service list, press `p` on a service to open its deployments. From there you can inspect a deployment or open the linked service revision.
+Press `Ctrl+P` to pick an AWS profile and `Ctrl+R` to pick a region. The footer shows the active profile and region.
 
 <details>
-  <summary>Service deployments</summary>
+  <summary>Profile and region</summary>
 
-  ![service deployments](./assets/e1s-service-deployments.png)
+  ![region](./assets/e1s-switch-region.png)
+
+  ![profile](./assets/e1s-switch-profile.png)
 </details>
 
 ### Interactively exec towards containers([ECS Exec](https://docs.aws.amazon.com/AmazonECS/latest/userguide/ecs-exec.html))
@@ -368,6 +359,16 @@ Use `ctrl` + `d` to exit interactive-exec session.
 - Desired tasks
 - Task definition family
 - Task definition revision
+
+### [Service deployments](https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_ListServiceDeployments.html)
+
+From the service list, press `p` on a service to open its deployments. From there you can inspect a deployment or open the linked service revision.
+
+<details>
+  <summary>Service deployments</summary>
+
+  ![service deployments](./assets/e1s-service-deployments.png)
+</details>
 
 ### [Register task definition](https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_RegisterTaskDefinition.html)
 
