@@ -287,6 +287,128 @@ tail -f /tmp/e1s.log
 - Override individual colors in config.
 - Adjust logging, refresh interval, splash behavior, shell, and default navigation targets.
 
+
+### Table filtering
+
+Press `/` to filter rows. Use plain text to filter the first column or `column:value` queries (for example `service:1`). Press `ESC` to clear the filter.
+
+<details>
+  <summary>Table filtering</summary>
+
+  ![table filtering](./assets/e1s-table-filter.png)
+
+  Filter by the first column value.
+
+  ![table filtering via column](./assets/e1s-table-filter-via-column.png)
+
+  Filter by the any column name and value.
+</details>
+
+### Table sorting
+
+Press `F1` through `F12` to sort the current table by that column index.
+
+<details>
+  <summary>Table sorting</summary>
+
+  ![table sorting](./assets/e1s-table-sort-via-column.png)
+
+  Sort by column index F1 through F12.
+
+</details>
+
+### Switch AWS profile and region
+
+Press `Ctrl+P` to pick an AWS profile and `Ctrl+R` to pick a region. The footer shows the active profile and region.
+
+<details>
+  <summary>Profile and region</summary>
+
+  ![region](./assets/e1s-switch-region.png)
+
+  ![profile](./assets/e1s-switch-profile.png)
+</details>
+
+### Interactively exec towards containers([ECS Exec](https://docs.aws.amazon.com/AmazonECS/latest/userguide/ecs-exec.html))
+
+Use [aws-ecs-exec-checker](https://github.com/aws-containers/amazon-ecs-exec-checker) to check for the pre-requisites to use ECS exec.
+
+<details>
+  <summary>interactive exec demo</summary>
+
+  ![e1s-interactive-exec-demo](./assets/e1s-interactive-exec-demo.gif)
+</details>
+
+Use `ctrl` + `d` to exit interactive-exec session.
+
+#### Troubleshooting
+
+*The execute command failed because execute command...* - check [service execute command](https://github.com/keidarcy/e1s/blob/c9587a0bd89eacc08a1fd392523f518309e2437f/tests/ecs.tf#L102), [task role policy](https://github.com/keidarcy/e1s/blob/c9587a0bd89eacc08a1fd392523f518309e2437f/tests/ecs.tf#L157-L168)
+
+*Session Manager plugin not found* - [document](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-troubleshooting.html#plugin-not-found).
+
+### [Update service](https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_UpdateService.html)
+
+<details>
+  <summary>update service demo</summary>
+
+  ![update-service-demo](./assets/e1s-update-service-demo.gif)
+</details>
+
+- Force new deployment
+- Desired tasks
+- Task definition family
+- Task definition revision
+
+### [Service deployments](https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_ListServiceDeployments.html)
+
+From the service list, press `p` on a service to open its deployments. From there you can inspect a deployment or open the linked service revision.
+
+<details>
+  <summary>Service deployments</summary>
+
+  ![service deployments](./assets/e1s-service-deployments.png)
+</details>
+
+### [Register task definition](https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_RegisterTaskDefinition.html)
+
+<details>
+  <summary>Register task definition</summary>
+
+  ![register-task-definition-demo](./assets/e1s-register-task-definition-demo.gif)
+</details>
+
+
+### [Start port forwarding session](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-sessions-start.html#sessions-start-port-forwarding)
+
+With a specified task and container, to start port forwarding session you need to specify a port and a local port. The local port is the port on your local machine that you want to use to access the container port.
+
+<details>
+  <summary>Port forwarding session</summary>
+
+  ![port-forwarding-session-demo](./assets/e1s-port-forwarding-session-demo.gif)
+</details>
+
+### [Start remote host port forwarding session](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-sessions-start.html#sessions-remote-port-forwarding)
+
+With a specified task and container, to start a remote host port forwarding session you need to specify a port, a host and a local port. The local port is the port on your local machine that you want to use to access the remote host port though container.
+
+<details>
+  <summary>Remote host port forwarding session</summary>
+
+  ![remote-host-port-forwarding-session-demo](./assets/e1s-remote-host-port-forwarding-session-demo.gif)
+</details>
+
+### File transfer
+
+Implemented by a S3 bucket. Since file transfer though a S3 bucket and aws-cli in container, you need a S3 bucket and add permissions S3 bucket permission to the task role and e1s role, and also need a aws-cli installed container.
+
+<details>
+  <summary>File transfer</summary>
+
+  ![file-transfer-demo](./assets/e1s-file-transfer-demo.gif)
+</details>
+
 ### Full features list
 
 <details>
@@ -330,77 +452,6 @@ tail -f /tmp/e1s.log
   - [x] Transfer files to and from your local machine and a remote host like `aws s3 cp`
   - [x] Customize theme
   - [x] Customize colors
-</details>
-
-
-### Interactively exec towards containers([ECS Exec](https://docs.aws.amazon.com/AmazonECS/latest/userguide/ecs-exec.html))
-
-Use [aws-ecs-exec-checker](https://github.com/aws-containers/amazon-ecs-exec-checker) to check for the pre-requisites to use ECS exec.
-
-<details>
-  <summary>interactive exec demo</summary>
-
-  ![e1s-interactive-exec-demo](./assets/e1s-interactive-exec-demo.gif)
-</details>
-
-Use `ctrl` + `d` to exit interactive-exec session.
-
-#### Troubleshooting
-
-*The execute command failed because execute command...* - check [service execute command](https://github.com/keidarcy/e1s/blob/c9587a0bd89eacc08a1fd392523f518309e2437f/tests/ecs.tf#L102), [task role policy](https://github.com/keidarcy/e1s/blob/c9587a0bd89eacc08a1fd392523f518309e2437f/tests/ecs.tf#L157-L168)
-
-*Session Manager plugin not found* - [document](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-troubleshooting.html#plugin-not-found).
-
-### [Update service](https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_UpdateService.html)
-
-<details>
-  <summary>update service demo</summary>
-
-  ![update-service-demo](./assets/e1s-update-service-demo.gif)
-</details>
-
-- Force new deployment
-- Desired tasks
-- Task definition family
-- Task definition revision
-
-### [Register task definition](https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_RegisterTaskDefinition.html)
-
-<details>
-  <summary>Register task definition</summary>
-
-  ![register-task-definition-demo](./assets/e1s-register-task-definition-demo.gif)
-</details>
-
-
-### [Start port forwarding session](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-sessions-start.html#sessions-start-port-forwarding)
-
-With a specified task and container, to start port forwarding session you need to specify a port and a local port. The local port is the port on your local machine that you want to use to access the container port.
-
-<details>
-  <summary>Port forwarding session</summary>
-
-  ![port-forwarding-session-demo](./assets/e1s-port-forwarding-session-demo.gif)
-</details>
-
-### [Start remote host port forwarding session](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-sessions-start.html#sessions-remote-port-forwarding)
-
-With a specified task and container, to start a remote host port forwarding session you need to specify a port, a host and a local port. The local port is the port on your local machine that you want to use to access the remote host port though container.
-
-<details>
-  <summary>Remote host port forwarding session</summary>
-
-  ![remote-host-port-forwarding-session-demo](./assets/e1s-remote-host-port-forwarding-session-demo.gif)
-</details>
-
-### File transfer
-
-Implemented by a S3 bucket. Since file transfer though a S3 bucket and aws-cli in container, you need a S3 bucket and add permissions S3 bucket permission to the task role and e1s role, and also need a aws-cli installed container.
-
-<details>
-  <summary>File transfer</summary>
-
-  ![file-transfer-demo](./assets/e1s-file-transfer-demo.gif)
 </details>
 
 ## Feature requests & bug reports
