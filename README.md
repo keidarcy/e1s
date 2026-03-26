@@ -305,6 +305,7 @@ Press `/` to filter rows. Use plain text to filter the first column or `column:v
 
 <details>
   <summary>Table filtering</summary>
+
   ![table filtering](./assets/e1s-table-filter.png)
 
   ![table filtering via column](./assets/e1s-table-filter-via-column.png)
