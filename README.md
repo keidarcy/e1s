@@ -308,7 +308,11 @@ Press `/` to filter rows. Use plain text to filter the first column or `column:v
 
   ![table filtering](./assets/e1s-table-filter.png)
 
+  Filter by the first column value.
+
   ![table filtering via column](./assets/e1s-table-filter-via-column.png)
+
+  Filter by the any column name and value.
 </details>
 
 ### Table sorting
@@ -319,6 +323,9 @@ Press `F1` through `F12` to sort the current table by that column index.
   <summary>Table sorting</summary>
 
   ![table sorting](./assets/e1s-table-sort-via-column.png)
+
+  Sort by column index F1 through F12.
+
 </details>
 
 ### [Service deployments](https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_ListServiceDeployments.html)
@@ -327,6 +334,7 @@ From the service list, press `p` on a service to open its deployments. From ther
 
 <details>
   <summary>Service deployments</summary>
+
   ![service deployments](./assets/e1s-service-deployments.png)
 </details>
 
