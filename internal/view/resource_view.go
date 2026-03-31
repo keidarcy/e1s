@@ -75,6 +75,19 @@ func resourceViewPreHandler[T any](resources []T, app *App, err error) error {
 	if len(resources) == 0 {
 		errMsg := "no " + app.kind.String() + " found"
 		slog.Warn(errMsg + " in resourcePagePreHandler")
+		if app.kind == ClusterKind {
+			clusterPage := ClusterKind.getAppPageName(app.getPageHandle())
+			// No cluster page exists for this profile/region yet (startup or newly
+			// switched scope), so navigate to regions instead of switching to a
+			// non-existent page via back().
+			if !app.Pages.HasPage(clusterPage) {
+				if regionErr := app.showRegionsPage(false); regionErr != nil {
+					return fmt.Errorf("%s; failed to show regions: %w", errMsg, regionErr)
+				}
+				app.Notice.Warnf("No clusters found in region %s. Choose another region.", globalRegion)
+				return ErrHandledNavigation
+			}
+		}
 		err = fmt.Errorf("%s", errMsg)
 		app.back()
 		return err
