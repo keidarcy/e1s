@@ -18,7 +18,7 @@ import (
 )
 
 var theme color.Colors
-var ErrNoNeedReload = errors.New("no need reload")
+var ErrHandledNavigation = errors.New("navigation already handled")
 var globalProfile string
 var globalRegion string
 
@@ -341,6 +341,11 @@ func (app *App) showPrimaryKindPage(k kind, reload bool) error {
 		err = app.showClustersPage(reload)
 	}
 	if err != nil {
+		if errors.Is(err, ErrHandledNavigation) {
+			// A valid page has already been shown (for example, fallback from empty
+			// clusters to regions), so skip noisy error notice.
+			return nil
+		}
 		slog.Error("failed to show primary kind page", "error", err)
 		app.Notice.Error(err.Error())
 		return err
