@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	MaxTaskDefinitionFamily   = 50
+	MaxTaskDefinitionFamily   = 100
 	MaxTaskDefinitionRevision = 20
 )
 
@@ -90,10 +90,12 @@ func (store *Store) ListFullTaskDefinition(taskDefinition *string) ([]types.Task
 }
 
 // Equivalent to
-// aws ecs list-task-definition-families
-func (store *Store) ListTaskDefinitionFamilies() ([]string, error) {
+// aws ecs list-task-definition-families --family-prefix ${prefix}
+func (store *Store) ListTaskDefinitionFamilies(familyPrefix *string) ([]string, error) {
 	familiesOutput, err := store.ecs.ListTaskDefinitionFamilies(context.Background(), &ecs.ListTaskDefinitionFamiliesInput{
-		Status: types.TaskDefinitionFamilyStatusActive,
+		FamilyPrefix: familyPrefix,
+		MaxResults:   aws.Int32(MaxTaskDefinitionFamily),
+		Status:       types.TaskDefinitionFamilyStatusActive,
 	})
 	if err != nil {
 		slog.Warn("failed to run aws api to list task definition families", "error", err)
