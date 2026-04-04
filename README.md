@@ -210,6 +210,7 @@ Common shortcuts:
 - `/` opens table filtering. Use `ESC` to clear the current filter.
 - `F1` to `F12` sort the current table by column.
 - `d` opens the description view for the selected resource.
+- `c` copies the current page name or describe content to the system clipboard.
 - `b` opens the selected resource in the AWS console.
 - `r` refreshes the current view.
 - `s` opens shell access on supported task, instance, and container views.
@@ -434,6 +435,7 @@ Implemented by a S3 bucket. Since file transfer though a S3 bucket and aws-cli i
     - [x] MemoryUtilization
   - [x] Show autoscaling target and policy
   - [x] Open selected resource in browser(support new UI(v2))
+  - [x] Copy page name or describe content to clipboard
   - [x] Interactively shell to containers(like ssh)
   - [x] Interactively shell to instances(like ssh)
   - [x] Switch AWS profiles in-app

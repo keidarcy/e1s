@@ -153,6 +153,8 @@ func (v *view) handleSecondaryPageSwitch(entity Entity, colorizedJsonString stri
 		switch event.Rune() {
 		case 'f':
 			v.app.Pages.AddPage(contentPageName, fullScreenContent, true, true)
+		case 'c':
+			v.app.copyToClipboard("page content", string(jsonBytes))
 		case 'b':
 			v.openInBrowser()
 		case 'r':
