@@ -229,13 +229,6 @@ func (v *view) serviceUpdateForm() (*tview.Form, *string) {
 	title := " Update [purple::b]" + name + " " + readOnly
 	currentFamily, currentRevision, _ := v.getTaskDefinitionDetail()
 
-	// get data for form
-	families, err := v.app.Store.ListTaskDefinitionFamilies()
-	if err != nil {
-		v.app.Notice.Errorf("failed list task definition families, err: %s", err.Error())
-		v.closeModal()
-	}
-
 	f := ui.StyledForm(title)
 	forceLabel := "Force new deployment"
 	execLabel := "Enable execute command"
@@ -258,46 +251,109 @@ func (v *view) serviceUpdateForm() (*tview.Form, *string) {
 			SetLabel(revisionLabel).
 			SetFieldWidth(50)
 
-		currentFamilyIndex := 0
-		for i, f := range families {
-			if currentFamily == f {
-				currentFamilyIndex = i
+		updateRevisionOptions := func(familyName string, preferredRevision string) {
+			if familyName == "" {
+				revisionDrop.SetOptions([]string{}, nil)
+				revisionDrop.SetCurrentOption(-1)
+				return
 			}
+
+			taskDefinitions, err := v.app.Store.ListTaskDefinition(&familyName)
+			if err != nil {
+				v.app.Notice.Errorf("Failed list task definition, err: %s", err.Error())
+				v.closeModal()
+				return
+			}
+
+			revisions := []string{}
+			for i, td := range taskDefinitions {
+				def := td
+				_, revision := getTaskDefinitionInfo(&def)
+				if i == 0 {
+					revision += latest
+				}
+				revisions = append(revisions, revision)
+			}
+
+			revisionDrop.SetOptions(revisions, func(text string, index int) {})
+
+			if len(revisions) == 0 {
+				revisionDrop.SetCurrentOption(-1)
+				return
+			}
+
+			currentRevisionIndex := 0
+			for i, revision := range revisions {
+				if preferredRevision == revision {
+					currentRevisionIndex = i
+					break
+				}
+			}
+
+			revisionDrop.SetCurrentOption(currentRevisionIndex)
 		}
 
-		familyDrop := tview.NewDropDown().
+		preferredRevisionForFamily := func(familyName string) string {
+			if familyName == currentFamily {
+				return currentRevision
+			}
+			return ""
+		}
+
+		familyInput := tview.NewInputField().
 			SetLabel(familyLabel).
-			SetOptions(families, func(text string, index int) {
-				// when family option change, change revision drop down value
-				taskDefinitions, err := v.app.Store.ListTaskDefinition(&text)
-				if err != nil {
-					v.app.Notice.Errorf("Failed list task definition, err: %s", err.Error())
-					v.closeModal()
-				}
-				revisions := []string{}
-				for i, td := range taskDefinitions {
-					def := td
-					_, revision := getTaskDefinitionInfo(&def)
-					if i == 0 {
-						revision += latest
-					}
-					revisions = append(revisions, revision)
-				}
-				revisionDrop.SetOptions(revisions, func(text string, index int) {})
-
-				currentRevisionIndex := 0
-				for i, r := range revisions {
-					if currentRevision == r {
-						currentRevisionIndex = i
-					}
-				}
-
-				revisionDrop.SetCurrentOption(currentRevisionIndex)
-			}).
-			SetCurrentOption(currentFamilyIndex).
+			SetText(currentFamily).
 			SetFieldWidth(50)
 
-		f.AddFormItem(familyDrop)
+		familyAutocompleteCache := map[string][]string{}
+		updateFamilyAutocomplete := func(prefix string) []string {
+			trimmedPrefix := strings.TrimSpace(prefix)
+			if families, ok := familyAutocompleteCache[trimmedPrefix]; ok {
+				return families
+			}
+
+			var familyPrefix *string
+			if trimmedPrefix != "" {
+				familyPrefix = aws.String(trimmedPrefix)
+			}
+
+			families, err := v.app.Store.ListTaskDefinitionFamilies(familyPrefix)
+			if err != nil {
+				v.app.Notice.Errorf("failed list task definition families, err: %s", err.Error())
+				v.closeModal()
+				return nil
+			}
+
+			familyAutocompleteCache[trimmedPrefix] = families
+			return families
+		}
+
+		familyInput.SetAutocompleteFunc(func(currentText string) []string {
+			return updateFamilyAutocomplete(currentText)
+		})
+		familyInput.Blur()
+
+		familyInput.SetChangedFunc(func(text string) {
+			trimmedText := strings.TrimSpace(text)
+			if trimmedText == "" {
+				updateRevisionOptions("", "")
+				return
+			}
+
+			families := updateFamilyAutocomplete(trimmedText)
+			for _, family := range families {
+				if family == trimmedText {
+					updateRevisionOptions(family, preferredRevisionForFamily(family))
+					return
+				}
+			}
+
+			updateRevisionOptions("", "")
+		})
+
+		updateRevisionOptions(currentFamily, currentRevision)
+
+		f.AddFormItem(familyInput)
 		f.AddFormItem(revisionDrop)
 	}
 
@@ -332,8 +388,12 @@ func (v *view) serviceUpdateForm() (*tview.Form, *string) {
 			currentTaskDefinition := utils.ArnToName(selected.service.TaskDefinition)
 
 			// get task definition with revision
-			_, selectedFamily := f.GetFormItemByLabel(familyLabel).(*tview.DropDown).GetCurrentOption()
+			selectedFamily := strings.TrimSpace(f.GetFormItemByLabel(familyLabel).(*tview.InputField).GetText())
 			_, selectedRevision := f.GetFormItemByLabel(revisionLabel).(*tview.DropDown).GetCurrentOption()
+			if selectedFamily == "" || selectedRevision == "" {
+				v.app.Notice.Warn("please select a task definition family and revision")
+				return
+			}
 			// if is latest cut suffix
 			selectedRevision, _ = strings.CutSuffix(selectedRevision, latest)
 			taskDefinitionWithRevision := selectedFamily + ":" + selectedRevision
