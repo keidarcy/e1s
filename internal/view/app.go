@@ -2,11 +2,13 @@ package view
 
 import (
 	"errors"
+	"fmt"
 	"log/slog"
 	"os"
 	"strings"
 	"time"
 
+	"github.com/atotto/clipboard"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
 	"github.com/gdamore/tcell/v2"
@@ -419,4 +421,13 @@ func (app *App) LogValue() slog.Value {
 		cluster:       *app.cluster.ClusterName,
 		service:       *app.service.ServiceName,
 	})
+}
+
+func (app *App) copyToClipboard(item string, content string) {
+	err := clipboard.WriteAll(content)
+	if err != nil {
+		app.Notice.Error("Failed to copy to clipboard")
+	}
+
+	app.Notice.Info(fmt.Sprintf("Copied %s to clipboard", item))
 }

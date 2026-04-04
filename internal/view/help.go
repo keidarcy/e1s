@@ -32,6 +32,7 @@ func (app *App) showHelpPage() {
 		hotKeyMap["ctrlC"],
 		hotKeyMap["?"],
 		hotKeyMap["e"],
+		hotKeyMap["c"],
 	}, basicKeyInputs...))
 	navigation := genColumn("Navigation", []keyDescriptionPair{
 		hotKeyMap["j"],

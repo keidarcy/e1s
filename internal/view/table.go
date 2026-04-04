@@ -191,6 +191,8 @@ func (v *view) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 		}
 	case 'b':
 		v.openInBrowser()
+	case 'c':
+		v.app.copyToClipboard("page name", v.app.kind.getTablePageName(v.app.getPageHandle()))
 	case 'd':
 		v.app.secondaryKind = DescriptionKind
 		v.showSecondaryKindPage(false)

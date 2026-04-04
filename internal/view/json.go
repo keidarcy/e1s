@@ -104,6 +104,8 @@ func (v *view) handleFullScreenContentInput(jsonBytes []byte) func(event *tcell.
 		case 'f':
 			pageName := v.app.kind.getAppPageName(v.app.getPageHandle())
 			v.app.Pages.SwitchToPage(pageName)
+		case 'c':
+			v.app.copyToClipboard("full screen content", string(jsonBytes))
 		case 'e':
 			if v.app.secondaryKind == DescriptionKind || v.app.secondaryKind == AutoScalingKind {
 				v.openInEditor(jsonBytes)

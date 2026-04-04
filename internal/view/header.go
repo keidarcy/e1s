@@ -16,6 +16,7 @@ var hotKeyMap = map[string]keyDescriptionPair{
 	"/":      {key: "/", description: "Filter (ESC to clear)"},
 	"f1~f12": {key: "f1~f12", description: "Sort by column"},
 	"a":      {key: "a", description: "Show service auto scaling"},
+	"c":      {key: "c", description: "Copy content to clipboard"},
 	"f":      {key: "f", description: "Toggle full screen"},
 	"h":      {key: "h, left arrow", description: "Back"},
 	"l":      {key: "l, right arrow", description: "Select"},
@@ -92,6 +93,7 @@ type secondaryPageKeyMap = map[kind][]keyDescriptionPair
 var describePageKeys = []keyDescriptionPair{
 	hotKeyMap["f"],
 	hotKeyMap["b"],
+	hotKeyMap["c"],
 	hotKeyMap["e"],
 	hotKeyMap["ctrlZ"],
 }
