@@ -10,7 +10,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/account v1.31.0
 	github.com/aws/aws-sdk-go-v2/service/applicationautoscaling v1.41.13
 	github.com/aws/aws-sdk-go-v2/service/cloudwatch v1.55.2
-	github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.49.0
+	github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.71.1
 	github.com/aws/aws-sdk-go-v2/service/ecs v1.74.0
 	github.com/aws/aws-sdk-go-v2/service/ssm v1.68.3
 	github.com/gdamore/tcell/v2 v2.7.4
@@ -23,7 +23,7 @@ require (
 )
 
 require (
-	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.6.10 // indirect
+	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.7.10 // indirect
 	github.com/aws/aws-sdk-go-v2/credentials v1.19.16 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.18.23 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/configsources v1.4.23 // indirect
