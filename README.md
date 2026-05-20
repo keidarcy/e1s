@@ -412,7 +412,7 @@ Implemented by a S3 bucket. Since file transfer though a S3 bucket and aws-cli i
 
 ### Execution mode for ECS container tasks
 
-Due to certain security restrictions, the `ecs execution-command` may not be operational; this setting allows you to use `ssm start-session` instead.
+Due to certain security restrictions, the `ecs execute-command` may not be operational; this setting allows you to use `ssm start-session` instead.
 
 - `ecs` - use ECS Exec to execute commands in the container.
 - `ssm` - use AWS Systems Manager to execute commands in the container.
