@@ -1,6 +1,7 @@
 package view
 
 import (
+	"encoding/json"
 	"fmt"
 	"log/slog"
 	"os"
@@ -150,59 +151,48 @@ func (v *view) preValidateExec() (*[]string, string, error) {
 	return &args, containerName, nil
 }
 
-// Start session for instance
-// aws ssm start-session --target ${instance_id}
-func (v *view) instanceStartSession() {
-	if v.app.kind != InstanceKind && v.app.kind != TaskKind {
-		v.app.Notice.Warn("Invalid kind type to start session")
-		return
+func (v *view) preValidateStartSession() (*[]string, string, error) {
+	if v.app.kind != ContainerKind && v.app.kind != InstanceKind && v.app.kind != TaskKind {
+		return nil, "", fmt.Errorf("invalid kind type to start session")
 	}
 
 	if v.app.ReadOnly {
-		v.app.Notice.Warn("No permission to start session in read only mode")
-		return
+		return nil, "", fmt.Errorf("no permission to start session in read only mode")
 	}
 
 	_, err := exec.LookPath(awsCli)
 	if err != nil {
-		v.app.Notice.Warnf("failed to find %s path, please check %s", awsCli, "https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html")
-		return
+		return nil, "", fmt.Errorf("failed to find %s path, please check %s", awsCli, "https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html")
 	}
 
 	selected, err := v.getCurrentSelection()
 	if err != nil {
-		v.app.Notice.Warnf("failed to handleSelected, err: %v", err)
-		return
+		return nil, "", fmt.Errorf("failed to handleSelected, err: %v", err)
 	}
 
 	instanceId := ""
 	if v.app.kind == InstanceKind {
 		if selected.instance == nil {
-			v.app.Notice.Warn("Not a valid instance")
-			return
+			return nil, "", fmt.Errorf("not a valid instance")
 		}
 		instanceId = *selected.instance.Ec2InstanceId
-	} else if v.app.kind == TaskKind {
+	} else if v.app.kind == ContainerKind || v.app.kind == TaskKind {
 		if v.app.task.ContainerInstanceArn == nil {
-			v.app.Notice.Warn("Not a valid task with container instance")
-			return
+			return nil, "", fmt.Errorf("not a valid task with container instance")
 		}
 		instanceId, err = v.app.Store.GetTaskInstanceId(v.app.cluster.ClusterName, v.app.task.ContainerInstanceArn)
 		if err != nil {
-			v.app.Notice.Warnf("failed to get task instance id, err: %v", err)
-			return
+			return nil, "", fmt.Errorf("failed to get task instance id, err: %v", err)
 		}
 	}
 
 	if instanceId == "" {
-		v.app.Notice.Warn("Not a valid instance")
-		return
+		return nil, "", fmt.Errorf("not a valid instance")
 	}
 
 	_, err = exec.LookPath(smpCi)
 	if err != nil {
-		v.app.Notice.Warnf("failed to find %s path, please check %s", smpCi, "https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html")
-		return
+		return nil, "", fmt.Errorf("failed to find %s path, please check %s", smpCi, "https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html")
 	}
 
 	args := []string{
@@ -212,6 +202,19 @@ func (v *view) instanceStartSession() {
 		instanceId,
 	}
 
+	return &args, instanceId, nil
+}
+
+// Start session for instance
+// aws ssm start-session --target ${instance_id}
+func (v *view) instanceStartSession() {
+	args, instanceId, err := v.preValidateStartSession()
+	if err != nil {
+		v.app.Notice.Warnf("Exec command validation failed: %v", err)
+		v.app.back()
+		return
+	}
+
 	// catch ctrl+C & SIGTERM
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM)
@@ -219,11 +222,75 @@ func (v *view) instanceStartSession() {
 	v.app.Suspend(func() {
 		v.app.isSuspended = true
 		bin, _ := exec.LookPath(awsCli)
-		slog.Info("exec", "command", bin+" "+strings.Join(args, " "))
+		slog.Info("exec", "command", bin+" "+strings.Join(*args, " "))
 
-		cmd := exec.Command(bin, args...)
+		cmd := exec.Command(bin, *args...)
 		cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, os.Stderr
 		_, err = cmd.Stdout.Write([]byte(fmt.Sprintf(instanceBannerFmt, *v.app.cluster.ClusterName, instanceId)))
+		err = cmd.Run()
+
+		// return signal
+		signal.Stop(interrupt)
+		close(interrupt)
+		v.app.isSuspended = false
+	})
+}
+
+// Start session for instance
+// Equivalent to
+// aws ssm start-session
+// --target ecs:${cluster_id}_${task_id}_${runtime_id}
+// --document-name AWS-StartInteractiveCommand
+// --parameters {"command":["${command}"]}
+func (v *view) instanceStartSessionDocument() {
+	args, instanceId, err := v.preValidateStartSession()
+	if err != nil {
+		v.app.Notice.Warnf("Exec command validation failed: %v", err)
+		v.app.back()
+		return
+	}
+
+	selected, err := v.getCurrentSelection()
+	if err != nil {
+		v.app.Notice.Warnf("failed to handleSelected, err: %v", err)
+		return
+	}
+	RuntimeId := *selected.container.RuntimeId
+	containerName := *selected.container.Name
+	if RuntimeId == "" {
+		v.app.Notice.Warn("Not a valid RuntimeId")
+		return
+	}
+
+	ssmCommand := "docker exec -it %s %s"
+	if v.app.Option.SsmCustomCommand != "" {
+		ssmCommand = v.app.Option.SsmCustomCommand
+	}
+	params := map[string][]string{
+		"command": {fmt.Sprintf(ssmCommand, RuntimeId, v.app.Option.Shell)},
+	}
+	parameterJson, _ := json.Marshal(params)
+
+	extraArgs := []string{
+		"--document-name",
+		"AWS-StartInteractiveCommand",
+		"--parameters",
+		string(parameterJson),
+	}
+
+	cmdArgs := append(*args, extraArgs...)
+	// catch ctrl+C & SIGTERM
+	interrupt := make(chan os.Signal, 1)
+	signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM)
+
+	v.app.Suspend(func() {
+		v.app.isSuspended = true
+		bin, _ := exec.LookPath(awsCli)
+		slog.Info("exec", "command", bin+" "+strings.Join(cmdArgs, " "))
+
+		cmd := exec.Command(bin, cmdArgs...)
+		cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, os.Stderr
+		_, err = cmd.Stdout.Write([]byte(fmt.Sprintf(execBannerFmt, *v.app.cluster.ClusterName, instanceId, utils.ArnToName(v.app.task.TaskArn), containerName)))
 		err = cmd.Run()
 
 		// return signal

@@ -65,6 +65,10 @@ type Option struct {
 	Service string
 	// Splash screen on startup (load AWS config and first resource list in background).
 	Splash bool
+	// Default execution mode for ecs container
+	EcsExecMode string
+	// Default execution mode for ecs container
+	SsmCustomCommand string
 }
 
 // tview App
@@ -352,13 +356,13 @@ func (app *App) showPrimaryKindPage(k kind, reload bool) error {
 		app.Notice.Error(err.Error())
 		return err
 	}
-	if !reload {
-		if app.taskStatus != types.DesiredStatusStopped {
-			app.Notice.Infof("Viewing %s...", app.kind.String())
-		}
-	} else {
-		slog.Debug("Reload in showPrimaryKindPage")
-	}
+	//if !reload {
+	//	if app.taskStatus != types.DesiredStatusStopped {
+	//		app.Notice.Infof("Viewing %s...", app.kind.String())
+	//	}
+	//} else {
+	//	slog.Debug("Reload in showPrimaryKindPage")
+	//}
 	return nil
 }
 

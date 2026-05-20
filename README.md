@@ -90,21 +90,22 @@ Usage:
   e1s [flags]
 
 Flags:
-      --cluster string       specify the default cluster
-  -c, --config-file string   config file (default "$HOME/.config/e1s/config.yml")
-  -d, --debug                sets debug mode
-  -h, --help                 help for e1s
-  -j, --json                 log output json format
-  -l, --log-file string      specify the log file path (default "${TMPDIR}e1s.log")
-      --profile string       specify the AWS profile
-      --read-only            sets read only mode
-  -r, --refresh int          specify the default refresh rate as an integer, sets -1 to stop auto refresh (sec) (default 30)
-      --region string        specify the AWS region
-      --service string       specify the default service (requires --cluster)
-  -s, --shell string         specify interactive ecs exec shell (default "/bin/sh")
-      --splash               display startup splash screen (AWS load runs before the UI) (default true)
-      --theme string         specify color theme
-  -v, --version              version for e1s
+      --cluster string         specify the default cluster
+  -c, --config-file string     config file (default "$HOME/.config/e1s/config.yml")
+  -d, --debug                  sets debug mode
+      --ecs-exec-mode string   execution mode for ecs container - mode: <ecs|ssm> (default "ecs")
+  -h, --help                   help for e1s
+  -j, --json                   log output json format
+  -l, --log-file string        specify the log file path (default "${TMPDIR}e1s.log")
+      --profile string         specify the AWS profile
+      --read-only              sets read only mode
+  -r, --refresh int            specify the default refresh rate as an integer, sets -1 to stop auto refresh (sec) (default 30)
+      --region string          specify the AWS region
+      --service string         specify the default service (requires --cluster)
+  -s, --shell string           specify interactive ecs exec shell (default "/bin/sh")
+      --splash                 display startup splash screen (AWS load runs before the UI) (default true)
+      --theme string           specify color theme
+  -v, --version                version for e1s
 
 ```
 
@@ -285,7 +286,7 @@ tail -f /tmp/e1s.log
 - Configure themes from the built-in theme set.
 - Override individual colors in config.
 - Adjust logging, refresh interval, splash behavior, shell, and default navigation targets.
-
+- Change execution mode for ECS container tasks.
 
 ### Table filtering
 
@@ -408,6 +409,28 @@ Implemented by a S3 bucket. Since file transfer though a S3 bucket and aws-cli i
   ![file-transfer-demo](./assets/e1s-file-transfer-demo.gif)
 </details>
 
+
+### Execution mode for ECS container tasks
+
+Due to certain security restrictions, the `ecs execution-command` may not be operational; this setting allows you to use `ssm start-session` instead.
+
+- `ecs` - use ECS Exec to execute commands in the container.
+- `ssm` - use AWS Systems Manager to execute commands in the container.
+
+#### Config file:
+```yaml
+# Default execution mode for ecs container
+ecs-exec-mode: ssm
+```
+
+With SSM mode you can also customize the command to run, this customizations are specified ONLY in the config file.<br>
+The command takes the containerId and the config shell as arguments.
+#### Config file:
+```yaml
+# Customize command for ssm execution mode
+ssm-custom-command: "sudo docker exec -it %s %s"
+```
+
 ### Full features list
 
 <details>
@@ -452,6 +475,7 @@ Implemented by a S3 bucket. Since file transfer though a S3 bucket and aws-cli i
   - [x] Transfer files to and from your local machine and a remote host like `aws s3 cp`
   - [x] Customize theme
   - [x] Customize colors
+  - [x] Customize execution mode for ECS container tasks (ecs or ssm)
 </details>
 
 ## Feature requests & bug reports

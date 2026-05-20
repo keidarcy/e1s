@@ -173,7 +173,11 @@ func (v *view) handleSelected(row, column int) {
 		return
 	}
 	if v.app.kind == ContainerKind {
-		v.execShell()
+		if v.app.Option.EcsExecMode == "ssm" {
+			v.instanceStartSessionDocument()
+		} else {
+			v.execShell()
+		}
 	}
 	v.app.rowIndex = 0
 	v.app.showPrimaryKindPage(v.app.kind.nextKind(), false)
@@ -246,7 +250,11 @@ func (v *view) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 		}
 	case 's':
 		if v.app.kind == ContainerKind {
-			v.execShell()
+			if v.app.Option.EcsExecMode == "ssm" {
+				v.instanceStartSessionDocument()
+			} else {
+				v.execShell()
+			}
 		}
 		if v.app.kind == InstanceKind || v.app.kind == TaskKind {
 			v.instanceStartSession()
