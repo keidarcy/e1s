@@ -35,6 +35,16 @@ func (v *view) sortByColumn(column int) {
 
 	slog.Info("sort column", "column", column, "header", v.headers[column], "order", v.sortOrder)
 
+	filterText := ""
+	if v.filterInput != nil {
+		filterText = v.filterInput.GetText()
+	}
+	v.app.viewStates[v.app.kind] = viewState{
+		sortColumn: v.sortColumn,
+		sortOrder:  v.sortOrder,
+		filterText: filterText,
+	}
+
 	v.table.Clear()
 
 	sortedOriginalIndex := v.getSortedOriginalIndexWithFilterText(column)

@@ -77,6 +77,9 @@ func (v *view) applyFilter() {
 		return
 	}
 	filterText := v.filterInput.GetText()
+	state := v.app.viewStates[v.app.kind]
+	state.filterText = filterText
+	v.app.viewStates[v.app.kind] = state
 	filteredData := [][]string{}
 	filteredReferences := []Entity{}
 	for i, row := range v.originalRowData {
