@@ -21,7 +21,7 @@ const (
 func (v *view) buildTable(title string, headers []string, rowsBuilder func() [][]string) {
 
 	v.table.
-		SetFixed(5, 5).
+		SetFixed(1, 0).
 		SetSelectable(true, false)
 
 	v.table.
