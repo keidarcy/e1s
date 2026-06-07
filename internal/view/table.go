@@ -225,7 +225,6 @@ func (v *view) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 			return event
 		}
 	case 'r':
-		delete(v.app.viewStates, v.app.kind)
 		v.reloadResource(true)
 	case 'R':
 		if v.app.kind == ServiceDeploymentKind {

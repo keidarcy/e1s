@@ -61,30 +61,7 @@ func buildResourcePage[T any](
 
 	v.mainFlex = page
 	v.initFilterInput()
-
-	// Restore sort/filter state from a previous view of this kind (e.g. after auto-refresh).
-	if state, ok := app.viewStates[app.kind]; ok {
-		if state.filterText != "" {
-			v.filterInput.SetText(state.filterText)
-		}
-		if state.sortColumn >= 0 && state.sortColumn < len(v.headers) && len(v.originalRowData) > 0 {
-			v.sortColumn = state.sortColumn
-			v.sortOrder = state.sortOrder
-			sortedIdx := v.getSortedOriginalIndexWithFilterText(v.sortColumn)
-			sortedData := make([][]string, 0, len(sortedIdx))
-			sortedRefs := make([]Entity, 0, len(sortedIdx))
-			for _, idx := range sortedIdx {
-				sortedData = append(sortedData, v.originalRowData[idx])
-				sortedRefs = append(sortedRefs, v.originalRowReferences[idx])
-			}
-			v.table.Clear()
-			v.buildTableContent(sortedData, sortedRefs)
-			v.changeSelectedValues()
-			v.updateFilterTitle()
-		} else if state.filterText != "" {
-			v.applyFilter()
-		}
-	}
+	v.restoreViewState()
 
 	v.app.addAppPage(page)
 	v.table.Select(v.app.rowIndex, 0)
