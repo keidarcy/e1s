@@ -59,7 +59,8 @@ func init() {
 	rootCmd.Flags().String("cluster", "", "specify the default cluster")
 	rootCmd.Flags().String("service", "", "specify the default service (requires --cluster)")
 	rootCmd.Flags().Bool("splash", true, "display startup splash screen (AWS load runs before the UI)")
-	rootCmd.Flags().String("ecs-exec-mode", "ecs", "execution mode for ecs container - mode: <ecs|ssm>")
+	rootCmd.Flags().String("exec-mode", "ecs", "execution mode for ECS containers: ecs or ssm")
+	rootCmd.Flags().String("ssm-custom-command", "", "custom command template for SSM container execution mode")
 
 	err := viper.BindPFlags(rootCmd.Flags())
 	if err != nil {
@@ -79,6 +80,9 @@ Check https://github.com/keidarcy/e1s for more details.`,
 		cluster := viper.GetString("cluster")
 		if service != "" && cluster == "" {
 			return fmt.Errorf("when specifying a service with --service, you must also specify a cluster with --cluster")
+		}
+		if err := validateExecMode(viper.GetString("exec-mode")); err != nil {
+			return err
 		}
 		return nil
 	},
@@ -108,7 +112,7 @@ Check https://github.com/keidarcy/e1s for more details.`,
 		cluster := viper.GetString("cluster")
 		service := viper.GetString("service")
 		splash := viper.GetBool("splash")
-		ecsExecMode := viper.GetString("ecs-exec-mode")
+		execMode := viper.GetString("exec-mode")
 		ssmCustomCommand := viper.GetString("ssm-custom-command")
 
 		option := e1s.Option{
@@ -123,7 +127,7 @@ Check https://github.com/keidarcy/e1s for more details.`,
 			Cluster:          cluster,
 			Service:          service,
 			Splash:           splash,
-			EcsExecMode:      ecsExecMode,
+			ExecMode:         execMode,
 			SsmCustomCommand: ssmCustomCommand,
 		}
 
@@ -134,6 +138,15 @@ Check https://github.com/keidarcy/e1s for more details.`,
 		}
 	},
 	Version: utils.ShowVersion(),
+}
+
+func validateExecMode(execMode string) error {
+	switch execMode {
+	case "ecs", "ssm":
+		return nil
+	default:
+		return fmt.Errorf("invalid exec-mode %q: must be ecs or ssm", execMode)
+	}
 }
 
 func main() {

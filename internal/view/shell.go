@@ -175,10 +175,19 @@ func (v *view) preValidateStartSession() (*[]string, string, error) {
 		if selected.instance == nil {
 			return nil, "", fmt.Errorf("not a valid instance")
 		}
+		if selected.instance.Ec2InstanceId == nil || *selected.instance.Ec2InstanceId == "" {
+			return nil, "", fmt.Errorf("not a valid instance id")
+		}
 		instanceId = *selected.instance.Ec2InstanceId
 	} else if v.app.kind == ContainerKind || v.app.kind == TaskKind {
 		if v.app.task.ContainerInstanceArn == nil {
 			return nil, "", fmt.Errorf("not a valid task with container instance")
+		}
+		if v.app.Store == nil {
+			return nil, "", fmt.Errorf("aws store is not initialized")
+		}
+		if v.app.cluster == nil || v.app.cluster.ClusterName == nil || *v.app.cluster.ClusterName == "" {
+			return nil, "", fmt.Errorf("not a valid cluster")
 		}
 		instanceId, err = v.app.Store.GetTaskInstanceId(v.app.cluster.ClusterName, v.app.task.ContainerInstanceArn)
 		if err != nil {
@@ -211,7 +220,6 @@ func (v *view) instanceStartSession() {
 	args, instanceId, err := v.preValidateStartSession()
 	if err != nil {
 		v.app.Notice.Warnf("Exec command validation failed: %v", err)
-		v.app.back()
 		return
 	}
 
@@ -246,7 +254,6 @@ func (v *view) instanceStartSessionDocument() {
 	args, instanceId, err := v.preValidateStartSession()
 	if err != nil {
 		v.app.Notice.Warnf("Exec command validation failed: %v", err)
-		v.app.back()
 		return
 	}
 
@@ -255,10 +262,17 @@ func (v *view) instanceStartSessionDocument() {
 		v.app.Notice.Warnf("failed to handleSelected, err: %v", err)
 		return
 	}
-	RuntimeId := *selected.container.RuntimeId
-	containerName := *selected.container.Name
-	if RuntimeId == "" {
-		v.app.Notice.Warn("Not a valid RuntimeId")
+	runtimeId, containerName, err := validateContainerSessionTarget(selected)
+	if err != nil {
+		v.app.Notice.Warn(err.Error())
+		return
+	}
+	if v.app.task.TaskArn == nil || *v.app.task.TaskArn == "" {
+		v.app.Notice.Warn("Not a valid task")
+		return
+	}
+	if v.app.cluster.ClusterName == nil || *v.app.cluster.ClusterName == "" {
+		v.app.Notice.Warn("Not a valid cluster")
 		return
 	}
 
@@ -267,7 +281,7 @@ func (v *view) instanceStartSessionDocument() {
 		ssmCommand = v.app.Option.SsmCustomCommand
 	}
 	params := map[string][]string{
-		"command": {fmt.Sprintf(ssmCommand, RuntimeId, v.app.Option.Shell)},
+		"command": {fmt.Sprintf(ssmCommand, runtimeId, v.app.Option.Shell)},
 	}
 	parameterJson, _ := json.Marshal(params)
 
@@ -298,4 +312,17 @@ func (v *view) instanceStartSessionDocument() {
 		close(interrupt)
 		v.app.isSuspended = false
 	})
+}
+
+func validateContainerSessionTarget(selected Entity) (runtimeId string, containerName string, err error) {
+	if selected.container == nil {
+		return "", "", fmt.Errorf("not a valid container")
+	}
+	if selected.container.RuntimeId == nil || *selected.container.RuntimeId == "" {
+		return "", "", fmt.Errorf("not a valid runtime id")
+	}
+	if selected.container.Name == nil || *selected.container.Name == "" {
+		return "", "", fmt.Errorf("not a valid container name")
+	}
+	return *selected.container.RuntimeId, *selected.container.Name, nil
 }

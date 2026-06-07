@@ -93,7 +93,7 @@ Flags:
       --cluster string         specify the default cluster
   -c, --config-file string     config file (default "$HOME/.config/e1s/config.yml")
   -d, --debug                  sets debug mode
-      --ecs-exec-mode string   execution mode for ecs container - mode: <ecs|ssm> (default "ecs")
+      --exec-mode string       execution mode for ECS containers: ecs or ssm (default "ecs")
   -h, --help                   help for e1s
   -j, --json                   log output json format
   -l, --log-file string        specify the log file path (default "${TMPDIR}e1s.log")
@@ -103,6 +103,8 @@ Flags:
       --region string          specify the AWS region
       --service string         specify the default service (requires --cluster)
   -s, --shell string           specify interactive ecs exec shell (default "/bin/sh")
+      --ssm-custom-command string
+                                custom command template for SSM container execution mode
       --splash                 display startup splash screen (AWS load runs before the UI) (default true)
       --theme string           specify color theme
   -v, --version                version for e1s
@@ -419,11 +421,11 @@ Due to certain security restrictions, the `ecs execute-command` may not be opera
 
 #### Config file:
 ```yaml
-# Default execution mode for ecs container
-ecs-exec-mode: ssm
+# Default execution mode for ECS containers
+exec-mode: ssm
 ```
 
-With SSM mode you can also customize the command to run, this customizations are specified ONLY in the config file.<br>
+With SSM mode you can also customize the command to run with `--ssm-custom-command` or the config file.<br>
 The command takes the containerId and the config shell as arguments.
 #### Config file:
 ```yaml
@@ -500,4 +502,3 @@ Xing Yahao(https://github.com/keidarcy)
 ## Stargazers over time
 
 [![Stargazers over time](https://starchart.cc/keidarcy/e1s.svg?variant=adaptive)](https://starchart.cc/keidarcy/e1s)
-

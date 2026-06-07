@@ -174,7 +174,7 @@ func (v *view) handleSelected(row, column int) {
 		return
 	}
 	if v.app.kind == ContainerKind {
-		if v.app.Option.EcsExecMode == "ssm" {
+		if v.app.Option.ExecMode == "ssm" {
 			v.instanceStartSessionDocument()
 		} else {
 			v.execShell()
@@ -249,7 +249,7 @@ func (v *view) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 		}
 	case 's':
 		if v.app.kind == ContainerKind {
-			if v.app.Option.EcsExecMode == "ssm" {
+			if v.app.Option.ExecMode == "ssm" {
 				v.instanceStartSessionDocument()
 			} else {
 				v.execShell()
