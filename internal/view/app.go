@@ -65,6 +65,10 @@ type Option struct {
 	Service string
 	// Splash screen on startup (load AWS config and first resource list in background).
 	Splash bool
+	// Execution mode for ECS containers: "ecs" or "ssm".
+	ExecMode string
+	// Custom command template for ECS container SSM sessions.
+	SsmCustomCommand string
 }
 
 // viewState holds sort/filter state per page so it can be restored after a reload.
