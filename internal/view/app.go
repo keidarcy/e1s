@@ -71,6 +71,13 @@ type Option struct {
 	SsmCustomCommand string
 }
 
+// viewState holds sort/filter state per page so it can be restored after a reload.
+type viewState struct {
+	sortColumn int    // -1 = no active sort
+	sortOrder  string // "asc" or "desc"
+	filterText string
+}
+
 // tview App
 type App struct {
 	// tview Application
@@ -99,6 +106,8 @@ type App struct {
 	rowIndex int
 	// Specify in tview app suspend or not
 	isSuspended bool
+	// True while the filter input is open; auto refresh should not replace it.
+	filterInputActive bool
 	// Show selected status tasks
 	taskStatus types.DesiredStatus
 	// Show resources from cluster
@@ -108,6 +117,8 @@ type App struct {
 	bootstrapServices []types.Service
 	// Set when splash bootstrap fails before Run() returns; read after Run().
 	splashStartupErr error
+	// Persists sort/filter state per page across page reloads.
+	viewStates map[string]viewState
 }
 
 func newApp(option Option) (*App, error) {
@@ -155,7 +166,16 @@ func newApp(option Option) (*App, error) {
 			container:      &types.Container{},
 			taskDefinition: &types.TaskDefinition{},
 		},
+		viewStates: make(map[string]viewState),
 	}, nil
+}
+
+func (app *App) viewStateKey() string {
+	return app.kind.getAppPageName(app.getPageHandle())
+}
+
+func (app *App) canAutoRefresh() bool {
+	return app.secondaryKind == EmptyKind && !app.isSuspended && !app.filterInputActive
 }
 
 // Entry point of the app
@@ -308,6 +328,10 @@ func (app *App) start() error {
 				if app.secondaryKind == EmptyKind && !app.isSuspended {
 					// tview is not thread-safe: UI updates must run on the main loop
 					app.QueueUpdateDraw(func() {
+						if !app.canAutoRefresh() {
+							slog.Debug("Auto refresh skipped")
+							return
+						}
 						if err := app.showPrimaryKindPage(app.kind, true); err != nil {
 							// showPrimaryKindPage already shows error in Notice
 						}

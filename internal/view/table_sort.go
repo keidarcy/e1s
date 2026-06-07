@@ -35,17 +35,58 @@ func (v *view) sortByColumn(column int) {
 
 	slog.Info("sort column", "column", column, "header", v.headers[column], "order", v.sortOrder)
 
-	v.table.Clear()
+	v.saveCurrentViewState()
 
 	sortedOriginalIndex := v.getSortedOriginalIndexWithFilterText(column)
+	v.rebuildTableFromOriginalIndexes(sortedOriginalIndex)
+}
 
-	// sortIndex is sorted
-	sortedRowData := [][]string{}
-	sortedReference := []Entity{}
+func (v *view) currentFilterText() string {
+	if v.filterInput == nil {
+		return ""
+	}
+	return v.filterInput.GetText()
+}
+
+func (v *view) saveCurrentViewState() {
+	v.app.viewStates[v.app.viewStateKey()] = viewState{
+		sortColumn: v.sortColumn,
+		sortOrder:  v.sortOrder,
+		filterText: v.currentFilterText(),
+	}
+}
+
+func (v *view) restoreViewState() {
+	state, ok := v.app.viewStates[v.app.viewStateKey()]
+	if !ok {
+		return
+	}
+	if state.filterText != "" && v.filterInput != nil {
+		v.filterInput.SetText(state.filterText)
+	}
+	if state.sortColumn >= 0 && state.sortColumn < len(v.headers) && len(v.originalRowData) > 0 {
+		v.sortColumn = state.sortColumn
+		if state.sortOrder != "" {
+			v.sortOrder = state.sortOrder
+		}
+		sortedOriginalIndex := v.getSortedOriginalIndexWithFilterText(v.sortColumn)
+		v.rebuildTableFromOriginalIndexes(sortedOriginalIndex)
+		v.updateFilterTitle()
+		return
+	}
+	if state.filterText != "" {
+		v.applyFilter()
+	}
+}
+
+func (v *view) rebuildTableFromOriginalIndexes(sortedOriginalIndex []int) {
+	sortedRowData := make([][]string, 0, len(sortedOriginalIndex))
+	sortedReference := make([]Entity, 0, len(sortedOriginalIndex))
 	for _, oldIdx := range sortedOriginalIndex {
 		sortedRowData = append(sortedRowData, v.originalRowData[oldIdx])
 		sortedReference = append(sortedReference, v.originalRowReferences[oldIdx])
 	}
+	v.table.Clear()
 	v.buildTableContent(sortedRowData, sortedReference)
 
 	// need to change selected values after sort for enter to work

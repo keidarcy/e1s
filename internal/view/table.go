@@ -3,6 +3,7 @@ package view
 import (
 	"fmt"
 	"log/slog"
+	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
 	"github.com/gdamore/tcell/v2"
@@ -196,7 +197,7 @@ func (v *view) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 	case 'b':
 		v.openInBrowser()
 	case 'c':
-		v.app.copyToClipboard("page name", v.app.kind.getTablePageName(v.app.getPageHandle()))
+		v.app.copyToClipboard("page name", v.copyablePageName())
 	case 'd':
 		v.app.secondaryKind = DescriptionKind
 		v.showSecondaryKindPage(false)
@@ -229,8 +230,6 @@ func (v *view) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 			return event
 		}
 	case 'r':
-		v.sortColumn = 0
-		v.sortOrder = "desc"
 		v.reloadResource(true)
 	case 'R':
 		if v.app.kind == ServiceDeploymentKind {
@@ -375,6 +374,19 @@ func (v *view) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 
 	// slog.Debug("Key stroke", "key", event.Key(), "rune", event.Rune())
 	return event
+}
+
+func (v *view) copyablePageName() string {
+	pageName := v.app.kind.getTablePageName(v.app.getPageHandle())
+	row, _ := v.table.GetSelection()
+	if row == 0 {
+		row++
+	}
+	firstColumn := strings.TrimSpace(v.table.GetCell(row, 0).Text)
+	if firstColumn == "" {
+		return pageName
+	}
+	return pageName + "." + firstColumn
 }
 
 // Handle done event for table when press ESC
