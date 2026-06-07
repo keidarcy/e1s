@@ -34,6 +34,7 @@ func (v *view) initFilterInput() {
 		if v.filterApplyTimer != nil {
 			v.filterApplyTimer.Stop()
 		}
+		v.saveCurrentViewState()
 		v.filterApplyTimer = time.AfterFunc(1*time.Second, func() {
 			v.app.QueueUpdateDraw(func() {
 				if v.filterActive {
@@ -76,7 +77,8 @@ func (v *view) applyFilter() {
 	if v.filterInput == nil {
 		return
 	}
-	filterText := v.filterInput.GetText()
+	filterText := v.currentFilterText()
+	v.saveCurrentViewState()
 	filteredData := [][]string{}
 	filteredReferences := []Entity{}
 	for i, row := range v.originalRowData {
@@ -115,6 +117,7 @@ func (v *view) showFilterInput() error {
 		return nil
 	}
 	v.filterActive = true
+	v.app.filterInputActive = true
 	if v.mainFlex != nil {
 		v.mainFlex.RemoveItem(v.tablePages)
 		v.mainFlex.RemoveItem(v.footer.footerFlex)
@@ -131,6 +134,7 @@ func (v *view) hideFilterInput() {
 		return
 	}
 	v.filterActive = false
+	v.app.filterInputActive = false
 	if v.filterApplyTimer != nil {
 		v.filterApplyTimer.Stop()
 		v.filterApplyTimer = nil

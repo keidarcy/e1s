@@ -172,3 +172,167 @@ func TestBuildResourcePage(t *testing.T) {
 		}
 	})
 }
+
+func TestViewStateKeyIncludesPageHandle(t *testing.T) {
+	app, _ := newApp(Option{})
+	app.kind = ServiceKind
+	app.cluster.ClusterArn = aws.String(clusterArn1)
+	cluster1Key := app.viewStateKey()
+
+	app.cluster.ClusterArn = aws.String(clusterArn2)
+	cluster2Key := app.viewStateKey()
+
+	if cluster1Key == cluster2Key {
+		t.Errorf("view state keys should differ between clusters, got %q", cluster1Key)
+	}
+}
+
+func TestCanAutoRefreshSkipsWhileFilterInputActive(t *testing.T) {
+	app, _ := newApp(Option{})
+	if !app.canAutoRefresh() {
+		t.Errorf("canAutoRefresh should allow refresh by default")
+	}
+
+	app.filterInputActive = true
+	if app.canAutoRefresh() {
+		t.Errorf("canAutoRefresh should skip while filter input is active")
+	}
+
+	app.filterInputActive = false
+	app.isSuspended = true
+	if app.canAutoRefresh() {
+		t.Errorf("canAutoRefresh should skip while app is suspended")
+	}
+
+	app.isSuspended = false
+	app.secondaryKind = DescriptionKind
+	if app.canAutoRefresh() {
+		t.Errorf("canAutoRefresh should skip while a secondary view is active")
+	}
+}
+
+func TestShowAndHideFilterInputTogglesAutoRefreshGuard(t *testing.T) {
+	app, _ := newApp(Option{})
+	v := newView(app, basicKeyInputs, nil)
+	v.initFilterInput()
+
+	err := v.showFilterInput()
+	if err != nil {
+		t.Errorf("Got: %v, Want: %v\n", err, nil)
+	}
+	if !app.filterInputActive {
+		t.Errorf("filterInputActive should be true after showing the filter input")
+	}
+	if app.canAutoRefresh() {
+		t.Errorf("canAutoRefresh should skip while the filter input is shown")
+	}
+
+	v.hideFilterInput()
+	if app.filterInputActive {
+		t.Errorf("filterInputActive should be false after hiding the filter input")
+	}
+}
+
+func TestFilterInputChangeSavesViewStateBeforeApply(t *testing.T) {
+	app, _ := newApp(Option{})
+	app.kind = ClusterKind
+	v := newView(app, basicKeyInputs, nil)
+	v.initFilterInput()
+
+	v.filterInput.SetText("bravo")
+
+	state, ok := app.viewStates[app.viewStateKey()]
+	if !ok {
+		t.Fatalf("view state should be saved when filter text changes")
+	}
+	if state.filterText != "bravo" {
+		t.Errorf("filterText Got: %q, Want: %q", state.filterText, "bravo")
+	}
+	if state.sortColumn != -1 {
+		t.Errorf("sortColumn Got: %d, Want: %d", state.sortColumn, -1)
+	}
+}
+
+func TestApplyFilterSavesNoSortState(t *testing.T) {
+	app, _ := newApp(Option{})
+	app.kind = ClusterKind
+	v := newView(app, basicKeyInputs, nil)
+	v.headers = []string{"Name"}
+	v.originalRowData = [][]string{
+		{"alpha"},
+		{"bravo"},
+	}
+	v.originalRowReferences = []Entity{
+		{entityName: "alpha"},
+		{entityName: "bravo"},
+	}
+	v.initFilterInput()
+	v.filterInput.SetText("a")
+
+	v.applyFilter()
+
+	state, ok := app.viewStates[app.viewStateKey()]
+	if !ok {
+		t.Fatalf("view state should be saved")
+	}
+	if state.filterText != "a" {
+		t.Errorf("filterText Got: %q, Want: %q", state.filterText, "a")
+	}
+	if state.sortColumn != -1 {
+		t.Errorf("sortColumn Got: %d, Want: %d", state.sortColumn, -1)
+	}
+	if state.sortOrder != "desc" {
+		t.Errorf("sortOrder Got: %q, Want: %q", state.sortOrder, "desc")
+	}
+}
+
+func TestBuildResourcePageRestoresFilterOnlyStateWithoutSorting(t *testing.T) {
+	app, _ := newApp(Option{})
+	app.kind = ClusterKind
+	app.viewStates[app.viewStateKey()] = viewState{
+		sortColumn: -1,
+		sortOrder:  "desc",
+		filterText: "br",
+	}
+
+	v := newView(app, basicKeyInputs, nil)
+	v.originalRowReferences = []Entity{
+		{entityName: "alpha"},
+		{entityName: "bravo"},
+		{entityName: "charlie"},
+	}
+	footer := tview.NewTextView().SetDynamicColors(true)
+	builder := &testResourceViewBuilder{
+		v:      v,
+		footer: footer,
+		title:  "clusters",
+		headers: []string{
+			"Name",
+		},
+		rows: [][]string{
+			{"alpha"},
+			{"bravo"},
+			{"charlie"},
+		},
+	}
+
+	err := buildResourcePage([]string{"resource"}, app, nil, func() resourceViewBuilder {
+		return builder
+	})
+	if err != nil {
+		t.Errorf("Got: %v, Want: %v\n", err, nil)
+	}
+	if v.filterInput.GetText() != "br" {
+		t.Errorf("filter input Got: %q, Want: %q", v.filterInput.GetText(), "br")
+	}
+	if v.table.GetRowCount() != 2 {
+		t.Errorf("RowCount Got: %d, Want: %d", v.table.GetRowCount(), 2)
+	}
+	firstRow := v.table.GetCell(1, 0).Text
+	if firstRow != "bravo" {
+		t.Errorf("first row Got: %q, Want filtered row %q", firstRow, "bravo")
+	}
+	if v.sortColumn != -1 {
+		t.Errorf("sortColumn Got: %d, Want: %d", v.sortColumn, -1)
+	}
+}

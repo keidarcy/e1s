@@ -61,6 +61,8 @@ func buildResourcePage[T any](
 
 	v.mainFlex = page
 	v.initFilterInput()
+	v.restoreViewState()
+
 	v.app.addAppPage(page)
 	v.table.Select(v.app.rowIndex, 0)
 	return nil
