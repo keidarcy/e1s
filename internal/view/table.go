@@ -170,7 +170,7 @@ func (v *view) handleSelected(row, column int) {
 		return
 
 	}
-	if v.app.kind == TaskDefinitionKind || v.app.kind == InstanceKind {
+	if v.app.kind == TaskDefinitionKind || v.app.kind == InstanceKind || v.app.kind == DaemonTaskDefinitionKind {
 		return
 	}
 	if v.app.kind == ContainerKind {
@@ -214,8 +214,21 @@ func (v *view) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 			return event
 		}
 	case 't':
-		if v.app.kind == ServiceKind || v.app.kind == TaskKind {
+		if v.app.kind == ServiceKind {
 			v.showKindPage(TaskDefinitionKind, false)
+			return event
+		}
+		if v.app.kind == TaskKind {
+			// Check if selected task belongs to a daemon (group starts with "daemon:")
+			if v.app.task != nil && v.app.task.Group != nil && strings.HasPrefix(*v.app.task.Group, "daemon:") {
+				v.showKindPage(DaemonTaskDefinitionKind, false)
+			} else {
+				v.showKindPage(TaskDefinitionKind, false)
+			}
+			return event
+		}
+		if v.app.kind == DaemonKind {
+			v.showKindPage(DaemonTaskDefinitionKind, false)
 			return event
 		}
 	case 'p':
@@ -269,6 +282,11 @@ func (v *view) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 		if v.app.kind == ClusterKind {
 			v.app.fromCluster = true
 			v.showKindPage(TaskKind, false)
+			return event
+		}
+	case 'M':
+		if v.app.kind == ClusterKind {
+			v.showKindPage(DaemonKind, false)
 			return event
 		}
 	case 'n':
@@ -483,6 +501,24 @@ func (v *view) changeSelectedValues() {
 		if instance != nil {
 			v.app.instance = selected.instance
 			v.app.entityName = *instance.ContainerInstanceArn
+		} else {
+			slog.Warn("unexpected in changeSelectedValues", "kind", v.app.kind)
+			return
+		}
+	case DaemonKind:
+		daemon := selected.daemonSummary
+		if daemon != nil {
+			v.app.daemonSummary = daemon
+			v.app.entityName = *daemon.DaemonArn
+		} else {
+			slog.Warn("unexpected in changeSelectedValues", "kind", v.app.kind)
+			return
+		}
+	case DaemonTaskDefinitionKind:
+		dtd := selected.daemonTaskDefinition
+		if dtd != nil {
+			v.app.daemonTaskDefinition = dtd
+			v.app.entityName = *dtd.DaemonTaskDefinitionArn
 		} else {
 			slog.Warn("unexpected in changeSelectedValues", "kind", v.app.kind)
 			return

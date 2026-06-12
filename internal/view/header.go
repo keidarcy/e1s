@@ -28,6 +28,7 @@ var hotKeyMap = map[string]keyDescriptionPair{
 	"p":      {key: "p", description: "Show service deployments"},
 	"n":      {key: "n", description: "Show related EC2 instances"},
 	"N":      {key: "shift-n", description: "Show all cluster tasks"},
+	"M":      {key: "shift-m", description: "Show managed daemons"},
 	"s":      {key: "s", description: "Shell access"},
 	"x":      {key: "x", description: "Toggle running/stopped tasks"},
 	"w":      {key: "w", description: "Show service events"},

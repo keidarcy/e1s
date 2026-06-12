@@ -26,20 +26,22 @@ var globalRegion string
 
 // Entity contains ECS resources to show, use uppercase to make items like app.cluster easy to access
 type Entity struct {
-	cluster           *types.Cluster
-	service           *types.Service
-	task              *types.Task
-	container         *types.Container
-	taskDefinition    *types.TaskDefinition
-	events            []types.ServiceEvent
-	metrics           *api.MetricsData
-	autoScaling       *api.AutoScalingData
-	instance          *types.ContainerInstance
-	serviceDeployment *types.ServiceDeployment
-	serviceRevision   *types.ServiceRevision
-	profile           string
-	region            *api.Region
-	entityName        string
+	cluster              *types.Cluster
+	service              *types.Service
+	task                 *types.Task
+	container            *types.Container
+	taskDefinition       *types.TaskDefinition
+	daemonSummary        *types.DaemonSummary
+	daemonTaskDefinition *types.DaemonTaskDefinition
+	events               []types.ServiceEvent
+	metrics              *api.MetricsData
+	autoScaling          *api.AutoScalingData
+	instance             *types.ContainerInstance
+	serviceDeployment    *types.ServiceDeployment
+	serviceRevision      *types.ServiceRevision
+	profile              string
+	region               *api.Region
+	entityName           string
 }
 
 type Option struct {
@@ -287,6 +289,12 @@ func (app *App) getPageHandle() string {
 	switch app.kind {
 	case ServiceKind:
 		name = *app.cluster.ClusterArn
+	case DaemonKind:
+		name = *app.cluster.ClusterArn
+	case DaemonTaskDefinitionKind:
+		if app.daemonSummary != nil && app.daemonSummary.DaemonArn != nil {
+			name = *app.daemonSummary.DaemonArn
+		}
 	case TaskKind, TaskDefinitionKind, ServiceDeploymentKind:
 		name = *app.service.ServiceArn
 	case ContainerKind:
@@ -347,7 +355,7 @@ func (app *App) start() error {
 // Show Primary kind page
 func (app *App) showPrimaryKindPage(k kind, reload bool) error {
 	var err error
-	if k == TaskDefinitionKind {
+	if k == TaskDefinitionKind || k == DaemonTaskDefinitionKind {
 		app.backKind = app.kind
 	}
 	app.kind = k
@@ -364,6 +372,10 @@ func (app *App) showPrimaryKindPage(k kind, reload bool) error {
 		err = app.showContainersPage(reload)
 	case TaskDefinitionKind:
 		err = app.showTaskDefinitionPage(reload)
+	case DaemonKind:
+		err = app.showDaemonsPage(reload)
+	case DaemonTaskDefinitionKind:
+		err = app.showDaemonTaskDefinitionPage(reload)
 	case ServiceDeploymentKind:
 		err = app.showServiceDeploymentPage(reload)
 	default:
