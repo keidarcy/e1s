@@ -251,6 +251,10 @@ func (v *view) getJsonString(entity Entity) (string, []byte, error) {
 		data = entity.container
 	case entity.taskDefinition != nil && v.app.kind == TaskDefinitionKind:
 		data = entity.taskDefinition
+	case entity.daemonSummary != nil && v.app.kind == DaemonKind:
+		data = entity.daemonSummary
+	case entity.daemonTaskDefinition != nil && v.app.kind == DaemonTaskDefinitionKind:
+		data = entity.daemonTaskDefinition
 	case entity.metrics != nil:
 		data = entity.metrics
 	case entity.autoScaling != nil:
