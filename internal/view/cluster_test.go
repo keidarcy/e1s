@@ -45,8 +45,8 @@ func getClusterViews() []clusterView {
 	cluster2.ActiveServicesCount = *clusterServices2
 
 	app, _ := newApp(Option{})
-	clusterView1 := newClusterView([]types.Cluster{cluster1}, app)
-	clusterView2 := newClusterView([]types.Cluster{cluster2}, app)
+	clusterView1 := newClusterView([]types.Cluster{cluster1}, map[string]int{}, app)
+	clusterView2 := newClusterView([]types.Cluster{cluster2}, map[string]int{}, app)
 
 	return []clusterView{*clusterView1, *clusterView2}
 }
