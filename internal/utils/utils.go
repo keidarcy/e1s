@@ -176,6 +176,9 @@ func ArnToUrl(arn string, taskService string) string {
 }
 
 func OpenURL(url string) error {
+	if url == "" {
+		return fmt.Errorf("error on open empty string")
+	}
 	var err error
 
 	switch runtime.GOOS {
