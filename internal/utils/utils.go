@@ -25,6 +25,8 @@ const (
 	serviceURLFmt           = clusterFmt + serviceFmt + regionFmt
 	taskURLFmt              = clusterFmt + serviceFmt + taskFmt + regionFmt
 	taskDefinitionURLFmt    = "https://%s.console.aws.amazon.com/ecs/v2/task-definitions/%s/%s/containers?region=%s"
+	daemonURLFmt            = clusterFmt + "/daemons/%s/health" + regionFmt
+	daemonTaskDefinitionFmt = "https://%s.console.aws.amazon.com/ecs/v2/daemon-task-definitions/%s/%s/containers?region=%s"
 	serviceDeploymentURLFmt = "https://%s.console.aws.amazon.com/ecs/v2/clusters/%s/services/%s/service-deployments/%s?region=%s"
 )
 
@@ -96,6 +98,10 @@ func ShowGreenGrey(inputStr *string, greenStr string) string {
 // TaskARN not contains service but need service name as second argument
 func ArnToUrl(arn string, taskService string) string {
 	components := strings.Split(arn, ":")
+	if len(components) < 6 {
+		return ""
+	}
+
 	resources := components[len(components)-1]
 	names := strings.Split(resources, "/")
 	_, err := strconv.Atoi(resources)
@@ -105,6 +111,9 @@ func ArnToUrl(arn string, taskService string) string {
 		names = strings.Split(resources, "/")
 		names = append(names, components[len(components)-1])
 	}
+	if len(names) == 0 {
+		return ""
+	}
 
 	region := components[3]
 	clusterName := ""
@@ -113,25 +122,54 @@ func ArnToUrl(arn string, taskService string) string {
 
 	switch names[0] {
 	case "cluster":
+		if len(names) < 2 {
+			return ""
+		}
 		clusterName = names[1]
 		return fmt.Sprintf(clusterURLFmt, region, clusterName, region)
 	case "service":
+		if len(names) < 3 {
+			return ""
+		}
 		clusterName = names[1]
 		serviceName = names[2]
 		return fmt.Sprintf(serviceURLFmt, region, clusterName, serviceName, region)
 	case "service-deployment":
+		if len(names) < 4 {
+			return ""
+		}
 		clusterName = names[1]
 		serviceName = names[2]
 		deploymentId := names[3]
 		return fmt.Sprintf(serviceDeploymentURLFmt, region, clusterName, serviceName, deploymentId, region)
 	case "task", "container":
+		if len(names) < 3 {
+			return ""
+		}
 		clusterName = names[1]
 		taskName = names[2]
 		return fmt.Sprintf(taskURLFmt, region, clusterName, taskService, taskName, region)
 	case "task-definition":
+		if len(names) < 3 {
+			return ""
+		}
 		taskDefName := names[1]
 		revision := names[2]
 		return fmt.Sprintf(taskDefinitionURLFmt, region, taskDefName, revision, region)
+	case "daemon":
+		if len(names) < 3 {
+			return ""
+		}
+		clusterName = names[1]
+		daemonName := names[2]
+		return fmt.Sprintf(daemonURLFmt, region, clusterName, daemonName, region)
+	case "daemon-task-definition":
+		if len(names) < 3 {
+			return ""
+		}
+		taskDefName := names[1]
+		revision := names[2]
+		return fmt.Sprintf(daemonTaskDefinitionFmt, region, taskDefName, revision, region)
 	default:
 		return ""
 	}

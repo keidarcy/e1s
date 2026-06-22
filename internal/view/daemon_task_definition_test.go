@@ -87,6 +87,9 @@ func TestDaemonTaskDefinitionTableParamsBuilder(t *testing.T) {
 	if headers[0] != "Revision" {
 		t.Errorf("Header[0] Got: %s, Want: Revision", headers[0])
 	}
+	if headers[2] != "In use" {
+		t.Errorf("Header[2] Got: %s, Want: In use", headers[2])
+	}
 
 	matrix := rowsBuilder()
 	if len(matrix) != 2 {
@@ -96,14 +99,14 @@ func TestDaemonTaskDefinitionTableParamsBuilder(t *testing.T) {
 	if matrix[0][0] != "my-daemon:1" {
 		t.Errorf("Revision Got: %s, Want: my-daemon:1", matrix[0][0])
 	}
-	if matrix[0][2] != "256" {
-		t.Errorf("CPU Got: %s, Want: 256", matrix[0][2])
+	if matrix[0][3] != "256" {
+		t.Errorf("CPU Got: %s, Want: 256", matrix[0][3])
 	}
 	// Second row: my-daemon:2
 	if matrix[1][0] != "my-daemon:2" {
 		t.Errorf("Revision Got: %s, Want: my-daemon:2", matrix[1][0])
 	}
-	if matrix[1][4] != "2" {
-		t.Errorf("Containers Got: %s, Want: 2", matrix[1][4])
+	if matrix[1][5] != "2" {
+		t.Errorf("Containers Got: %s, Want: 2", matrix[1][5])
 	}
 }

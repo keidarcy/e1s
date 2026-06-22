@@ -136,9 +136,11 @@ func (v *taskDefinitionView) tableParamsBuilder() (title string, headers []strin
 	title = fmt.Sprintf(color.TableTitleFmt, v.app.kind, serviceName, len(v.taskDefinitions))
 	headers = []string{
 		"Revision",
+		"Status",
 		"In use",
 		"CPU",
 		"Memory",
+		"Containers",
 		"Age",
 	}
 
@@ -149,35 +151,18 @@ func (v *taskDefinitionView) tableParamsBuilder() (title string, headers []strin
 				inUse = "Yes"
 			}
 
-			var cpu string
-			if t.Cpu == nil {
-				sum := 0
-				for _, c := range t.ContainerDefinitions {
-					sum += int(c.Cpu)
-				}
-				cpu = strconv.Itoa(sum)
-			} else {
-				cpu = *t.Cpu
-			}
-
-			var memory string
-			if t.Memory == nil {
-				sum := 0
-				for _, c := range t.ContainerDefinitions {
-					if c.Memory != nil {
-						sum += int(*c.Memory)
-					}
-				}
-				memory = strconv.Itoa(sum)
-			} else {
-				memory = *t.Memory
-			}
+			cpu, memory := taskDefinitionResources(t.Cpu, t.Memory, len(t.ContainerDefinitions), func(i int) (int32, *int32) {
+				c := t.ContainerDefinitions[i]
+				return c.Cpu, c.Memory
+			})
 
 			row := []string{}
 			row = append(row, utils.ArnToName(t.TaskDefinitionArn))
+			row = append(row, string(t.Status))
 			row = append(row, utils.ShowGreenGrey(&inUse, "yes"))
 			row = append(row, cpu)
 			row = append(row, memory)
+			row = append(row, strconv.Itoa(len(t.ContainerDefinitions)))
 			row = append(row, utils.Age(t.RegisteredAt))
 			data = append(data, row)
 
@@ -188,4 +173,30 @@ func (v *taskDefinitionView) tableParamsBuilder() (title string, headers []strin
 	}
 
 	return
+}
+
+func taskDefinitionResources(cpu *string, memory *string, containerCount int, containerResources func(int) (int32, *int32)) (string, string) {
+	cpuValue := utils.ShowString(cpu)
+	memoryValue := utils.ShowString(memory)
+	if cpu != nil && memory != nil {
+		return cpuValue, memoryValue
+	}
+
+	cpuSum := 0
+	memorySum := 0
+	for i := 0; i < containerCount; i++ {
+		containerCPU, containerMemory := containerResources(i)
+		cpuSum += int(containerCPU)
+		if containerMemory != nil {
+			memorySum += int(*containerMemory)
+		}
+	}
+
+	if cpu == nil {
+		cpuValue = strconv.Itoa(cpuSum)
+	}
+	if memory == nil {
+		memoryValue = strconv.Itoa(memorySum)
+	}
+	return cpuValue, memoryValue
 }

@@ -550,6 +550,14 @@ func (v *view) openInBrowser() {
 		arn = *v.app.task.TaskArn
 	case TaskDefinitionKind:
 		arn = *v.app.taskDefinition.TaskDefinitionArn
+	case DaemonKind:
+		if selected.daemonSummary != nil && selected.daemonSummary.DaemonArn != nil {
+			arn = *selected.daemonSummary.DaemonArn
+		}
+	case DaemonTaskDefinitionKind:
+		if selected.daemonTaskDefinition != nil && selected.daemonTaskDefinition.DaemonTaskDefinitionArn != nil {
+			arn = *selected.daemonTaskDefinition.DaemonTaskDefinitionArn
+		}
 	case ServiceDeploymentKind:
 		arn = *v.app.serviceDeployment.ServiceDeploymentArn
 	}

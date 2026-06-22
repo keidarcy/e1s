@@ -105,16 +105,19 @@ func (v *daemonTaskDefinitionView) headerPageItems(index int) (items []headerIte
 }
 
 func (v *daemonTaskDefinitionView) tableParamsBuilder() (title string, headers []string, rowsBuilder func() [][]string) {
-	parent := ""
+	parent, td := "", ""
 	if v.app.daemonSummary != nil && v.app.daemonSummary.DaemonArn != nil {
 		parent = utils.ArnToName(v.app.daemonSummary.DaemonArn)
+		td = *v.app.daemonSummary.DaemonArn
 	} else if v.app.task != nil && v.app.task.TaskDefinitionArn != nil {
 		parent = utils.ArnToName(v.app.task.TaskDefinitionArn)
+		td = *v.app.task.TaskDefinitionArn
 	}
 	title = fmt.Sprintf(color.TableTitleFmt, v.app.kind, parent, len(v.taskDefinitions))
 	headers = []string{
 		"Revision",
 		"Status",
+		"In use",
 		"CPU",
 		"Memory",
 		"Containers",
@@ -123,18 +126,23 @@ func (v *daemonTaskDefinitionView) tableParamsBuilder() (title string, headers [
 
 	rowsBuilder = func() (data [][]string) {
 		for _, t := range v.taskDefinitions {
-			status := string(t.Status)
-			cpu := utils.ShowString(t.Cpu)
-			memory := utils.ShowString(t.Memory)
-
-			row := []string{
-				fmt.Sprintf("%s:%d", utils.ShowString(t.Family), t.Revision),
-				utils.ShowGreenGrey(&status, "active"),
-				cpu,
-				memory,
-				strconv.Itoa(len(t.ContainerDefinitions)),
-				utils.Age(t.RegisteredAt),
+			inUse := "-"
+			if td == *t.DaemonTaskDefinitionArn {
+				inUse = "Yes"
 			}
+			cpu, memory := taskDefinitionResources(t.Cpu, t.Memory, len(t.ContainerDefinitions), func(i int) (int32, *int32) {
+				c := t.ContainerDefinitions[i]
+				return c.Cpu, c.Memory
+			})
+
+			row := []string{}
+			row = append(row, utils.ArnToName(t.DaemonTaskDefinitionArn))
+			row = append(row, string(t.Status))
+			row = append(row, utils.ShowGreenGrey(&inUse, "yes"))
+			row = append(row, cpu)
+			row = append(row, memory)
+			row = append(row, strconv.Itoa(len(t.ContainerDefinitions)))
+			row = append(row, utils.Age(t.RegisteredAt))
 			data = append(data, row)
 
 			entity := Entity{daemonTaskDefinition: &t, entityName: *t.DaemonTaskDefinitionArn}

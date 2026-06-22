@@ -13,11 +13,10 @@ import (
 
 type clusterView struct {
 	view
-	clusters     []types.Cluster
-	daemonCounts map[string]int
+	clusters []types.Cluster
 }
 
-func newClusterView(clusters []types.Cluster, daemonCounts map[string]int, app *App) *clusterView {
+func newClusterView(clusters []types.Cluster, app *App) *clusterView {
 	keys := append(basicKeyInputs, []keyDescriptionPair{
 		hotKeyMap["n"],
 		hotKeyMap["N"],
@@ -27,8 +26,7 @@ func newClusterView(clusters []types.Cluster, daemonCounts map[string]int, app *
 		view: *newView(app, keys, secondaryPageKeyMap{
 			DescriptionKind: describePageKeys,
 		}),
-		clusters:     clusters,
-		daemonCounts: daemonCounts,
+		clusters: clusters,
 	}
 }
 
@@ -47,14 +45,7 @@ func (app *App) showClustersPage(reload bool) error {
 		resources, err = app.Store.ListClusters()
 	}
 	err = buildResourcePage(resources, app, err, func() resourceViewBuilder {
-		daemonCounts := make(map[string]int)
-		for _, c := range resources {
-			daemons, dErr := app.Store.ListDaemons(c.ClusterArn)
-			if dErr == nil {
-				daemonCounts[*c.ClusterArn] = len(daemons)
-			}
-		}
-		return newClusterView(resources, daemonCounts, app)
+		return newClusterView(resources, app)
 	})
 	return err
 }
@@ -151,7 +142,6 @@ func (v *clusterView) tableParamsBuilder() (title string, headers []string, rows
 		"Name",
 		"Status",
 		"Services",
-		"Daemons",
 		"Tasks",
 		"Container instances",
 		"Capacity providers",
@@ -162,13 +152,10 @@ func (v *clusterView) tableParamsBuilder() (title string, headers []string, rows
 			// calculate tasks
 			tasks := fmt.Sprintf(color.TableClusterTasksFmt, c.PendingTasksCount, c.RunningTasksCount)
 
-			daemonCount := v.daemonCounts[*c.ClusterArn]
-
 			row := []string{}
 			row = append(row, utils.ShowString(c.ClusterName))
 			row = append(row, utils.ShowGreenGrey(c.Status, "active"))
 			row = append(row, utils.ShowInt(&c.ActiveServicesCount))
-			row = append(row, strconv.Itoa(daemonCount))
 			row = append(row, tasks)
 			row = append(row, utils.ShowInt(&c.RegisteredContainerInstancesCount)+" EC2")
 			row = append(row, utils.ShowArray(c.CapacityProviders))

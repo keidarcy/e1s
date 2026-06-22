@@ -12,6 +12,8 @@ const (
 	serviceArnFmt        = "arn:aws:ecs:%s:111111:service/%s/%s"
 	taskArnFmt           = "arn:aws:ecs:%s:111111:task/%s/%s"
 	taskDefinitionArnFmt = "arn:aws:ecs:%s:111111:task-definition/%s:%s"
+	daemonArnFmt         = "arn:aws:ecs:%s:111111:daemon/%s/%s"
+	daemonTdArnFmt       = "arn:aws:ecs:%s:111111:daemon-task-definition/%s:%s"
 )
 
 func TestArnToURL(t *testing.T) {
@@ -25,6 +27,8 @@ func TestArnToURL(t *testing.T) {
 	taskService1 := "taskService1"
 	taskDef1 := "my-task-def"
 	revision1 := "1"
+	daemon1 := "daemon1"
+	daemonTaskDef1 := "my-daemon-task-def"
 	arn1 := fmt.Sprintf(clusterArnFmt, testRegion, cluster1)
 	url1 := fmt.Sprintf(clusterURLFmt, testRegion, cluster1, testRegion)
 	arn2 := fmt.Sprintf(serviceArnFmt, testRegion, cluster1, service1)
@@ -33,6 +37,10 @@ func TestArnToURL(t *testing.T) {
 	url3 := fmt.Sprintf(taskURLFmt, testRegion, cluster1, taskService1, task1, testRegion)
 	arn4 := fmt.Sprintf(taskDefinitionArnFmt, testRegion, taskDef1, revision1)
 	url4 := fmt.Sprintf(taskDefinitionURLFmt, testRegion, taskDef1, revision1, testRegion)
+	arn5 := fmt.Sprintf(daemonArnFmt, testRegion, cluster1, daemon1)
+	url5 := fmt.Sprintf(daemonURLFmt, testRegion, cluster1, daemon1, testRegion)
+	arn6 := fmt.Sprintf(daemonTdArnFmt, testRegion, daemonTaskDef1, revision1)
+	url6 := fmt.Sprintf(daemonTaskDefinitionFmt, testRegion, daemonTaskDef1, revision1, testRegion)
 
 	testCases := []struct {
 		name string
@@ -70,6 +78,46 @@ func TestArnToURL(t *testing.T) {
 				taskService: "",
 			},
 			want: url4,
+		},
+		{
+			name: "daemon arn convert",
+			args: Args{
+				arn:         arn5,
+				taskService: "",
+			},
+			want: url5,
+		},
+		{
+			name: "daemon task definition arn convert",
+			args: Args{
+				arn:         arn6,
+				taskService: "",
+			},
+			want: url6,
+		},
+		{
+			name: "empty arn",
+			args: Args{
+				arn:         "",
+				taskService: "",
+			},
+			want: "",
+		},
+		{
+			name: "malformed arn",
+			args: Args{
+				arn:         "not-an-arn",
+				taskService: "",
+			},
+			want: "",
+		},
+		{
+			name: "incomplete cluster arn",
+			args: Args{
+				arn:         "arn:aws:ecs:us-east-1:111111:cluster",
+				taskService: "",
+			},
+			want: "",
 		},
 	}
 

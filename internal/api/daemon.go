@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/ecs"
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
 )
@@ -58,11 +59,10 @@ func (store *Store) DescribeDaemon(daemonArn *string) (*types.DaemonDetail, erro
 // aws ecs list-daemon-task-definitions --family ${family}
 // aws ecs describe-daemon-task-definition --daemon-task-definition ${arn}
 func (store *Store) ListDaemonTaskDefinitions(family *string) ([]types.DaemonTaskDefinition, error) {
-	limit := int32(20)
 	output, err := store.ecs.ListDaemonTaskDefinitions(context.Background(), &ecs.ListDaemonTaskDefinitionsInput{
-		Family:    family,
-		MaxResults: &limit,
-		Sort:      types.SortOrderDesc,
+		Family:     family,
+		MaxResults: aws.Int32(MaxTaskDefinitionRevision),
+		Sort:       types.SortOrderDesc,
 	})
 	if err != nil {
 		slog.Warn("failed to run aws api to list daemon task definitions", "error", err)
