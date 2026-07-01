@@ -7,7 +7,7 @@ require (
 	github.com/atotto/clipboard v0.1.4
 	github.com/aws/aws-sdk-go-v2 v1.42.0
 	github.com/aws/aws-sdk-go-v2/config v1.32.17
-	github.com/aws/aws-sdk-go-v2/service/account v1.31.0
+	github.com/aws/aws-sdk-go-v2/service/account v1.32.5
 	github.com/aws/aws-sdk-go-v2/service/applicationautoscaling v1.41.13
 	github.com/aws/aws-sdk-go-v2/service/cloudwatch v1.55.2
 	github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.71.1
