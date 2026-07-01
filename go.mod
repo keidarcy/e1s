@@ -11,7 +11,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/applicationautoscaling v1.41.13
 	github.com/aws/aws-sdk-go-v2/service/cloudwatch v1.55.2
 	github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.71.1
-	github.com/aws/aws-sdk-go-v2/service/ecs v1.83.0
+	github.com/aws/aws-sdk-go-v2/service/ecs v1.86.1
 	github.com/aws/aws-sdk-go-v2/service/ssm v1.68.3
 	github.com/gdamore/tcell/v2 v2.13.9
 	github.com/keidarcy/aws-regions/v3 v3.0.0-20260309105808-fbc1ba25ea42
