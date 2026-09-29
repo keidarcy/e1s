@@ -472,7 +472,6 @@ func (app *App) globalInputHandle(event *tcell.EventKey) *tcell.EventKey {
 
 	return event
 }
-
 func (app *App) LogValue() slog.Value {
 	return slog.AnyValue(struct {
 		kind          string
