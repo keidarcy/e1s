@@ -112,6 +112,8 @@ type App struct {
 	filterInputActive bool
 	// Region the user was sent back from because it holds no ECS clusters
 	regionWithoutClusters string
+	// Cached regions view, retained so its title can track navigation state.
+	regionsView *regionView
 	// Show selected status tasks
 	taskStatus types.DesiredStatus
 	// Show resources from cluster

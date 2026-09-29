@@ -14,17 +14,22 @@ type regionView struct {
 }
 
 func newRegionView(regions []api.Region, app *App) *regionView {
-	return &regionView{
+	v := &regionView{
 		view: *newView(app, tableInputs, secondaryPageKeyMap{
 			DescriptionKind: describePageKeys,
 		}),
 		regions: regions,
 	}
+	app.regionsView = v
+	return v
 }
 
 func (app *App) showRegionsPage(reload bool) error {
 	app.kind = RegionKind
 	if switched := app.switchPage(reload); switched {
+		if app.regionsView != nil {
+			app.regionsView.table.SetTitle(app.regionsView.tableTitle())
+		}
 		return nil
 	}
 
@@ -63,13 +68,16 @@ func (v *regionView) headerPageItems(index int) (items []headerItem) {
 	return
 }
 
-// Generate table params
-func (v *regionView) tableParamsBuilder() (title string, headers []string, rowsBuilder func() [][]string) {
+func (v *regionView) tableTitle() string {
 	scope := "all"
 	if v.app.regionWithoutClusters != "" {
-		scope = "no ECS clusters in " + v.app.regionWithoutClusters + ", choose another "
+		scope = " no ECS clusters in " + v.app.regionWithoutClusters + " "
 	}
-	title = fmt.Sprintf(color.TableTitleFmt, v.app.kind, scope, len(v.regions))
+	return fmt.Sprintf(color.TableTitleFmt, RegionKind, scope, len(v.regions))
+}
+
+func (v *regionView) tableParamsBuilder() (title string, headers []string, rowsBuilder func() [][]string) {
+	title = v.tableTitle()
 	headers = []string{
 		"Code",
 		"Name",
