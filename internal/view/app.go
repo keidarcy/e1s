@@ -441,14 +441,15 @@ func (app *App) globalInputHandle(event *tcell.EventKey) *tcell.EventKey {
 	case tcell.KeyCtrlP:
 		app.kind = ProfileKind
 		app.showProfilesPage(false)
+		return nil
 	case tcell.KeyCtrlR:
 		app.kind = RegionKind
 		app.showRegionsPage(false)
+		return nil
 	}
 
 	return event
 }
-
 func (app *App) LogValue() slog.Value {
 	return slog.AnyValue(struct {
 		kind          string
