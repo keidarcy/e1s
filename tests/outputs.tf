@@ -20,3 +20,8 @@ output "s3_name" {
 output "redis_host" {
   value = aws_elasticache_cluster.test_redis[*].cache_nodes[0].address
 }
+
+output "firelens_service" {
+  description = "ECS Service shipping its logs through FireLens"
+  value       = aws_ecs_service.firelens[*].name
+}

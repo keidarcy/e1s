@@ -17,3 +17,8 @@ variable "side_resource" {
   type    = bool
   default = false
 }
+
+variable "firelens" {
+  type    = bool
+  default = true
+}
