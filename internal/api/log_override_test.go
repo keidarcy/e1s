@@ -27,7 +27,7 @@ func TestResolveLogLocation(t *testing.T) {
 
 	tests := []struct {
 		name       string
-		locations  []LogLocation
+		overrides  []CloudwatchLogOverride
 		container  types.ContainerDefinition
 		wantGroup  string
 		wantStream string
@@ -47,7 +47,7 @@ func TestResolveLogLocation(t *testing.T) {
 		},
 		{
 			name:       "firelens with matching config",
-			locations:  []LogLocation{{Family: "web-*", Container: "app", Group: "/firelens/web", Stream: "{container}-firelens-{taskId}"}},
+			overrides:  []CloudwatchLogOverride{{Family: "web-*", Container: "app", Group: "/firelens/web", Stream: "{container}-firelens-{taskId}"}},
 			container:  firelensContainer,
 			wantGroup:  "/firelens/web",
 			wantStream: "app-firelens-task-id",
@@ -55,7 +55,7 @@ func TestResolveLogLocation(t *testing.T) {
 		},
 		{
 			name:       "empty patterns match every container",
-			locations:  []LogLocation{{Group: "/firelens/web"}},
+			overrides:  []CloudwatchLogOverride{{Group: "/firelens/web"}},
 			container:  firelensContainer,
 			wantGroup:  "/firelens/web",
 			wantStream: "app/task-id",
@@ -63,13 +63,13 @@ func TestResolveLogLocation(t *testing.T) {
 		},
 		{
 			name:      "not matching family falls back",
-			locations: []LogLocation{{Family: "worker-*", Group: "/firelens/worker"}},
+			overrides: []CloudwatchLogOverride{{Family: "worker-*", Group: "/firelens/worker"}},
 			container: firelensContainer,
 			wantOk:    false,
 		},
 		{
 			name:       "config wins over awslogs options",
-			locations:  []LogLocation{{Container: "app", Group: "/firelens/web"}},
+			overrides:  []CloudwatchLogOverride{{Container: "app", Group: "/firelens/web"}},
 			container:  awslogsContainer,
 			wantGroup:  "/firelens/web",
 			wantStream: "app/task-id",
@@ -77,13 +77,13 @@ func TestResolveLogLocation(t *testing.T) {
 		},
 		{
 			name:      "entry without group keeps the log driver defaults",
-			locations: []LogLocation{{Container: "app"}, {Group: "/firelens/web"}},
+			overrides: []CloudwatchLogOverride{{Container: "app"}, {Group: "/firelens/web"}},
 			container: firelensContainer,
 			wantOk:    false,
 		},
 		{
 			name:       "entry without group falls back to awslogs options",
-			locations:  []LogLocation{{Container: "app"}, {Group: "/firelens/web"}},
+			overrides:  []CloudwatchLogOverride{{Container: "app"}, {Group: "/firelens/web"}},
 			container:  awslogsContainer,
 			wantGroup:  "/ecs/app",
 			wantStream: "ecs/app/task-id",
@@ -98,7 +98,7 @@ func TestResolveLogLocation(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			group, stream, ok := resolveLogLocation(tt.locations, "web-app", tt.container, "task-id")
+			group, stream, ok := resolveLogLocation(tt.overrides, "web-app", tt.container, "task-id")
 			if ok != tt.wantOk {
 				t.Fatalf("ok got %v, want %v", ok, tt.wantOk)
 			}

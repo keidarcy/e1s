@@ -12,10 +12,10 @@ import (
 
 const defaultStreamTemplate = "{container}/{taskId}"
 
-// LogLocation is a user configured cloudwatch log location, it makes logs
+// CloudwatchLogOverride is a user configured cloudwatch log location, it makes logs
 // readable for containers whose log driver is not awslogs(awsfirelens, fluentd
 // and so on) or whose log group can not be derived from the task definition.
-type LogLocation struct {
+type CloudwatchLogOverride struct {
 	// Task definition family glob, empty matches every family
 	Family string `mapstructure:"family"`
 	// Container name glob, empty matches every container
@@ -28,36 +28,36 @@ type LogLocation struct {
 }
 
 var (
-	logLocationsOnce sync.Once
-	logLocations     []LogLocation
+	logOverridesOnce sync.Once
+	logOverrides     []CloudwatchLogOverride
 )
 
-func configuredLogLocations() []LogLocation {
-	logLocationsOnce.Do(func() {
-		if err := viper.UnmarshalKey("log-locations", &logLocations); err != nil {
-			slog.Warn("failed to read log-locations config", "error", err)
-			logLocations = nil
+func configuredLogOverrides() []CloudwatchLogOverride {
+	logOverridesOnce.Do(func() {
+		if err := viper.UnmarshalKey("cloudwatch-log-overrides", &logOverrides); err != nil {
+			slog.Warn("failed to read cloudwatch-log-overrides config", "error", err)
+			logOverrides = nil
 		}
-		slog.Debug("log locations", "logLocations", logLocations)
+		slog.Debug("cloudwatch log overrides", "logOverrides", logOverrides)
 	})
-	return logLocations
+	return logOverrides
 }
 
 // ResolveLogLocation returns the cloudwatch log group and log stream name of a
-// container. A matching user configured log location wins, otherwise fall back
+// container. A matching user configured log override wins, otherwise fall back
 // to the awslogs log driver options. ok is false when the container has no
 // readable cloudwatch logs.
 func ResolveLogLocation(family string, c types.ContainerDefinition, taskId string) (group string, stream string, ok bool) {
-	return resolveLogLocation(configuredLogLocations(), family, c, taskId)
+	return resolveLogLocation(configuredLogOverrides(), family, c, taskId)
 }
 
-func resolveLogLocation(locations []LogLocation, family string, c types.ContainerDefinition, taskId string) (group string, stream string, ok bool) {
+func resolveLogLocation(overrides []CloudwatchLogOverride, family string, c types.ContainerDefinition, taskId string) (group string, stream string, ok bool) {
 	containerName := ""
 	if c.Name != nil {
 		containerName = *c.Name
 	}
 
-	for _, l := range locations {
+	for _, l := range overrides {
 		if !globMatch(l.Family, family) || !globMatch(l.Container, containerName) {
 			continue
 		}
@@ -100,7 +100,7 @@ func globMatch(pattern, value string) bool {
 	}
 	matched, err := path.Match(pattern, value)
 	if err != nil {
-		slog.Warn("invalid log-locations pattern", "pattern", pattern, "error", err)
+		slog.Warn("invalid cloudwatch-log-overrides pattern", "pattern", pattern, "error", err)
 		return false
 	}
 	return matched
