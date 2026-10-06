@@ -1,0 +1,29 @@
+# e1s config for the FireLens test service created by firelens.tf
+#   e1s --config-file tests/e1s-config.yml
+
+# AWS profile and region of providers.tf
+profile: e1s
+region: us-east-1
+cluster: e1s-cluster-0
+
+debug: true
+log-file: "/tmp/e1s.log"
+refresh: 10
+
+# Containers of e1s-firelens ship their logs through FireLens, FireLens names
+# each stream <log_stream_prefix><container>-firelens-<taskId>.
+# Containers of e1s-task-definition-* match no entry and keep reading their
+# awslogs options.
+cloudwatch-log-overrides:
+  # the log router logs with awslogs to /aws/ecs/e1s as usual
+  - family: "e1s-firelens"
+    container: "log-router"
+  # the worker ships to a group and a stream prefix of its own
+  - family: "e1s-firelens"
+    container: "worker"
+    group: "/ecs/e1s/firelens-worker"
+    stream: "worker/{container}-firelens-{taskId}"
+  # every other container of e1s-firelens
+  - family: "e1s-firelens"
+    group: "/ecs/e1s/firelens"
+    stream: "ecs/{container}-firelens-{taskId}"

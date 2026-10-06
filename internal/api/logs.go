@@ -9,7 +9,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs"
 	cloudwatchlogsTypes "github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs/types"
-	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
 )
 
 const (
@@ -45,14 +44,8 @@ func (store *Store) GetServiceLogs(tdArn *string) ([]string, error) {
 	logs := []string{}
 	logGroupNames := make(map[string]bool)
 	for _, c := range td.ContainerDefinitions {
-		if c.LogConfiguration == nil {
-			continue
-		}
-		if c.LogConfiguration.LogDriver != types.LogDriverAwslogs {
-			continue
-		}
-		groupName := c.LogConfiguration.Options["awslogs-group"]
-		if groupName == "" {
+		groupName, _, ok := ResolveLogLocation(aws.ToString(td.Family), c, "")
+		if !ok {
 			continue
 		}
 
@@ -119,24 +112,10 @@ func (store *Store) GetLogStreamLogs(tdArn *string, taskId string, containerName
 		if *c.Name != containerName && containerName != "" {
 			continue
 		}
-		if c.LogConfiguration == nil {
+		groupName, streamName, ok := ResolveLogLocation(aws.ToString(td.Family), c, taskId)
+		if !ok {
 			continue
 		}
-		if c.LogConfiguration.LogDriver != types.LogDriverAwslogs {
-			continue
-		}
-		groupName := c.LogConfiguration.Options["awslogs-group"]
-		if groupName == "" {
-			continue
-		}
-
-		streamPrefix := *c.Name
-
-		if _, ok := c.LogConfiguration.Options["awslogs-stream-prefix"]; ok {
-			streamPrefix = c.LogConfiguration.Options["awslogs-stream-prefix"]
-		}
-
-		streamName := fmt.Sprintf("%s/%s/%s", streamPrefix, *c.Name, taskId)
 
 		getLogEventsInput := &cloudwatchlogs.GetLogEventsInput{
 			LogGroupName:  &groupName,

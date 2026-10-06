@@ -20,7 +20,7 @@ var hotKeyMap = map[string]keyDescriptionPair{
 	"f":      {key: "f", description: "Toggle full screen"},
 	"h":      {key: "h, left arrow", description: "Back"},
 	"l":      {key: "l, right arrow", description: "Select"},
-	"L":      {key: "shift-l", description: "Show cloudwatch logs(Only support awslogs logDriver)"},
+	"L":      {key: "shift-l", description: "Show cloudwatch logs(awslogs logDriver or cloudwatch-log-overrides config)"},
 	"m":      {key: "m", description: "Show metrics(CPU/Memory)"},
 	"r":      {key: "r", description: "Refresh"},
 	"R":      {key: "shift-r", description: "Rollback service deployment"},

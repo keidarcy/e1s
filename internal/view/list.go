@@ -10,7 +10,8 @@ import (
 	"syscall"
 	"time"
 
-	ecsTypes "github.com/aws/aws-sdk-go-v2/service/ecs/types"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/keidarcy/e1s/internal/api"
 	"github.com/keidarcy/e1s/internal/utils"
 )
 
@@ -116,6 +117,10 @@ func (v *view) realtimeAwsLog(entity Entity) {
 		v.app.Notice.Warnf("failed to switchToLogsList")
 		return
 	}
+	taskId := ""
+	if v.app.task != nil {
+		taskId = utils.ArnToName(v.app.task.TaskArn)
+	}
 	for _, c := range td.ContainerDefinitions {
 		// if current container kind is not target container skip
 		if v.app.kind == ContainerKind {
@@ -124,19 +129,9 @@ func (v *view) realtimeAwsLog(entity Entity) {
 			}
 		}
 
-		// if current container has no log configuration skip
-		if c.LogConfiguration == nil {
-			continue
-		}
-
-		// if current container has no log driver
-		if c.LogConfiguration.LogDriver != ecsTypes.LogDriverAwslogs {
-			continue
-		}
-
-		groupName := c.LogConfiguration.Options["awslogs-group"]
-		// if current container log configuration has no awslogs-group
-		if groupName == "" {
+		// if current container has no readable cloudwatch logs skip
+		groupName, streamName, ok := api.ResolveLogLocation(aws.ToString(td.Family), c, taskId)
+		if !ok {
 			continue
 		}
 
@@ -145,14 +140,6 @@ func (v *view) realtimeAwsLog(entity Entity) {
 		if logGroup == "" || logGroup == groupName {
 			logGroup = groupName
 			canRealtime = true
-
-			// get log stream name
-			streamPrefix := *c.Name
-			if _, ok := c.LogConfiguration.Options["awslogs-stream-prefix"]; ok {
-				streamPrefix = c.LogConfiguration.Options["awslogs-stream-prefix"]
-			}
-			taskId := utils.ArnToName(v.app.task.TaskArn)
-			streamName := fmt.Sprintf("%s/%s/%s", streamPrefix, *c.Name, taskId)
 			logStreamNames = append(logStreamNames, streamName)
 		} else {
 			canRealtime = false

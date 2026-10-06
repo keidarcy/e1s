@@ -143,6 +143,70 @@ Typical settings you may want to manage in config are:
 - default `cluster` and `service`
 - `splash`
 - color overrides
+- `cloudwatch-log-overrides`
+
+### CloudWatch log overrides
+
+Logs are read from CloudWatch. When a container uses the `awslogs` log driver, the log group and log stream are taken from its log configuration, and nothing needs to be configured.
+
+Containers using another log driver(`awsfirelens`, `fluentd` and so on) carry no readable log location in their task definition, so `e1s` shows empty logs for them even when the logs do end up in CloudWatch. The `cloudwatch-log-overrides` config key declares where they land:
+
+```yaml
+cloudwatch-log-overrides:
+  - family: "web-*" # optional task definition family glob, empty matches every family
+    container: "app" # optional container name glob, empty matches every container
+    group: "/aws/firelens/web" # cloudwatch log group name
+    stream: "ecs/{container}-firelens-{taskId}" # optional, defaults to "{container}/{taskId}"
+```
+
+| Key | Required | Meaning |
+| --- | --- | --- |
+| `family` | no | Task definition family [glob](https://pkg.go.dev/path#Match), empty matches every family |
+| `container` | no | Container name glob, empty matches every container |
+| `group` | no | CloudWatch log group name, empty keeps the log driver defaults |
+| `stream` | no | Log stream name template, supports `{family}`, `{container}` and `{taskId}`, defaults to `{container}/{taskId}` |
+
+The first entry matching both `family` and `container` wins. A match takes precedence over the `awslogs` options, so the same key also points `e1s` at a different log group than the one a task definition declares. `stream` is used by task and container logs, service logs always read the most recent stream of the group.
+
+Only CloudWatch log groups can be read this way. Logs shipped to a destination outside CloudWatch(Splunk, Elasticsearch, S3) are not reachable.
+
+<details>
+  <summary>FireLens shipping to CloudWatch</summary>
+
+A FireLens sidecar writing to CloudWatch with `log_group_name /ecs/${CLUSTER_NAME}/${SERVICE_NAME}` and `log_stream_prefix ecs/`, where FireLens tags each container's logs `<container>-firelens-<taskId>`:
+
+```yaml
+cloudwatch-log-overrides:
+  - family: "prod-web"
+    group: "/ecs/prod/web"
+    stream: "ecs/{container}-firelens-{taskId}"
+```
+</details>
+
+<details>
+  <summary>Keeping a container on its own log driver</summary>
+
+An entry without a `group` keeps the log driver defaults for the containers it matches, which excludes them from a broader entry further down the list. A Fluent Bit sidecar usually logs to its own `awslogs` group so that diagnosing the log shipper does not depend on it:
+
+```yaml
+cloudwatch-log-overrides:
+  - container: "log-router" # reads its own awslogs group as usual
+  - family: "prod-*" # every other container of every prod service
+    group: "/ecs/prod/app"
+    stream: "ecs/{container}-firelens-{taskId}"
+```
+</details>
+
+<details>
+  <summary>Reading a log group the task definition does not declare</summary>
+
+```yaml
+cloudwatch-log-overrides:
+  - family: "batch-*"
+    container: "worker"
+    group: "/aws/batch/worker-aggregated"
+```
+</details>
 
 ### Theme and colors
 
@@ -265,7 +329,7 @@ tail -f /tmp/e1s.log
 - Describe task definitions.
 - Describe service autoscaling.
 - Open the selected resource in the AWS console.
-- View CloudWatch Logs for supported `awslogs` configurations.
+- View CloudWatch Logs for `awslogs` configurations, or any log location defined in the config file.
 - Start realtime log streaming for supported single-log-group cases.
 - Show service CPU and memory metrics.
 
@@ -451,7 +515,7 @@ ssm-custom-command: "sudo docker exec -it %s %s"
   - [x] Describe containers
   - [x] Describe task definitions
   - [x] Describe service autoscaling
-  - [x] Show cloudwatch logs(only support awslogs logDriver)
+  - [x] Show cloudwatch logs(awslogs logDriver, other logDrivers need `cloudwatch-log-overrides` config)
     - [x] Realtime log streaming(only support one log group)
   - [x] Show Metrics
     - [x] CPUUtilization

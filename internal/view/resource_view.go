@@ -83,6 +83,7 @@ func resourceViewPreHandler[T any](resources []T, app *App, err error) error {
 			// switched scope), so navigate to regions instead of switching to a
 			// non-existent page via back().
 			if !app.Pages.HasPage(clusterPage) {
+				app.regionWithoutClusters = globalRegion
 				if regionErr := app.showRegionsPage(false); regionErr != nil {
 					return fmt.Errorf("%s; failed to show regions: %w", errMsg, regionErr)
 				}

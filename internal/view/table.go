@@ -124,6 +124,16 @@ func (v *view) revertProfileOrRegion(to string, prev string) {
 	v.app.Store.SwitchAwsConfig(globalProfile, globalRegion)
 }
 
+// Handle selected event for table when press l or right arrow, the selected row
+// is read from the table, row zero is the header and carries no reference.
+func (v *view) handleSelectedRow() {
+	row, column := v.table.GetSelection()
+	if row == 0 {
+		row++
+	}
+	v.handleSelected(row, column)
+}
+
 // Handle selected event for table when press Enter
 func (v *view) handleSelected(row, column int) {
 	if v.app.kind == ProfileKind {
@@ -162,6 +172,15 @@ func (v *view) handleSelected(row, column int) {
 			err := v.app.showPrimaryKindPage(ClusterKind, false)
 			if err != nil {
 				v.revertProfileOrRegion("regions", prevRegion)
+				return
+			}
+			// The region holds no ECS clusters and the regions page was shown
+			// again. Nothing was switched to, so keep the session on the region
+			// that has pages, otherwise going back lands on a page that does
+			// not exist.
+			if v.app.regionWithoutClusters == globalRegion {
+				globalRegion = prevRegion
+				v.app.Store.SwitchAwsConfig(globalProfile, globalRegion)
 				return
 			}
 			v.app.Notice.Info(fmt.Sprintf("Switched to Profile: %s, Region: %s", globalProfile, globalRegion))
@@ -346,7 +365,7 @@ func (v *view) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 	case 'h':
 		v.handleDone(0)
 	case 'l':
-		v.handleSelected(0, 0)
+		v.handleSelectedRow()
 	}
 
 	// If it's composite keystroke, event.Key() is ctrl-char ascii code
@@ -356,7 +375,7 @@ func (v *view) handleInputCapture(event *tcell.EventKey) *tcell.EventKey {
 		v.handleDone(0)
 	// Handle right arrow key
 	case tcell.KeyRight:
-		v.handleSelected(0, 0)
+		v.handleSelectedRow()
 	case tcell.KeyCtrlZ:
 		v.handleDone(0)
 	case tcell.KeyF1:
