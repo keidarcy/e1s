@@ -13,7 +13,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.89.0
 	github.com/aws/aws-sdk-go-v2/service/ecs v1.100.0
 	github.com/aws/aws-sdk-go-v2/service/ssm v1.77.0
-	github.com/gdamore/tcell/v2 v2.13.9
+	github.com/gdamore/tcell/v2 v2.13.10
 	github.com/keidarcy/aws-regions/v3 v3.0.0-20260309105808-fbc1ba25ea42
 	github.com/lmittmann/tint v1.0.4
 	github.com/rivo/tview v0.0.0-20240413115534-b0d41c484b95
