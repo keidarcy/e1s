@@ -143,7 +143,7 @@ func (v *view) handleSelected(row, column int) {
 				v.revertProfileOrRegion("profiles", prevProfile)
 				return
 			}
-			v.app.Notice.Info(fmt.Sprintf("Switched to Profile: %s, Region: %s", globalProfile, globalRegion))
+			v.app.Notice.Info(fmt.Sprintf("Switched to Profile: %s, Region: %s", globalProfile, v.app.Store.Region))
 		}
 		return
 	}
@@ -164,7 +164,7 @@ func (v *view) handleSelected(row, column int) {
 				v.revertProfileOrRegion("regions", prevRegion)
 				return
 			}
-			v.app.Notice.Info(fmt.Sprintf("Switched to Profile: %s, Region: %s", globalProfile, globalRegion))
+			v.app.Notice.Info(fmt.Sprintf("Switched to Profile: %s, Region: %s", globalProfile, v.app.Store.Region))
 		}
 
 		return

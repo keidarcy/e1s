@@ -86,7 +86,7 @@ func resourceViewPreHandler[T any](resources []T, app *App, err error) error {
 				if regionErr := app.showRegionsPage(false); regionErr != nil {
 					return fmt.Errorf("%s; failed to show regions: %w", errMsg, regionErr)
 				}
-				app.Notice.Warnf("No clusters found in region %s. Choose another region.", globalRegion)
+				app.Notice.Warnf("No clusters found in region %s. Choose another region.", app.Store.Region)
 				return ErrHandledNavigation
 			}
 		}

@@ -90,7 +90,7 @@ func (v *view) addFooterItems() {
 	}
 
 	// aws profile and region
-	awsInfo := fmt.Sprintf("%s:%s", globalProfile, globalRegion)
+	awsInfo := fmt.Sprintf("%s:%s", globalProfile, v.app.Store.Region)
 	awsInfoView := tview.NewTextView().SetDynamicColors(true).SetText(fmt.Sprintf(color.FooterAwsFmt, awsInfo))
 	v.footer.footerFlex.AddItem(awsInfoView, len(awsInfo)+3, 0, false)
 
