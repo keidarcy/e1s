@@ -33,8 +33,10 @@ type SsmStartSessionInput struct {
 // --target ecs:${cluster_id}_${task_id}_${runtime_id}
 // --document-name AWS-StartPortForwardingSession
 // --parameters {"portNumber":["${port}"], "localPortNumber":["${local_port}"]}
-func (store *Store) StartSession(input *SsmStartSessionInput, profile string, region string) (*string, error) {
+func (store *Store) StartSession(input *SsmStartSessionInput, profile string) (*string, error) {
 	store.initSsmClient()
+	// The SDK resolves the region from env, flag or the profile in ~/.aws/config.
+	region := store.Region
 	smpCi := "session-manager-plugin"
 
 	target := fmt.Sprintf("ecs:%s_%s_%s", input.ClusterName, input.TaskId, input.RuntimeId)
